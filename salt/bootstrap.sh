@@ -1,6 +1,6 @@
 #!/bin/bash
 SALT=/srv/salt
-BORNEY=https://github.com/realulim/Bornemisza/salt
+BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
 # update system
 yum -y update
