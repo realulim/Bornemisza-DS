@@ -13,14 +13,12 @@ install_basics_groups:
   file.managed:
     - source: salt://files/basics/bash.sh
 
-public:
+firewall_zone_public:
   firewalld.present:
     - name: public
     - block_icmp:
       - echo-reply
       - echo-request
-    - default: False
-    - masquerade: True
     - ports:
       - 22/tcp
       - 25/tcp
