@@ -1,4 +1,4 @@
 base:
   '*':
     - basics
-    - haproxy
+    - haproxy/haproxy
