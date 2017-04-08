@@ -12,3 +12,16 @@ install_basics_groups:
 /etc/profile.d/bash.sh:
   file.managed:
     - source: salt://files/basics/bash.sh
+
+public:
+  firewalld.present:
+    - name: public
+    - block_icmp:
+      - echo-reply
+      - echo-request
+    - default: False
+    - masquerade: True
+    - ports:
+      - 22/tcp
+      - 25/tcp
+      - 80/tcp
