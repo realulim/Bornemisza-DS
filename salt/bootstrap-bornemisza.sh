@@ -22,7 +22,7 @@ curl -o $SALT/files/basics/bash.sh -L $BORNEY/bash.sh
 
 mkdir -p $SALT/files/haproxy
 curl -o $SALT/haproxy.sls -L $BORNEY/haproxy/haproxy.sls
-curl -o $SALT/files/haproxy.cfg -L $BORNEY/haproxy/haproxy.cfg
+curl -o $SALT/files/haproxy/haproxy.cfg -L $BORNEY/haproxy/haproxy.cfg
 
 # create server
 salt-call state.highstate
