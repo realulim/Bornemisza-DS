@@ -6,4 +6,4 @@ alias rm='rm -i'
 alias sbr='source /etc/profile.d/bash.sh'
 alias x='exit'
 
-PS1="\w ==> ";
+PS1="\H:\w ==> ";
