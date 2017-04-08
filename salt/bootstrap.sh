@@ -20,5 +20,5 @@ curl -o $SALT/top.sls -L $BORNEY/top.sls
 curl -o $SALT/basics.sls -L $BORNEY/basics.sls
 curl -o $SALT/files/basics/bash.sh -L $BORNEY/bash.sh
 
-# create server#
+# create server
 salt-call state.highstate
