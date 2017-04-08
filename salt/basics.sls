@@ -3,7 +3,7 @@ install_basics_pkgs:
     - pkgs:
       - java-1.8.0-openjdk.x86_64
       - nano
-      - net_tools
+      - net-tools
 
 install_basics_groups:
   pkg.group_installed:
