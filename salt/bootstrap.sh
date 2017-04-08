@@ -2,7 +2,7 @@
 SALT=/srv/salt
 BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
-# update system#
+# update system
 yum -y update
 yum clean all
 
