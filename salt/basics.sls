@@ -13,6 +13,12 @@ install_basics_groups:
   file.managed:
     - source: salt://files/basics/bash.sh
 
+# change ssh port to 922
+/etc/ssh/sshd_config:
+  file.replace:
+    - pattern: "\#Port 22"
+    - repl: "Port 922"
+
 firewall_zone_public:
   firewalld.present:
     - name: public
@@ -20,6 +26,6 @@ firewall_zone_public:
       - echo-reply
       - echo-request
     - ports:
-      - 22/tcp
+      - 922/tcp
       - 25/tcp
       - 80/tcp
