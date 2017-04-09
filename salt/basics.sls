@@ -19,6 +19,13 @@ install_basics_groups:
     - pattern: "\#Port 22"
     - repl: "Port 922"
 
+sshd:
+  service.running:
+    - enable: True
+    - reload: True
+    - watch:
+      - /etc/ssh/sshd_config
+
 firewall_zone_public:
   firewalld.present:
     - name: public
