@@ -16,7 +16,7 @@ install_basics_groups:
 # change ssh port to 922
 /etc/ssh/sshd_config:
   file.replace:
-    - pattern: "\#Port 22"
+    - pattern: "#Port 22"
     - repl: "Port 922"
 
 sshd:
