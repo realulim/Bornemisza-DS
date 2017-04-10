@@ -1,0 +1,12 @@
+[Unit]
+Description=Payara Server full
+After=syslog.target network.target
+
+[Service]
+Type=forking
+
+ExecStart=/opt/payara/bin/asadmin start-domain domain1
+ExecStop=/opt/payara/bin/asadmin stop-domain domain1
+
+[Install]
+WantedBy=multi-user.target
