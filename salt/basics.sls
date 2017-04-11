@@ -4,6 +4,7 @@ install_basics_pkgs:
       - java-1.8.0-openjdk.x86_64
       - nano
       - net-tools
+      - telnet
 
 install_basics_groups:
   pkg.group_installed:
