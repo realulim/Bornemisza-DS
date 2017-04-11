@@ -36,4 +36,4 @@ firewall_zone_public:
       - 922/tcp
       - 25/tcp
       - 80/tcp
-      - 8080/tcp
+      - 4848/tcp
