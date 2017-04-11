@@ -1,6 +1,6 @@
 {% set PAYARA_INSTALL_DIR='/opt/payara' %}
 {% set PAYARA_VERSION='4.1.1.171.1' %}
-{% set PAYARA_ARTIFACT='payara-{{ PAYARA_VERSION }}.zip' %}
+{% set PAYARA_ARTIFACT='payara-4.1.1.171.1.zip' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 {% set ADMIN_PWD='/root/.payara' %}
 {% set TMP_ADMIN_PWD='/tmp/payara-pwd' %}
@@ -38,8 +38,8 @@ payara-installed:
     - archive_format: zip
     - if_missing: {{ PAYARA_INSTALL_DIR }}
   file.symlink:
-    - name: /opt/payara
-    - target: {{ PAYARA_INSTALL_DIR }}
+    - name: {{ PAYARA_INSTALL_DIR }}
+    - target: /opt/payara41
 
 make-asadmin-executable:
   cmd.run:
@@ -57,13 +57,13 @@ payara-running:
 
 create-admin-password:
   cmd.run:
-    - printf "AS_ADMIN_PASSWORD=`openssl rand -base64 15`\n" > {{ ADMIN_PWD }} && chmod 400 {{ ADMIN_PWD }}
+    - name: printf 'AS_ADMIN_PASSWORD=' > {{ ADMIN_PWD }} && openssl rand -base64 15 >> {{ ADMIN_PWD }} && chmod 400 {{ ADMIN_PWD }}
     - onchanges:
       - payara-installed
 
 create-tmp-admin-password:
   cmd.run:
-    - sed -e $'s/AS_ADMIN_PASSWORD=/AS_ADMIN_PASSWORD=\\\nAS_ADMIN_NEWPASSWORD=/g' {{ ADMIN_PWD }} > {{ TMP_ADMIN_PWD }}
+    - name: sed -e $'s/AS_ADMIN_PASSWORD=/AS_ADMIN_PASSWORD=\\\nAS_ADMIN_NEWPASSWORD=/g' {{ ADMIN_PWD }} > {{ TMP_ADMIN_PWD }}
     - onchanges:
       - create-admin-password
 
@@ -93,11 +93,3 @@ restart-payara-if-secure-admin-was-enabled:
       - enable-secure-admin
     - onchanges:
       - enable-secure-admin
-
-output-admin-password:
-  cmd.run:
-    - printf "Payara Admin Password: `cat {{ ADMIN_PWD }} | sed 's/.*\=//'`"
-    - onlyif:
-      - ls {{ TMP_ADMIN_PWD }}
-    - onchanges:
-      - restart-payara-if-secure-admin-was-enabled
