@@ -1,1 +1,1 @@
-haproxy-stats-password: placeholder
+haproxy-stats-password:
