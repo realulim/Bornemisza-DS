@@ -33,8 +33,12 @@ payara-installed:
     - source: /opt/{{ PAYARA_ARTIFACT }}
     - archive_format: zip
     - if_missing: {{ PAYARA_INSTALL_DIR }}
+  file.rename:
+    - source: /opt/payara41
+    - name: /opt/payara-{{ PAYARA_VERSION }}
+
+{{ PAYARA_INSTALL_DIR }}:
   file.symlink:
-    - name: {{ PAYARA_INSTALL_DIR }}
     - target: /opt/payara41
 
 payara-running:
