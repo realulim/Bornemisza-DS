@@ -8,8 +8,9 @@ haproxy:
       - pkg: haproxy
       - file: /etc/haproxy/haproxy.cfg
 
-/srv/pillar/haproxy.sls:
+configure-stats-password:
   file.replace:
+    - name: /srv/pillar/haproxy.sls
     - pattern: placeholder
     - repl: {{ PASSWORD }}
     - onlyif: grep placeholder /srv/pillar/haproxy.sls
@@ -21,3 +22,5 @@ haproxy:
     - user: root
     - group: root
     - mode: 644
+    - require:
+      - configure-stats-password
