@@ -21,7 +21,7 @@ curl -o $SALT/files/payara/payara.service -L $BORNEY/payara/payara.service
 mkdir -p $PILLAR
 curl -o $PILLAR/top.sls -L $BORNEY/pillar/top.sls
 curl -o $PILLAR/haproxy.sls -L $BORNEY/pillar/haproxy.sls
-sed -e $'s/password:/password:`openssl rand -base64 15`/g' $PILLAR/haproxy.sls
+sed -ei 's/password:/password:`openssl rand -base64 15`/g' $PILLAR/haproxy.sls
 
 # create server
 salt-call state.highstate
