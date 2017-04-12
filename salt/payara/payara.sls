@@ -14,10 +14,6 @@ install-systemctl-unitfile:
    file.managed:
     - name: /usr/lib/systemd/system/payara.service
     - source: salt://files/payara/payara.service
-   module.run:
-    - name: service.systemctl_reload   
-    - onchanges:
-      - file: /usr/lib/systemd/system/payara.service
 
 # If there is a new Payara zip file:
 #  stop Payara
@@ -41,19 +37,19 @@ payara-installed:
     - name: {{ PAYARA_INSTALL_DIR }}
     - target: /opt/payara41
 
-make-asadmin-executable:
-  cmd.run:
-    - name: chmod 755 {{ ASADMIN }}
-    - require:
-      - payara-installed
-    - onchanges:
-      - payara-installed
-
 payara-running:
   service.running:
     - name: payara
     - require: 
-       - make-asadmin-executable
+       - payara-installed
+    - watch:
+      - file: /usr/lib/systemd/system/payara.service
+
+make-asadmin-executable:
+  cmd.run:
+    - name: chmod 755 {{ ASADMIN }}
+    - onchanges:
+      - payara-installed
 
 create-admin-password:
   cmd.run:
