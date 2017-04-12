@@ -1,5 +1,6 @@
 #!/bin/bash
 SALT=/srv/salt
+PILLAR=/srv/pillar
 BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
 # create state tree
@@ -15,6 +16,11 @@ curl -o $SALT/files/haproxy/haproxy.cfg -L $BORNEY/haproxy/haproxy.cfg
 mkdir -p $SALT/files/payara
 curl -o $SALT/payara.sls -L $BORNEY/payara/payara.sls
 curl -o $SALT/files/payara/payara.service -L $BORNEY/payara/payara.service
+
+# pillars
+mkdir -p $PILLAR
+curl -o $PILLAR/top.sls -L $BORNEY/pillar/top.sls
+curl -o $PILLAR/haproxy.sls -L $BORNEY/pillar/haproxy.sls
 
 # create server
 salt-call state.highstate

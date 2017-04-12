@@ -1,3 +1,5 @@
+{% set PASSWORD=salt['cmd.run']('openssl rand -base64 15') %}
+
 haproxy:
   pkg:
     - installed
@@ -5,6 +7,12 @@ haproxy:
     - watch:
       - pkg: haproxy
       - file: /etc/haproxy/haproxy.cfg
+
+/srv/pillar/haproxy.sls:
+  file.replace:
+    - pattern: placeholder
+    - repl: {{ PASSWORD }}
+    - onlyif: grep placeholder /srv/pillar/haproxy.sls
 
 /etc/haproxy/haproxy.cfg:
   file.managed:
