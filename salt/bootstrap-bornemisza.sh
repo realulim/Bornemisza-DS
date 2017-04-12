@@ -15,7 +15,7 @@ curl -o $SALT/files/haproxy/haproxy.cfg -L $BORNEY/haproxy/haproxy.cfg
 mkdir -p $SALT/files/payara
 curl -o $SALT/payara.sls -L $BORNEY/payara/payara.sls
 curl -o $SALT/files/payara/payara.service -L $BORNEY/payara/payara.service
-curl -o $SALT/files/payara/certbot.sls -L $BORNEY/certbot.sls
+curl -o $SALT/certbot.sls -L $BORNEY/payara/certbot.sls
 
 # create server
 salt-call state.highstate
