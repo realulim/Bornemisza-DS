@@ -36,6 +36,7 @@ payara-installed:
   file.rename:
     - source: /opt/payara41
     - name: /opt/payara-{{ PAYARA_VERSION }}
+    - onlyif: /opt/payara41
 
 create-symlink:
   file.symlink:
