@@ -1,19 +1,19 @@
-{% set PAYARA_INSTALL_DIR='/opt/payara' %}
+{% set PAYARA_DIR='/opt/payara' %}
 {% set PAYARA_VERSION='4.1.1.171.1' %}
 {% set PAYARA_ARTIFACT='payara-4.1.1.171.1.zip' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 {% set ADMIN_PWD='/root/.payara' %}
 {% set TMP_ADMIN_PWD='/tmp/payara-pwd' %}
 
-download-payara:
-  cmd.run:
-    - name: curl -o /opt/{{ PAYARA_ARTIFACT }} -L https://search.maven.org/remotecontent?filepath=fish/payara/distributions/payara/{{ PAYARA_VERSION }}/{{ PAYARA_ARTIFACT }}
-    - creates: /opt/{{ PAYARA_ARTIFACT }}
-
 install-systemctl-unitfile:
    file.managed:
     - name: /usr/lib/systemd/system/payara.service
     - source: salt://files/payara/payara.service
+
+download-payara:
+  cmd.run:
+    - name: curl -o /opt/{{ PAYARA_ARTIFACT }} -L https://search.maven.org/remotecontent?filepath=fish/payara/distributions/payara/{{ PAYARA_VERSION }}/{{ PAYARA_ARTIFACT }}
+    - unless: ls /opt/payara-{{ PAYARA_VERSION }}
 
 # If there is a new Payara zip file:
 #  stop Payara
@@ -25,23 +25,26 @@ payara-installed:
     - onchanges:
       - download-payara
   cmd.run:
-    - name: rm -rf {{ PAYARA_INSTALL_DIR }}
+    - name: rm -rf {{ PAYARA_DIR }}
     - onchanges:
       - download-payara
   archive.extracted:
     - name: /opt
     - source: /opt/{{ PAYARA_ARTIFACT }}
     - archive_format: zip
-    - if_missing: {{ PAYARA_INSTALL_DIR }}
+    - unless: ls {{ PAYARA_DIR }}
   file.rename:
     - source: /opt/payara41
     - name: /opt/payara-{{ PAYARA_VERSION }}
-    - onlyif: /opt/payara41
+    - onlyif: ls /opt/payara41
 
 create-symlink:
   file.symlink:
-    - name: {{ PAYARA_INSTALL_DIR }}
-    - target: /opt/payara-{{ PAYARA_VERSION }}
+    - name: {{ PAYARA_DIR }}
+    - target: payara-{{ PAYARA_VERSION }}
+
+/opt/{{ PAYARA_ARTIFACT }}:
+  file.absent
 
 payara-running:
   service.running:
