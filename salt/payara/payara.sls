@@ -18,7 +18,7 @@ install-systemctl-unitfile:
 # If there is a new Payara zip file:
 #  stop Payara
 #  remove old installation
-#  extract new zip file and symlink it
+#  extract new zip file and rename extracted directory sensibly
 payara-installed:
   service.dead:
     - name: payara
@@ -39,7 +39,7 @@ payara-installed:
 
 {{ PAYARA_INSTALL_DIR }}:
   file.symlink:
-    - target: /opt/payara41
+    - target: /opt/payara-{{ PAYARA_VERSION }}
 
 payara-running:
   service.running:
