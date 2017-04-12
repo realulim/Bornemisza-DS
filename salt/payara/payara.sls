@@ -37,9 +37,10 @@ payara-installed:
     - source: /opt/payara41
     - name: /opt/payara-{{ PAYARA_VERSION }}
 
-/opt/payara-{{ PAYARA_VERSION }}:
+create-symlink:
   file.symlink:
-    - target: {{ PAYARA_INSTALL_DIR }}
+    - name: {{ PAYARA_INSTALL_DIR }}
+    - target: /opt/payara-{{ PAYARA_VERSION }}
 
 payara-running:
   service.running:
