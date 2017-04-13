@@ -6,24 +6,21 @@ PillarRemote=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/s
 
 # create state tree
 mkdir -p $SaltLocal/files/basics
-cd $SaltLocal
-curl -L $SaltRemote/top.sls
-curl -L $SaltRemote/basics.sls
-curl -L $SaltRemote/files/basics/bash.sh
-
 mkdir -p $SaltLocal/files/haproxy
-curl -L $SaltRemote/haproxy.sls
-curl -L $SaltRemote/files/haproxy/haproxy.cfg
-
 mkdir -p $SaltLocal/files/payara
-curl -L $SaltRemote/payara.sls
-curl -L $SaltRemote/files/payara/payara.service
+for FILE in top.sls basics.sls files/basics/bash.sh haproxy.sls files/haproxy/haproxy.cfg payara.sls files/payara/payara.service
+do
+	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
+done
 
 # pillars
 mkdir -p $PillarLocal
-cd $PillarLocal
-curl -L $PillarRemote/top.sls
-curl -L $PillarRemote/haproxy.sls
+for FILE in top.sls haproxy.sls
+do
+	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
+done
+
+# create passwords
 sed -ie s/password:/"password: `openssl rand -base64 15`"/ $PillarLocal/haproxy.sls
 
 # create server
