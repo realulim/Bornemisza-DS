@@ -61,7 +61,7 @@ make-asadmin-executable:
 
 create-change-admin-password-file:
   cmd.run:
-    - name: printf 'AS_ADMIN_PASSWORD=\\\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}' > {{ PWD_FILE }}
+    - name: printf 'AS_ADMIN_PASSWORD=\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}\n' > {{ PWD_FILE }}
     - onchanges:
       - payara-installed
 
