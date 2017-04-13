@@ -21,7 +21,7 @@ do
 done
 
 function generatepw {
-	date|md5sum|head -c 16; echo
+	openssl rand -hex 12
 }
 
 # create passwords
