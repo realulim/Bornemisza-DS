@@ -34,7 +34,8 @@ firewall_zone_public:
       - echo-reply
       - echo-request
     - ports:
-      - 922/tcp
-      - 25/tcp
-      - 80/tcp
-      - 4848/tcp
+      - 922/tcp		# ssh
+      - 25/tcp		# smtp
+      - 80/tcp		# haproxy Frontend
+      - 4848/tcp	# Payara Admin
+      - 9000/tcp	# haproxy Stats
