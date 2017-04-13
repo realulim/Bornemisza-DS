@@ -1,9 +1,7 @@
 {% set PAYARA_DIR='/opt/payara' %}
 {% set PAYARA_VERSION='4.1.1.171.1' %}
 {% set PAYARA_ARTIFACT='payara-4.1.1.171.1.zip' %}
-{% set ASADMIN='/opt/payara/bin/asadmin' %}
-{% set ADMIN_PWD='/root/.payara' %}
-{% set TMP_ADMIN_PWD='/tmp/payara-pwd' %}
+{% set PWD_FILE='/tmp/payara-pwd' %}
 
 install-systemctl-unitfile:
    file.managed:
@@ -60,41 +58,36 @@ make-asadmin-executable:
     - onchanges:
       - payara-installed
 
-create-admin-password:
+create-change-admin-password-file:
   cmd.run:
-    - name: printf 'AS_ADMIN_PASSWORD=' > {{ ADMIN_PWD }} && openssl rand -base64 15 >> {{ ADMIN_PWD }} && chmod 400 {{ ADMIN_PWD }}
+    - name: printf 'AS_ADMIN_PASSWORD=\\\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}' > {{ PWD_FILE }}
     - onchanges:
       - payara-installed
 
-create-tmp-admin-password:
-  cmd.run:
-    - name: sed -e $'s/AS_ADMIN_PASSWORD=/AS_ADMIN_PASSWORD=\\\nAS_ADMIN_NEWPASSWORD=/g' {{ ADMIN_PWD }} > {{ TMP_ADMIN_PWD }}
-    - onchanges:
-      - create-admin-password
-
 set-admin-password:
   cmd.run:
-    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ TMP_ADMIN_PWD }} change-admin-password && rm -f {{ TMP_ADMIN_PWD }}
+    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ PWD_FILE }} change-admin-password
     - require:
       - make-asadmin-executable
       - payara-running
     - onchanges:
-      - create-tmp-admin-password
+      - create-change-admin-password-file
+
+create-admin-password-file:
+  cmd.run:
+    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}' > {{ PWD_FILE }}
+    - onchanges:
+      - set-admin-password
 
 # SecureAdmin must be activated for access to the admin console
 enable-secure-admin:
   cmd.run:
-    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ ADMIN_PWD }} enable-secure-admin
-    - require:
-      - payara-running
-      - set-admin-password
+    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ PWD_FILE }} enable-secure-admin
     - onchanges:
-      - payara-installed
+      - create-admin-password-file
 
 restart-payara-if-secure-admin-was-enabled:
   cmd.run:
-    - name: systemctl restart payara
-    - require:
-      - enable-secure-admin
+    - name: systemctl restart payara && rm -f {{ PWD_FILE }}
     - onchanges:
       - enable-secure-admin

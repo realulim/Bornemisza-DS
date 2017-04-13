@@ -1,1 +1,1 @@
-haproxy-stats-password:
+stats-password:
