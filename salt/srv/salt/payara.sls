@@ -2,6 +2,7 @@
 {% set PAYARA_VERSION='4.1.1.171.1' %}
 {% set PAYARA_ARTIFACT='payara-4.1.1.171.1.zip' %}
 {% set PWD_FILE='/tmp/payara-pwd' %}
+{% set ASADMIN='/opt/payara/bin/asadmin' %}
 
 install-systemctl-unitfile:
    file.managed:
