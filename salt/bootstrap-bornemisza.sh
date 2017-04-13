@@ -22,7 +22,9 @@ done
 
 # create passwords
 sed -ie s/password:/"password: `openssl rand -base64 15`"/ $PillarLocal/haproxy.sls
-chmod 400 $PillarLocal/haproxy.sls
+sed -ie s/asadmin-password:/"asadmin-password: `openssl rand -base64 15`"/ $PillarLocal/payara.sls
+sed -ie s/asadmin-master-password:/"asadmin-master-password: `openssl rand -base64 15`"/ $PillarLocal/payara.sls
+chmod 400 $PillarLocal/haproxy.sls $PillarLocal/payara.sls
 
 # create server
 salt-call state.highstate
