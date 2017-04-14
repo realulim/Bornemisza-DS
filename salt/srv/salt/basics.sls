@@ -14,6 +14,9 @@ install_basics_groups:
   file.managed:
     - source: salt://files/basics/bash.sh
 
+Europe/Berlin:
+  timezone.system
+
 # change ssh port to 922
 /etc/ssh/sshd_config:
   file.replace:
