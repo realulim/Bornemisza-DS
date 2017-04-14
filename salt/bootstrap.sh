@@ -13,6 +13,7 @@ sudo sh bootstrap-salt.sh git develop
 # configure salt to run masterless
 sed -i.bak 's/\#file_client: remote/file_client: local/g' /etc/salt/minion
 sed -i.bak 's/\#master_type: str/master_type: disable/g' /etc/salt/minion
+systemctl stop salt-minion
 
 # download and process salt files
 curl -o bootstrap-bornemisza.sh -L $BORNEY/bootstrap-bornemisza.sh
