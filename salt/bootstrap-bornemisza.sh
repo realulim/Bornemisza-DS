@@ -30,5 +30,8 @@ sed -ie s/asadmin-password:/"asadmin-password: `generatepw`"/ $PillarLocal/payar
 sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
 chmod 400 $PillarLocal/haproxy.sls $PillarLocal/payara.sls
 
+# determine hostname
+sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
+
 # create server
 salt-call state.highstate
