@@ -15,4 +15,5 @@ sed -i.bak 's/\#file_client: remote/file_client: local/g' /etc/salt/minion
 
 # download and process salt files
 curl -o bootstrap-bornemisza.sh -L $BORNEY/bootstrap-bornemisza.sh
+chmod u+x bootstrap-bornemisza.sh
 sudo sh bootstrap-bornemisza.sh
