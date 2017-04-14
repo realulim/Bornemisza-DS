@@ -1,4 +1,5 @@
 base:
   '*':
+    - basics
     - haproxy
     - payara
