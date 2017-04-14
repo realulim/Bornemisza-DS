@@ -15,7 +15,7 @@ done
 
 # pillars
 mkdir -p $PillarLocal
-for FILE in top.sls haproxy.sls payara.sls
+for FILE in top.sls basics.sls haproxy.sls payara.sls
 do
 	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
 done
