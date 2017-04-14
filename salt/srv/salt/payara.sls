@@ -92,3 +92,9 @@ restart-payara-if-secure-admin-was-enabled:
     - name: systemctl restart payara && rm -f {{ PWD_FILE }}
     - onchanges:
       - enable-secure-admin
+
+/opt/payara/glassfish/domains/domain1/docroot/index.html:
+  file.line:
+    - content: "<h2 style=\"color:blue\">app.par.bornemizsa.de</h2>"
+    - mode: "insert"
+    - before: "<img src=\"img/logo.png\" alt=\"Payara Logo\">"
