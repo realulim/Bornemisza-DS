@@ -17,5 +17,6 @@ haproxy:
 configure_haproxy_logging:
   file.append:
     - name: /etc/rsyslog.conf
-    - text: '#local2.=info     /var/log/haproxy-info.log'
-    - text: 'local2.notice    /var/log/haproxy-allbutinfo.log'
+    - text: |
+        #local2.=info     /var/log/haproxy-info.log
+        local2.notice    /var/log/haproxy-allbutinfo.log
