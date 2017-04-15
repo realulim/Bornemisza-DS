@@ -50,7 +50,7 @@ payara-running:
     - name: payara
     - require: 
        - payara-installed
-    - watch:
+    - listen:
       - file: /usr/lib/systemd/system/payara.service
 
 make-asadmin-executable:

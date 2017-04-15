@@ -2,7 +2,7 @@ haproxy:
   pkg:
     - installed
   service.running:
-    - watch:
+    - listen:
       - pkg: haproxy
       - file: /etc/haproxy/haproxy.cfg
 

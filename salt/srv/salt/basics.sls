@@ -20,7 +20,7 @@ Europe/Berlin:
 sshd:
   service.running:
     - enable: True
-    - watch:
+    - listen:
       - file: /etc/ssh/sshd_config
 
 /etc/ssh/sshd_config:
@@ -31,12 +31,11 @@ sshd:
 rsyslog:
   service.running:
     - enable: True
-    - watch:
+    - listen:
       - file: /etc/rsyslog.conf
 
-enable_rsyslog:
+/etc/rsyslog.conf:
   file.append:
-    - name: /etc/rsyslog.conf
     - text: $ModLoad imudp
     - text: $UDPServerRun 514
     - text: $UDPServerAddress 127.0.0.1
