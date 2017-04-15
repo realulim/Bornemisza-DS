@@ -95,6 +95,6 @@ restart-payara-if-secure-admin-was-enabled:
 
 /opt/payara/glassfish/domains/domain1/docroot/index.html:
   file.line:
-    - content: "<h2 style=\"color:blue\">{{ pillar['hostname'] }}</h2>"
+    - content: "<h2 style=\"color:#f89b22\">{{ pillar['hostname'] }}</h2>"
     - mode: "insert"
     - before: "<img src=\"img/logo.png\" alt=\"Payara Logo\">"
