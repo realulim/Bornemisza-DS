@@ -15,8 +15,7 @@ install_basics_groups:
     - source: salt://files/basics/bash.sh
 
 Europe/Berlin:
-  timezone.system:
-    - utc: False
+  timezone.system
 
 sshd:
   service.running:
