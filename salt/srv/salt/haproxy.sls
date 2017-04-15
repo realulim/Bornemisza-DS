@@ -6,6 +6,11 @@ haproxy:
       - pkg: haproxy
       - file: /etc/haproxy/haproxy.cfg
 
+remove_unneeded_pkgs:
+  pkg.removed:
+    - pkgs:
+      - irqbalance
+
 /etc/haproxy/haproxy.cfg:
   file.managed:
     - source: salt://files/haproxy/haproxy.cfg
