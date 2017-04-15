@@ -68,7 +68,7 @@ firewall_zone_failover:
       - 45.76.37.215
       - 108.61.177.129
     - ports:
-      - 8080
+      - 8080/tcp
 
 firewalld:
   service.running:
