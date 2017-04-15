@@ -8,7 +8,7 @@ PillarRemote=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/s
 mkdir -p $SaltLocal/files/basics
 mkdir -p $SaltLocal/files/haproxy
 mkdir -p $SaltLocal/files/payara
-for FILE in top.sls basics.sls files/basics/bash.sh haproxy.sls files/haproxy/haproxy.cfg payara.sls files/payara/payara.service
+for FILE in top.sls basics.sls files/basics/bash.sh firewalld.sls haproxy.sls files/haproxy/haproxy.cfg payara.sls files/payara/payara.service
 do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done
