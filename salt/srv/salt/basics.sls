@@ -26,7 +26,6 @@ Europe/Berlin:
 sshd:
   service.running:
     - enable: True
-    - reload: True
     - watch:
       - /etc/ssh/sshd_config
 
@@ -40,7 +39,6 @@ enable_rsyslog:
 rsyslog:
   service.running:
     - enable: True
-    - reload: True
     - watch:
       - /etc/rsyslog.conf
 
