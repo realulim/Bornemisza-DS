@@ -69,3 +69,9 @@ firewall_zone_failover:
       - 108.61.177.129
     - ports:
       - 8080
+
+firewalld:
+  service.running:
+    - watch:
+      - firewalld: firewall_zone_public
+      - firewalld: firewall_zone_failover
