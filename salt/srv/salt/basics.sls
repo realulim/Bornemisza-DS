@@ -58,7 +58,7 @@ firewall_zone_public:
 
 firewall_zone_failover:
   firewalld.present:
-    - name: failover
+    - name: external
       - block_icmp:
         - echo-reply
         - echo-request
