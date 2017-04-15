@@ -27,8 +27,6 @@ sshd:
   file.replace:
     - pattern: "#Port 22"
     - repl: "Port 922"
-    - require:
-      - sshd
 
 rsyslog:
   service.running:
@@ -42,8 +40,6 @@ enable_rsyslog:
     - text: $ModLoad imudp
     - text: $UDPServerRun 514
     - text: $UDPServerAddress 127.0.0.1
-    - require:
-      - rsyslog
 
 firewall_zone_public:
   firewalld.present:
