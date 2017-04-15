@@ -36,11 +36,11 @@ enable_rsyslog:
     - text: $UDPServerRun 514
     - text: $UDPServerAddress 127.0.0.1
 
-rsyslog:
-  service.running:
-    - enable: True
-    - watch:
-      - /etc/rsyslog.conf
+restart_rsyslog_if_configured:
+  cmd.run:
+    - name: systemctl restart rsyslog
+    - onchanges:
+      - enable_rsyslog
 
 firewall_zone_public:
   firewalld.present:

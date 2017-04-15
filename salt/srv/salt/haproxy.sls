@@ -20,7 +20,7 @@ configure_haproxy_logging:
     - text: #local2.=info     /var/log/haproxy-info.log
     - text: local2.notice    /var/log/haproxy-allbutinfo.log
 
-restart_rsyslog_if_configured:
+restart_rsyslog_if_haproxy_configured:
   cmd.run:
     - name: systemctl restart rsyslog
     - onchanges:
