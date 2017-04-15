@@ -17,17 +17,24 @@ install_basics_groups:
 Europe/Berlin:
   timezone.system
 
-# change ssh port to 922
-/etc/ssh/sshd_config:
-  file.replace:
-    - pattern: "#Port 22"
-    - repl: "Port 922"
-
 sshd:
   service.running:
     - enable: True
     - watch:
-      - /etc/ssh/sshd_config
+      - file: /etc/ssh/sshd_config
+
+/etc/ssh/sshd_config:
+  file.replace:
+    - pattern: "#Port 22"
+    - repl: "Port 922"
+    - require:
+      - sshd
+
+rsyslog:
+  service.running:
+    - enable: True
+    - watch:
+      - file: /etc/rsyslog.conf
 
 enable_rsyslog:
   file.append:
@@ -35,12 +42,8 @@ enable_rsyslog:
     - text: $ModLoad imudp
     - text: $UDPServerRun 514
     - text: $UDPServerAddress 127.0.0.1
-
-restart_rsyslog_if_configured:
-  cmd.run:
-    - name: systemctl restart rsyslog
-    - onchanges:
-      - enable_rsyslog
+    - require:
+      - rsyslog
 
 firewall_zone_public:
   firewalld.present:
