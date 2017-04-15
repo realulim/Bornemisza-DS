@@ -36,9 +36,10 @@ rsyslog:
 
 /etc/rsyslog.conf:
   file.append:
-    - text: '$ModLoad imudp'
-    - text: '$UDPServerRun 514'
-    - text: '$UDPServerAddress 127.0.0.1'
+    - text: |
+        $ModLoad imudp
+        $UDPServerRun 514
+        $UDPServerAddress 127.0.0.1
 
 firewall_zone_public:
   firewalld.present:
