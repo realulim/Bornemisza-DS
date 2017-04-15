@@ -30,8 +30,9 @@ sshd:
     - watch:
       - /etc/ssh/sshd_config
 
-/etc/rsyslog.conf:
+enable_rsyslog:
   file.append:
+    - name: /etc/rsyslog.conf
     - text: $ModLoad imudp
     - text: $UDPServerRun 514
     - text: $UDPServerAddress 127.0.0.1

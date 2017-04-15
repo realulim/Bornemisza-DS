@@ -14,7 +14,8 @@ haproxy:
     - group: root
     - mode: 644
 
-/etc/rsyslog.conf:
+configure_haproxy_logging:
   file.append:
+    - name: /etc/rsyslog.conf
     - text: #local2.=info     /var/log/haproxy-info.log
     - text: local2.notice    /var/log/haproxy-allbutinfo.log
