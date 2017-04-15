@@ -58,10 +58,10 @@ firewall_zone_public:
 
 firewall_zone_failover:
   firewalld.present:
-    - name: external
-      - block_icmp:
-        - echo-reply
-        - echo-request
+    - name: failover
+    - block_icmp:
+      - echo-reply
+      - echo-request
     - masquerade: True
     - sources:
       - 94.237.28.181
