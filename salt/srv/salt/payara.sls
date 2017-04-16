@@ -110,5 +110,6 @@ restart-payara-on-config-changes:
     - name: systemctl restart payara
     - onchanges:
       - set-admin-password
+      - file: /opt/payara/glassfish/domains/domain1/config/hazelcast.xml
     - require:
       - enable-secure-admin
