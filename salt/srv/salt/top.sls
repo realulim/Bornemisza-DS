@@ -2,5 +2,5 @@ base:
   '*':
     - basics
     - haproxy
-    - firewalld
     - payara
+    - ufw
