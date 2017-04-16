@@ -6,4 +6,5 @@ ufw:
       - pkg: ufw
 
 firewalld:
+  service.dead
   pkg.removed
