@@ -1,9 +1,8 @@
 ufw:
   pkg:
     - installed
-  service.running:
-    - listen:
-      - pkg: ufw
+  service:
+    - running
 
 disable_and_remove_firewalld:
   service.dead:
