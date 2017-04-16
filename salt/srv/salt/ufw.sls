@@ -17,7 +17,7 @@ firewall_rule_remove_ssh:
     - onlyif: ufw status|grep "22/tcp (SSH)               ALLOW IN    Anywhere"
 
 {% for port in ['80', '922', '4848', '9000'] %}
-firewall_rule_allow_{{ port }}
+firewall_rule_allow_{{ port }}:
   cmd.run:
     - name: ufw allow {{ port }}/tcp
     - unless: ufw status|grep "{{ port }}/tcp                    ALLOW       Anywhere"
