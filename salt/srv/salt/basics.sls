@@ -11,7 +11,7 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
-ntp:
+ntpd:
   service.running
 
 Europe/Berlin:
