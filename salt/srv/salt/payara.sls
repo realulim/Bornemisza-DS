@@ -64,6 +64,7 @@ create-change-admin-password-file:
     - name: printf 'AS_ADMIN_PASSWORD=\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}\n' > {{ PWD_FILE }}
     - onchanges:
       - payara-installed
+      - file: /srv/pillar/payara.sls
 
 set-admin-password:
   cmd.run:
