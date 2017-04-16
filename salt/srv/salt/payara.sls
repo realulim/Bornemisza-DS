@@ -1,7 +1,7 @@
 {% set PAYARA_DIR='/opt/payara' %}
 {% set PAYARA_VERSION='4.1.1.171.1' %}
 {% set PAYARA_ARTIFACT='payara-4.1.1.171.1.zip' %}
-{% set PWD_FILE='/tmp/payara-pwd' %}
+{% set PWD_FILE='/root/.payara' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 
 install-systemctl-unitfile:
@@ -65,9 +65,7 @@ make-asadmin-executable:
 create-change-admin-password-file:
   cmd.run:
     - name: printf 'AS_ADMIN_PASSWORD=\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}\n' > {{ PWD_FILE }}
-    - onchanges:
-      - payara-installed
-      - file: /srv/pillar/payara.sls
+    - unless: grep {{ pillar['asadmin-password'] }} {{ PWD_FILE }}
 
 set-admin-password:
   cmd.run:
@@ -91,14 +89,16 @@ enable-secure-admin:
     - onchanges:
       - create-admin-password-file
 
-restart-payara-if-secure-admin-was-enabled:
-  cmd.run:
-    - name: systemctl restart payara && rm -f {{ PWD_FILE }}
-    - onchanges:
-      - enable-secure-admin
-
 /opt/payara/glassfish/domains/domain1/docroot/index.html:
   file.replace:
     - pattern: "<h1>Hello from Payara - your server is now running!</h1>"
     - repl: |
          <h1>{{ pillar['hostname'] }}</h1>
+
+restart-payara-on-config-changes:
+  cmd.run:
+    - name: systemctl restart payara
+    - onchanges:
+      - set-admin-password
+    - require:
+      - enable-secure-admin
