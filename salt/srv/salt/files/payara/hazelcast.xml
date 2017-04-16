@@ -1,2 +1,9 @@
 <hazelcast>
+<network>
+    <join>
+      <multicast enabled="false"></multicast>
+      <tcp-ip enabled="true">
+        <member>127.0.0.1</member>
+      </tcp-ip>
+    </join>
 </hazelcast>
