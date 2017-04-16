@@ -21,10 +21,3 @@ firewall_rule_allow_{{ port }}:
     - name: ufw allow {{ port }}/tcp
     - unless: ufw status|grep -E "{{ port }}/tcp\s+ALLOW\s+Anywhere"
 {% endfor %}
-
-{% for ip in ['94.237.28.181', '45.76.37.215', '108.61.177.129'] %}
-firewall_rule_failover_from_{{ ip }}:
-  cmd.run:
-    - name: ufw allow from {{ ip }} to any port 8080
-    - unless: ufw status|grep -E "8080\s+ALLOW\s+{{ ip }}"
-{% endfor %}
