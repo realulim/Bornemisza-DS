@@ -5,6 +5,8 @@ ufw:
     - listen:
       - pkg: ufw
 
-firewalld:
-  service.dead
-  pkg.removed
+disable_and_remove_firewalld:
+  service.dead:
+    - name: firewalld
+  pkg.removed:
+    - name: firewalld
