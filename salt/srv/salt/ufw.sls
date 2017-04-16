@@ -4,11 +4,11 @@ ufw:
   service:
     - running
 
-disable_and_remove_firewalld:
-  service.dead:
-    - name: firewalld
-  pkg.removed:
-    - name: firewalld
+firewalld:
+  service:
+    - dead
+  pkg:
+    - removed
 
 firewall_rule_remove_ssh:
   cmd.run:
