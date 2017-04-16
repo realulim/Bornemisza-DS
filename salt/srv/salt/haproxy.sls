@@ -6,10 +6,11 @@ haproxy:
       - pkg: haproxy
       - file: /etc/haproxy/haproxy.cfg
 
-remove_unneeded_pkgs:
-  pkg.removed:
-    - pkgs:
-      - irqbalance
+irqbalance:
+  service:
+    - dead
+  pkg:
+    - removed
 
 /etc/haproxy/haproxy.cfg:
   file.managed:
