@@ -93,7 +93,17 @@ enable-secure-admin:
   file.replace:
     - pattern: "<h1>Hello from Payara - your server is now running!</h1>"
     - repl: |
-         <h1>{{ pillar['hostname'] }}</h1>
+        <h1>{{ pillar['hostname'] }}</h1>
+
+/opt/payara/glassfish/domains/domain1/config/domain.xml:
+  file.replace:
+    - pattern: "<hazelcast-runtime-configuration></hazelcast-runtime-configuration>"
+    - repl: |
+        <hazelcast-runtime-configuration enabled="true" hazelcast-configuration-file="hazelcast.xml" start-port="8080" jndi-name="payara/Hazelcast"/>
+
+/opt/payara/glassfish/domains/domain1/config/hazelcast-config.xml:
+  file.managed:
+    - source: salt://files/payara/hazelcast-config.xml
 
 restart-payara-on-config-changes:
   cmd.run:
