@@ -13,9 +13,9 @@ do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done
 
-# pillars
+# static pillars
 mkdir -p $PillarLocal
-for FILE in top.sls basics.sls haproxy.sls payara.sls
+for FILE in top.sls basics.sls
 do
 	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
 done
@@ -24,14 +24,23 @@ function generatepw {
 	openssl rand -hex 12
 }
 
-# create passwords
-sed -ie s/stats-password:/"stats-password: `generatepw`"/ $PillarLocal/haproxy.sls
-sed -ie s/asadmin-password:/"asadmin-password: `generatepw`"/ $PillarLocal/payara.sls
-sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
-chmod 400 $PillarLocal/haproxy.sls $PillarLocal/payara.sls
+# dynamic pillar: haproxy
+if [[ ! -e $PillarLocal/haproxy.sls ]]; then
+	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls
+	sed -ie s/stats-password:/"stats-password: `generatepw`"/ $PillarLocal/haproxy.sls
+	chmod 400 $PillarLocal/haproxy.sls
+fi
+
+# dynamic pillar: payara
+if [[ ! -e $PillarLocal/payara.sls ]]; then
+	curl -o $PillarLocal/payara.sls -L $PillarRemote/payara.sls
+	sed -ie s/asadmin-password:/"asadmin-password: `generatepw`"/ $PillarLocal/payara.sls
+	sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
+	chmod 400 $PillarLocal/payara.sls
+fi
 
 # determine hostname
 sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
 
 # create server
-salt-call -l info state.highstate
+salt-call state.highstate
