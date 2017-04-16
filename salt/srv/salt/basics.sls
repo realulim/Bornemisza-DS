@@ -11,12 +11,15 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
-/etc/profile.d/bash.sh:
-  file.managed:
-    - source: salt://files/basics/bash.sh
+ntp:
+  service.running
 
 Europe/Berlin:
   timezone.system
+
+/etc/profile.d/bash.sh:
+  file.managed:
+    - source: salt://files/basics/bash.sh
 
 sshd:
   service.running:
