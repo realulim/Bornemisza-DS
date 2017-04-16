@@ -34,4 +34,4 @@ chmod 400 $PillarLocal/haproxy.sls $PillarLocal/payara.sls
 sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
 
 # create server
-salt-call state.highstate
+salt-call -l info state.highstate
