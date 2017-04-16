@@ -3,7 +3,6 @@ haproxy:
     - installed
   service.running:
     - listen:
-      - pkg: haproxy
       - file: /etc/haproxy/haproxy.cfg
 
 irqbalance:
