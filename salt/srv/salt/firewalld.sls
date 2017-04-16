@@ -20,9 +20,9 @@ firewall_zone_failover:
       - echo-request
     - masquerade: True
     - sources:
-      - 94.237.28.181
-      - 45.76.37.215
-      - 108.61.177.129
+      - db.fra.bornemisza.de
+      - app.ams.bornemisza.de
+      - app.par.bornemisza.de
     - ports:
       - 8080/tcp
 
