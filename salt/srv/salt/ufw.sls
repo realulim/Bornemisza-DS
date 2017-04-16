@@ -5,7 +5,5 @@ ufw:
     - listen:
       - pkg: ufw
 
-remove_unneeded_pkgs:
-  pkg.removed:
-    - pkgs:
-      - firewalld
+firewalld:
+  pkg.removed
