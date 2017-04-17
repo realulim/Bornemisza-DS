@@ -43,7 +43,7 @@ fi
 sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
 
 function getip {
-	getent hosts $1 | cut -d' ' -f1 | head -1
+	getent ahostsv4 $1 | cut -d' ' -f1 | head -1
 }
 
 # determine cluster members
