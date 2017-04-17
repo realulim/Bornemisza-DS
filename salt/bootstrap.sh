@@ -3,6 +3,7 @@ BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
 # update system
 yum -y update
+yum install -y bind-utils
 yum clean all
 
 # download and install salt
