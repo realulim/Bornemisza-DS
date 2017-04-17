@@ -7,6 +7,7 @@
 		<interfaces enabled="true">
 			<interface>{{ pillar['ip'] }}</interface>
 		</interfaces>
+		<port auto-increment="false">5701</port>
 		<join>
 			<multicast enabled="false"></multicast>
 			<tcp-ip enabled="true">
