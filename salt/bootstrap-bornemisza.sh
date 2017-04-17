@@ -39,8 +39,17 @@ if [[ ! -e $PillarLocal/payara.sls ]]; then
 	chmod 400 $PillarLocal/payara.sls
 fi
 
-# determine hostname
+# determine my hostname
 sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
+
+# determine cluster members
+COUNTER=0
+for HOSTNAME in db.fra.bornemisza.de app.ams.bornemisza.de app.par.bornemisza.de
+do
+	let COUNTER++
+	printf "hostname$COUNTER: $HOSTNAME\n" >> $PillarLocal/basics.sls
+done
+# getent hosts unix.stackexchange.com | cut -d' ' -f1 | head -1
 
 # create server
 salt-call state.highstate
