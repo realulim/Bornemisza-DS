@@ -42,14 +42,18 @@ fi
 # determine my hostname
 sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
 
+function getip {
+	getent hosts $1 | cut -d' ' -f1 | head -1
+}
+
 # determine cluster members
 COUNTER=0
 for HOSTNAME in db.fra.bornemisza.de app.ams.bornemisza.de app.par.bornemisza.de
 do
 	let COUNTER++
 	printf "hostname$COUNTER: $HOSTNAME\n" >> $PillarLocal/basics.sls
+	printf "ip$COUNTER: `getip $HOSTNAME`\n" >> $PillarLocal/basics.sls
 done
-# getent hosts unix.stackexchange.com | cut -d' ' -f1 | head -1
 
 # create server
 salt-call state.highstate
