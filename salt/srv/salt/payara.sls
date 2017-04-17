@@ -97,9 +97,9 @@ enable-secure-admin:
 
 /opt/payara/glassfish/domains/domain1/config/domain.xml:
   file.replace:
-    - pattern: "<hazelcast-runtime-configuration"
+    - pattern: "<hazelcast-runtime-configuration.*</hazelcast-runtime-configuration>"
     - repl: |
-        <hazelcast-runtime-configuration enabled="true" start-port="8080" jndi-name="payara/Hazelcast">
+        <hazelcast-runtime-configuration enabled="true" start-port="8080" jndi-name="payara/Hazelcast"/>
 
 /opt/payara/glassfish/domains/domain1/config/hazelcast.xml:
   file.managed:
