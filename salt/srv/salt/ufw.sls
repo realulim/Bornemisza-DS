@@ -22,7 +22,7 @@ firewall_rule_allow_{{ port }}:
     - unless: ufw status|grep -E "{{ port }}/tcp\s+ALLOW\s+Anywhere"
 {% endfor %}
 
-{% for ip in [{{ pillar['ip1'] }}, {{ pillar['ip2'] }}, {{ pillar['ip3'] }}] %}
+{% for ip in [pillar['ip1'], pillar['ip2'], pillar['ip3']] %}
 firewall_rule_hazelcast_from_{{ ip }}:
   cmd.run:
     - name: ufw allow from {{ ip }} to any port 5701
