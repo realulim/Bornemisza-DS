@@ -1,8 +1,8 @@
 #!/bin/bash
 SaltLocal=/srv/salt
 PillarLocal=/srv/pillar
-SaltRemote=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/srv/salt
-PillarRemote=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/srv/pillar
+SaltRemote=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/app/srv/salt
+PillarRemote=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/app/srv/pillar
 
 # create state tree
 mkdir -p $SaltLocal/files/basics

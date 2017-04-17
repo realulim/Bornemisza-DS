@@ -1,5 +1,5 @@
 #!/bin/bash
-BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
+BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/app
 
 # update system
 yum -y update
