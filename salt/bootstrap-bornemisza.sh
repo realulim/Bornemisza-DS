@@ -39,14 +39,17 @@ if [[ ! -e $PillarLocal/payara.sls ]]; then
 	chmod 400 $PillarLocal/payara.sls
 fi
 
-# determine my hostname
-sed -ie s/hostname:/"hostname: `uname -n`"/ $PillarLocal/basics.sls
-
 function getip {
 	host $1 | cut -d' ' -f4
 }
 
-# determine cluster members
+# determine my hostname and ip
+HOSTNAME=`uname -n`
+IP=`getip $HOSTNAME`
+sed -ie s/hostname:/"hostname: $HOSTNAME"/ $PillarLocal/basics.sls
+sed -ie s/ip:/"ip: $IP"/ $PillarLocal/basics.sls
+
+# determine cluster members hostnames and ips
 COUNTER=0
 for HOSTNAME in db.fra.bornemisza.de app.ams.bornemisza.de app.par.bornemisza.de
 do

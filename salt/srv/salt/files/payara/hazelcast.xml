@@ -4,10 +4,15 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<network>
+		<interfaces enabled="true">
+			<interface>{{ pillar['ip'] }}</interface>
+		</interfaces>
 		<join>
 			<multicast enabled="false"></multicast>
 			<tcp-ip enabled="true">
-				<member>127.0.0.1</member>
+				<member>{{ pillar['ip1'] }}</member>
+				<member>{{ pillar['ip2'] }}</member>
+				<member>{{ pillar['ip3'] }}</member>
 			</tcp-ip>
 		</join>
 	</network>
