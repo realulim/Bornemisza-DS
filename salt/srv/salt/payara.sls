@@ -103,6 +103,7 @@ enable-secure-admin:
 /opt/payara/glassfish/domains/domain1/config/hazelcast.xml:
   file.managed:
     - source: salt://files/payara/hazelcast.xml
+    - template: jinja
 
 restart-payara-on-config-changes:
   cmd.run:
