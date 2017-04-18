@@ -1,5 +1,11 @@
 #!/bin/bash
-BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/app
+BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/$1
+
+if [ $# -eq 0 ]
+	then
+		echo "No arguments supplied, please use 'app' or 'db'"
+		exit -1
+fi
 
 # update system
 yum -y update
