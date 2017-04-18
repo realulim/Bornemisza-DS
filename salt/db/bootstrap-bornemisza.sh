@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../config.sh db
+source config.sh db
 
 # create server
 salt-call state.highstate

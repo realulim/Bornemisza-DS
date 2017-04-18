@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../config.sh app
+source config.sh app
 
 # create state tree
 mkdir -p $SaltLocal/files/haproxy
