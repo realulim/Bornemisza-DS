@@ -10,4 +10,4 @@ do
 done
 
 # create server
-salt-call state.highstate
+salt-call -l info state.highstate
