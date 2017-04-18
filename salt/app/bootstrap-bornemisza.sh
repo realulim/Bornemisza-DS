@@ -41,12 +41,14 @@ function getip {
 }
 
 # determine cluster members hostnames and ips
-for COUNTER in 1 2 3
-do
-	HOSTNAME=app$COUNTER.fra.bornemisza.de
-	printf "hostname$COUNTER: $HOSTNAME\n" >> $PillarLocal/basics.sls
-	printf "ip$COUNTER: `getip $HOSTNAME`\n" >> $PillarLocal/basics.sls
-done
+if [ `grep app1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	for COUNTER in 1 2 3
+	do
+		HOSTNAME=app$COUNTER.fra.bornemisza.de
+		printf "hostname$COUNTER: $HOSTNAME\n" >> $PillarLocal/basics.sls
+		printf "ip$COUNTER: `getip $HOSTNAME`\n" >> $PillarLocal/basics.sls
+	done
+fi
 
 # create server
 salt-call -l info state.highstate
