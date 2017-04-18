@@ -6,6 +6,7 @@ install_basics_pkgs:
       - net-tools
       - ntp
       - telnet
+      - ufw
 
 install_basics_groups:
   pkg.group_installed:
@@ -45,17 +46,14 @@ rsyslog:
         $UDPServerRun 514
         $UDPServerAddress 127.0.0.1
 
-ufw:
-  pkg:
-    - installed
-  service:
-    - running
-
 firewalld:
   service:
     - dead
   pkg:
     - removed
+
+ufw:
+  service.running
 
 firewall_rule_remove_ssh:
   cmd.run:
