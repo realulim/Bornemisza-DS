@@ -1,5 +1,4 @@
 #!/bin/bash
-BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/$1
 
 if [ $# -eq 0 ]
 	then
@@ -7,10 +6,27 @@ if [ $# -eq 0 ]
 		exit -1
 fi
 
+BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/$1
+
+source config.sh $1
+
 # update system
 yum -y update
 yum install -y bind-utils
 yum clean all
+
+# create state tree
+mkdir -p $SaltLocal/files/basics
+mkdir -p $PillarLocal
+for FILE in $SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh
+do
+        curl -o $FILE -L $SaltRemote/$FILE
+done
+
+# determine my hostname and ip
+HOSTNAME=`uname -n`
+IP=`host $HOSTNAME | cut -d' ' -f4`
+printf "hostname: $HOSTNAME\nip: $IP\n" > $PillarLocal/basics.sls
 
 # download and install salt
 cd /opt
@@ -25,4 +41,4 @@ systemctl stop salt-minion
 # download and process salt files
 curl -o bootstrap-bornemisza.sh -L $BORNEY/bootstrap-bornemisza.sh
 chmod u+x bootstrap-bornemisza.sh
-sudo sh bootstrap-bornemisza.sh
+sh bootstrap-bornemisza.sh
