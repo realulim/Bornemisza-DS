@@ -50,5 +50,13 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
+# determine my position in the cluster
+HOSTNAME=`uname -n`
+IP=`host $HOSTNAME | cut -d' ' -f4`
+if [ `grep privip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	POS=grep "$IP" basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"
+	printf "privip: 10.99.0.$POS\n" >> $PillarLocal/basics.sls
+fi
+
 # create server
 salt-call -l info state.highstate
