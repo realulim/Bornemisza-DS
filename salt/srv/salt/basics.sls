@@ -22,17 +22,6 @@ Europe/Berlin:
   file.managed:
     - source: salt://files/basics/bash.sh
 
-sshd:
-  service.running:
-    - enable: True
-    - listen:
-      - file: /etc/ssh/sshd_config
-
-/etc/ssh/sshd_config:
-  file.replace:
-    - pattern: "#Port 22"
-    - repl: "Port 922"
-
 rsyslog:
   service.running:
     - enable: True
@@ -66,3 +55,14 @@ firewall_rule_allow_{{ port }}:
     - name: ufw allow {{ port }}/tcp
     - unless: ufw status|grep -E "{{ port }}/tcp\s+ALLOW\s+Anywhere"
 {% endfor %}
+
+sshd:
+  service.running:
+    - enable: True
+    - listen:
+      - file: /etc/ssh/sshd_config
+
+/etc/ssh/sshd_config:
+  file.replace:
+    - pattern: "#Port 22"
+    - repl: "Port 922"
