@@ -5,16 +5,11 @@
 
 	<network>
 		<interfaces enabled="true">
-			<interface>{{ pillar['ip'] }}</interface>
+			<interface>{{ pillar['privip'] }}</interface>
 		</interfaces>
 		<port auto-increment="false">5701</port>
 		<join>
-			<multicast enabled="false"></multicast>
-			<tcp-ip enabled="true">
-				<member>{{ pillar['ip1'] }}</member>
-				<member>{{ pillar['ip2'] }}</member>
-				<member>{{ pillar['ip3'] }}</member>
-			</tcp-ip>
+			<multicast enabled="true"></multicast>
 		</join>
 	</network>
 

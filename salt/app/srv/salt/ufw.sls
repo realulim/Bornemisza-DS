@@ -5,9 +5,7 @@ firewall_rule_allow_{{ port }}:
     - unless: ufw status|grep -E "{{ port }}/tcp\s+ALLOW\s+Anywhere"
 {% endfor %}
 
-{% for ip in [pillar['ip1'], pillar['ip2'], pillar['ip3']] %}
-firewall_rule_hazelcast_from_{{ ip }}:
+firewall_rule_hazelcast_on_private_network:
   cmd.run:
-    - name: ufw allow from {{ ip }} to any port 5701
-    - unless: ufw status|grep -E "5701\s+ALLOW\s+{{ ip }}"
-{% endfor %}
+    - name: ufw allow in on eth1
+    - unless: ufw status|grep -E "Anywhere on eth1\s+ALLOW\s+Anywhere"
