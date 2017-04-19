@@ -1,7 +1,7 @@
 base:
   '*':
     - basics
-    - haproxy
     - network
-    - payara
     - ufw
+    - haproxy
+    - payara
