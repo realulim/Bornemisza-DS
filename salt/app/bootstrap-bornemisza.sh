@@ -54,7 +54,7 @@ fi
 HOSTNAME=`uname -n`
 IP=`host $HOSTNAME | cut -d' ' -f4`
 if [ `grep privip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	POS=`grep "$IP" basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
+	POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
 	printf "privip: 10.99.0.$POS\n" >> $PillarLocal/basics.sls
 fi
 
