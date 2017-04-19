@@ -66,3 +66,5 @@ sshd:
   file.replace:
     - pattern: "#Port 22"
     - repl: "Port 922"
+    - require:
+      - firewall_rule_allow_922
