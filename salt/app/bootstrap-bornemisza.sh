@@ -6,7 +6,7 @@ source ./config.sh app
 # create state tree
 mkdir -p $SaltLocal/files/haproxy
 mkdir -p $SaltLocal/files/payara
-for FILE in top.sls haproxy.sls files/haproxy/haproxy.cfg payara.sls files/payara/payara.service files/payara/hazelcast.xml ufw.sls
+for FILE in top.sls haproxy.sls files/haproxy/haproxy.cfg network.sls payara.sls files/payara/payara.service files/payara/hazelcast.xml ufw.sls
 do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done
@@ -55,7 +55,7 @@ HOSTNAME=`uname -n`
 IP=`host $HOSTNAME | cut -d' ' -f4`
 if [ `grep privip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
-	printf "privip: 10.99.0.$POS\n" >> $PillarLocal/basics.sls
+	printf "privip: 10.99.0.$(($POS + 9))\n" >> $PillarLocal/basics.sls
 fi
 
 # create server
