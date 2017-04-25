@@ -1,4 +1,3 @@
 base:
   '*':
     - basics
-    - hosts
