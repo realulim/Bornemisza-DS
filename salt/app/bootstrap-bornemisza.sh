@@ -51,12 +51,23 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
+# ask for the first private IP address
+read -e -p "private IP addresses starting at: " -i "10.99.0.10" PRIVSTART
+OFFSET=`printf "$PRIVSTART" | cut -d'.' -f 4`
+PREFIX=`printf "10.99.0.10" | sed -r 's/(.*)\..*/\1/'`
+
 # determine my position in the cluster
 HOSTNAME=`uname -n`
 IP=`host $HOSTNAME | cut -d' ' -f4`
 if [ `grep privip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
-	printf "privip: 10.99.0.$(($POS + 9))\n" >> $PillarLocal/basics.sls
+        POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
+        printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" >> $PillarLocal/basics.sls
+fi
+
+# ask for floating IP
+read -p 'floating IP: ' FLOATINGIP
+if [ `grep floatip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	printf "floatip: $FLOATINGIP" >> $PillarLocal/basics.sls
 fi
 
 # create server
