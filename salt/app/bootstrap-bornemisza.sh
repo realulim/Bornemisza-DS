@@ -67,7 +67,7 @@ fi
 # ask for floating IP
 read -p 'floating IP: ' FLOATINGIP
 if [ `grep floatip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	printf "floatip: $FLOATINGIP" >> $PillarLocal/basics.sls
+	printf "floatip: $FLOATINGIP\n" >> $PillarLocal/basics.sls
 fi
 
 # create server
