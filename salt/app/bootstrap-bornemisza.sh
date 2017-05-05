@@ -70,5 +70,17 @@ if [ `grep floatip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "floatip: $FLOATINGIP\n" >> $PillarLocal/basics.sls
 fi
 
+# ask for autonomous system number
+read -p 'ASN: ' ASN
+if [ `grep ASN /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	printf "ASN: $ASN\n" >> $PillarLocal/basics.sls
+fi
+
+# ask for BGP password
+read -p 'BGP: ' BGP
+if [ `grep BGP /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
+fi
+
 # create server
 salt-call -l info state.highstate
