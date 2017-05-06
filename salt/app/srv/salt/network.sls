@@ -8,3 +8,8 @@ restart-network-interface:
     - name: ifdown eth1 && ifup eth1
     - onchanges: 
       - /etc/sysconfig/network-scripts/ifcfg-eth1
+
+create-dummy-interface:
+  cmd.run:
+    - name: ip link add dev dummy1 type dummy && ip link set dummy1 up && ip addr add dev dummy1 {{ pillar['floatip'] }}/32
+    - unless: ip addr show dev dummy1
