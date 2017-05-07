@@ -1,7 +1,6 @@
 install_basics_pkgs:
   pkg.installed:
     - pkgs:
-      - bird
       - java-1.8.0-openjdk.x86_64
       - nano
       - net-tools

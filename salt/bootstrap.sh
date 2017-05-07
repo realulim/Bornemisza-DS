@@ -19,7 +19,7 @@ mkdir -p $SaltLocal/files/basics
 mkdir -p $PillarLocal
 for FILE in $SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh
 do
-        curl -o $FILE -L $SaltRemoteRoot$FILE
+        curl -o $FILE -L $SaltRemoteRoot/common/$FILE
 done
 
 # determine my hostname and ip
