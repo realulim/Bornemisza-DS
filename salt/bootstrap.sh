@@ -25,7 +25,7 @@ do
 done
 
 # determine my hostname and ip
-HOSTNAME=`uname -n`
+HOSTNAME=`domainname -f`
 IP=`host $HOSTNAME | cut -d' ' -f4`
 printf "hostname: $HOSTNAME\nip: $IP\n" > $PillarLocal/basics.sls
 
