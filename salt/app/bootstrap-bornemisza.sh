@@ -64,11 +64,13 @@ if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" >> $PillarLocal/basics.sls
 fi
 
-# ask for floating IP and determine its domain
+# ask for floating IP and determine its hostname and domain
 read -p 'floating IP: ' FLOATINGIP
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "floatip: $FLOATINGIP\n" >> $PillarLocal/basics.sls
-	printf "domain: `host $FLOATINGIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`\n" >> $PillarLocal/basics.sls
+	FLOATHOST=`host $FLOATINGIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
+	printf "floathost: $FLOATHOST\n" >> $PillarLocal/basics.sls
+	printf "domain: $FLOATHOST | rev | awk -F. '{ print $1"."$2 }' | rev
 fi
 
 # ask for autonomous system number
