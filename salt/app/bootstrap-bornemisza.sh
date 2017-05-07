@@ -64,10 +64,11 @@ if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" >> $PillarLocal/basics.sls
 fi
 
-# ask for floating IP
+# ask for floating IP and determine its domain
 read -p 'floating IP: ' FLOATINGIP
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "floatip: $FLOATINGIP\n" >> $PillarLocal/basics.sls
+	printf "domain: `host $FLOATINGIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
@@ -80,11 +81,6 @@ fi
 read -p 'BGP: ' BGP
 if [ `grep BGP: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
-fi
-
-# determine domain
-if [ `grep domain: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	printf "domain: `host $FLOATINGIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`\n" >> $PillarLocal/basics.sls
 fi
 
 # create server
