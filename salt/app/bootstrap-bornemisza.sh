@@ -46,8 +46,8 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	for COUNTER in 1 2 3
 	do
 		HOSTNAME=app$COUNTER.fra.bornemisza.de
-		printf "hostname$COUNTER: $HOSTNAME\n" >> $PillarLocal/basics.sls
-		printf "ip$COUNTER: `getip $HOSTNAME`\n" >> $PillarLocal/basics.sls
+		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
+		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 	done
 fi
 
@@ -61,7 +61,7 @@ HOSTNAME=`uname -n`
 IP=`host $HOSTNAME | cut -d' ' -f4`
 if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
-        printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" >> $PillarLocal/basics.sls
+        printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for floating IP and determine its hostname and domain
@@ -69,9 +69,9 @@ read -p 'floating IP: ' FLOATIP
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "floatip: $FLOATIP\n" >> $PillarLocal/basics.sls
 	FLOATHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
-	printf "floathost: $FLOATHOST\n" >> $PillarLocal/basics.sls
+	printf "floathost: $FLOATHOST\n" | tee -a $PillarLocal/basics.sls
 	FLOATDOMAIN=`printf $FLOATHOST | rev | awk -F. '{ print $1"."$2 }' | rev`
-	printf "floatdomain: $FLOATDOMAIN\n"
+	printf "floatdomain: $FLOATDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
