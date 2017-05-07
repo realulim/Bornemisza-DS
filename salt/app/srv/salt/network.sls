@@ -20,6 +20,8 @@ create-dummy-interface:
     - template: jinja
 
 bird:
+  pkg:
+    - installed
   service.running:
     - listen:
       - file: /etc/bird.conf
