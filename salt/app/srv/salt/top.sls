@@ -1,6 +1,7 @@
 base:
   '*':
     - basics
+    - letsencrypt
     - network
     - ufw
     - haproxy
