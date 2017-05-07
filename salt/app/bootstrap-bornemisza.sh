@@ -59,27 +59,32 @@ PREFIX=`printf "10.99.0.10" | sed -r 's/(.*)\..*/\1/'`
 # determine my position in the cluster
 HOSTNAME=`uname -n`
 IP=`host $HOSTNAME | cut -d' ' -f4`
-if [ `grep privip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
         printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for floating IP
 read -p 'floating IP: ' FLOATINGIP
-if [ `grep floatip /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "floatip: $FLOATINGIP\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
 read -p 'ASN: ' ASN
-if [ `grep ASN /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep ASN: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "ASN: $ASN\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for BGP password
 read -p 'BGP: ' BGP
-if [ `grep BGP /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep BGP: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
+fi
+
+# determine domain
+if [ `grep domain: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	printf "domain: `host $FLOATINGIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`\n" >> $PillarLocal/basics.sls
 fi
 
 # create server
