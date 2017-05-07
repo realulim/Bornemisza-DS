@@ -71,7 +71,7 @@ if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	FLOATHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "floathost: $FLOATHOST\n" >> $PillarLocal/basics.sls
 	FLOATDOMAIN=`printf $FLOATHOST | rev | awk -F. '{ print $1"."$2 }' | rev`
-	printf "floatdomain: $FLOATDOMAIN\n' | rev
+	printf "floatdomain: $FLOATDOMAIN\n"
 fi
 
 # ask for autonomous system number
