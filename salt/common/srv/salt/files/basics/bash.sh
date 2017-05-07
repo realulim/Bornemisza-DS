@@ -8,4 +8,4 @@ alias rm='rm -i'
 alias sbr='source /etc/profile.d/bash.sh'
 alias x='exit'
 
-PS1="\H:\w ==> ";
+PS1="\u on \H in \w => ";
