@@ -28,4 +28,4 @@ CF_Email:
 issue-certificate:
   cmd.run:
     - name: ~/.acme.sh/acme.sh --issue --dns dns_cf -d {{ pillar['floatdomain'] }} -d {{ pillar['floathost'] }} -d {{ pillar['hostname'] }}
-    - unless: ls ~/.acme.sh/{{ pillar['floatdomain'] }}/*.cert
+    - unless: ls ~/.acme.sh/{{ pillar['floatdomain'] }}/*.cer
