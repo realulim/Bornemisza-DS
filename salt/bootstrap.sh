@@ -5,10 +5,10 @@ if [ $# -eq 0 ]; then
 	exit -1
 fi
 
-BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/$1
+BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
 cd /opt
-curl -o ./config.sh -L $SaltRemoteRoot/config.sh
+curl -o ./config.sh -L $BORNEY/config.sh
 source config.sh $1
 
 # update system
@@ -39,6 +39,6 @@ sed -i.bak 's/\#master_type: str/master_type: disable/g' /etc/salt/minion
 systemctl stop salt-minion
 
 # download and process salt files
-curl -o bootstrap-bornemisza.sh -L $BORNEY/bootstrap-bornemisza.sh
+curl -o bootstrap-bornemisza.sh -L $BORNEY/$1/bootstrap-bornemisza.sh
 chmod u+x bootstrap-bornemisza.sh
 sh bootstrap-bornemisza.sh
