@@ -18,12 +18,12 @@ install-acme-client:
 CF_Key:
   environ.setenv:
     - value: {{ pillar['CFKEY'] }}
-    - unless: grep 'CF_Key' ~/.acme.sh/account.conf
+    - unless: grep 'SAVED_CF_Key' ~/.acme.sh/account.conf
 
 CF_Email:
   environ.setenv:
     - value: {{ pillar['CFEMAIL'] }}
-    - unless: grep 'CF_Email' ~/.acme.sh/account.conf
+    - unless: grep 'SAVED_CF_Email' ~/.acme.sh/account.conf
 
 issue-certificate:
   cmd.run:
