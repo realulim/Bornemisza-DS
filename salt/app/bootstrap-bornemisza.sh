@@ -83,5 +83,17 @@ if [ `grep BGP: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
 fi
 
+# ask for Cloudflare API key
+read -p 'Cloudflare API Key: ' CFKEY
+if [ `grep CFKEY: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
+fi
+
+# ask for Cloudflare email (username of Cloudflare account)
+read -p 'Cloudflare Email: ' CFEMAIL
+if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
+fi
+
 # create server
 salt-call -l info state.highstate
