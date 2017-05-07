@@ -11,6 +11,6 @@ download-acme.sh-client:
 
 install-acme-client:
   cmd.run:
-    - name: /opt/acme.sh/acme.sh --install
+    - name: bash -c 'cd /opt/acme.sh && ./acme.sh --install'
     - onchanges:
       - download-acme.sh-client
