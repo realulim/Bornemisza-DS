@@ -8,7 +8,7 @@ fi
 BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/$1
 
 cd /opt
-curl -o config.sh -L $SaltRemoteRoot/config.sh
+curl -o ./config.sh -L $SaltRemoteRoot/config.sh
 source config.sh $1
 
 # update system
