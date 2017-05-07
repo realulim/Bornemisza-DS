@@ -5,6 +5,6 @@ download-acme.sh-client:
 
 install-acme-client:
   cmd.run:
-    - name: cd ./acme.sh/acme.sh --install
+    - name: ./acme.sh/acme.sh --install
     - onchanges:
       - download-acme.sh-client
