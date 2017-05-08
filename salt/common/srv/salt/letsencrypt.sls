@@ -29,3 +29,14 @@ issue-certificate:
   cmd.run:
     - name: ~/.acme.sh/acme.sh --issue --dns dns_cf -d {{ pillar['floatdomain'] }} -d {{ pillar['floathost'] }} -d {{ pillar['hostname'] }}
     - unless: ls ~/.acme.sh/{{ pillar['floatdomain'] }}/*.cer
+
+~/.acme.sh/{{ pillar['floatdomain'] }}:
+  file.directory:
+    - user: root
+    - group: root
+    - dir_mode: 400
+    - file_mode: 400
+    - recurse:
+      - user
+      - group
+      - mode
