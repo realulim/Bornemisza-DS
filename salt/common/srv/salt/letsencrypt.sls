@@ -46,3 +46,9 @@ create-pem-file:
   cmd.run:
     - name: cat /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.cer /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.key > /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem
     - onlyif: test /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem -ot /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.cer
+
+protect-pem-file:
+  cmd.run:
+    - name: chmod -R 400 etc/pki/tls/private
+    - onchanges:
+      - create-pem-file
