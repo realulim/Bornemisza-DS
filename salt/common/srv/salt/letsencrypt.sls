@@ -41,3 +41,8 @@ issue-certificate:
       - group
       - mode
     - onlyif: ls ~/.acme.sh/{{ pillar['floatdomain'] }}
+
+create-pem-file:
+  cmd.run:
+    - name: cat /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.cer /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.key > /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem
+    - onlyif: test /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem -ot /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.cer
