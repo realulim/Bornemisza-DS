@@ -49,6 +49,6 @@ create-pem-file:
 
 protect-pem-file:
   cmd.run:
-    - name: chmod -R 400 etc/pki/tls/private
+    - name: chmod -R 400 /etc/pki/tls/private
     - onchanges:
       - create-pem-file
