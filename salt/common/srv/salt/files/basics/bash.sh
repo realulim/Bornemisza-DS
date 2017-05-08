@@ -1,5 +1,6 @@
 alias e='nano -w'
 alias ebr='nano -w /etc/profile.d/bash.sh'
+alias h='history'
 alias l='ls -lah'
 alias lt='l -rt'
 alias p-='systemctl stop payara'
