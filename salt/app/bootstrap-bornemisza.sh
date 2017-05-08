@@ -26,7 +26,6 @@ function generatepw {
 if [[ ! -e $PillarLocal/haproxy.sls ]]; then
 	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls
 	sed -ie s/stats-password:/"stats-password: `generatepw`"/ $PillarLocal/haproxy.sls
-	chmod 400 $PillarLocal/*
 fi
 
 # dynamic pillar: payara
@@ -34,7 +33,6 @@ if [[ ! -e $PillarLocal/payara.sls ]]; then
 	curl -o $PillarLocal/payara.sls -L $PillarRemote/payara.sls
 	sed -ie s/asadmin-password:/"asadmin-password: `generatepw`"/ $PillarLocal/payara.sls
 	sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
-	chmod 400 $PillarLocal/*
 fi
 
 function getip {
@@ -97,6 +95,8 @@ read -p 'Cloudflare Email: ' CFEMAIL
 if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 fi
+
+chmod -R 400 $PillarLocal
 
 # create server
 salt-call -l info state.highstate
