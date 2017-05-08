@@ -40,3 +40,4 @@ issue-certificate:
       - user
       - group
       - mode
+    - onlyif: ls ~/.acme.sh/{{ pillar['floatdomain'] }}
