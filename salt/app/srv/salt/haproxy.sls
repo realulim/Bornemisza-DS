@@ -4,7 +4,6 @@ haproxy:
   service.running:
     - listen:
       - file: /etc/haproxy/haproxy.cfg
-      - file: /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem
 
 irqbalance:
   service:
