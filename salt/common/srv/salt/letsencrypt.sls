@@ -42,9 +42,14 @@ issue-certificate:
       - mode
     - onlyif: ls ~/.acme.sh/{{ pillar['floatdomain'] }}
 
+create-strong-dh-group:
+  cmd.run:
+    - name: openssl dhparam -out /etc/pki/tls/private/dhparams.pem 2048
+    - unless: ls /etc/pki/tls/private/dhparams.pem
+
 create-pem-file:
   cmd.run:
-    - name: cat /root/.acme.sh/{{ pillar['floatdomain'] }}/fullchain.cer /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.key > /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem
+    - name: cat /root/.acme.sh/{{ pillar['floatdomain'] }}/fullchain.cer /etc/pki/tls/private/dhparams.pem /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.key > /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem
     - onlyif: test /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem -ot /root/.acme.sh/{{ pillar['floatdomain'] }}/fullchain.cer
 
 protect-pem-file:
