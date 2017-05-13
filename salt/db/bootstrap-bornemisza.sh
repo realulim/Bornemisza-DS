@@ -16,7 +16,7 @@ do
 done
 
 # download and run common script
-curl -o ./bootstrap-common.de $SaltRemoteRoot/common/bootstrap-common.sh
+curl -o ./bootstrap-common.sh $SaltRemoteRoot/common/bootstrap-common.sh
 source ./bootstrap-common.sh
 
 # create server
