@@ -16,8 +16,8 @@ do
 done
 
 # download and run common script
-curl -o ./common/bootstrap-bornemisza.de $SaltRemoteRoot/common/bootstrap-bornemisza.de
-source ./common/bootstrap-bornemisza.de
+curl -o ./bootstrap-common.de $SaltRemoteRoot/common/bootstrap-common.sh
+source ./bootstrap-common.sh
 
 # create server
 salt-call -l info state.highstate
