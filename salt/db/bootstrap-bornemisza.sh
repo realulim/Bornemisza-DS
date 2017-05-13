@@ -15,9 +15,5 @@ do
         curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
 done
 
-# download and run common script
-curl -o ./bootstrap-common.sh $SaltRemoteRoot/common/bootstrap-common.sh
-source ./bootstrap-common.sh
-
 # create server
 salt-call -l info state.highstate
