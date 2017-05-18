@@ -48,7 +48,8 @@ create-symlink:
 payara-running:
   service.running:
     - name: payara
-    - require: 
+    - enable: true
+    - require:
        - payara-installed
     - listen:
       - file: /usr/lib/systemd/system/payara.service

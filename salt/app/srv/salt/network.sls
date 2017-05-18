@@ -23,5 +23,6 @@ bird:
   pkg:
     - installed
   service.running:
+    - enable: true
     - listen:
       - file: /etc/bird.conf
