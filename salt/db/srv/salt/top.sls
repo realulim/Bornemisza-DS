@@ -2,3 +2,4 @@ base:
   '*':
     - basics
     - hosts
+    - cockroachdb
