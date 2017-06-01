@@ -26,7 +26,7 @@ done
 
 # determine my hostname and ip
 HOSTNAME=`domainname -f`
-IP=`host $HOSTNAME | cut -d' ' -f4`
+IP=`curl http://ipecho.net/plain`
 printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
 
 # download and install salt

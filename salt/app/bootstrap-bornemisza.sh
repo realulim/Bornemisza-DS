@@ -44,7 +44,7 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	do
 		HOSTNAME=$app_HostPrefix$COUNTER$.app_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
-		printf "ip$COUNTER: `$IP $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
+		printf "ip$COUNTER: $IP $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 	done
 fi
 
