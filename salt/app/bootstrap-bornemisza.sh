@@ -25,6 +25,10 @@ function generatepw {
 	openssl rand -hex 12
 }
 
+function getip {
+	host $1 | cut -d' ' -f4
+}
+
 # dynamic pillar: haproxy
 if [[ ! -e $PillarLocal/haproxy.sls ]]; then
 	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls
@@ -44,7 +48,7 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	do
 		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
-		printf "ip$COUNTER: $IP $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
+		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 	done
 fi
 
