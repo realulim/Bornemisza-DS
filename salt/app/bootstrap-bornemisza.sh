@@ -1,5 +1,8 @@
 #!/bin/bash
 
+IP=`curl http://ipecho.net/plain`
+PRIVIP=`ip route get $app_PrivateNetwork|head -n1|cut -d" " -f7`
+
 cd /opt
 source ./config.sh app
 
@@ -35,28 +38,19 @@ if [[ ! -e $PillarLocal/payara.sls ]]; then
 	sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
 fi
 
-function getip {
-	host $1 | cut -d' ' -f4
-}
-
 # determine cluster members hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	for COUNTER in 1 2 3
+	for COUNTER in {1..$app_HostCount}
 	do
-		HOSTNAME=app$COUNTER.fra.bornemisza.de
+		HOSTNAME=$app_HostPrefix$COUNTER$app_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
-		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
+		printf "ip$COUNTER: `$IP $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 	done
 fi
 
-# ask for the first private IP address
-read -e -p "private IP addresses starting at: " -i "10.99.0.10" PRIVSTART
-OFFSET=`printf "$PRIVSTART" | cut -d'.' -f 4`
-PREFIX=`printf "10.99.0.10" | sed -r 's/(.*)\..*/\1/'`
-
 # determine my position in the cluster
-HOSTNAME=`uname -n`
-IP=`host $HOSTNAME | cut -d' ' -f4`
+OFFSET=`printf "$PRIVIP" | cut -d'.' -f 4`
+PREFIX=`printf "10.99.0.10" | sed -r 's/(.*)\..*/\1/'`
 if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
         printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" | tee -a $PillarLocal/basics.sls
