@@ -40,9 +40,9 @@ fi
 
 # determine cluster members hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	for COUNTER in {1..$app_HostCount}
+	for COUNTER in `seq -s' ' 1 $app_HostCount`
 	do
-		HOSTNAME=$app_HostPrefix$COUNTER$app_Domain
+		HOSTNAME=$app_HostPrefix$COUNTER$.app_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 		printf "ip$COUNTER: `$IP $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 	done
