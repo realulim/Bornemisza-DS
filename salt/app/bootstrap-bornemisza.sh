@@ -54,7 +54,7 @@ fi
 
 # determine my position in the cluster
 OFFSET=`printf "$PRIVIP" | cut -d'.' -f 4`
-PREFIX=`printf "10.99.0.10" | sed -r 's/(.*)\..*/\1/'`
+PREFIX=`printf "$app_FirstPrivateIp" | sed -r 's/(.*)\..*/\1/'`
 if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
         printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" | tee -a $PillarLocal/basics.sls
