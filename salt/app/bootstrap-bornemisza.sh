@@ -1,7 +1,6 @@
 #!/bin/bash
 
 IP=`curl http://ipecho.net/plain`
-PRIVIP=`ip route get $app_PrivateNetwork|head -n1|cut -d" " -f7`
 
 cd /opt
 source ./config.sh app
@@ -53,7 +52,7 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # determine my position in the cluster
-OFFSET=`printf "$PRIVIP" | cut -d'.' -f 4`
+OFFSET=`printf "$app_FirstPrivateIp" | cut -d'.' -f 4`
 PREFIX=`printf "$app_FirstPrivateIp" | sed -r 's/(.*)\..*/\1/'`
 if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
         POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
