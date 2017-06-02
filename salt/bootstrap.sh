@@ -25,12 +25,6 @@ do
         curl -o $FILE -L $SaltRemoteRoot/common/$FILE
 done
 
-# determine my hostname and ip
-HOSTNAME=`domainname -f`
-VARNAME=$1_publicIpInterface
-IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
-
 # download and install salt
 curl -o bootstrap-salt.sh -L https://bootstrap.saltstack.com
 sudo sh bootstrap-salt.sh git develop
