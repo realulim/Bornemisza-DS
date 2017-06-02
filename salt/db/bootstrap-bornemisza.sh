@@ -15,6 +15,10 @@ do
 	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
 done
 
+function getip {
+	host $1 | cut -d' ' -f4
+}
+
 # determine cluster members hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	COUNTER=1
