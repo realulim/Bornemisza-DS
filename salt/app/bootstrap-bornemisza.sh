@@ -20,14 +20,6 @@ do
 	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
 done
 
-function generatepw {
-	openssl rand -hex 12
-}
-
-function getip {
-	host $1 | cut -d' ' -f4
-}
-
 # dynamic pillar: haproxy
 if [[ ! -e $PillarLocal/haproxy.sls ]]; then
 	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls

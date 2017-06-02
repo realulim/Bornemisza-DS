@@ -18,3 +18,11 @@ db_HostPrefix=db
 db_Domain=bornemisza.de
 db_publicIpInterface=eth0
 db_privateIpInterface=eth1
+
+function getip {
+	host $1 | cut -d' ' -f4
+}
+
+function generatepw {
+	openssl rand -hex 12
+}
