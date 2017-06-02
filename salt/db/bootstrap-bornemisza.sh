@@ -24,7 +24,7 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	COUNTER=1
 	for i in ${db_HostLocation[@]}
 	do
-		HOSTNAME=$db_HostPrefix.${db_HostLocation[i]}.$app_Domain
+		HOSTNAME=$db_HostPrefix.${db_HostLocation[i]}.$db_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 		let "COUNTER++"
