@@ -2,6 +2,7 @@
 
 cd /opt/scripts
 source ./config.sh db
+sh bootstrap-common.sh db
 
 # create state tree
 for FILE in top.sls hosts.sls files/hosts cockroachdb.sls
