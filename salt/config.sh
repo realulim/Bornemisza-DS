@@ -12,5 +12,9 @@ app_HostPrefix=app
 app_Domain=fra.bornemisza.de
 app_publicIpInterface=eth0
 app_privateIpInterface=eth1
+
+db_HostLocation=(fra ams lon)
 db_HostPrefix=db
-db_Domain=fra.bornemisza.de
+db_Domain=bornemisza.de
+db_publicIpInterface=eth0
+db_privateIpInterface=eth1
