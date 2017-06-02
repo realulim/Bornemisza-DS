@@ -7,8 +7,8 @@ fi
 
 BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
-mkdir /opt/bin
-cd /opt/bin
+mkdir /opt/scripts
+cd /opt/scripts
 curl -o ./config.sh -L $BORNEY/common/config.sh
 source config.sh $1
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /opt/bin
+cd /opt/scripts
 source ./config.sh app
 sh bootstrap-common.sh app
 

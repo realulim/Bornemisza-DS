@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /opt
+cd /opt/scripts
 source ./config.sh db
 
 # create state tree
