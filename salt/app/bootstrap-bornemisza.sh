@@ -51,12 +51,10 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
-# determine my position in the cluster
-OFFSET=`printf "$app_FirstPrivateIp" | cut -d'.' -f 4`
-PREFIX=`printf "$app_FirstPrivateIp" | sed -r 's/(.*)\..*/\1/'`
+# determine my private IP
 if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-        POS=`grep "$IP" $PillarLocal/basics.sls | grep -v "ip:" | cut -d':' -f1 | sed "s/ip//"`
-        printf "privip: $PREFIX.$[$POS + $OFFSET - 1]\n" | tee -a $PillarLocal/basics.sls
+	PRIVIP=`ip addr show $app_privateIpInterface|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
+	printf "privip: $PRIVIP\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for floating IP and determine its hostname and domain
