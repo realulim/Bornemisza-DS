@@ -1,7 +1,8 @@
 #!/bin/bash
 
-cd /opt
+cd /opt/bin
 source ./config.sh app
+sh bootstrap-common.sh app
 
 # create state tree
 mkdir -p $SaltLocal/files/haproxy
@@ -39,12 +40,6 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 	done
-fi
-
-# determine my private IP
-if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	PRIVIP=`ip addr show $app_privateIpInterface|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-	printf "privip: $PRIVIP\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for floating IP and determine its hostname and domain

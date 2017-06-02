@@ -7,8 +7,9 @@ fi
 
 BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
-cd /opt
-curl -o ./config.sh -L $BORNEY/config.sh
+mkdir /opt/bin
+cd /opt/bin
+curl -o ./config.sh -L $BORNEY/common/config.sh
 source config.sh $1
 
 # update system
@@ -40,6 +41,8 @@ sed -i.bak 's/\#master_type: str/master_type: disable/g' /etc/salt/minion
 systemctl stop salt-minion
 
 # download and process salt files
+curl -o bootstrap-common.sh -L $BORNEY/common/bootstrap-common.sh
+cd /opt
 curl -o bootstrap-bornemisza.sh -L $BORNEY/$1/bootstrap-bornemisza.sh
 chmod u+x bootstrap-bornemisza.sh
 sh bootstrap-bornemisza.sh
