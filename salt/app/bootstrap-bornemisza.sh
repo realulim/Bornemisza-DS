@@ -1,7 +1,5 @@
 #!/bin/bash
 
-IP=`curl http://ipecho.net/plain`
-
 cd /opt
 source ./config.sh app
 
