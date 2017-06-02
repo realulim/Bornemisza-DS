@@ -4,6 +4,11 @@
 {% set PWD_FILE='/root/.payara' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 
+install_payara_pkgs:
+  pkg.installed:
+    - pkgs:
+      - java-1.8.0-openjdk.x86_64
+
 install-systemctl-unitfile:
    file.managed:
     - name: /usr/lib/systemd/system/payara.service
