@@ -28,11 +28,5 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
-# determine my private IP
-if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	PRIVIP=`ip addr show $db_privateIpInterface|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-	printf "privip: $PRIVIP\n" | tee -a $PillarLocal/basics.sls
-fi
-
 # create server
 salt-call -l info state.highstate
