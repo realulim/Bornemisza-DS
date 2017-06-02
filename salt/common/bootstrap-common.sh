@@ -7,7 +7,7 @@ source ./config.sh $1
 HOSTNAME=`domainname -f`
 VARNAME=$1_publicIpInterface
 IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sl
+printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
 
 # determine my private IP
 if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
