@@ -1,3 +1,6 @@
+alias cb='curl -o bootstrap.sh https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/bootstrap.sh'
+alias cbapp='curl -o bootstrap-bornemisza.sh https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/app/bootstrap-bornemisza.sh'
+alias cbdb='curl -o bootstrap-bornemisza.sh https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/db/bootstrap-bornemisza.sh'
 alias e='nano -w'
 alias ebr='nano -w /etc/profile.d/bash.sh'
 alias h='history'
