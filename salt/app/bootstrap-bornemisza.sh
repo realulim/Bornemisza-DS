@@ -46,10 +46,10 @@ fi
 read -p 'floating IP: ' FLOATIP
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "floatip: $FLOATIP\n" >> $PillarLocal/basics.sls
-	FLOATHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
-	printf "floathost: $FLOATHOST\n" | tee -a $PillarLocal/basics.sls
-	FLOATDOMAIN=`printf $FLOATHOST | rev | awk -F. '{ print $1"."$2 }' | rev`
-	printf "floatdomain: $FLOATDOMAIN\n" | tee -a $PillarLocal/basics.sls
+	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
+	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
+	SSLDOMAIN=`printf $SSLHOST | rev | awk -F. '{ print $1"."$2 }' | rev`
+	printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number

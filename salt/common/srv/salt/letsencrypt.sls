@@ -27,10 +27,10 @@ CF_Email:
 
 issue-certificate:
   cmd.run:
-    - name: ~/.acme.sh/acme.sh --issue --dns dns_cf -d {{ pillar['floatdomain'] }} -d {{ pillar['floathost'] }} -d {{ pillar['hostname'] }}
-    - unless: ls ~/.acme.sh/{{ pillar['floatdomain'] }}/*.cer
+    - name: ~/.acme.sh/acme.sh --issue --dns dns_cf -d {{ pillar['ssldomain'] }} -d {{ pillar['sslhost'] }} -d {{ pillar['hostname'] }}
+    - unless: ls ~/.acme.sh/{{ pillar['ssldomain'] }}/*.cer
 
-~/.acme.sh/{{ pillar['floatdomain'] }}:
+~/.acme.sh/{{ pillar['ssldomain'] }}:
   file.directory:
     - user: root
     - group: root
@@ -40,7 +40,7 @@ issue-certificate:
       - user
       - group
       - mode
-    - onlyif: ls ~/.acme.sh/{{ pillar['floatdomain'] }}
+    - onlyif: ls ~/.acme.sh/{{ pillar['ssldomain'] }}
 
 create-strong-dh-group:
   cmd.run:
@@ -49,8 +49,8 @@ create-strong-dh-group:
 
 create-pem-file:
   cmd.run:
-    - name: cat /root/.acme.sh/{{ pillar['floatdomain'] }}/fullchain.cer /etc/pki/tls/private/dhparams.pem /root/.acme.sh/{{ pillar['floatdomain'] }}/{{ pillar['floatdomain'] }}.key > /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem
-    - onlyif: test /etc/pki/tls/private/{{ pillar['floatdomain'] }}.pem -ot /root/.acme.sh/{{ pillar['floatdomain'] }}/fullchain.cer
+    - name: cat /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer /etc/pki/tls/private/dhparams.pem /root/.acme.sh/{{ pillar['ssldomain'] }}/{{ pillar['ssldomain'] }}.key > /etc/pki/tls/private/{{ pillar['ssldomain'] }}.pem
+    - onlyif: test /etc/pki/tls/private/{{ pillar['ssldomain'] }}.pem -ot /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer
 
 protect-pem-file:
   cmd.run:
