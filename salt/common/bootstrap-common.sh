@@ -18,6 +18,18 @@ if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	printf "privip: $PRIVIP\n" | tee -a $PillarLocal/basics.sls
 fi
 
+# ask for Cloudflare API key
+read -p 'Cloudflare API Key: ' CFKEY
+if [ `grep CFKEY: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+        printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
+fi
+
+# ask for Cloudflare email (username of Cloudflare account)
+read -p 'Cloudflare Email: ' CFEMAIL
+if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+        printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
+fi
+
 if [[ -e /opt/bootstrap.sh ]]; then
 	mv /opt/bootstrap.sh /opt/scripts
 fi
