@@ -4,7 +4,7 @@ cd /opt/scripts
 source ./config.sh $1
 
 # determine my hostname and public ip
-if [ `grep hostname: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	HOSTNAME=`domainname -f`
 	VARNAME=$1_publicIpInterface
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
@@ -12,7 +12,7 @@ if [ `grep hostname: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # determine my private IP
-if [ `grep privip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	VARNAME=$1_privateIpInterface
 	PRIVIP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "privip: $PRIVIP\n" | tee -a $PillarLocal/basics.sls
