@@ -5,7 +5,7 @@ source ./config.sh db
 sh bootstrap-common.sh db
 
 # create state tree
-for FILE in top.sls hosts.sls files/hosts cockroachdb.sls
+for FILE in top.sls hosts.sls files/hosts couchdb.sls files/couchdb/couchdb.service
 do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done
