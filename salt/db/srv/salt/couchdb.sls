@@ -4,14 +4,14 @@ install_couchdb_pkgs:
       - autoconf
       - autoconf-archive
       - automake
-      - curl-devel
+      - libcurl-devel
       - erlang-asn1
       - erlang-erts
       - erlang-eunit
       - erlang-os_mon
       - erlang-xmerl
       - help2man
-      - js-devel-1.8.5
+      - js-devel
       - libicu-devel
       - libtool
       - perl-Test-Harness
