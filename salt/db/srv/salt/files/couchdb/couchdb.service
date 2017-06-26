@@ -1,0 +1,10 @@
+[Unit]
+Description=CouchDB 2.0 service
+After=network.target
+ 
+[Service]
+Type=simple
+User=couchpotato
+ExecStart=/home/couchpotato/couchdb/bin/couchdb -o /dev/stdout -e /dev/stderr
+Restart=on-failure
+ExecStop=/bin/kill -TERM \$MAINPID
