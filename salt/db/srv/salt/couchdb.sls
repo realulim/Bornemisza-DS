@@ -36,6 +36,7 @@ couchpotato:
 
 download-couchdb:
   cmd.run:
-    - name: bash -c 'mkdir ~/tmp && cd ~/tmp && wget http://mirror.synyx.de/apache/couchdb/source/2.0.0/{{ COUCHDB_TARGZ }}'
-    - user: couchpotato
-    - unless: ls ~/tmp/{{ COUCHDB_TARGZ }}
+    - name: bash -c 'mkdir tmp && cd tmp && wget http://mirror.synyx.de/apache/couchdb/source/2.0.0/{{ COUCHDB_TARGZ }}'
+    - cwd: /home/couchpotato
+    - runas: couchpotato
+    - unless: ls ./tmp/{{ COUCHDB_TARGZ }}
