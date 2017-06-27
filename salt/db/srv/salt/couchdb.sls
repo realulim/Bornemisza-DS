@@ -67,5 +67,6 @@ run-couchdb:
 
 create-couchdb-admin-user:
   file.replace:
+    - name: {{ COUCHDB_CONFIG }}
     - pattern: ";admin = mysecretpassword"
     - repl: "admin = {{ pillar['couchdb-admin-password'] }}"
