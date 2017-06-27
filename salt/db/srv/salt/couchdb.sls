@@ -47,7 +47,7 @@ build-couchdb:
     - name: bash -c 'tar -xzf {{ COUCHDB_TARGZ }} && cd apache-couchdb-2.0.0 && ./configure && make release'
     - cwd: /home/couchpotato/tmp
     - runas: couchpotato
-    - unless: ls ./tmp/apache-couchdb-2.0.0/rel/couchdb
+    - unless: ls ./apache-couchdb-2.0.0/rel/couchdb
 
 install-couchdb:
   cmd.run:
