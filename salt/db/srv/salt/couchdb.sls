@@ -1,6 +1,7 @@
 {% set COUCHDB_DIR='apache-couchdb-2.0.0' %}
 {% set COUCHDB_TARGZ='apache-couchdb-2.0.0.tar.gz' %}
 {% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
+{% set COUCHDB_CONFIG='/home/couchpotato/couchdb/etc/local.ini' %}
 
 install_couchdb_pkgs:
   pkg.installed:
@@ -63,3 +64,8 @@ run-couchdb:
     - enable: true
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
+
+create-couchdb-admin-user:
+  file.replace:
+    - pattern: ";admin = mysecretpassword"
+    - repl: "admin = {{ pillar['couchdb-admin-password'] }}"

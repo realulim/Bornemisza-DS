@@ -17,6 +17,12 @@ do
 	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
 done
 
+# dynamic pillar: couchdb
+if [[ ! -e $PillarLocal/couchdb.sls ]]; then
+        curl -o $PillarLocal/couchdb.sls -L $PillarRemote/couchdb.sls
+        sed -ie s/couchdb-admin-password:/"couchdb-admin-password: `generatepw`"/ $PillarLocal/couchdb.sls
+fi
+
 # determine cluster members hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	COUNTER=1
