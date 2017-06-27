@@ -7,4 +7,3 @@ Type=simple
 User=couchpotato
 ExecStart=/home/couchpotato/couchdb/bin/couchdb -o /dev/stdout -e /dev/stderr
 Restart=on-failure
-ExecStop=/bin/kill -TERM \$MAINPID
