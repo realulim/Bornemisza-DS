@@ -1,3 +1,5 @@
+{% set COUCHDB_TARGZ='apache-couchdb-2.0.0.tar.gz' %}
+
 install_couchdb_pkgs:
   pkg.installed:
     - pkgs:
@@ -31,3 +33,9 @@ couchpotato:
     - fullname: CouchDB Administrator
     - shell: /bin/bash
     - home: /home/couchpotato
+
+download-couchdb:
+  cmd.run:
+    - name: bash -c 'mkdir ~/tmp && cd ~/tmp && wget http://mirror.synyx.de/apache/couchdb/source/2.0.0/{{ COUCHDB_TARGZ }}'
+    - user: couchpotato
+    - unless: ls ~/tmp/{{ COUCHDB_TARGZ }}
