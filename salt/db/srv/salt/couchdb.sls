@@ -1,4 +1,5 @@
 {% set COUCHDB_TARGZ='apache-couchdb-2.0.0.tar.gz' %}
+{% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 
 install_couchdb_pkgs:
   pkg.installed:
@@ -41,9 +42,16 @@ download-couchdb:
     - runas: couchpotato
     - unless: ls ./tmp/{{ COUCHDB_TARGZ }}
 
-install-couchdb:
+build-couchdb:
   cmd.run:
     - name: bash -c 'tar -xzf {{ COUCHDB_TARGZ }} && cd apache-couchdb-2.0.0 && ./configure && make release'
     - cwd: /home/couchpotato/tmp
     - runas: couchpotato
-    - unless: ls ./tmp/apache-couchdb-2.0.0
+    - unless: ls ./tmp/apache-couchdb-2.0.0/rel/couchdb
+
+install-couchdb:
+  cmd.run:
+    - name: bash -c 'cp -R rel/couchdb ~/ && find ~/couchdb -type d -exec chmod 0770 {} \; && chmod 0644 ~/couchdb/etc/* && rm -rf ./tmp'
+    - cwd: /home/couchpotato
+    - runas: couchpotato
+    - unless: ls {{ COUCHDB_BINARY }}
