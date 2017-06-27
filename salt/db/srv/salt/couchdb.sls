@@ -52,7 +52,7 @@ build-couchdb:
 
 install-couchdb:
   cmd.run:
-    - name: bash -c 'cp -R rel/couchdb ~/ && find ~/couchdb -type d -exec chmod 0770 {} \; && chmod 0644 ~/couchdb/etc/* && rm -rf ~/tmp'
+    - name: bash -c 'cp -R rel/couchdb ~/ && find ~/couchdb -type d -exec chmod 0770 {} \; && chmod 0644 ~/couchdb/etc/*'
     - cwd: /home/couchpotato/tmp/{{ COUCHDB_DIR }}
     - runas: couchpotato
     - unless: ls {{ COUCHDB_BINARY }}
