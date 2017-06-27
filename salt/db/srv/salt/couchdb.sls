@@ -58,15 +58,16 @@ install-couchdb:
     - runas: couchpotato
     - unless: ls {{ COUCHDB_BINARY }}
 
+create-couchdb-admin-user:
+  file.replace:
+    - name: {{ COUCHDB_CONFIG }}
+    - pattern: ";admin = mysecretpassword"
+    - repl: "admin = {{ pillar['couchdb-admin-password'] }}"
+
 run-couchdb:
   service.running:
     - name: couchdb
     - enable: true
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
-
-create-couchdb-admin-user:
-  file.replace:
-    - name: {{ COUCHDB_CONFIG }}
-    - pattern: ";admin = mysecretpassword"
-    - repl: "admin = {{ pillar['couchdb-admin-password'] }}"
+      - file: {{ COUCHDB_CONFIG }}
