@@ -56,3 +56,10 @@ install-couchdb:
     - cwd: /home/couchpotato/tmp/{{ COUCHDB_DIR }}
     - runas: couchpotato
     - unless: ls {{ COUCHDB_BINARY }}
+
+run-couchdb:
+  service.running:
+    - name: couchdb
+    - enable: true
+    - listen:
+      - file: /usr/lib/systemd/system/couchdb.service
