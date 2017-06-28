@@ -1,4 +1,4 @@
-{% for port in ['15984', '9000'] %}
+{% for port in ['443', '9000'] %}
 firewall_rule_allow_{{ port }}:
   cmd.run:
     - name: ufw allow {{ port }}/tcp
