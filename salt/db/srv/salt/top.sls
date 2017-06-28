@@ -4,3 +4,4 @@ base:
     - hosts
     - letsencrypt
     - couchdb
+    - haproxy
