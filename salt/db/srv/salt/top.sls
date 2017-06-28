@@ -5,3 +5,4 @@ base:
     - letsencrypt
     - couchdb
     - haproxy
+    - ufw
