@@ -50,5 +50,7 @@ if [ `grep ssl /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
+chmod -R 400 $PillarLocal
+
 # create server
 salt-call -l info state.highstate
