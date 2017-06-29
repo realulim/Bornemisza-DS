@@ -20,7 +20,7 @@ yum clean all
 # create state tree
 mkdir -p $SaltLocal/files/basics
 mkdir -p $PillarLocal
-for FILE in $SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/letsencrypt.sls
+for FILE in $SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
 do
         curl -o $FILE -L $SaltRemoteRoot/common/$FILE
 done
