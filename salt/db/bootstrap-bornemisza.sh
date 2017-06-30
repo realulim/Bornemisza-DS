@@ -7,7 +7,7 @@ sh bootstrap-common.sh db
 # create state tree
 mkdir -p $SaltLocal/files/couchdb
 mkdir -p $SaltLocal/files/haproxy
-for FILE in top.sls files/haproxy/haproxy.cfg hosts.sls files/hosts couchdb.sls files/couchdb/couchdb.service ufw.sls
+for FILE in top.sls files/haproxy/haproxy.cfg hosts.sls files/hosts couchdb.sls files/couchdb/couchdb.service files/couchdb/netrc ufw.sls
 do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done

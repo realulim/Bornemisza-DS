@@ -72,9 +72,15 @@ run-couchdb:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
 
+/srv/pillar/netrc:
+  file.managed:
+    - source: salt://files/couchdb/netrc
+    - template: jinja
+    - mode: 400
+
 {% for db in ['_users', '_replicator', '_global_changes'] %}
 create-database-{{ db }}:
   cmd.run:
-    - name: curl -X PUT http://admin:{{ pillar['couchdb-admin-password'] }}@127.0.0.1:5984/{{ db }}
-    - unless: curl http://admin:{{ pillar['couchdb-admin-password'] }}@127.0.0.1:5984/{{ db }} | grep {{ db }}
+    - name: curl -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
+    - unless: curl --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep {{ db }}
 {% endfor %}
