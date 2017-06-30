@@ -21,7 +21,7 @@ download-payara:
 
 # If there is a new Payara zip file:
 #  stop Payara
-#  remove old installation
+#  remove old installation and pillar file
 #  extract new zip file and rename extracted directory sensibly
 payara-installed:
   service.dead:
@@ -29,7 +29,7 @@ payara-installed:
     - onchanges:
       - download-payara
   cmd.run:
-    - name: rm -rf {{ PAYARA_DIR }}
+    - name: bash -c 'rm -rf {{ PAYARA_DIR }} && rm -f /srv/pillar/payara.sls'
     - onchanges:
       - download-payara
   archive.extracted:
