@@ -71,3 +71,10 @@ run-couchdb:
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
+
+{% for db in ['_users', '_replicator', '_global_changes'] %}
+create-database-{{ db }}:
+  cmd.run:
+    - name: curl -X POST http://admin:{{ pillar['couchdb-admin-password'] }}@127.0.0.1:5984/{{ db }}
+    - unless: curl http://admin:{{ pillar['couchdb-admin-password'] }}@127.0.0.1:5984/{{ db }} | grep {{ db }}
+{% endfor %}
