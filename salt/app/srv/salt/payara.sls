@@ -1,6 +1,6 @@
 {% set PAYARA_DIR='/opt/payara' %}
-{% set PAYARA_VERSION='4.1.1.171.1' %}
-{% set PAYARA_ARTIFACT='payara-4.1.1.171.1.zip' %}
+{% set PAYARA_VERSION='4.1.2.172' %}
+{% set PAYARA_ARTIFACT='payara-4.1.2.172.zip' %}
 {% set PWD_FILE='/root/.payara' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 
