@@ -29,7 +29,7 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	curl -o $PillarLocal/couchdb.sls -L $PillarRemote/couchdb.sls
 	read -p 'CouchDB Admin Password [leave empty to generate random password]: ' COUCH_PW
 	if [[ -z $COUCH_PW ]]; then
-		COUCH_PW = `generatepw`
+		COUCH_PW=`generatepw`
 	fi
 	sed -ie s/couchdb-admin-password:/"couchdb-admin-password: $COUCH_PW"/ $PillarLocal/couchdb.sls
 fi
