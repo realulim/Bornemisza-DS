@@ -53,15 +53,6 @@ install-couchdb:
     - runas: couchpotato
     - unless: ls {{ COUCHDB_BINARY }}
 
-run-couchdb:
-  service.running:
-    - name: couchdb
-    - enable: true
-    - listen:
-      - file: /usr/lib/systemd/system/couchdb.service
-      - file: {{ COUCHDB_CONFIG }}
-      - file: /home/couchpotato/couchdb/etc/vm.args
-
 install-systemctl-unitfile:
    file.managed:
     - name: /usr/lib/systemd/system/couchdb.service
@@ -89,4 +80,15 @@ create-database-{{ db }}:
   cmd.run:
     - name: curl -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
     - unless: curl --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep {{ db }}
+    - require:
+      - run-couchdb
 {% endfor %}
+
+run-couchdb:
+  service.running:
+    - name: couchdb
+    - enable: true
+    - listen:
+      - file: /usr/lib/systemd/system/couchdb.service
+      - file: {{ COUCHDB_CONFIG }}
+      - file: /home/couchpotato/couchdb/etc/vm.args
