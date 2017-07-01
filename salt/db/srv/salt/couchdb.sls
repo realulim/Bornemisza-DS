@@ -97,17 +97,17 @@ run-couchdb:
       - file: {{ COUCHDB_CONFIG }}
       - file: /home/couchpotato/couchdb/etc/vm.args
 
-{% for db in ['_users', '_replicator', '_global_changes'] %}
+{% for db in ['_users', '_replicator', '_global_changes', 'nodes'] %}
 create-database-{{ db }}:
   cmd.run:
     - name: curl -s -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
     - onlyif: curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep "Database does not exist"
 {% endfor %}
 
-{% for node in [pillar['privip1'], pillar['privip2'], pillar['privip3']] %}
+#{% for node in [pillar['privip1'], pillar['privip2'], pillar['privip3']] %}
 #add-{{ node }}-to-cluster:
 #  cmd.run:
 #    - name: curl -s --netrc-file /srv/pillar/netrc -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
 #    - onlyif: </dev/tcp/{{ node }}/4369
 #    - unless: curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/_membership|grep {{ node }}'
-{% endfor %}
+#{% endfor %}
