@@ -69,10 +69,10 @@ configure-couchdb-logging:
   file.append:
     - name: {{ COUCHDB_CONFIG }}
     - text: |
-      - "[log]"
-      - "writer = file"
-      - "file = /home/couchpotato/couchdb.log"
-      - "level = info"
+[log]|
+writer = file|
+file = /home/couchpotato/couchdb.log|
+level = info
 
 /home/couchpotato/couchdb/etc/vm.args:
   file.managed:
