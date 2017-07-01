@@ -73,6 +73,7 @@ configure-couchdb-logging:
         writer = file
         file = /home/couchpotato/couchdb.log
         level = info
+    - show_changes: False
 
 /home/couchpotato/couchdb/etc/vm.args:
   file.managed:
