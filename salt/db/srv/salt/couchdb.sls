@@ -26,11 +26,6 @@ install_couchdb_pkgs:
       - erlang-jiffy
       - erlang-snappy
 
-install-systemctl-unitfile:
-   file.managed:
-    - name: /usr/lib/systemd/system/couchdb.service
-    - source: salt://files/couchdb/couchdb.service
-
 couchpotato:
   user.present:
     - fullname: CouchDB Administrator
@@ -58,6 +53,20 @@ install-couchdb:
     - runas: couchpotato
     - unless: ls {{ COUCHDB_BINARY }}
 
+run-couchdb:
+  service.running:
+    - name: couchdb
+    - enable: true
+    - listen:
+      - file: /usr/lib/systemd/system/couchdb.service
+      - file: {{ COUCHDB_CONFIG }}
+      - file: /home/couchpotato/couchdb/etc/vm.args
+
+install-systemctl-unitfile:
+   file.managed:
+    - name: /usr/lib/systemd/system/couchdb.service
+    - source: salt://files/couchdb/couchdb.service
+
 create-couchdb-admin-user:
   file.replace:
     - name: {{ COUCHDB_CONFIG }}
@@ -68,15 +77,6 @@ create-couchdb-admin-user:
   file.managed:
     - source: salt://files/couchdb/vm.args
     - template: jinja
-
-run-couchdb:
-  service.running:
-    - name: couchdb
-    - enable: true
-    - listen:
-      - file: /usr/lib/systemd/system/couchdb.service
-      - file: {{ COUCHDB_CONFIG }}
-      - file: /home/couchpotato/couchdb/etc/vm.args
 
 /srv/pillar/netrc:
   file.managed:
