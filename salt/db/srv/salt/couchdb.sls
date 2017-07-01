@@ -65,6 +65,15 @@ create-couchdb-admin-user:
     - repl: "admin = {{ pillar['couchdb-admin-password'] }}"
     - show_changes: False
 
+configure-couchdb-logging:
+  file.append:
+    - name: {{ COUCHDB_CONFIG }}
+    - text
+      - [log]
+      - writer = file
+      - file = /home/couchpotato/couchdb.log
+      - level = info
+
 /home/couchpotato/couchdb/etc/vm.args:
   file.managed:
     - source: salt://files/couchdb/vm.args
@@ -97,7 +106,7 @@ create-database-{{ db }}:
 
 {% for node in [pillar['ip1'], pillar['ip2'], pillar['ip3']] %}
 add-{{ node }}-to-cluster:
-  cmd.run:
-    - name: curl -s --netrc-file /srv/pillar/netrc -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
-    - unless: bash -c '</dev/tcp/{{ node }}/4369 || curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/_membership|grep {{ node }}'
+#  cmd.run:
+#    - name: curl -s --netrc-file /srv/pillar/netrc -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
+#    - unless: bash -c '</dev/tcp/{{ node }}/4369 || curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/_membership|grep {{ node }}'
 {% endfor %}
