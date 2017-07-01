@@ -2,6 +2,7 @@
 {% set COUCHDB_TARGZ='apache-couchdb-2.0.0.tar.gz' %}
 {% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 {% set COUCHDB_CONFIG='/home/couchpotato/couchdb/etc/local.ini' %}
+{% set AUTH='--netrc-file /srv/pillar/netrc' %}
 
 install_couchdb_pkgs:
   pkg.installed:
@@ -101,14 +102,14 @@ run-couchdb:
 {% for db in ['_users', '_replicator', '_global_changes', 'nodes'] %}
 create-database-{{ db }}:
   cmd.run:
-    - name: curl -s -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
-    - onlyif: curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep "Database does not exist"
+    - name: curl -s -X PUT {{ AUTH }} http://localhost:5984/{{ db }}
+    - onlyif: curl -s {{ AUTH }} http://localhost:5984/{{ db }} | grep "Database does not exist"
 {% endfor %}
 
 #{% for node in [pillar['ip1'], pillar['ip2'], pillar['ip3']] %}
 #add-{{ node }}-to-cluster:
 #  cmd.run:
-#    - name: curl -s --netrc-file /srv/pillar/netrc -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
+#    - name: curl -s {{ AUTH }} -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
 #    - onlyif: </dev/tcp/{{ node }}/4369
-#    - unless: curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/_membership|grep {{ node }}'
+#    - unless: curl -s {{ AUTH }} http://localhost:5984/_membership|grep {{ node }}'
 #{% endfor %}
