@@ -75,21 +75,18 @@ create-couchdb-admin-user:
     - template: jinja
     - mode: 400
 
-init-couchdb-service:
-  service.dead:
-    - name: couchdb
-    - enable: False
-
 run-couchdb:
   service.running:
     - name: couchdb
     - enable: True
-    - require:
-      - init-couchdb-service
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
       - file: /home/couchpotato/couchdb/etc/vm.args
+
+restart-couchdb:
+  cmd.run:
+    - name: systemctl restart couchdb
 
 {% for db in ['_users', '_replicator', '_global_changes'] %}
 create-database-{{ db }}:
