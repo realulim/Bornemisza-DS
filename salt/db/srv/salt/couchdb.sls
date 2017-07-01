@@ -94,3 +94,10 @@ create-database-{{ db }}:
     - name: curl -s -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
     - onlyif: curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep "Database does not exist"
 {% endfor %}
+
+{% for node in ['{{ pillar['ip1'] }}', '{{ pillar['ip2'] }}', '{{ pillar['ip3'] }}'] %}
+add-node-to-cluster:
+  cmd.run:
+    - name: curl -s --netrc-file /srv/pillar/netrc -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
+    - unless: bash -c '</dev/tcp/{{ node }}/4369 || curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/_membership|grep {{ node }}'
+{% endfor %}
