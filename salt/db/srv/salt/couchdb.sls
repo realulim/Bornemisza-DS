@@ -79,7 +79,6 @@ run-couchdb:
   service.running:
     - name: couchdb
     - enable: True
-    - init_delay: 10
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
