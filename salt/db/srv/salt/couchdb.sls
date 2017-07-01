@@ -64,6 +64,11 @@ create-couchdb-admin-user:
     - pattern: ";admin = mysecretpassword"
     - repl: "admin = {{ pillar['couchdb-admin-password'] }}"
 
+/home/couchpotato/couchdb/etc/vm.args:
+  file.managed:
+    - source: salt://files/couchdb/vm.args
+    - template: jinja
+
 run-couchdb:
   service.running:
     - name: couchdb
