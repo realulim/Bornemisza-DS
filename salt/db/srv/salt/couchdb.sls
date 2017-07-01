@@ -58,6 +58,11 @@ install-systemctl-unitfile:
     - name: /usr/lib/systemd/system/couchdb.service
     - source: salt://files/couchdb/couchdb.service
 
+init-couchdb-service:
+  service.dead:
+    - name: couchdb
+    - enable: true
+
 create-couchdb-admin-user:
   file.replace:
     - name: {{ COUCHDB_CONFIG }}
@@ -75,15 +80,6 @@ create-couchdb-admin-user:
     - template: jinja
     - mode: 400
 
-{% for db in ['_users', '_replicator', '_global_changes'] %}
-create-database-{{ db }}:
-  cmd.run:
-    - name: curl -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
-    - unless: curl --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep {{ db }}
-    - require:
-      - run-couchdb
-{% endfor %}
-
 run-couchdb:
   service.running:
     - name: couchdb
@@ -92,3 +88,10 @@ run-couchdb:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
       - file: /home/couchpotato/couchdb/etc/vm.args
+
+{% for db in ['_users', '_replicator', '_global_changes'] %}
+create-database-{{ db }}:
+  cmd.run:
+    - name: curl -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
+    - unless: curl --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep {{ db }}
+{% endfor %}
