@@ -76,6 +76,7 @@ run-couchdb:
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
+      - file: /home/couchpotato/couchdb/etc/vm.args
 
 /srv/pillar/netrc:
   file.managed:
