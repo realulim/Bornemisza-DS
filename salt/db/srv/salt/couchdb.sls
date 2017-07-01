@@ -79,18 +79,15 @@ run-couchdb:
   service.running:
     - name: couchdb
     - enable: True
+    - init_delay: 10
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
       - file: {{ COUCHDB_CONFIG }}
       - file: /home/couchpotato/couchdb/etc/vm.args
 
-restart-couchdb:
-  cmd.run:
-    - name: systemctl restart couchdb
-
 {% for db in ['_users', '_replicator', '_global_changes'] %}
 create-database-{{ db }}:
   cmd.run:
-    - name: curl -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
-    - unless: curl --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep {{ db }}
+    - name: curl -s -X PUT --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }}
+    - onlyif: curl -s --netrc-file /srv/pillar/netrc http://localhost:5984/{{ db }} | grep "Database does not exist"
 {% endfor %}
