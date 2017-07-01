@@ -68,7 +68,7 @@ create-couchdb-admin-user:
 configure-couchdb-logging:
   file.append:
     - name: {{ COUCHDB_CONFIG }}
-    - text
+    - text:
       - [log]
       - writer = file
       - file = /home/couchpotato/couchdb.log
