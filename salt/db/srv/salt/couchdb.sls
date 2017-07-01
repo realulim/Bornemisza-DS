@@ -68,12 +68,14 @@ create-couchdb-admin-user:
   file.managed:
     - source: salt://files/couchdb/vm.args
     - template: jinja
+    - show_diff: False
 
 /srv/pillar/netrc:
   file.managed:
     - source: salt://files/couchdb/netrc
     - template: jinja
     - mode: 400
+    - show_diff: False
 
 run-couchdb:
   service.running:
