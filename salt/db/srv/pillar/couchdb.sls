@@ -1,1 +1,2 @@
 couchdb-admin-password:
+cookie:

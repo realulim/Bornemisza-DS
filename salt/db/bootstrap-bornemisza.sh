@@ -28,11 +28,16 @@ fi
 # dynamic pillar: couchdb
 if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	curl -o $PillarLocal/couchdb.sls -L $PillarRemote/couchdb.sls
-	read -p 'CouchDB Admin Password [leave empty to generate random password]: ' COUCH_PW
+	read -p 'CouchDB Admin Password [leave empty to generate random string]: ' COUCH_PW
 	if [[ -z $COUCH_PW ]]; then
 		COUCH_PW=`generatepw`
 	fi
 	sed -ie s/couchdb-admin-password:/"couchdb-admin-password: $COUCH_PW"/ $PillarLocal/couchdb.sls
+	read -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
+	if [[ -z $COOKIE ]]; then
+		COOKIE=`generatepw`
+	fi
+	sed -ie s/cookie:/"cookie: $COOKIE"/ $PillarLocal/couchdb.sls
 fi
 
 # determine cluster members hostnames and ips
