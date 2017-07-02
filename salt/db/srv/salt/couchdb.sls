@@ -103,10 +103,10 @@ create-database-{{ db }}:
     - onlyif: curl -s {{ AUTH }} http://localhost:5984/{{ db }} | grep "Database does not exist"
 {% endfor %}
 
-#{% for node in [pillar['ip1'], pillar['ip2'], pillar['ip3']] %}
-#add-{{ node }}-to-cluster:
-#  cmd.run:
-#    - name: curl -s {{ AUTH }} -X PUT "http://localhost:5986/_nodes/couchdb@{{ node }}" -d {}
-#    - onlyif: </dev/tcp/{{ node }}/4369
-#    - unless: curl -s {{ AUTH }} http://localhost:5984/_membership|grep {{ node }}'
-#{% endfor %}
+join-couchdb-cluster:
+  cmd.run:
+     - name: curl -s {{ AUTH }} -X PUT "http://localhost:5986/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}
+     - onlyif:
+       - test '{{ pillar['clusterip'] }}' != '{{ pillar['privip'] }}'
+       - curl -s {{ AUTH }} http://localhost:5984/_membership|grep -F '{"all_nodes":["couchdb@{{ pillar['privip'] }}"],"cluster_nodes":["couchdb@{{ pillar['privip'] }}"]}'
+       - </dev/tcp/{{ pillar['clusterip'] }}/4369
