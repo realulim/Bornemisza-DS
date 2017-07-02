@@ -110,7 +110,7 @@ create-database-{{ db }}:
   cmd.run:
     - name: curl -s -X PUT {{ AUTH }} http://localhost:5984/{{ db }}
     - onlyif:
+      - curl -s {{ AUTH }} http://localhost:5984/{{ db }} | grep "Database does not exist"
       - test `curl -s {{ AUTH }} http://localhost:5984/_membership|jq ".all_nodes[]"|wc -l` = '3'
       - test `curl -s {{ AUTH }} http://localhost:5984/_membership|jq ".cluster_nodes[]"|wc -l` = '3'
-      - curl -s {{ AUTH }} http://localhost:5984/{{ db }} | grep "Database does not exist"
 {% endfor %}
