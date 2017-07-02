@@ -26,3 +26,8 @@ function getip {
 function generatepw {
 	openssl rand -hex 12
 }
+
+function getprivip {
+	VARNAME=$1_privateIpInterface
+	ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6
+}

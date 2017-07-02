@@ -13,9 +13,7 @@ fi
 
 # determine my private IP
 if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
-	VARNAME=$1_privateIpInterface
-	PRIVIP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-	printf "privip: $PRIVIP\n" | tee -a $PillarLocal/basics.sls
+	printf "privip: `getprivip $1`\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for Cloudflare API key

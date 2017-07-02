@@ -43,7 +43,7 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 
 	read -p 'IP Address of first Node in Cluster [leave empty if this is the first node]: ' CLUSTERIP
 	if [[ -z $CLUSTERIP ]]; then
-		CLUSTERIP=$PRIVIP
+		CLUSTERIP=`getprivip db`
 	fi
 	sed -ie s/clusterip:/"clusterip: $CLUSTERIP"/ $PillarLocal/couchdb.sls
 fi
