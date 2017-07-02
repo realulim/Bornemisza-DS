@@ -10,22 +10,23 @@ install_couchdb_pkgs:
       - autoconf
       - autoconf-archive
       - automake
-      - libcurl-devel
       - erlang-asn1
+      - erlang-erl_interface
       - erlang-erts
       - erlang-eunit
+      - erlang-jiffy
       - erlang-os_mon
+      - erlang-reltool
+      - erlang-snappy
       - erlang-xmerl
+      - gcc-c++
       - help2man
+      - jq
       - js-devel
+      - libcurl-devel
       - libicu-devel
       - libtool
       - perl-Test-Harness
-      - gcc-c++
-      - erlang-reltool
-      - erlang-erl_interface
-      - erlang-jiffy
-      - erlang-snappy
 
 couchpotato:
   user.present:
