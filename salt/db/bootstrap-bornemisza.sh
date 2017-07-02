@@ -41,7 +41,7 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	fi
 	sed -ie s/cookie:/"cookie: $COOKIE"/ $PillarLocal/couchdb.sls
 
-	read -p 'IP Address of first Node in Cluster [leave empty if this is the first node]: ' CLUSTERIP
+	read -p 'IP Address of Node already in Cluster [leave empty if this is the first node]: ' CLUSTERIP
 	if [[ -z $CLUSTERIP ]]; then
 		CLUSTERIP=`getprivip db`
 	fi
