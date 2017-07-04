@@ -99,7 +99,7 @@ run-couchdb:
 
 join-couchdb-cluster:
   cmd.run:
-     - name: curl -s {{ AUTH }} -X PUT "http://localhost:5986/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}
+     - name: curl -s {{ AUTH }} -X PUT "http://localhost:5986/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}; sleep 5
      - onlyif:
        - test '{{ pillar['clusterip'] }}' != '{{ pillar['privip'] }}'
        - curl -s {{ AUTH }} http://localhost:5984/_membership|grep -F '{"all_nodes":["couchdb@{{ pillar['privip'] }}"],"cluster_nodes":["couchdb@{{ pillar['privip'] }}"]}'
