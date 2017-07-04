@@ -60,19 +60,31 @@ install-systemctl-unitfile:
     - name: /usr/lib/systemd/system/couchdb.service
     - source: salt://files/couchdb/couchdb.service
 
-configure-couchdb:
+configure-admin-password:
   file.replace:
     - name: {{ COUCHDB_CONFIG }}
     - pattern: |
         ;admin = mysecretpassword
     - repl: |
         admin = {{ pillar['couchdb-admin-password'] }}
-        
+    - show_changes: False
+
+configure-couchdb:
+  file.replace:
+    - name: {{ COUCHDB_CONFIG }}
+    - pattern: |
+        [chttpd]
+        ;port = 5984
+        ;bind_address = 127.0.0.1
+    - repl: |
         [log]
         writer = file
         file = /home/couchpotato/couchdb.log
         level = info
-    - show_changes: False
+
+        [chttpd]
+        port = 5984
+        bind_address = {{ pillar['privip'] }}
 
 /home/couchpotato/couchdb/etc/vm.args:
   file.managed:
