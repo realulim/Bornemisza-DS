@@ -107,18 +107,18 @@ run-couchdb:
 
 join-couchdb-cluster:
   cmd.run:
-     - name: curl -s {{ AUTH }} -X PUT "http://localhost:5986/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}
+     - name: curl -s {{ AUTH }} -X PUT "http://{{ pillar['privip'] }}:5986/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}
      - onlyif:
        - test '{{ pillar['clusterip'] }}' != '{{ pillar['privip'] }}'
-       - curl -s {{ AUTH }} http://localhost:5984/_membership|grep -F '{"all_nodes":["couchdb@{{ pillar['privip'] }}"],"cluster_nodes":["couchdb@{{ pillar['privip'] }}"]}'
+       - curl -s {{ AUTH }} http://{{ pillar['privip'] }}:5984/_membership|grep -F '{"all_nodes":["couchdb@{{ pillar['privip'] }}"],"cluster_nodes":["couchdb@{{ pillar['privip'] }}"]}'
        - </dev/tcp/{{ pillar['clusterip'] }}/4369
 
 {% for db in ['_users', '_replicator', '_global_changes'] %}
 create-database-{{ db }}:
   cmd.run:
-    - name: curl -s -X PUT {{ AUTH }} http://localhost:5984/{{ db }}
+    - name: curl -s -X PUT {{ AUTH }} http://{{ pillar['privip'] }}:5984/{{ db }}
     - onlyif:
-      - curl -s {{ AUTH }} http://localhost:5984/{{ db }} | grep "Database does not exist"
-      - test `curl -s {{ AUTH }} http://localhost:5984/_membership|jq ".all_nodes[]"|wc -l` = '3'
-      - test `curl -s {{ AUTH }} http://localhost:5984/_membership|jq ".cluster_nodes[]"|wc -l` = '3'
+      - curl -s {{ AUTH }} http://{{ pillar['privip'] }}:5984/{{ db }} | grep "Database does not exist"
+      - test `curl -s {{ AUTH }} http://{{ pillar['privip'] }}:5984/_membership|jq ".all_nodes[]"|wc -l` = '3'
+      - test `curl -s {{ AUTH }} http://{{ pillar['privip'] }}:5984/_membership|jq ".cluster_nodes[]"|wc -l` = '3'
 {% endfor %}
