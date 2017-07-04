@@ -3,7 +3,7 @@
 {% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 {% set COUCHDB_CONFIG='/home/couchpotato/couchdb/etc/local.ini' %}
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
-{% set URL='http:' + pillar['privip'] + ':5984' %}
+{% set URL='http://' + pillar['privip'] + ':5984' %}
 {% set BACKDOORURL='http://localhost:5986' %}
 
 install_couchdb_pkgs:
