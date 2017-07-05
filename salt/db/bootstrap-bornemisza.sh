@@ -51,7 +51,7 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	sed -ie s/clustersize:/"clustersize: $CLUSTERSIZE"/ $PillarLocal/couchdb.sls
 fi
 
-# determine hostnames and ips
+# determine external and internal hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	COUNTER=1
 	for LOCATION in ${db_HostLocation[@]}
@@ -59,6 +59,8 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 		HOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
+		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
+		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 		let "COUNTER++"
 	done
 fi
