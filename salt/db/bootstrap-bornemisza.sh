@@ -46,9 +46,12 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 		CLUSTERIP=`getprivip db`
 	fi
 	sed -ie s/clusterip:/"clusterip: $CLUSTERIP"/ $PillarLocal/couchdb.sls
+
+	CLUSTERSIZE=${#db_HostLocation[@]}
+	sed -ie s/clustersize:/"clustersize: $CLUSTERSIZE"/ $PillarLocal/couchdb.sls
 fi
 
-# determine cluster members hostnames and ips
+# determine hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	COUNTER=1
 	for LOCATION in ${db_HostLocation[@]}

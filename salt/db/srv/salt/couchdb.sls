@@ -121,6 +121,6 @@ create-database-{{ db }}:
     - name: curl -s -X PUT {{ AUTH }} {{ URL }}/{{ db }}
     - onlyif:
       - curl -s {{ AUTH }} {{ URL }}/{{ db }} | grep "Database does not exist"
-      - test `curl -s {{ AUTH }} {{ URL }}/_membership|jq ".all_nodes[]"|wc -l` = '${#db_HostLocation[@]}'
-      - test `curl -s {{ AUTH }} {{ URL }}/_membership|jq ".cluster_nodes[]"|wc -l` = '${#db_HostLocation[@]}'
+      - test `curl -s {{ AUTH }} {{ URL }}/_membership|jq ".all_nodes[]"|wc -l` = '{{ pillar['clustersize'] }}'
+      - test `curl -s {{ AUTH }} {{ URL }}/_membership|jq ".cluster_nodes[]"|wc -l` = '{{ pillar['clustersize'] }}'
 {% endfor %}
