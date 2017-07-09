@@ -73,6 +73,17 @@ if [ `grep ssl /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
+#
+
+# determine source ips for access to database
+if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	for COUNTER in `seq -s' ' 1 $app_HostCount`
+	do
+		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
+		printf "ipapp$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
+	done
+fi
+
 chmod -R 400 $PillarLocal
 
 # create server
