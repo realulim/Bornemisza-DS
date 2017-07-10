@@ -96,6 +96,7 @@ enable-secure-admin:
       - create-admin-password-file
 
 update-admin-password-file:
+  - cmd.run:
     - name: printf '\nAS_ADMIN_ALIASPASSWORD=changeit' >> {{ PWD_FILE }}
     - unless: grep AS_ADMIN_ALIASPASSWORD {{ PWD_FILE }}
 
