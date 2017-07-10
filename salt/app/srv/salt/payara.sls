@@ -95,6 +95,16 @@ enable-secure-admin:
     - onchanges:
       - create-admin-password-file
 
+update-admin-password-file:
+    - name: printf '\nAS_ADMIN_ALIASPASSWORD=changeit' >> {{ PWD_FILE }}
+    - unless: grep AS_ADMIN_ALIASPASSWORD {{ PWD_FILE }}
+
+create-couchdb-admin-password-alias:
+  cmd.run:
+    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ PWD_FILE }} create-password-alias couchdb-admin-password
+    - onchanges:
+      - update-admin-password-file
+
 /opt/payara/glassfish/domains/domain1/docroot/index.html:
   file.replace:
     - pattern: "<h1>Hello from Payara - your server is now running!</h1>"
