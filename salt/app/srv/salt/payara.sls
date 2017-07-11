@@ -84,7 +84,7 @@ set-admin-password:
 
 create-admin-password-file:
   cmd.run:
-    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}' > {{ PWD_FILE }}
+    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}\nAS_ADMIN_ALIASPASSWORD=changeit' > {{ PWD_FILE }}
     - onchanges:
       - set-admin-password
 
@@ -95,16 +95,18 @@ enable-secure-admin:
     - onchanges:
       - create-admin-password-file
 
-update-admin-password-file:
+payara-configured:
+  file.managed:
+    - name: /opt/scripts/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
+    - source: salt://files/payara/domain-config.sh
+    - template: jinja
+    - mode: 755
   cmd.run:
-    - name: printf '\nAS_ADMIN_ALIASPASSWORD=changeit' >> {{ PWD_FILE }}
-    - unless: grep AS_ADMIN_ALIASPASSWORD {{ PWD_FILE }}
-
-create-couchdb-admin-password-alias:
-  cmd.run:
-    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ PWD_FILE }} create-password-alias couchdb-admin-password
+    - name: /opt/scripts/domain-config.sh
+    - shell: /bin/bash
     - onchanges:
-      - update-admin-password-file
+      - enable-secure-admin
+      - file: /opt/scripts/domain-config.sh
 
 /opt/payara/glassfish/domains/domain1/docroot/index.html:
   file.replace:
