@@ -97,12 +97,12 @@ enable-secure-admin:
 
 payara-configured:
   file.managed:
-    - name: /opt/scripts/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
+    - name: /opt/scripts/domain-config.sh
     - source: salt://files/payara/domain-config.sh
     - template: jinja
     - mode: 755
   cmd.run:
-    - name: /opt/scripts/domain-config.sh
+    - name: /opt/scripts/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
     - shell: /bin/bash
     - onchanges:
       - enable-secure-admin
