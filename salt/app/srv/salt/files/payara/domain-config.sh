@@ -12,4 +12,4 @@
 
 # create custom JNDI resource for CouchDB _users database
 {{ ASADMIN_CMD }} delete-custom-resource couchdb/Users
-{{ ASADMIN_CMD }} create-custom-resource --property hostname1=$3:db=_users --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.CouchDbConnectorFactory couchdb/Users
+{{ ASADMIN_CMD }} create-custom-resource --property hostname1=$3:db=_users:username=admin:password=${ALIAS=couchdb-admin-password} --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.CouchDbConnectorFactory couchdb/Users
