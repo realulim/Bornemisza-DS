@@ -12,4 +12,4 @@
 
 # create custom JNDI resource for CouchDB _users database
 {{ ASADMIN_CMD }} delete-custom-resource couchdb/Users
-{{ ASADMIN_CMD }} create-custom-resource --property url=https://$3:db=_users --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.CouchDbConnectorFactory couchdb/Users
+{{ ASADMIN_CMD }} create-custom-resource --property url=https\://$3:db=_users --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.CouchDbConnectorFactory couchdb/Users
