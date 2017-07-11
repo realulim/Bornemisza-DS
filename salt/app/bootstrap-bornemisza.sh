@@ -42,6 +42,17 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
+# determine db hostnames
+if [ `grep db1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	COUNTER=1
+	for LOCATION in ${db_HostLocation[@]}
+	do
+		HOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
+		printf "db$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
+		let "COUNTER++"
+	done
+fi
+
 # ask for floating IP and determine its hostname and domain
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'floating IP: ' FLOATIP

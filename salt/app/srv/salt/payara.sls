@@ -100,7 +100,7 @@ payara-configured:
     - template: jinja
     - mode: 755
   cmd.run:
-    - name: /opt/scripts/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
+    - name: /opt/scripts/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }} {{ pillar['db1'] }}
     - shell: /bin/bash
     - onchanges:
       - enable-secure-admin
