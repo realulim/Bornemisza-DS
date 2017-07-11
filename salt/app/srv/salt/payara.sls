@@ -20,16 +20,14 @@ download-payara:
     - unless: ls /opt/payara-{{ PAYARA_VERSION }}
 
 # If there is a new Payara zip file:
-#  stop Payara
-#  remove old installation and download pristine pillar file
-#  extract new zip file and rename extracted directory sensibly
+#  stop Payara, remove old installation, extract new zip file, rename extracted directory sensibly
 payara-installed:
   service.dead:
     - name: payara
     - onchanges:
       - download-payara
   cmd.run:
-    - name: bash -c 'rm -rf {{ PAYARA_DIR }} && curl -o $PillarLocal/payara.sls -L $PillarRemote/payara.sls'
+    - name: rm -rf {{ PAYARA_DIR }}
     - onchanges:
       - download-payara
   archive.extracted:
