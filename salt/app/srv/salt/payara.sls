@@ -1,4 +1,5 @@
 {% set PAYARA_DIR='/opt/payara' %}
+{% set DOMAIN_DIR='/opt/payara/glassfish/domains/domain1' %}
 {% set PAYARA_VERSION='4.1.2.172' %}
 {% set PAYARA_ARTIFACT='payara-4.1.2.172.zip' %}
 {% set PWD_FILE='/root/.payara' %}
@@ -106,18 +107,29 @@ payara-configured:
       - enable-secure-admin
       - file: /opt/scripts/domain-config.sh
 
-/opt/payara/glassfish/domains/domain1/docroot/index.html:
+/opt/scripts/jks_import_pem.sh:
+  file.managed:
+    - source: salt://files/payara/jks_import_pem.sh
+    - mode: 755
+
+import-certs-to-truststore:
+  cmd.run:
+    - name: /opt/scripts/jks_import_pem.sh /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer changeit {{ DOMAIN_DIR }}/config/cacerts.jks
+    - onchanges:
+      - enable-secure-admin
+
+{{ DOMAIN_DIR }}/docroot/index.html:
   file.replace:
     - pattern: "<h1>Hello from Payara - your server is now running!</h1>"
     - repl: |
         <h1>{{ pillar['hostname'] }}</h1>
 
-/opt/payara/glassfish/domains/domain1/config/domain.xml:
+{{ DOMAIN_DIR }}/config/domain.xml:
   file.replace:
     - pattern: "<hazelcast-runtime-configuration.*</hazelcast-runtime-configuration>"
     - repl: <hazelcast-runtime-configuration enabled="true" start-port="5701" hazelcast-configuration-file="hazelcast.xml" jndi-name="payara/Hazelcast"></hazelcast-runtime-configuration>
 
-/opt/payara/glassfish/domains/domain1/config/hazelcast.xml:
+{{ DOMAIN_DIR }}/config/hazelcast.xml:
   file.managed:
     - source: salt://files/payara/hazelcast.xml
     - template: jinja
@@ -127,7 +139,7 @@ restart-payara-on-config-changes:
     - name: systemctl restart payara
     - onchanges:
       - set-admin-password
-      - file: /opt/payara/glassfish/domains/domain1/config/domain.xml
-      - file: /opt/payara/glassfish/domains/domain1/config/hazelcast.xml
+      - file: {{ DOMAIN_DIR }}/config/domain.xml
+      - file: {{ DOMAIN_DIR }}/config/hazelcast.xml
     - require:
       - enable-secure-admin
