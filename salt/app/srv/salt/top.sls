@@ -6,3 +6,4 @@ base:
     - ufw
     - haproxy
     - payara
+    - maven
