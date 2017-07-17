@@ -1,7 +1,6 @@
 {% set MVN_NAME='apache-maven' %}
 {% set MVN_VERSION='3.5.0' %}
 {% set MVN_BIN='/opt/maven/bin/mvn' %}
-{% set MVN_REPO='http://repo.maven.apache.org/maven2/' %}
 {% set PAYARA_LIBS='/opt/payara/glassfish/domains/domain1/lib' %}
 
 download-and-extract-maven:
@@ -19,8 +18,14 @@ download-and-extract-maven:
 
 download-shared-libs:
   cmd.run:
-    - name: {{ MVN_BIN }} dependency:get -DrepoUrl={{ MVN_REPO }} -Dartifact=org.ektorp:org.ektorp:1.4.4:jar -Dtransitive=false -Ddest={{ PAYARA_LIBS }}
+    - name: {{ MVN_BIN }} dependency:get -Dartifact=org.ektorp:org.ektorp:1.4.4:jar
+
+copy-shared-libs:
+  cmd.run:
+    - name: {{ MVN_BIN }} dependency:copy -DoutputDirectory={{ PAYARA_LIBS }} -Dartifact=org.ektorp:org.ektorp:1.4.4:jar
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
+    - onchanges:
+      - download-shared-libs
 
 restart-payara-on-new-libs:
   cmd.run:
