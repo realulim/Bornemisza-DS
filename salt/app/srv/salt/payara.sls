@@ -46,9 +46,6 @@ create-symlink:
     - name: {{ PAYARA_DIR }}
     - target: payara-{{ PAYARA_VERSION }}
 
-/opt/{{ PAYARA_ARTIFACT }}:
-  file.absent
-
 payara-running:
   service.running:
     - name: payara
