@@ -8,7 +8,7 @@ sh bootstrap-common.sh app
 mkdir -p $SaltLocal/files/haproxy
 mkdir -p $SaltLocal/files/network
 mkdir -p $SaltLocal/files/payara
-for FILE in top.sls files/haproxy/haproxy.cfg network.sls files/network/ifcfg-eth1 files/network/bird.conf payara.sls files/payara/payara.service files/payara/domain-config.sh files/payara/hazelcast.xml files/payara/jks_import_pem.sh ufw.sls
+for FILE in top.sls files/haproxy/haproxy.cfg network.sls files/network/ifcfg-eth1 files/network/bird.conf payara.sls files/payara/payara.service files/payara/domain-config.sh files/payara/hazelcast.xml files/payara/jks_import_pem.sh maven.sls ufw.sls
 do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done
