@@ -6,7 +6,7 @@
 
 download-and-extract-maven:
   cmd.run:
-    - name: curl -o /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz -L http://www.us.apache.org/dist/maven/maven-3/{{ MVN_VERSION }}/binaries/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
+    - name: curl -o /root/download/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz -L http://www.us.apache.org/dist/maven/maven-3/{{ MVN_VERSION }}/binaries/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
     - creates: /root/download/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
   archive.extracted:
     - name: /opt
