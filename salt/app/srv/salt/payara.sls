@@ -17,8 +17,8 @@ install-systemctl-unitfile:
 
 download-payara:
   cmd.run:
-    - name: curl -o /opt/{{ PAYARA_ARTIFACT }} -L https://search.maven.org/remotecontent?filepath=fish/payara/distributions/payara/{{ PAYARA_VERSION }}/{{ PAYARA_ARTIFACT }}
-    - unless: ls /opt/payara-{{ PAYARA_VERSION }}
+    - name: curl -o /root/download/{{ PAYARA_ARTIFACT }} -L https://search.maven.org/remotecontent?filepath=fish/payara/distributions/payara/{{ PAYARA_VERSION }}/{{ PAYARA_ARTIFACT }}
+    - creates: /root/download/{{ PAYARA_ARTIFACT }}
 
 # If there is a new Payara zip file:
 #  stop Payara, remove old installation, extract new zip file, rename extracted directory sensibly
