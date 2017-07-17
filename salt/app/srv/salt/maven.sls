@@ -19,5 +19,11 @@ download-and-extract-maven:
 
 download-shared-libs:
   cmd.run:
-    - name: {{ MVN_BIN }} dependency:get -DrepoUrl={{ MVN_REPO }} -Dartifact=org.ektorp:org.ektorp:1.4.4.RELEASE:jar -Dtransitive=true -Ddest={{ PAYARA_LIBS }}
+    - name: {{ MVN_BIN }} dependency:get -DrepoUrl={{ MVN_REPO }} -Dartifact=org.ektorp:org.ektorp:1.4.4.RELEASE:jar -Dtransitive=false -Ddest={{ PAYARA_LIBS }}
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
+
+restart-payara-on-new-libs:
+  cmd.run:
+    - name: systemctl restart payara
+    - onchanges:
+      - download-shared-libs
