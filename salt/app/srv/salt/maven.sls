@@ -7,10 +7,10 @@
 download-and-extract-maven:
   cmd.run:
     - name: curl -o /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz -L http://www.us.apache.org/dist/maven/maven-3/{{ MVN_VERSION }}/binaries/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
-    - creates: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
+    - creates: /root/download/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
   archive.extracted:
     - name: /opt
-    - source: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
+    - source: /root/download/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
     - archive_format: tar
     - creates: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}
   file.symlink:
@@ -21,5 +21,3 @@ download-shared-libs:
   cmd.run:
     - name: {{ MVN_BIN }} dependency:get -DrepoUrl={{ MVN_REPO }} -Dartifact=org.ektorp:org.ektorp:1.4.4.RELEASE:jar -Dtransitive=true -Ddest={{ PAYARA_LIBS }}
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
-  file.absent:
-    - name: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz

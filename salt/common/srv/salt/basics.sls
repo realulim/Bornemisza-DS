@@ -11,6 +11,12 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
+/root/download:
+  file.directory:
+    - user: root
+    - group: root
+    - dir_mode: 755
+
 ntpd:
   service.running
 
