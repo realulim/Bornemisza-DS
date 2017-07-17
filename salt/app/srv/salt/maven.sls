@@ -31,4 +31,4 @@ restart-payara-on-new-libs:
   cmd.run:
     - name: systemctl restart payara
     - onchanges:
-      - download-shared-libs
+      - copy-shared-libs
