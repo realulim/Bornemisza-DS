@@ -15,9 +15,11 @@ download-and-extract-maven:
     - creates: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}
   file.symlink:
     - name: /opt/maven
-    - target: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}
+    - target: {{ MVN_NAME }}-{{ MVN_VERSION }}
 
 download-shared-libs:
   cmd.run:
-    - name: mvn dependency:get -DrepoUrl={{ MVN_REPO }} -Dartifact=org.ektorp:org.ektorp:1.4.4.RELEASE:jar -Dtransitive=true -Ddest={{ PAYARA_LIBS }}
+    - name: {{ MVN_BIN }} dependency:get -DrepoUrl={{ MVN_REPO }} -Dartifact=org.ektorp:org.ektorp:1.4.4.RELEASE:jar -Dtransitive=true -Ddest={{ PAYARA_LIBS }}
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
+  file.absent:
+    - name: /opt/{{ MVN_NAME }}-{{ MVN_VERSION }}-bin.tar.gz
