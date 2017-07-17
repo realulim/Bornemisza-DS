@@ -33,7 +33,7 @@ payara-installed:
       - download-payara
   archive.extracted:
     - name: /opt
-    - source: /opt/{{ PAYARA_ARTIFACT }}
+    - source: /root/download/{{ PAYARA_ARTIFACT }}
     - archive_format: zip
     - unless: ls {{ PAYARA_DIR }}
   file.rename:
