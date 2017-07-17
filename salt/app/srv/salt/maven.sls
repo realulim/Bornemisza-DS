@@ -22,7 +22,8 @@ download-shared-libs:
 
 copy-shared-libs:
   cmd.run:
-    - name: {{ MVN_BIN }} dependency:copy -DoutputDirectory={{ PAYARA_LIBS }} -Dartifact=org.ektorp:org.ektorp:1.4.4:jar
+    - name: {{ MVN_BIN }} dependency:copy-dependencies -DoutputDirectory={{ PAYARA_LIBS }}
+    - cwd: /srv/salt/files/maven/pom.xml
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
     - onchanges:
       - download-shared-libs
