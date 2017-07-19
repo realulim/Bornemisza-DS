@@ -8,7 +8,7 @@ sh bootstrap-common.sh db
 mkdir -p $SaltLocal/files/couchdb
 mkdir -p $SaltLocal/files/haproxy
 for FILE in	top.sls files/haproxy/haproxy.cfg hosts.sls ufw.sls files/hosts \
-		couchdb.sls files/couchdb/couchdb.service files/couchdb/netrc files/couchdb/vm.args
+		couchdb.sls files/couchdb/couchdb.service files/couchdb/netrc files/couchdb/vm.args files/couchdb/couchdb.logrotate.conf
 do
 	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
 done

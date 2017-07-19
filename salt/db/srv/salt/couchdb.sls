@@ -97,6 +97,10 @@ configure-admin-password-and-logging:
     - mode: 400
     - show_changes: False
 
+/etc/logrotate.d/couchdb:
+  file.managed:
+    - source: salt://files/couchdb.logrotate.conf
+
 run-couchdb:
   service.running:
     - name: couchdb
