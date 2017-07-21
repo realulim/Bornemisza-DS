@@ -2,7 +2,10 @@
 
 # $1 absolute path to asadmin binary
 # $2 absolute path to password file
-# $3 couchdb hostname available via https
+# $3 couchdb first hostname available via https
+# $4 couchdb second hostname available via https
+# $5 couchdb third hostname available via https
+# Note: the three hostnames can be identical, if client-side load balancing is not necessary
 
 {% set ASADMIN_CMD='$1 --interactive=false --user admin --passwordfile=$2' %}
 
@@ -12,4 +15,4 @@
 
 # create custom JNDI resource for CouchDB _users database
 {{ ASADMIN_CMD }} delete-custom-resource couchdb/Users
-{{ ASADMIN_CMD }} create-custom-resource --property hostname1=$3:db=_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.UsersDbConnectorFactory couchdb/Users
+{{ ASADMIN_CMD }} create-custom-resource --property hostname1=$3:hostname2=$4:hostname3=$5:db=_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.UsersDbConnectorFactory couchdb/Users
