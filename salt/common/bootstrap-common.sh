@@ -4,9 +4,9 @@ cd /opt/scripts
 source ./config.sh $1
 
 # determine my hostname, domain and public ip
+HOSTNAME=`domainname -f`
+SSLDOMAIN=`printf $HOSTNAME | rev | awk -F. '{ print $1"."$2 }' | rev`
 if [ `grep hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
-	HOSTNAME=`domainname -f`
-	SSLDOMAIN=`printf $HOSTNAME | rev | awk -F. '{ print $1"."$2 }' | rev`
 	VARNAME=$1_publicIpInterface
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
@@ -19,7 +19,6 @@ if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # ask for Cloudflare API key
-CFK=0
 if [ `grep CFKEY: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
@@ -27,19 +26,21 @@ if [ `grep CFKEY: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
-CFE=0
 if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 	CFE=$CFEMAIL
 fi
 
-CF_AUTH_PARAMS=`echo '-H "X-Auth-Email: $CFE" -H "X-Auth-Key: $CFK" -H "Content-Type: application/json"'`
-echo "DEBUG: $CF_AUTH_PARAMS"
+CF_AUTH_PARAMS="-H \"X-Auth-Email: $CFEMAIL\" -H \"X-Auth-Key: $CFKEY\" -H \"Content-Type: application/json\""
+
+echo "DEBUG"
+echo "$CF_AUTH_PARAMS"
 
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	CFZONEID=`curl -s "$CFAPI" "$CF_AUTH_PARAMS" | jq '.result|.[]|.id' | tr -d "\""`
+echo "$CFZONEID"
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
 
 	# write SRV records for domain
