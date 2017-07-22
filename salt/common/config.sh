@@ -42,7 +42,7 @@ function cloudflareget {
 }
 
 function srvrecorddata {
-	echo "{\"type\":\"SRV\",\"name\":\"_db._tcp."$1".\",\"content\":\"SRV 1 0 443 "$2".\",\"data\":{\"priority\":1,\"weight\":0,\"port\":443,\"target\":\""$2"\",\"service\":\"_db\",\"proto\":\"_tcp\",\"name\":\""$1"\",\"ttl\":\"1\",\"proxied\":false}}"
+	echo '{"type":"SRV","name":"_db._tcp.'$1'.","content":"SRV 1 0 443 '$2'.","data":{"priority":1,"weight":0,"port":443,"target":"'$2'","service":"_db","proto":"_tcp","name":"'$1'","ttl":"1","proxied":false}}'
 }
 
 function cloudflarepostorput {
@@ -50,11 +50,11 @@ function cloudflarepostorput {
 }
 
 function cloudflarepost {
-	$DATA=`srvrecorddata $4 $5`
+	DATA=`srvrecorddata $4 $5`
 	cloudflarepostorput POST $1 $2 $3 "$data"
 }
 
 function cloudflareput {
-	$DATA=`srvrecorddata $4 $5`
+	DATA=`srvrecorddata $4 $5`
 	cloudflarepostorput PUT $1 $2 $3 "$data"
 }
