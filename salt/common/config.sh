@@ -51,10 +51,10 @@ function cloudflarepostorput {
 
 function cloudflarepost {
 	DATA=`srvrecorddata $4 $5`
-	cloudflarepostorput POST $1 $2 $3 "$data"
+	cloudflarepostorput POST $1 $2 $3 "$DATA"
 }
 
 function cloudflareput {
 	DATA=`srvrecorddata $4 $5`
-	cloudflarepostorput PUT $1 $2 $3 "$data"
+	cloudflarepostorput PUT $1 $2 $3 "$DATA"
 }
