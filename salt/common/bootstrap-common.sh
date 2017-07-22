@@ -33,22 +33,22 @@ fi
 set -x
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	CFZONEID=`cloudflare-get "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""`
+	CFZONEID=`cloudflareget "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
-exit 0
+
 	# write SRV records for domain
 	for LOCATION in ${db_HostLocation[@]}
 	do
 		DBHOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
-		SRVID=`curl -s "$CFAPI/$CFZONEID/dns_records" $CF_AUTH_PARAMS | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\""`
+		SRVID=`cloudflareget "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\""`
 		SRVDATA="{\"type\":\"SRV\",\"name\":\"_db._tcp.$SSLDOMAIN.\",\"content\":\"SRV 1 0 443 $DBHOSTNAME.\",\"data\":{\"priority\":1,\"weight\":0,\"port\":443,\"target\":\"$DBHOSTNAME\",\"service\":\"_db\",\"proto\":\"_tcp\",\"name\":\"$SSLDOMAIN\",\"ttl\":\"1\",\"proxied\":false}}"
 
 		if [ -n "$SRVID" ]; then
 			# record exist, so let's update it
-			curl -s -X PUT "$CFAPI/$CFZONEID/dns_records/$SRVID" $CF_AUTH_PARAMS --data '$SRVDATA'
+			cloudflareput "$CFAPI/$CFZONEID/dns_records/$SRVID" $CFEMAIL $CFKEY '$SRVDATA'
 		else
 			# record does not exist, so let's create it
-			curl -s -X POST "$CFAPI/$CFZONEID/dns_records" $CF_AUTH_PARAMS --data '$SRVDATA'
+			cloudflarepost "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY '$SRVDATA'
 		fi
 	done
 fi

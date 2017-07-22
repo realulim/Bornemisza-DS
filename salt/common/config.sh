@@ -37,6 +37,14 @@ function getinternalip {
 	dig -t txt $1 +short | tr -d '"'
 }
 
-function cloudflare-get {
+function cloudflareget {
 	curl -s "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json"
+}
+
+function cloudflarepost {
+	curl -s -X POST "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json" --data $4
+}
+
+function cloudflareput {
+	curl -s -X PUT "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json" --data $4
 }
