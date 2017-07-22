@@ -65,12 +65,10 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
-# determine ssl hostname and domain
+# determine ssl hostname
 if [ `grep ssl /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	SSLHOST=`domainname -f`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
-	SSLDOMAIN=`printf $SSLHOST | rev | awk -F. '{ print $1"."$2 }' | rev`
-	printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
 #

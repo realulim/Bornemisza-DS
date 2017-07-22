@@ -54,14 +54,12 @@ if [ `grep db1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
-# ask for floating IP and determine its hostname and domain
+# ask for floating IP and determine its hostname
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'floating IP: ' FLOATIP
 	printf "floatip: $FLOATIP\n" >> $PillarLocal/basics.sls
 	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
-	SSLDOMAIN=`printf $SSLHOST | rev | awk -F. '{ print $1"."$2 }' | rev`
-	printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
