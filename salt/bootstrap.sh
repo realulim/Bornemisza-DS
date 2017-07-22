@@ -14,7 +14,7 @@ source config.sh $1
 
 # update system
 yum -y update
-yum install -y bind-utils
+yum install -y bind-utils jq
 yum clean all
 
 # create state tree
