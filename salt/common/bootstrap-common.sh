@@ -19,20 +19,22 @@ if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # ask for Cloudflare API key
-CFKEY=''
+CFK=0
 if [ `grep CFKEY: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
+	CFK=$CFKEY
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
-CFEMAIL=''
+CFE=0
 if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
+	CFE=$CFEMAIL
 fi
 
-CF_AUTH_PARAMS=`echo '-H "X-Auth-Email: $CFEMAIL" -H "X-Auth-Key: $CFKEY" -H "Content-Type: application/json"'`
+CF_AUTH_PARAMS=`echo '-H "X-Auth-Email: $CFE" -H "X-Auth-Key: $CFK" -H "Content-Type: application/json"'`
 echo "DEBUG: $CF_AUTH_PARAMS"
 
 # determine zone id of domain
