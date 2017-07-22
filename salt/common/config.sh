@@ -42,9 +42,15 @@ function cloudflareget {
 }
 
 function cloudflarepost {
-	curl -s -X POST "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json" --data $4
+	$DATA=getsrvrecorddata $4 $5
+	curl -s -X POST "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json" --data "$data"
 }
 
 function cloudflareput {
-	curl -s -X PUT "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json" --data $4
+	$DATA=getsrvrecorddata $4 $5
+	curl -s -X PUT "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json" --data "$data"
+}
+
+function getsrvrecorddata {
+	echo "{\"type\":\"SRV\",\"name\":\"_db._tcp."$1".\",\"content\":\"SRV 1 0 443 "$2".\",\"data\":{\"priority\":1,\"weight\":0,\"port\":443,\"target\":\""$2"\",\"service\":\"_db\",\"proto\":\"_tcp\",\"name\":\""$1"\",\"ttl\":\"1\",\"proxied\":false}}
 }

@@ -40,15 +40,14 @@ if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	for LOCATION in ${db_HostLocation[@]}
 	do
 		DBHOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
-		SRVID=`cloudflareget "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\""`
-		SRVDATA="{\"type\":\"SRV\",\"name\":\"_db._tcp.$SSLDOMAIN.\",\"content\":\"SRV 1 0 443 $DBHOSTNAME.\",\"data\":{\"priority\":1,\"weight\":0,\"port\":443,\"target\":\"$DBHOSTNAME\",\"service\":\"_db\",\"proto\":\"_tcp\",\"name\":\"$SSLDOMAIN\",\"ttl\":\"1\",\"proxied\":false}}"
+		SRVID=`cloudflareget "$CFAPI$CFZONEID/dns_records" $CFEMAIL $CFKEY | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\""`
 
 		if [ -n "$SRVID" ]; then
-			# record exist, so let's update it
-			cloudflareput "$CFAPI/$CFZONEID/dns_records/$SRVID" $CFEMAIL $CFKEY '$SRVDATA'
+			# record exists, so let's update it
+			cloudflareput "$CFAPI$CFZONEID/dns_records/$SRVID" $CFEMAIL $CFKEY "$SSLDOMAIN" "$DBHOSTNAME"
 		else
 			# record does not exist, so let's create it
-			cloudflarepost "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY '$SRVDATA'
+			cloudflarepost "$CFAPI$CFZONEID/dns_records" $CFEMAIL $CFKEY "$SSLDOMAIN" "$DBHOSTNAME"
 		fi
 	done
 fi
