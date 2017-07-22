@@ -5,6 +5,7 @@ PillarLocal=/srv/pillar
 SaltRemoteRoot=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/
 SaltRemote=$SaltRemoteRoot/$1/srv/salt
 PillarRemote=$SaltRemoteRoot/$1/srv/pillar
+CFAPI=https://api.cloudflare.com/client/v4/zones/
 
 # you have to change these
 app_HostCount=3
