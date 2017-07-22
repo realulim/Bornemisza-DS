@@ -30,7 +30,7 @@ if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 fi
 
-CF_AUTH_PARAMS=echo '-H "X-Auth-Email: $CFEMAIL" -H "X-Auth-Key: $CFKEY" -H "Content-Type: application/json"'
+CF_AUTH_PARAMS=`echo '-H "X-Auth-Email: $CFEMAIL" -H "X-Auth-Key: $CFKEY" -H "Content-Type: application/json"'`
 
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
