@@ -4,9 +4,9 @@ cd /opt/scripts
 source ./config.sh $1
 
 # determine my hostname, domain and public ip
-HOSTNAME=`domainname -f`
-SSLDOMAIN=`printf $HOSTNAME | rev | awk -F. '{ print $1"."$2 }' | rev`
 if [ `grep hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
+	HOSTNAME=`domainname -f`
+	SSLDOMAIN=`printf $HOSTNAME | rev | awk -F. '{ print $1"."$2 }' | rev`
 	VARNAME=$1_publicIpInterface
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
@@ -19,18 +19,21 @@ if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # ask for Cloudflare API key
+CFKEY=''
 if [ `grep CFKEY: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
+CFEMAIL=''
 if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 fi
 
 CF_AUTH_PARAMS=`echo '-H "X-Auth-Email: $CFEMAIL" -H "X-Auth-Key: $CFKEY" -H "Content-Type: application/json"'`
+echo "DEBUG: $CF_AUTH_PARAMS"
 
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
@@ -41,9 +44,6 @@ if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	for LOCATION in ${db_HostLocation[@]}
 	do
 		DBHOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
-echo DEBUG
-echo "$CFAPI/$CFZONEID/dns_records"
-echo DEBUG
 		SRVID=`curl -s "$CFAPI/$CFZONEID/dns_records" "$CF_AUTH_PARAMS" | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\"`
 		SRVDATA=`echo '{"type":"SRV","name":"_db._tcp.$SSLDOMAIN.","content":"SRV 1 0 443 $DBHOSTNAME.","data":{"priority":1,"weight":0,"port":443,"target":"$DBHOSTNAME","service":"_db","proto":"_tcp","name":"$SSLDOMAIN","ttl":"1","proxied":false}}'`
 
