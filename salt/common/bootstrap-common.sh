@@ -40,7 +40,7 @@ if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	for LOCATION in ${db_HostLocation[@]}
 	do
 		DBHOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
-		SRVID=`cloudflareget "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\""`
+		SRVID=`cloudflareget "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="'$DBHOSTNAME'")|.id'| tr -d "\""`
 
 		if [ -n "$SRVID" ]; then
 			# record exists, so let's update it
