@@ -22,25 +22,20 @@ fi
 if [ `grep CFKEY: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
-	CFK=$CFKEY
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
 if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	read -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
-	CFE=$CFEMAIL
 fi
 
-CF_AUTH_PARAMS="-H \"X-Auth-Email: $CFEMAIL\" -H \"X-Auth-Key: $CFKEY\" -H \"Content-Type: application/json\""
-
+set -x
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-echo "curl -s \"$CFAPI\" $CF_AUTH_PARAMS"
-curl -s "$CFAPI" $CF_AUTH_PARAMS > /opt/out.txt
-	CFZONEID=`curl -s "$CFAPI" $CF_AUTH_PARAMS | jq '.result|.[]|.id' | tr -d "\""`
+	CFZONEID=`cloudflare-get "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
-
+exit 0
 	# write SRV records for domain
 	for LOCATION in ${db_HostLocation[@]}
 	do

@@ -36,3 +36,7 @@ function getprivip {
 function getinternalip {
 	dig -t txt $1 +short | tr -d '"'
 }
+
+function cloudflare-get {
+	curl -s "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json"
+}
