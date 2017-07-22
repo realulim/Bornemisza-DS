@@ -34,13 +34,11 @@ fi
 
 CF_AUTH_PARAMS="-H \"X-Auth-Email: $CFEMAIL\" -H \"X-Auth-Key: $CFKEY\" -H \"Content-Type: application/json\""
 
-echo "DEBUG"
-echo "$CF_AUTH_PARAMS"
-
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+echo "curl -s \"$CFAPI\" \"$CF_AUTH_PARAMS\""
+	curl -s "$CFAPI" "$CF_AUTH_PARAMS"
 	CFZONEID=`curl -s "$CFAPI" "$CF_AUTH_PARAMS" | jq '.result|.[]|.id' | tr -d "\""`
-echo "$CFZONEID"
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
 
 	# write SRV records for domain
