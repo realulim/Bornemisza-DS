@@ -36,8 +36,8 @@ CF_AUTH_PARAMS="-H \"X-Auth-Email: $CFEMAIL\" -H \"X-Auth-Key: $CFKEY\" -H \"Con
 
 # determine zone id of domain
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-echo "curl -s \"$CFAPI\" \"$CF_AUTH_PARAMS\""
-curl -s "$CFAPI" $CF_AUTH_PARAMS
+echo "curl -s \"$CFAPI\" $CF_AUTH_PARAMS"
+curl -s "$CFAPI" $CF_AUTH_PARAMS > /opt/out.txt
 	CFZONEID=`curl -s "$CFAPI" $CF_AUTH_PARAMS | jq '.result|.[]|.id' | tr -d "\""`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
 
@@ -45,7 +45,7 @@ curl -s "$CFAPI" $CF_AUTH_PARAMS
 	for LOCATION in ${db_HostLocation[@]}
 	do
 		DBHOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
-		SRVID=`curl -s "$CFAPI/$CFZONEID/dns_records" $CF_AUTH_PARAMS | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\"`
+		SRVID=`curl -s "$CFAPI/$CFZONEID/dns_records" $CF_AUTH_PARAMS | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="$DBHOSTNAME")|.id'| tr -d "\""`
 		SRVDATA="{\"type\":\"SRV\",\"name\":\"_db._tcp.$SSLDOMAIN.\",\"content\":\"SRV 1 0 443 $DBHOSTNAME.\",\"data\":{\"priority\":1,\"weight\":0,\"port\":443,\"target\":\"$DBHOSTNAME\",\"service\":\"_db\",\"proto\":\"_tcp\",\"name\":\"$SSLDOMAIN\",\"ttl\":\"1\",\"proxied\":false}}"
 
 		if [ -n "$SRVID" ]; then
