@@ -2,10 +2,6 @@
 
 # $1 absolute path to asadmin binary
 # $2 absolute path to password file
-# $3 couchdb first hostname available via https
-# $4 couchdb second hostname available via https
-# $5 couchdb third hostname available via https
-# Note: the three hostnames can be identical, if client-side load balancing is not necessary
 
 {% set ASADMIN_CMD='$1 --interactive=false --user admin --passwordfile=$2' %}
 
