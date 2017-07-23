@@ -27,8 +27,6 @@ copy-shared-libs:
     - name: {{ MVN_BIN }} dependency:copy-dependencies -DoutputDirectory={{ PAYARA_LIBS }}
     - cwd: /srv/salt/files/maven
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
-    - onchanges:
-      - download-shared-libs
 
 restart-payara-on-new-libs:
   cmd.run:
