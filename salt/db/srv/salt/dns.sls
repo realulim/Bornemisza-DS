@@ -1,4 +1,4 @@
-{% set CFCMD=/srv/salt/files/basics/cloudflarecmd.sh %}
+{% set CFCMD='/srv/salt/files/basics/cloudflarecmd.sh' %}
 {% set CFAPI=pillar['CFAPI'] %}
 {% set CFZONEID=pillar['CFZONEID'] %}
 {% set CFEMAIL=pillar['CFEMAIL'] %}
