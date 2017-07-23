@@ -9,6 +9,5 @@
 
 create-srv-record:
   cmd.run:
-    - name: {{ CFCMD }} POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} {{ DOMAIN }} {{ HOST }} {{ DATA }}
+    - name: {{ CFCMD }} POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} {{ DOMAIN }} {{ HOST }} '{{ DATA }}'
     - unless: {{ CFCMD }} GET "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} | jq '.result|.[]|select(.type=="SRV")|select(.data.target=="'{{ HOST }}'")' | grep SRV
-
