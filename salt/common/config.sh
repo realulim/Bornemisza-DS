@@ -7,7 +7,9 @@ SaltRemote=$SaltRemoteRoot/$1/srv/salt
 PillarRemote=$SaltRemoteRoot/$1/srv/pillar
 CFAPI=https://api.cloudflare.com/client/v4/zones
 
-# you have to change these
+# you have to change the following settings
+entrypoint=www.bornemisza.de
+
 app_HostCount=3
 app_HostPrefix=app
 app_Domain=fra.bornemisza.de
@@ -19,6 +21,7 @@ db_HostPrefix=db
 db_Domain=bornemisza.de
 db_publicIpInterface=eth0
 db_privateIpInterface=eth1
+# end of user configurable settings
 
 function getip {
 	host $1 | cut -d' ' -f4

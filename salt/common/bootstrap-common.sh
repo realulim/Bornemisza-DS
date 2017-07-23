@@ -4,12 +4,12 @@ cd /opt/scripts
 source ./config.sh $1
 
 # determine my hostname, domain and public ip
-HOSTNAME=`domainname -f`
-SSLDOMAIN=`printf $HOSTNAME | rev | awk -F. '{ print $1"."$2 }' | rev`
 if [ `grep -s hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	VARNAME=$1_publicIpInterface
+	HOSTNAME=`domainname -f`
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
+	SSLDOMAIN=`printf $entrypoint | rev | awk -F. '{ print $1"."$2 }' | rev`
         printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
