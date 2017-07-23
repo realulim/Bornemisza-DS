@@ -35,6 +35,7 @@ set -x
 if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	CFZONEID=`cloudflareget "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
+	printf "CFAPI: $CFAPI\n" | tee -a $PillarLocal/basics.sls
 
 	# write SRV records for domain
 	for LOCATION in ${db_HostLocation[@]}
