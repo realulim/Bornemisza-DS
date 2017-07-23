@@ -46,7 +46,7 @@ fi
 # ask for floating IP and determine its hostname
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	FLOATIP=`getip $entrypoint`
-	printf "floatip: $FLOATIP\n" >> $PillarLocal/basics.sls
+	printf "floatip: $FLOATIP\n" | tee -a $PillarLocal/basics.sls
 	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
 fi
