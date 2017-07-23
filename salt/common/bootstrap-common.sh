@@ -6,7 +6,7 @@ source ./config.sh $1
 # determine my hostname, domain and public ip
 HOSTNAME=`domainname -f`
 SSLDOMAIN=`printf $HOSTNAME | rev | awk -F. '{ print $1"."$2 }' | rev`
-if [ `grep hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
+if [ `grep -s hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 	VARNAME=$1_publicIpInterface
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
