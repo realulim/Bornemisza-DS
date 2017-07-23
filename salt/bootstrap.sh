@@ -38,5 +38,5 @@ systemctl stop salt-minion
 curl -o bootstrap-common.sh -L $BORNEY/common/bootstrap-common.sh
 cd /opt
 curl -o bootstrap-bornemisza.sh -L $BORNEY/$1/bootstrap-bornemisza.sh
-chmod u+x bootstrap-bornemisza.sh
+chmod u+x bootstrap-bornemisza.sh /srv/salt/files/basics/cloudflarecmd.sh
 sh bootstrap-bornemisza.sh
