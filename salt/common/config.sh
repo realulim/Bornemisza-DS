@@ -36,25 +36,3 @@ function getprivip {
 function getinternalip {
 	dig -t txt $1 +short | tr -d '"'
 }
-
-function cloudflareget {
-	curl -s "$1" -H "X-Auth-Email: $2" -H "X-Auth-Key: $3" -H "Content-Type: application/json"
-}
-
-function srvrecorddata {
-	echo '{"type":"SRV","name":"_db._tcp.'$1'.","content":"SRV 1 0 443 '$2'.","data":{"priority":1,"weight":0,"port":443,"target":"'$2'","service":"_db","proto":"_tcp","name":"'$1'","ttl":"1","proxied":false}}'
-}
-
-function cloudflarepostorput {
-	curl -s -X $1 "$2" -H "X-Auth-Email: $3" -H "X-Auth-Key: $4" -H "Content-Type: application/json" --data "$5"
-}
-
-function cloudflarepost {
-	DATA=`srvrecorddata $4 $5`
-	cloudflarepostorput POST $1 $2 $3 "$DATA"
-}
-
-function cloudflareput {
-	DATA=`srvrecorddata $4 $5`
-	cloudflarepostorput PUT $1 $2 $3 "$DATA"
-}
