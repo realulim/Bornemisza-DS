@@ -34,5 +34,5 @@ function getprivip {
 }
 
 function getinternalip {
-	dig -t txt $1 +short | tr -d '"'
+	dig -t A $1 +short | tr -d '"'
 }
