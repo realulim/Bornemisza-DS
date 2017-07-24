@@ -51,7 +51,7 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	sed -ie s/clustersize:/"clustersize: $CLUSTERSIZE"/ $PillarLocal/couchdb.sls
 fi
 
-# determine external and internal hostnames and ips
+# determine external hostnames and ips
 if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	COUNTER=1
 	for LOCATION in ${db_HostLocation[@]}
@@ -59,8 +59,6 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 		HOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
-		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
-		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/basics.sls
 		let "COUNTER++"
 	done
 fi
@@ -71,9 +69,17 @@ if [ `grep sslhost /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
 fi
 
-#
+# haproxy needs to know the internal ips for load balancing between them
+if [ `grep hostname1 /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
+	COUNTER=1
+	for LOCATION in ${db_HostLocation[@]}
+	do
+		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
+		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
+	done
+fi
 
-# determine source ips for access to database
+# determine source ips for access to the database
 if [ `grep ipapp /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	for COUNTER in `seq -s' ' 1 $app_HostCount`
 	do
