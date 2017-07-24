@@ -51,43 +51,36 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	sed -ie s/clustersize:/"clustersize: $CLUSTERSIZE"/ $PillarLocal/couchdb.sls
 fi
 
-# determine external hostnames and ips
-if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	COUNTER=1
-	for LOCATION in ${db_HostLocation[@]}
-	do
+# haproxy needs to know all external hostnames to select the correct load balancing strategy
+COUNTER=1
+for LOCATION in ${db_HostLocation[@]}
+do
+	if [ `grep hostname$COUNTER /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
 		HOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
-		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
-		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
-		let "COUNTER++"
-	done
-fi
-
-# determine ssl hostname
-if [ `grep sslhost /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	SSLHOST=`domainname -f`
-	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
-fi
+		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/haproxy.sls
+	fi
+	let "COUNTER++"
+done
 
 # haproxy needs to know the internal ips for load balancing between them
-if [ `grep hostname1 /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
-	COUNTER=1
-	for LOCATION in ${db_HostLocation[@]}
-	do
+COUNTER=1
+for LOCATION in ${db_HostLocation[@]}
+do
+	if [ `grep privip$COUNTER /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
 		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
 		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
-		let "COUNTER++"
-	done
-fi
+	fi
+	let "COUNTER++"
+done
 
 # determine source ips for access to the database
-if [ `grep ipapp /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	for COUNTER in `seq -s' ' 1 $app_HostCount`
-	do
+for COUNTER in `seq -s' ' 1 $app_HostCount`
+do
+	if [ `grep ipapp$COUNTER /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
 		printf "ipapp$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
-	done
-fi
+	fi
+done
 
 chmod -R 400 $PillarLocal
 
