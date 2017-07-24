@@ -79,7 +79,7 @@ do
 	let "COUNTER++"
 done
 
-# haproxy needs to know the source ips that are whitelisted for database access
+# haproxy needs to know the appserver source ips that are whitelisted for database access
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
 	if [ `grep ipapp$COUNTER /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
