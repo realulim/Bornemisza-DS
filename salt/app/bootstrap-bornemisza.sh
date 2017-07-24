@@ -43,10 +43,15 @@ if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	done
 fi
 
-# ask for floating IP and determine its hostname
+# birdc needs to know the floating ip in order to manage failover routing
 if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	FLOATIP=`getip $entrypoint`
 	printf "floatip: $FLOATIP\n" | tee -a $PillarLocal/basics.sls
+fi
+
+# letsencrypt needs to know the ssl endpoint for creating its certificate
+if [ `grep sslhost: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	FLOATIP=`getip $entrypoint`
 	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
 fi

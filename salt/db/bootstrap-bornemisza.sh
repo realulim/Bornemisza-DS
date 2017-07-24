@@ -73,6 +73,12 @@ do
 	let "COUNTER++"
 done
 
+# letsencrypt needs to know the ssl endpoint for creating its certificate
+if [ `grep sslhost: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	SSLHOST=`domainname -f`
+	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls	
+fi
+
 # determine source ips for access to the database
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
