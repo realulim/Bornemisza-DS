@@ -11,4 +11,4 @@
 
 # create custom JNDI resource for CouchDB _users database
 {{ ASADMIN_CMD }} delete-custom-resource couchdb/Users
-{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp.bornemisza.de.:db=_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype org.ektorp.CouchDbConnector --factoryclass de.bornemisza.users.da.UsersDbConnectorFactory couchdb/Users
+{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp.bornemisza.de.:db=_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype de.bornemisza.users.da.CouchDbConnectorPool --factoryclass de.bornemisza.users.da.CouchDbConnectorPoolFactory couchdb/Users
