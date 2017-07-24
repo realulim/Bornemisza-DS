@@ -76,6 +76,7 @@ if [ `grep hostname1 /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
 	do
 		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
 		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
+		let "COUNTER++"
 	done
 fi
 
