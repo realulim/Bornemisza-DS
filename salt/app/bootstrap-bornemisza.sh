@@ -33,27 +33,26 @@ if [[ ! -e $PillarLocal/payara.sls ]]; then
 	sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
 fi
 
-# determine cluster members hostnames and ips
-if [ `grep hostname1 /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	for COUNTER in `seq -s' ' 1 $app_HostCount`
-	do
+# haproxy needs to know all appserver hostnames for load balancing between them
+for COUNTER in `seq -s' ' 1 $app_HostCount`
+do
+	if [ `grep hostname$COUNTER /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
 		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
-		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
-		printf "ip$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
-	done
-fi
-
-# birdc needs to know the floating ip in order to manage failover routing
-if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	FLOATIP=`getip $entrypoint`
-	printf "floatip: $FLOATIP\n" | tee -a $PillarLocal/basics.sls
-fi
+		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/haproxy.sls
+	fi
+done
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
 if [ `grep sslhost: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
 	FLOATIP=`getip $entrypoint`
 	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
+fi
+
+# birdc needs to know the floating ip in order to manage failover routing
+if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	FLOATIP=`getip $entrypoint`
+	printf "floatip: $FLOATIP\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
