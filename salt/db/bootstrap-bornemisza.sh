@@ -51,6 +51,12 @@ if [[ ! -e $PillarLocal/couchdb.sls ]]; then
 	sed -ie s/clustersize:/"clustersize: $CLUSTERSIZE"/ $PillarLocal/couchdb.sls
 fi
 
+# letsencrypt needs to know the ssl endpoint for creating its certificate
+if [ `grep sslhost: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	SSLHOST=`domainname -f`
+	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls	
+fi
+
 # haproxy needs to know all external hostnames to select the correct load balancing strategy
 COUNTER=1
 for LOCATION in ${db_HostLocation[@]}
@@ -73,18 +79,12 @@ do
 	let "COUNTER++"
 done
 
-# letsencrypt needs to know the ssl endpoint for creating its certificate
-if [ `grep sslhost: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
-	SSLHOST=`domainname -f`
-	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls	
-fi
-
-# determine source ips for access to the database
+# haproxy needs to know the source ips that are whitelisted for database access
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
-	if [ `grep ipapp$COUNTER /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+	if [ `grep ipapp$COUNTER /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
 		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
-		printf "ipapp$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/basics.sls
+		printf "ipapp$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
 	fi
 done
 
