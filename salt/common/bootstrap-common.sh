@@ -32,7 +32,7 @@ fi
 
 # determine zone id of domain
 if ! grep -q CFZONEID: /srv/pillar/basics.sls ; then
-	CFZONEID=`/srv/salt/files/basics/cloudflarecmd.sh GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""`
+	CFZONEID=`/srv/salt/files/basics/cloudflare.sh get-zoneid "$CFAPI" $CFEMAIL $CFKEY`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
 	printf "CFAPI: $CFAPI\n" | tee -a $PillarLocal/basics.sls
 fi

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function cloudflarecmd() {
+function cmd() {
 	# $1 http method (GET, POST, PUT, DELETE)
 	# $2 url
 	# $3 cfemail
@@ -16,24 +16,24 @@ function cloudflarecmd() {
 
 function get-zoneid() {
 	CFAPI=$1; CFEMAIL=$2; CFKEY=$3
-	cloudflarecmd GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""
+	cmd GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""
 }
 
 function get-srv-targets-for-service() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; SERVICENAME=$4
-	cloudflarecmd GET "$CFAPI"/$CFZONEID/dns_records $CFEMAIL $CFKEY | \
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; $CFZONEID=$4; SERVICENAME=$5
+	cmd GET "$CFAPI"/$CFZONEID/dns_records $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'")|.data.target'
 }
 
 function exists-srv-target-for-service() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; SERVICENAME=$4; TARGET=$5
-	cloudflarecmd GET "$CFAPI"/$CFZONEID/dns_records $CFEMAIL $CFKEY | \
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; $CFZONEID=$4; SERVICENAME=$5; TARGET=$6
+	cmd GET "$CFAPI"/$CFZONEID/dns_records $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'" and .data.target=="'$TARGET'")|""'
 }
 
 function get-recordid-for() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; TYPE=$4; NAME=$5
-	cloudflarecmd GET "$CFAPI"/$CFZONEID/dns_records $CFEMAIL $CFKEY | \
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; $CFZONEID=$4; TYPE=$5; NAME=$6
+	cmd GET "$CFAPI"/$CFZONEID/dns_records $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="'$TYPE'" and .name=="'$NAME'")|.id'
 }
 
@@ -41,19 +41,19 @@ function get-recordid-for() {
 
 #RECORDID=`get-recordid-for A $HOST`
 #if [ -n "$RECORDID" ]; then
-#	cloudflarecmd DELETE "$CFAPI/$CFZONEID/dns_records/$RECORDID" $CFEMAIL $CFKEY | jq -re '.success'
+#	cmd DELETE "$CFAPI/$CFZONEID/dns_records/$RECORDID" $CFEMAIL $CFKEY | jq -re '.success'
 #	echo "Record deleted"
 #fi
 
 #RECORDID=`get-recordid-for A $HOST`
 #if [ -z "$RECORDID" ]; then
-#	cloudflarecmd POST "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY $DATA | jq -re '.success'
+#	cmd POST "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY $DATA | jq -re '.success'
 #	echo "Record created"
 #fi
 
 #RECORDID=`get-recordid-for A $HOST`
 #if [ -n "$RECORDID" ]; then
-#	cloudflarecmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORDID" $CFEMAIL $CFKEY $DATA | jq -re '.success'
+#	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORDID" $CFEMAIL $CFKEY $DATA | jq -re '.success'
 #	echo "Record updated"
 #fi
 

@@ -20,7 +20,8 @@ yum clean all
 # create state tree
 mkdir -p $SaltLocal/files/basics
 mkdir -p $PillarLocal
-for FILE in $SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflarecmd.sh $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
+for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
+		$SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
 do
         curl -o $FILE -L $SaltRemoteRoot/common/$FILE
 done
@@ -38,5 +39,5 @@ systemctl stop salt-minion
 curl -o bootstrap-common.sh -L $BORNEY/common/bootstrap-common.sh
 cd /opt
 curl -o bootstrap-bornemisza.sh -L $BORNEY/$1/bootstrap-bornemisza.sh
-chmod u+x bootstrap-bornemisza.sh /srv/salt/files/basics/cloudflarecmd.sh
+chmod u+x bootstrap-bornemisza.sh /srv/salt/files/basics/cloudflare.sh
 sh bootstrap-bornemisza.sh
