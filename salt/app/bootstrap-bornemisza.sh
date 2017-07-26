@@ -21,20 +21,20 @@ do
 done
 
 # dynamic pillar: haproxy
-if [[ ! -e $PillarLocal/haproxy.sls ]]; then
+if [ ! -e $PillarLocal/haproxy.sls ]; then
 	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls
 	sed -ie s/stats-password:/"stats-password: `generatepw`"/ $PillarLocal/haproxy.sls
 fi
 
 # dynamic pillar: payara
-if [[ ! -e $PillarLocal/payara.sls ]]; then
+if [ ! -e $PillarLocal/payara.sls ]; then
 	curl -o $PillarLocal/payara.sls -L $PillarRemote/payara.sls
 	sed -ie s/asadmin-password:/"asadmin-password: `generatepw`"/ $PillarLocal/payara.sls
 	sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
-if [ `grep sslhost: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if ! grep sslhost: /srv/pillar/basics.sls ; then
 	FLOATIP=`getip $entrypoint`
 	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
@@ -43,26 +43,26 @@ fi
 # haproxy needs to know all appserver hostnames for load balancing between them
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
-	if [ `grep hostname$COUNTER /srv/pillar/haproxy.sls | wc -l` -eq 0 ]; then
+	if ! grep hostname$COUNTER /srv/pillar/haproxy.sls ; then
 		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/haproxy.sls
 	fi
 done
 
 # birdc needs to know the floating ip in order to manage failover routing
-if [ `grep floatip: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if ! grep floatip: /srv/pillar/basics.sls ; then
 	FLOATIP=`getip $entrypoint`
 	printf "floatip: $FLOATIP\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
-if [ `grep ASN: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if ! grep ASN: /srv/pillar/basics.sls ; then
 	read -p 'ASN: ' ASN
 	printf "ASN: $ASN\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for BGP password
-if [ `grep BGP: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if ! grep BGP: /srv/pillar/basics.sls ; then
 	read -p 'BGP: ' BGP
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
 fi
