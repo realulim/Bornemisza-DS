@@ -4,7 +4,7 @@ cd /opt/scripts
 source ./config.sh $1
 
 # determine my hostname, domain and public ip
-if [ `grep -s hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
+if ! grep -qs hostname: $PillarLocal/basics.sls ; then
 	VARNAME=$1_publicIpInterface
 	HOSTNAME=`domainname -f`
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
@@ -14,29 +14,29 @@ if [ `grep -s hostname: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
 fi
 
 # determine my private IP
-if [ `grep privip: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
+if ! grep -q privip: $PillarLocal/basics.sls ; then
 	printf "privip: `getprivip $1`\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for Cloudflare API key
-if [ `grep CFKEY: $PillarLocal/basics.sls | wc -l` -eq 0 ]; then
+if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
 	read -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
-if [ `grep CFEMAIL: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if ! grep -q CFEMAIL: /srv/pillar/basics.sls ; then
 	read -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 fi
 
 # determine zone id of domain
-if [ `grep CFZONEID: /srv/pillar/basics.sls | wc -l` -eq 0 ]; then
+if ! grep -q CFZONEID: /srv/pillar/basics.sls ; then
 	CFZONEID=`/srv/salt/files/basics/cloudflarecmd.sh GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
 	printf "CFAPI: $CFAPI\n" | tee -a $PillarLocal/basics.sls
 fi
 
-if [[ -e /opt/bootstrap.sh ]]; then
+if [ -e /opt/bootstrap.sh ]; then
 	mv /opt/bootstrap.sh /opt/scripts
 fi
