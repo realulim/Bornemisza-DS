@@ -124,7 +124,7 @@ import-certs-to-truststore:
 {{ DOMAIN_DIR }}/config/domain.xml:
   file.replace:
     - pattern: "<hazelcast-runtime-configuration.*</hazelcast-runtime-configuration>"
-    - repl: <hazelcast-runtime-configuration enabled="true" start-port="5701" hazelcast-configuration-file="hazelcast.xml" jndi-name="payara/Hazelcast"></hazelcast-runtime-configuration>
+    - repl: <hazelcast-runtime-configuration hazelcast-configuration-file="hazelcast.xml" start-port="5701" enabled="true"></hazelcast-runtime-configuration>
 
 {{ DOMAIN_DIR }}/config/hazelcast.xml:
   file.managed:
