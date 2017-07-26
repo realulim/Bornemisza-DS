@@ -20,19 +20,19 @@ function get-zoneid() {
 }
 
 function get-srv-targets-for-service() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; $CFZONEID=$4; SERVICENAME=$5
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; SERVICENAME=$5
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'")|.data.target'
 }
 
 function exists-srv-target-for-service() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; $CFZONEID=$4; SERVICENAME=$5; TARGET=$6
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; SERVICENAME=$5; TARGET=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'" and .data.target=="'$TARGET'")|""'
 }
 
 function get-recordid-for() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; $CFZONEID=$4; TYPE=$5; NAME=$6
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; TYPE=$5; NAME=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="'$TYPE'" and .name=="'$NAME'")|.id'
 }
