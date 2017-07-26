@@ -52,7 +52,7 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
-if ! grep sslhost: /srv/pillar/basics.sls ; then
+if ! grep -q sslhost: /srv/pillar/basics.sls ; then
 	SSLHOST=`domainname -f`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls	
 fi
@@ -61,7 +61,7 @@ fi
 COUNTER=1
 for LOCATION in ${db_HostLocation[@]}
 do
-	if ! grep hostname$COUNTER /srv/pillar/haproxy.sls ; then
+	if ! grep -q hostname$COUNTER /srv/pillar/haproxy.sls ; then
 		HOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/haproxy.sls
 	fi
@@ -72,7 +72,7 @@ done
 COUNTER=1
 for LOCATION in ${db_HostLocation[@]}
 do
-	if ! grep privip$COUNTER /srv/pillar/haproxy.sls ; then
+	if ! grep -q privip$COUNTER /srv/pillar/haproxy.sls ; then
 		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
 		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
 	fi
@@ -82,7 +82,7 @@ done
 # haproxy needs to know the appserver source ips that are whitelisted for database access
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
-	if ! grep ipapp$COUNTER /srv/pillar/haproxy.sls ; then
+	if ! grep -q ipapp$COUNTER /srv/pillar/haproxy.sls ; then
 		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
 		printf "ipapp$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
 	fi
