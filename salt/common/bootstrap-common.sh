@@ -18,6 +18,11 @@ if ! grep -q privip: $PillarLocal/basics.sls ; then
 	printf "privip: `getprivip $1`\n" | tee -a $PillarLocal/basics.sls
 fi
 
+# specify the service I am providing
+if ! grep -q service: $PillarLocal/basics.sls ; then
+	printf "service: $1" | tee -a $PillarLocal/basics.sls
+fi
+
 # ask for Cloudflare API key
 if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
 	read -p 'Cloudflare API Key: ' CFKEY
