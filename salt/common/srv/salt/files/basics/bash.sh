@@ -10,6 +10,7 @@ alias p-='systemctl stop payara'
 alias p+='systemctl start payara'
 alias rm='rm -i'
 alias sbr='source /etc/profile.d/bash.sh'
+alias sc='salt-call'
 alias x='exit'
 
 PS1="\u@\H:\w => ";
