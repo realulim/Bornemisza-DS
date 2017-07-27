@@ -25,6 +25,3 @@ create-a-record-internal:
   cmd.run:
     - name: {{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ ADATAINTERNAL }}'
     - unless: {{ CFCMD }} get-recordid-for {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} A {{ HOSTINTERNAL }}
-
-
-#{{ salt.dnsutil.AAAA('www.google.com') }}
