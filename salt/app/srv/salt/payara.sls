@@ -93,25 +93,25 @@ enable-secure-admin:
 
 payara-configured:
   file.managed:
-    - name: /opt/scripts/domain-config.sh
+    - name: /srv/salt/files/payara/domain-config.sh
     - source: salt://files/payara/domain-config.sh
     - template: jinja
     - mode: 755
   cmd.run:
-    - name: /opt/scripts/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
+    - name: /srv/salt/files/payara/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
     - shell: /bin/bash
     - onchanges:
       - enable-secure-admin
-      - file: /opt/scripts/domain-config.sh
+      - file: /srv/salt/files/payara/domain-config.sh
 
-/opt/scripts/jks_import_pem.sh:
+/srv/salt/files/payara/jks_import_pem.sh:
   file.managed:
     - source: salt://files/payara/jks_import_pem.sh
     - mode: 755
 
 import-certs-to-truststore:
   cmd.run:
-    - name: /opt/scripts/jks_import_pem.sh /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer changeit {{ DOMAIN_DIR }}/config/cacerts.jks
+    - name: /srv/salt/files/payara/jks_import_pem.sh /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer changeit {{ DOMAIN_DIR }}/config/cacerts.jks
     - onchanges:
       - enable-secure-admin
 
