@@ -20,7 +20,7 @@ fi
 
 # specify the service I am providing
 if ! grep -q service: $PillarLocal/basics.sls ; then
-	printf "service: $1" | tee -a $PillarLocal/basics.sls
+	printf "service: $1\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for Cloudflare API key
