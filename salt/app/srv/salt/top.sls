@@ -1,6 +1,7 @@
 base:
   '*':
     - basics
+    - dns
     - letsencrypt
     - network
     - ufw
