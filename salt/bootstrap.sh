@@ -21,7 +21,7 @@ yum clean all
 mkdir -p $SaltLocal/files/basics
 mkdir -p $PillarLocal
 for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
-		$SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
+		$SaltLocal/dns.sls $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
 do
         curl -o $FILE -L $SaltRemoteRoot/common/$FILE
 done
