@@ -35,7 +35,3 @@ function getprivip {
 	VARNAME=$1_privateIpInterface
 	ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6
 }
-
-function getinternalip {
-	dig -t A $1 +short | tr -d '"'
-}

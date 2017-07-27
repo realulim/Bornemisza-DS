@@ -68,17 +68,6 @@ do
 	let "COUNTER++"
 done
 
-# haproxy needs to know the internal ips for load balancing between them
-COUNTER=1
-for LOCATION in ${db_HostLocation[@]}
-do
-	if ! grep -q privip$COUNTER /srv/pillar/haproxy.sls ; then
-		INTERNALHOSTNAME=$db_HostPrefix.$LOCATION.internal.$db_Domain
-		printf "privip$COUNTER: `getinternalip $INTERNALHOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
-	fi
-	let "COUNTER++"
-done
-
 # haproxy needs to know the appserver source ips that are whitelisted for database access
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
