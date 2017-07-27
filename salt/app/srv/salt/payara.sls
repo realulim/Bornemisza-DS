@@ -68,7 +68,6 @@ create-change-admin-password-file:
   cmd.run:
     - name: printf 'AS_ADMIN_PASSWORD=\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}\n' > {{ PWD_FILE }}
     - unless: grep {{ pillar['asadmin-password'] }} {{ PWD_FILE }}
-    - show_changes: False
 
 set-admin-password:
   cmd.run:
@@ -84,7 +83,6 @@ create-admin-password-file:
     - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}\nAS_ADMIN_ALIASPASSWORD=changeit' > {{ PWD_FILE }}
     - onchanges:
       - set-admin-password
-    - show_changes: False
 
 # SecureAdmin must be activated for access to the admin console
 enable-secure-admin:
