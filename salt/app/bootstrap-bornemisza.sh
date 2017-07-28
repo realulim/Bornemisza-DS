@@ -9,12 +9,13 @@ mkdir -p $SaltLocal/files/haproxy
 mkdir -p $SaltLocal/files/maven
 mkdir -p $SaltLocal/files/network
 mkdir -p $SaltLocal/files/payara
-for FILE in	top.sls files/haproxy/haproxy.cfg network.sls files/network/ifcfg-eth1 files/network/bird.conf \
-		payara.sls files/payara/payara.service files/payara/domain-config.sh files/payara/hazelcast.xml \
-		files/payara/jks_import_pem.sh maven.sls files/maven/pom.xml ufw.sls
-do
-	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
-done
+#for FILE in	top.sls files/haproxy/haproxy.cfg network.sls files/network/ifcfg-eth1 files/network/bird.conf \
+#		payara.sls files/payara/payara.service files/payara/domain-config.sh files/payara/hazelcast.xml \
+#		files/payara/jks_import_pem.sh maven.sls files/maven/pom.xml ufw.sls
+#do
+#	curl -o $SaltLocal/$FILE -L $SaltRemote/$FILE
+#done
+svn export --force https://github.com/realulim/Bornemisza/trunk/salt/app/srv/salt /srv/salt
 
 # static pillars
 for FILE in top.sls
