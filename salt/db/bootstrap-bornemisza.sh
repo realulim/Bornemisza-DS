@@ -4,7 +4,7 @@ cd /opt/scripts
 source ./config.sh db
 sh bootstrap-common.sh db
 
-# create state tree
+# create db state tree
 mkdir -p $SaltLocal/files/couchdb
 mkdir -p $SaltLocal/files/haproxy
 for FILE in	top.sls files/haproxy/haproxy.cfg hosts.sls ufw.sls files/hosts \

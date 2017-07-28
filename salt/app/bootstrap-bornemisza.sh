@@ -4,7 +4,7 @@ cd /opt/scripts
 source ./config.sh app
 sh bootstrap-common.sh app
 
-# create state tree
+# create app state tree
 mkdir -p $SaltLocal/files/haproxy
 mkdir -p $SaltLocal/files/maven
 mkdir -p $SaltLocal/files/network

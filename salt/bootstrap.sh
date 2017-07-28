@@ -17,15 +17,6 @@ yum -y update
 yum install -y bind-utils jq
 yum clean all
 
-# create state tree
-mkdir -p $SaltLocal/files/basics
-mkdir -p $PillarLocal
-for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
-		$SaltLocal/dns.sls $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
-do
-        curl -o $FILE -L $SaltRemoteRoot/common/$FILE
-done
-
 # download and install salt
 curl -o bootstrap-salt.sh -L https://bootstrap.saltstack.com
 sudo sh bootstrap-salt.sh git develop
