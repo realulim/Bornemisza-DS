@@ -93,16 +93,16 @@ enable-secure-admin:
 
 payara-configured:
   file.managed:
-    - name: /srv/salt/files/payara/domain-config.sh
+    - name: /opt/payara/bin/domain-config.sh
     - source: salt://files/payara/domain-config.sh
     - template: jinja
     - mode: 755
   cmd.run:
-    - name: /srv/salt/files/payara/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
+    - name: /opt/payara/bin/domain-config.sh {{ ASADMIN }} {{ PWD_FILE }}
     - shell: /bin/bash
     - onchanges:
       - enable-secure-admin
-      - file: /srv/salt/files/payara/domain-config.sh
+      - file: /opt/payara/bin/domain-config.sh
 
 /srv/salt/files/payara/jks_import_pem.sh:
   file.managed:
