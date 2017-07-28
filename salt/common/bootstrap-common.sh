@@ -3,17 +3,13 @@
 cd /opt/scripts
 source ./config.sh $1
 
-#SaltTrunk=https://github.com/realulim/Bornemisza/trunk/salt
-#svn export --force $SaltTrunk/common/srv/salt /srv/salt
-#svn export --force $SaltTrunk/$1/srv/salt /srv/salt
-
 # create common state tree
 mkdir -p $SaltLocal/files/basics
 mkdir -p $PillarLocal
 for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
 		$SaltLocal/dns.sls $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
 do
-        curl -o $FILE -L $SaltRemoteRoot/common/$FILE
+	svn export --force $SaltTrunk/common/$FILE $FILE
 done
 
 # determine my hostname, domain and public ip
