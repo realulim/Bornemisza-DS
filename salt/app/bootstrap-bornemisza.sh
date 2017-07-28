@@ -5,7 +5,7 @@ source ./config.sh app
 sh bootstrap-common.sh app
 
 # create app state tree
-svn export --force $SaltTrunk/app/srv /srv
+svn export --force $SaltTrunk/app/srv/salt /srv/salt
 
 # static pillars
 #for FILE in top.sls
