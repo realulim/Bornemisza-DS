@@ -6,7 +6,7 @@ source ./config.sh $1
 # create common state tree
 mkdir -p $PillarLocal
 
-if [ ! -e $SaltLocal ]; then
+if [ ! -d $SaltLocal ]; then
 	svn export --force https://github.com/realulim/Bornemisza/trunk/salt/common/srv/salt /srv/salt
 fi
 
