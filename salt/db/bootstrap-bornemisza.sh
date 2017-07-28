@@ -15,34 +15,31 @@ done
 
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then
-	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls
-	sed -ie s/stats-password:/"stats-password: `generatepw`"/ $PillarLocal/haproxy.sls
+        printf "stats-password: `generatepw`\n" > $PillarLocal/haproxy.sls
 fi
 
 # dynamic pillar: couchdb
 if [ ! -e $PillarLocal/couchdb.sls ]; then
-	curl -o $PillarLocal/couchdb.sls -L $PillarRemote/couchdb.sls
-
 	read -p 'CouchDB Admin Password [leave empty to generate random string]: ' COUCH_PW
 	if [ -z $COUCH_PW ]; then
 		COUCH_PW=`generatepw`
 	fi
-	sed -ie s/couchdb-admin-password:/"couchdb-admin-password: $COUCH_PW"/ $PillarLocal/couchdb.sls
+	printf "couchdb-admin-password: $COUCH_PW\n" > $PillarLocal/couchdb.sls
 
 	read -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
 	if [ -z $COOKIE ]; then
 		COOKIE=`generatepw`
 	fi
-	sed -ie s/cookie:/"cookie: $COOKIE"/ $PillarLocal/couchdb.sls
+	printf "cookie: $COOKIE\n" >> $PillarLocal/couchdb.sls
 
 	read -p 'IP Address of Node already in Cluster [leave empty if this is the first node]: ' CLUSTERIP
 	if [ -z $CLUSTERIP ]; then
 		CLUSTERIP=`getprivip db`
 	fi
-	sed -ie s/clusterip:/"clusterip: $CLUSTERIP"/ $PillarLocal/couchdb.sls
+	printf "clusterip: $CLUSTERIP\n" >> $PillarLocal/couchdb.sls
 
 	CLUSTERSIZE=${#db_HostLocation[@]}
-	sed -ie s/clustersize:/"clustersize: $CLUSTERSIZE"/ $PillarLocal/couchdb.sls
+	printf "clustersize: $CLUSTERSIZE\n" >> $PillarLocal/couchdb.sls
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
