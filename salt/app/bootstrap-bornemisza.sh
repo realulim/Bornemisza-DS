@@ -8,10 +8,10 @@ sh bootstrap-common.sh app
 svn export --force $SaltTrunk/app/srv/salt /srv/salt
 
 # static pillars
-#for FILE in top.sls
-#do
-#	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
-#done
+for FILE in top.sls
+do
+	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
+done
 
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then
