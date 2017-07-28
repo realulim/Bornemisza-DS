@@ -5,13 +5,13 @@ source ./config.sh app
 sh bootstrap-common.sh app
 
 # create app state tree
-svn export --force $SaltTrunk/app/srv/salt /srv/salt
+svn export --force $SaltTrunk/app/srv /srv
 
 # static pillars
-for FILE in top.sls
-do
-	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
-done
+#for FILE in top.sls
+#do
+#	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
+#done
 
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then
