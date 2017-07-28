@@ -5,7 +5,10 @@ source ./config.sh $1
 
 # create common state tree
 mkdir -p $PillarLocal
-svn export --force https://github.com/realulim/Bornemisza/trunk/salt/common/srv/salt /srv/salt
+
+if [ ! -e $SaltLocal ]; then
+	svn export --force https://github.com/realulim/Bornemisza/trunk/salt/common/srv/salt /srv/salt
+fi
 
 # determine my hostname, domain and public ip
 if ! grep -qs hostname: $PillarLocal/basics.sls ; then
