@@ -5,8 +5,12 @@ source ./config.sh db
 sh bootstrap-common.sh db
 
 # create db state tree
-svn export --force $SaltTrunk/db/srv/salt /srv/salt
-svn export --force $SaltTrunk/db/srv/pillar/top.sls /srv/pillar
+if [ ! -e $SaltLocal/top.sls ]; then
+	svn export --force $SaltTrunk/db/srv/salt /srv/salt
+fi
+if [ ! -e $PillarLocal/top.sls ]; then
+	svn export --force $SaltTrunk/db/srv/pillar/top.sls /srv/pillar
+fi
 
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then
