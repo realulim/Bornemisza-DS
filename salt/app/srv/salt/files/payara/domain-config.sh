@@ -3,7 +3,7 @@
 # $1 absolute path to asadmin binary
 # $2 absolute path to password file
 
-{% set ASADMIN_CMD='$1 --interactive=false --user admin --passwordfile=$2' %}
+{%- set ASADMIN_CMD='$1 --interactive=false --user admin --passwordfile=$2' %}
 
 # create alias for couchdb admin password
 {{ ASADMIN_CMD }} delete-password-alias couchdb-admin-password
