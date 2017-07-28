@@ -16,7 +16,7 @@ if [ ! -e $PillarLocal/basics.sls ]; then
 	HOSTNAME=`domainname -f`
 	printf "hostname: $HOSTNAME\n" | tee $PillarLocal/basics.sls
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-	printf "ip: $IP\n" | tee $PillarLocal/basics.sls
+	printf "ip: $IP\n" | tee -a $PillarLocal/basics.sls
 	SSLDOMAIN=`printf $entrypoint | rev | awk -F. '{ print $1"."$2 }' | rev`
         printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
