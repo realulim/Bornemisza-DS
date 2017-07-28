@@ -7,11 +7,11 @@ source ./config.sh $1
 mkdir -p $PillarLocal
 
 if [ ! -d $SaltLocal ]; then
-	svn export --force https://github.com/realulim/Bornemisza/trunk/salt/common/srv/salt /srv/salt
+	svn export --force $SaltTrunk/common/srv/salt /srv/salt
 fi
 
 # determine my hostname, domain and public ip
-if ! grep -qs hostname: $PillarLocal/basics.sls ; then
+if [ ! -e $PillarLocal/basics.sls ]; then
 	VARNAME=$1_publicIpInterface
 	HOSTNAME=`domainname -f`
 	printf "hostname: $HOSTNAME\n" | tee $PillarLocal/basics.sls
