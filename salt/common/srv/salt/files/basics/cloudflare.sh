@@ -52,7 +52,7 @@ function host-has-other-A-record() {
 function update-A-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local HOST=$5; local DATA=$6
 	RECORD_ID=`get-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID A $HOST`
-	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY '{{ DATA }}'
+	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY "$DATA"
 }
 
 # call arguments verbatim:
