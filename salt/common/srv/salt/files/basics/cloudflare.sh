@@ -19,13 +19,13 @@ function get-zoneid() {
 	cmd GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""
 }
 
-function get-srv-targets-for-service() {
+function get-SRV-targets-for-service() {
 	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; SERVICENAME=$5
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'")|.data.target'
 }
 
-function exists-srv-target-for-service() {
+function exists-SRV-target-for-service() {
 	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; SERVICENAME=$5; TARGET=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'" and .data.target=="'$TARGET'")|""'
@@ -37,25 +37,28 @@ function get-recordid-for() {
 	jq -re '.result|.[]|select(.type=="'$TYPE'" and .name=="'$NAME'")|.id'
 }
 
-# DATA='{"type":"A","name":"'$HOST'","content":"127.0.0.1","ttl":1,"proxied":false}'
+function host-has-this-A-record() {
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; NAME=$5; CONTENT=$6
+	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	jq -re '.result|.[]|select(.type=="A" and .name=="'$NAME'" and .content=="'$CONTENT'")'
+}
 
-#RECORDID=`get-recordid-for A $HOST`
-#if [ -n "$RECORDID" ]; then
-#	cmd DELETE "$CFAPI/$CFZONEID/dns_records/$RECORDID" $CFEMAIL $CFKEY | jq -re '.success'
-#	echo "Record deleted"
-#fi
+function host-has-other-A-record() {
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; NAME=$5; CONTENT=$6
+	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	jq -re '.result|.[]|select(.type=="A" and .name=="'$NAME'" and .content!="'$CONTENT'")'
+}
 
-#RECORDID=`get-recordid-for A $HOST`
-#if [ -z "$RECORDID" ]; then
-#	cmd POST "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY $DATA | jq -re '.success'
-#	echo "Record created"
-#fi
-
-#RECORDID=`get-recordid-for A $HOST`
-#if [ -n "$RECORDID" ]; then
-#	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORDID" $CFEMAIL $CFKEY $DATA | jq -re '.success'
-#	echo "Record updated"
-#fi
+function update-A-record() {
+	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; HOST=$5; DATA=$6
+	RECORD_ID=`get-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID A $HOST`
+	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY '{{ DATA }}'
+}
 
 # call arguments verbatim:
 "$@"
+
+
+
+{{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ ADATA }}'
+{{ CFCMD }} host-has-this-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} {{ pillar['$

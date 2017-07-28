@@ -11,17 +11,27 @@
 {% set ADATA='{"type":"A","name":"'+ pillar['hostname'] + '","content":"' + pillar['ip'] + '","ttl":1,"proxied":false}' %}
 {% set ADATAINTERNAL='{"type":"A","name":"internal.' + pillar['hostname'] + '","content":"' + pillar['privip'] + '","ttl":1,"proxied":false}' %}
 
-create-srv-record:
+create-SRV-record:
   cmd.run:
     - name: {{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ SRVDATA }}'
-    - unless: {{ CFCMD }} exists-srv-target-for-service {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ SERVICE }} {{ HOST }}
+    - unless: {{ CFCMD }} exists-SRV-target-for-service {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ SERVICE }} {{ HOST }}
 
-create-a-record:
+update-A-record:
+  cmd.run:
+    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} '{{ ADATA }}''
+    - onlyif: {{ CFCMD }} host-has-other-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} {{ pillar['ip'] }}
+
+create-A-record:
   cmd.run:
     - name: {{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ ADATA }}'
-    - unless: {{ CFCMD }} get-recordid-for {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} A {{ HOST }}
+    - unless: {{ CFCMD }} host-has-this-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} {{ pillar['ip'] }}
 
-create-a-record-internal:
+update-A-record-internal:
+  cmd.run:
+    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} '{{ ADATAINTERNAL }}'
+    - onlyif: {{ CFCMD }} host-has-other-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOSTINTERNAL }} {{ pillar['privip'] }}
+
+create-A-record-internal:
   cmd.run:
     - name: {{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ ADATAINTERNAL }}'
-    - unless: {{ CFCMD }} get-recordid-for {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} A {{ HOSTINTERNAL }}
+    - unless: {{ CFCMD }} host-has-this-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOSTINTERNAL }} {{ pillar['privip'] }}
