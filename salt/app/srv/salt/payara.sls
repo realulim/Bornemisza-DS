@@ -104,14 +104,14 @@ payara-configured:
       - enable-secure-admin
       - file: /opt/payara/bin/domain-config.sh
 
-/srv/salt/files/payara/jks_import_pem.sh:
+/opt/payara/bin/jks_import_pem.sh:
   file.managed:
     - source: salt://files/payara/jks_import_pem.sh
     - mode: 755
 
 import-certs-to-truststore:
   cmd.run:
-    - name: /srv/salt/files/payara/jks_import_pem.sh /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer changeit {{ DOMAIN_DIR }}/config/cacerts.jks
+    - name: /opt/payara/bin/jks_import_pem.sh /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer changeit {{ DOMAIN_DIR }}/config/cacerts.jks
     - onchanges:
       - enable-secure-admin
 
