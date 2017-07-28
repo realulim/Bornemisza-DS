@@ -14,16 +14,16 @@ do
 done
 
 # dynamic pillar: haproxy
-if [ ! -e $PillarLocal/haproxy.sls ]; then
-	curl -o $PillarLocal/haproxy.sls -L $PillarRemote/haproxy.sls
-	sed -ie s/stats-password:/"stats-password: `generatepw`"/ $PillarLocal/haproxy.sls
+if ! grep -qs stats-password: $PillarLocal/haproxy.sls ; then
+	printf "stats-password: `generatepw`" | tee -a $PillarLocal/haproxy.sls
 fi
 
 # dynamic pillar: payara
-if [ ! -e $PillarLocal/payara.sls ]; then
-	curl -o $PillarLocal/payara.sls -L $PillarRemote/payara.sls
-	sed -ie s/asadmin-password:/"asadmin-password: `generatepw`"/ $PillarLocal/payara.sls
-	sed -ie s/asadmin-master-password:/"asadmin-master-password: `generatepw`"/ $PillarLocal/payara.sls
+if ! grep -qs asadmin-password: $PillarLocal/payara.sls ; then
+	printf "asadmin-password: `generatepw`" >> $PillarLocal/payara.sls
+fi
+if ! grep -q asadmin-master-password: $PillarLocal/payara.sls ; then
+	printf "asadmin-master-password: `generatepw`" >> $PillarLocal/payara.sls
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate

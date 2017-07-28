@@ -11,8 +11,9 @@ svn export --force https://github.com/realulim/Bornemisza/trunk/salt/common/srv/
 if ! grep -qs hostname: $PillarLocal/basics.sls ; then
 	VARNAME=$1_publicIpInterface
 	HOSTNAME=`domainname -f`
+	printf "hostname: $HOSTNAME\n" | tee $PillarLocal/basics.sls
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
-	printf "hostname: $HOSTNAME\nip: $IP\n" | tee $PillarLocal/basics.sls
+	printf "ip: $IP\n" | tee $PillarLocal/basics.sls
 	SSLDOMAIN=`printf $entrypoint | rev | awk -F. '{ print $1"."$2 }' | rev`
         printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
