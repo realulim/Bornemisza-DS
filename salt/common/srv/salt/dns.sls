@@ -18,7 +18,7 @@ create-SRV-record:
 
 update-A-record:
   cmd.run:
-    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} '{{ ADATA }}'
+    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} '{{ ADATA }}'
     - onlyif: {{ CFCMD }} host-has-other-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} {{ pillar['ip'] }}
 
 create-A-record:
@@ -28,7 +28,7 @@ create-A-record:
 
 update-A-record-internal:
   cmd.run:
-    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} '{{ ADATAINTERNAL }}'
+    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} '{{ ADATAINTERNAL }}'
     - onlyif: {{ CFCMD }} host-has-other-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOSTINTERNAL }} {{ pillar['privip'] }}
 
 create-A-record-internal:
