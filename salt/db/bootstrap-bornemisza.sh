@@ -5,7 +5,7 @@ source ./config.sh db
 sh bootstrap-common.sh db
 
 # create db state tree
-svn export --force https://github.com/realulim/Bornemisza/trunk/salt/db/srv/salt /srv/salt
+svn export --force $SaltTrunk/db/srv/salt /srv/salt
 
 # static pillars
 for FILE in top.sls
