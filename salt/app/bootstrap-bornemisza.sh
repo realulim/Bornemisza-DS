@@ -14,15 +14,13 @@ do
 done
 
 # dynamic pillar: haproxy
-if ! grep -qs stats-password: $PillarLocal/haproxy.sls ; then
+if [ ! -e $PillarLocal/haproxy.sls ]; then
 	printf "stats-password: `generatepw`\n" > $PillarLocal/haproxy.sls
 fi
 
 # dynamic pillar: payara
-if ! grep -qs asadmin-password: $PillarLocal/payara.sls ; then
+if [ ! -e $PillarLocal/payara.sls ]; then
 	printf "asadmin-password: `generatepw`\n" > $PillarLocal/payara.sls
-fi
-if ! grep -q asadmin-master-password: $PillarLocal/payara.sls ; then
 	printf "asadmin-master-password: `generatepw`\n" >> $PillarLocal/payara.sls
 fi
 
