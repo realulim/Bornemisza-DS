@@ -6,11 +6,13 @@ source ./config.sh $1
 # create common state tree
 mkdir -p $SaltLocal/files/basics
 mkdir -p $PillarLocal
-for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
-		$SaltLocal/dns.sls $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
-do
-	curl -L $SaltRemoteRoot/common/$FILE -o $FILE
-done
+#for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
+#		$SaltLocal/dns.sls $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
+#do
+#	curl -L $SaltRemoteRoot/common/$FILE -o $FILE
+#done
+
+svn export --force https://github.com/realulim/Bornemisza/trunk/salt/common/srv/salt /srv/salt
 
 # determine my hostname, domain and public ip
 if ! grep -qs hostname: $PillarLocal/basics.sls ; then
