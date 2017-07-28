@@ -15,42 +15,42 @@ function cmd() {
 }
 
 function get-zoneid() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3
 	cmd GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|.id' | tr -d "\""
 }
 
 function get-SRV-targets-for-service() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; SERVICENAME=$5
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local SERVICENAME=$5
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'")|.data.target'
 }
 
 function exists-SRV-target-for-service() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; SERVICENAME=$5; TARGET=$6
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local SERVICENAME=$5; local TARGET=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'" and .data.target=="'$TARGET'")|""'
 }
 
 function get-recordid-for() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; TYPE=$5; NAME=$6
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local TYPE=$5; local NAME=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="'$TYPE'" and .name=="'$NAME'")|.id'
 }
 
 function host-has-this-A-record() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; NAME=$5; CONTENT=$6
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5; local CONTENT=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="A" and .name=="'$NAME'" and .content=="'$CONTENT'")'
 }
 
 function host-has-other-A-record() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; NAME=$5; CONTENT=$6
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5; local CONTENT=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="A" and .name=="'$NAME'" and .content!="'$CONTENT'")'
 }
 
 function update-A-record() {
-	CFAPI=$1; CFEMAIL=$2; CFKEY=$3; CFZONEID=$4; HOST=$5; DATA=$6
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local HOST=$5; local DATA=$6
 	RECORD_ID=`get-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID A $HOST`
 	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY '{{ DATA }}'
 }
