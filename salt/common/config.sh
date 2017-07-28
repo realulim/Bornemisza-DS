@@ -2,7 +2,6 @@
 
 SaltLocal=/srv/salt
 PillarLocal=/srv/pillar
-SaltTrunk=https://github.com/realulim/Bornemisza/trunk/salt
 SaltRemoteRoot=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt/
 SaltRemote=$SaltRemoteRoot/$1/srv/salt
 PillarRemote=$SaltRemoteRoot/$1/srv/pillar

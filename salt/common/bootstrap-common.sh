@@ -9,7 +9,7 @@ mkdir -p $PillarLocal
 for FILE in	$SaltLocal/basics.sls $SaltLocal/files/basics/bash.sh $SaltLocal/files/basics/cloudflare.sh \
 		$SaltLocal/dns.sls $SaltLocal/letsencrypt.sls $SaltLocal/haproxy.sls
 do
-	svn export --force $SaltTrunk/common/$FILE $FILE
+	curl -L $SaltRemoteRoot/common/$FILE -o $FILE
 done
 
 # determine my hostname, domain and public ip
