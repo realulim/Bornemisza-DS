@@ -6,12 +6,7 @@ sh bootstrap-common.sh db
 
 # create db state tree
 svn export --force $SaltTrunk/db/srv/salt /srv/salt
-
-# static pillars
-for FILE in top.sls
-do
-	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
-done
+svn export --force $SaltTrunk/db/srv/pillar/top.sls /srv/pillar
 
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then

@@ -8,12 +8,6 @@ sh bootstrap-common.sh app
 svn export --force $SaltTrunk/app/srv/salt /srv/salt
 svn export --force $SaltTrunk/app/srv/pillar/top.sls /srv/pillar
 
-# static pillars
-#for FILE in top.sls
-#do
-#	curl -o $PillarLocal/$FILE -L $PillarRemote/$FILE
-#done
-
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then
 	printf "stats-password: `generatepw`\n" > $PillarLocal/haproxy.sls
