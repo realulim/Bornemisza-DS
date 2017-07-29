@@ -23,7 +23,7 @@ update-A-record:
 
 create-A-record:
   cmd.run:
-    - name: {{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ ADATA }}'
+    - name: {{ CFCMD }} create-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} '{{ ADATA }}'
     - unless: {{ CFCMD }} host-has-this-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} {{ pillar['ip'] }}
 
 update-A-record-internal:
@@ -33,5 +33,5 @@ update-A-record-internal:
 
 create-A-record-internal:
   cmd.run:
-    - name: {{ CFCMD }} cmd POST "{{ CFAPI }}/{{ CFZONEID }}/dns_records" {{ CFEMAIL }} {{ CFKEY }} '{{ ADATAINTERNAL }}'
+    - name: {{ CFCMD }} create-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} '{{ ADATAINTERNAL }}'
     - unless: {{ CFCMD }} host-has-this-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOSTINTERNAL }} {{ pillar['privip'] }}
