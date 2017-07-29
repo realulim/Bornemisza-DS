@@ -28,7 +28,7 @@ create-A-record:
 
 update-A-record-internal:
   cmd.run:
-    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }} '{{ ADATAINTERNAL }}'
+    - name: {{ CFCMD }} update-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOSTINTERNAL }} '{{ ADATAINTERNAL }}'
     - onlyif: {{ CFCMD }} host-has-other-A-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOSTINTERNAL }} {{ pillar['privip'] }}
 
 create-A-record-internal:
