@@ -87,4 +87,4 @@ create-swap-mountpoint:
 mount-swapfile:
   cmd.run:
     - name: swapon -a
-    - unless: swapon -s | grep /swap
+    - unless: swapon -s | grep "/swap"
