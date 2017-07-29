@@ -76,7 +76,7 @@ sshd:
 
 create-swapfile:
   cmd.run:
-    - name: bash -c 'dd if=/dev/zero of=/swap bs=1M count=2048 && mkswap /swap'
+    - name: bash -c 'dd if=/dev/zero of=/swap bs=1M count=2048 && mkswap /swap && chmod 600 /swap'
     - creates: /swap
 
 create-swap-mountpoint:
