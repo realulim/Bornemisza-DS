@@ -52,14 +52,14 @@ function host-has-other-A-record() {
 function create-A-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local DATA=$5
 	cmd POST "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY "$DATA" | \
-	| jq -re '.success' | grep -q true
+	jq -re '.success' | grep -q true
 }
 
 function update-A-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local HOST=$5; local DATA=$6
 	RECORD_ID=`get-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID A $HOST`
 	cmd PUT "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY "$DATA" | \
-	| jq -re '.success' | grep -q true
+	jq -re '.success' | grep -q true
 }
 
 # call arguments verbatim:
