@@ -73,3 +73,18 @@ sshd:
     - repl: "Port 922"
     - require:
       - firewall_rule_allow_922
+
+create-swapfile:
+  cmd.run:
+    - name: bash -c 'dd if=/dev/zero of=/swap bs=1M count=2048 && mkswap /swap'
+    - creates: /swap
+
+create-swap-mountpoint:
+  file.append:
+    - name: /etc/fstab
+    - text: /swap   swap  swap  defaults  0 0
+
+mount-swapfile:
+  cmd.run:
+    - name: swapon -a
+    - unless: swapon -s | grep /swap
