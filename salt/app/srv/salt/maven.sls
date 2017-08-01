@@ -16,6 +16,17 @@ copy-shared-libs:
     - cwd: /srv/salt/files/maven
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
 
+checkout-status-microservice:
+  file.directory:
+    - name: /opt/microservices
+    - user: root
+    - group: root
+    - dir_mode: 755
+  svn.export:
+    - name: {{ pillar['svn'] }}/java/Status
+    - target: /opt/microservices/status
+    - unless: ls /opt/microservices/status
+
 restart-payara-on-new-libs:
   cmd.run:
     - name: systemctl restart payara
