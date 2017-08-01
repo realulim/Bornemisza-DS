@@ -27,6 +27,12 @@ checkout-status-microservice:
     - target: /opt/microservices/status
     - unless: ls /opt/microservices/status
 
+build-status-microservice:
+  cmd.run:
+    - name: mvn package
+    - cwd: /opt/microservices/status
+    - creates: /opt/microservices/status/target/Status.war
+
 restart-payara-on-new-libs:
   cmd.run:
     - name: systemctl restart payara
