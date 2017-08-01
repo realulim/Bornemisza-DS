@@ -1,5 +1,6 @@
 package de.bornemisza.users;
 
+import de.bornemisza.users.entity.User;
 import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -8,25 +9,23 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import io.restassured.specification.RequestSpecification;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-
-import de.bornemisza.users.entity.User;
-
 public class IntegrationTestBase {
 
+    protected static final String BASE_URI_PROP = "BASE.URI";
     protected RequestSpecification requestSpec;
-    protected URI baseUri = URI.create("https://www.bornemisza.de/users/");
+    protected URI baseUri;
     protected User user;
-
 
     @Rule
     public TestRule watcher = new TestWatcher() {
@@ -38,6 +37,9 @@ public class IntegrationTestBase {
 
     @Before
     public void setUp() {
+        String configuredUri = System.getProperty(BASE_URI_PROP);
+        if (configuredUri == null) fail("Please configure the System Property " + BASE_URI_PROP);
+        baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)
                 .addFilter(new RequestLoggingFilter())
