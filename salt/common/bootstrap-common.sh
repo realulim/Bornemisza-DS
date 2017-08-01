@@ -8,6 +8,7 @@ mkdir -p $PillarLocal
 
 if [ ! -d $SaltLocal ]; then
 	svn export --force $SaltTrunk/common/srv/salt /srv/salt
+	chmod u+x /srv/salt/files/basics/cloudflare.sh
 fi
 
 # determine my hostname, domain and public ip
