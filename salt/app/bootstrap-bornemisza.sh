@@ -6,10 +6,10 @@ sh bootstrap-common.sh app
 
 # create app state tree
 if [ ! -e $SaltLocal/top.sls ]; then
-	svn export --force $SaltTrunk/app/srv/salt /srv/salt
+	svn export --force $SvnTrunk/salt/app/srv/salt /srv/salt
 fi
 if [ ! -e $PillarLocal/top.sls ]; then
-	svn export --force $SaltTrunk/app/srv/pillar/top.sls /srv/pillar
+	svn export --force $SvnTrunk/salt/app/srv/pillar/top.sls /srv/pillar
 fi
 
 # dynamic pillar: haproxy

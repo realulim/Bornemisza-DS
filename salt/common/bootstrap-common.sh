@@ -7,15 +7,20 @@ source ./config.sh $1
 mkdir -p $PillarLocal
 
 if [ ! -d $SaltLocal ]; then
-	svn export --force $SaltTrunk/common/srv/salt /srv/salt
+	svn export --force $SvnTrunk/salt/common/srv/salt /srv/salt
 	chmod u+x /srv/salt/files/basics/cloudflare.sh
+fi
+
+# put svn trunk url in pillar for subsequent checkouts via salt
+if [ ! -e $PillarLocal/basics.sls ]; then
+	printf "svn: $SvnTrunk\n" | tee $PillarLocal/basics.sls
 fi
 
 # determine my hostname, domain and public ip
 if [ ! -e $PillarLocal/basics.sls ]; then
 	VARNAME=$1_publicIpInterface
 	HOSTNAME=`domainname -f`
-	printf "hostname: $HOSTNAME\n" | tee $PillarLocal/basics.sls
+	printf "hostname: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "ip: $IP\n" | tee -a $PillarLocal/basics.sls
 	SSLDOMAIN=`printf $entrypoint | rev | awk -F. '{ print $1"."$2 }' | rev`

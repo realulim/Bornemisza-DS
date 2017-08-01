@@ -2,7 +2,7 @@
 
 SaltLocal=/srv/salt
 PillarLocal=/srv/pillar
-SaltTrunk=https://github.com/realulim/Bornemisza/trunk/salt
+SvnTrunk=https://github.com/realulim/Bornemisza/trunk
 CFAPI=https://api.cloudflare.com/client/v4/zones
 
 # you have to change the following settings
