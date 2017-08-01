@@ -14,7 +14,7 @@ source config.sh $1
 
 # update system
 yum -y update
-yum install -y bind-utils jq
+yum install -y bind-utils jq svn
 yum clean all
 
 # download and install salt

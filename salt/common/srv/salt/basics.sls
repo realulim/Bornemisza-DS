@@ -4,7 +4,6 @@ install_basics_pkgs:
       - nano
       - net-tools
       - ntp
-      - svn
       - telnet
       - ufw
 
