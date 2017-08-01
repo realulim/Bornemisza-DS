@@ -17,7 +17,7 @@ if [ ! -e $PillarLocal/basics.sls ]; then
 fi
 
 # determine my hostname, domain and public ip
-if [ ! -e $PillarLocal/basics.sls ]; then
+if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	VARNAME=$1_publicIpInterface
 	HOSTNAME=`domainname -f`
 	printf "hostname: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
