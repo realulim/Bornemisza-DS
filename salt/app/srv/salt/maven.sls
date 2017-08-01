@@ -1,4 +1,6 @@
 {% set PAYARA_LIBS='/opt/payara/glassfish/domains/domain1/lib' %}
+{% set MIC_DIR='/opt/microservices' %}
+{% set DEPLOY_DIR='/opt/payara/glassfish/domains/domain1/autodeploy' %}
 
 maven:
   pkg:
@@ -16,22 +18,33 @@ copy-shared-libs:
     - cwd: /srv/salt/files/maven
     - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
 
-checkout-status-microservice:
+{{ MIC_DIR }}:
   file.directory:
-    - name: /opt/microservices
     - user: root
     - group: root
     - dir_mode: 755
-  svn.export:
-    - name: {{ pillar['svn'] }}/java/Status
-    - target: /opt/microservices/status
-    - unless: ls /opt/microservices/status
 
-build-status-microservice:
+{% for MIC_SRV_NAME in ['Status', 'Users'] %}
+
+checkout-{{ MIC_SRV_NAME }}-microservice:
+  svn.export:
+    - name: {{ pillar['svn'] }}/java/{{ MIC_SRV_NAME }}
+    - target: {{ MIC_DIR }}/{{ MIC_SRV_NAME }}
+    - unless: ls {{ MIC_DIR }}/{{ MIC_SRV_NAME }}
+
+build-{{ MIC_SRV_NAME }}-microservice:
   cmd.run:
     - name: mvn package
-    - cwd: /opt/microservices/status
-    - creates: /opt/microservices/status/target/Status.war
+    - cwd: {{ MIC_DIR }}/{{ MIC_SRV_NAME }}
+    - creates: {{ MIC_DIR }}/{{ MIC_SRV_NAME }}/target/{{ MIC_SRV_NAME }}.war
+
+deploy-{{ MIC_SRV_NAME }}-microservice:
+  cmd.run:
+    - name: cp {{ MIC_DIR }}/{{ MIC_SRV_NAME }}/target/{{ MIC_SRV_NAME }}.war {{ DEPLOY_DIR }}
+    - onchanges:
+      - build-{{ MIC_SRV_NAME }}-microservice
+
+{% endfor %}
 
 restart-payara-on-new-libs:
   cmd.run:
