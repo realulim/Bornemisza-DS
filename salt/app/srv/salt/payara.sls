@@ -114,6 +114,7 @@ import-certs-to-truststore:
     - name: /opt/payara/bin/jks_import_pem.sh /root/.acme.sh/{{ pillar['ssldomain'] }}/fullchain.cer changeit {{ DOMAIN_DIR }}/config/cacerts.jks
     - onchanges:
       - enable-secure-admin
+      - file: /opt/payara/bin/jks_import_pem.sh
 
 {{ DOMAIN_DIR }}/docroot/index.html:
   file.replace:

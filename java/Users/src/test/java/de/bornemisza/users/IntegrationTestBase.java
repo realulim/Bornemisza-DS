@@ -48,6 +48,7 @@ public class IntegrationTestBase {
         user = new User();
         user.setName("Fazil Ongudar");
         user.setPassword("secret");
+        user.setEmail("fazil@ongudar.de");
         List<String> roles = Arrays.asList(new String[]{"customer", "user"});
         user.setRoles(roles);
     }

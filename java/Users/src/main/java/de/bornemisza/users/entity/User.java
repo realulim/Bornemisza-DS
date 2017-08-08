@@ -29,6 +29,9 @@ public class User extends CouchDbDocument {
     @JsonProperty(value = "password")
     private String password;
 
+    @JsonProperty(value = "email")
+    private String email;
+
     @JsonProperty(value = "roles")
     private List<String> roles;
 
@@ -57,6 +60,14 @@ public class User extends CouchDbDocument {
         this.password = password;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(@NotNull String email) {
+        this.email = email;
+    }
+
     public List<String> getRoles() {
         return roles;
     }
@@ -68,7 +79,7 @@ public class User extends CouchDbDocument {
     @Override
     public String toString() {
         return "CouchDbDocument{" + "id=" + getId() + ", rev=" + getRevision() + ", attachments=" + getAttachments() + ", conflicts=" + getConflicts() + "}" +
-            "User{" + "type=" + type + ", name=" + name + ", password=" + password + ", roles=" + roles + '}';
+            "User{" + "type=" + type + ", name=" + name + ", password=" + password + ", email=" + email + ", roles=" + roles + '}';
     }
 
 }
