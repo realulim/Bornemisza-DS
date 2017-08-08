@@ -13,7 +13,7 @@ for N in $(seq 0 $(($CERTS - 1))); do
 	ALIAS="${PEM_FILE%.*}-$N"
 	cat $PEM_FILE |
 	awk "n==$N { print }; /END CERTIFICATE/ { n++ }" |
-	if ! keytool -list -keystore $KEYSTORE -storepass $PASSWORD | grep $ALIAS ; then
+	if keytool -list -keystore $KEYSTORE -storepass $PASSWORD | grep $ALIAS ; then
 		keytool -delete -alias $ALIAS -keystore $KEYSTORE -storepass $PASSWORD
 	fi
 	keytool -import -trustcacerts -alias $ALIAS -keystore $KEYSTORE -storepass $PASSWORD
