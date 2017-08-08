@@ -58,6 +58,7 @@ public class ConnectorPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
+        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(true);
         CouchDbConnector db = CUT.getMember();
         assertNotNull(db);
         assertEquals(allConnectors.size(), hostQueue.size(), utilisationMap.size());
@@ -66,6 +67,7 @@ public class ConnectorPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(false).thenReturn(true);
+        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(true);
         CouchDbConnector db = CUT.getMember();
         assertEquals(allConnectors.size(), hostQueue.size(), utilisationMap.size() - 1);
         if (allConnectors.size() > 1) assertNotNull(db); // we need at least two hosts, because the first is unavailable
@@ -73,7 +75,8 @@ public class ConnectorPoolTest {
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(false);
+        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
+        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(false);
         CouchDbConnector db = CUT.getMember();
         assertEquals(0, hostQueue.size(), utilisationMap.size());
         assertNull(db);
@@ -82,6 +85,7 @@ public class ConnectorPoolTest {
     @Test
     public void getMember_preExisting_HostQueue_and_Utilisation() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
+        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
         allConnectors.clear();
         allConnectors.put(hostname, mock(CouchDbConnector.class));

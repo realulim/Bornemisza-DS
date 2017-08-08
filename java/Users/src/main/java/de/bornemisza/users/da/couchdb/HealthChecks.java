@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DbAccessException;
+
 public class HealthChecks {
 
     public HealthChecks() {
@@ -15,6 +18,16 @@ public class HealthChecks {
             return true;
         } 
         catch (IOException ex) {
+            return false;
+        }
+    }
+
+    public boolean isCouchDbAvailable(CouchDbConnector db) {
+        try {
+            db.getDbInfo();
+            return true;
+        }
+        catch (DbAccessException e) {
             return false;
         }
     }

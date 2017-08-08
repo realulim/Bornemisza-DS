@@ -39,9 +39,9 @@ public class ConnectorPool {
 
     public CouchDbConnector getMember() {
         for (String hostname : couchDbHostQueue) {
-            if (healthChecks.isHostAvailable(hostname, 443)) {
+            CouchDbConnector db = allConnectors.get(hostname);
+            if (healthChecks.isHostAvailable(hostname, 443) && healthChecks.isCouchDbAvailable(db)) {
                 Logger.getAnonymousLogger().info(hostname + " available, using it.");
-                CouchDbConnector db = allConnectors.get(hostname);
                 Integer usageCount = this.couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
                 return db;
