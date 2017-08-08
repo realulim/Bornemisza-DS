@@ -23,6 +23,15 @@ if [ ! -e $PillarLocal/payara.sls ]; then
 	printf "asadmin-master-password: `generatepw`\n" >> $PillarLocal/payara.sls
 fi
 
+# if we have already setup payara, but not told it the couchdb admin password yet, then we ask for it here
+if grep changeit /root/.payara ; then
+	read -p 'CouchDB Admin Password [leave empty to specify it at a later time]: ' COUCH_PW
+	if [ ! -z $COUCH_PW ]; then
+		sed -i.bak "s/changeit/$COUCH_PW/" /root/.payara
+		printf " " >> /opt/payara/bin/domain-config.sh
+	fi
+fi
+
 # letsencrypt needs to know the ssl endpoint for creating its certificate
 if ! grep -q sslhost: /srv/pillar/basics.sls ; then
 	FLOATIP=`getip $entrypoint`
