@@ -3,9 +3,12 @@ package de.bornemisza.users.da.couchdb;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 
-import org.ektorp.CouchDbConnector;
+import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
+import org.ektorp.http.HttpClient;
+import org.ektorp.impl.StdCouchDbInstance;
 
 public class HealthChecks {
 
@@ -22,10 +25,11 @@ public class HealthChecks {
         }
     }
 
-    public boolean isCouchDbAvailable(CouchDbConnector db) {
+    public boolean isCouchDbReady(HttpClient httpClient) {
         try {
-            db.getDbInfo();
-            return true;
+            CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
+            List<String> allDatabases = dbInstance.getAllDatabases();
+            return allDatabases.size() > 0;
         }
         catch (DbAccessException e) {
             return false;

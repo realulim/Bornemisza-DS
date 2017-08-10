@@ -1,7 +1,6 @@
 package de.bornemisza.users.da.couchdb;
 
-import com.hazelcast.core.HazelcastInstance;
-import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -9,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -19,18 +21,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.spi.ObjectFactory;
 
-import org.ektorp.CouchDbConnector;
-import org.ektorp.CouchDbInstance;
-import org.ektorp.http.HttpClient;
-import org.ektorp.http.StdHttpClient;
-import org.ektorp.impl.StdCouchDbConnector;
-import org.ektorp.impl.StdCouchDbInstance;
+import com.hazelcast.core.HazelcastInstance;
 
+import de.bornemisza.users.da.CouchDbConnection;
 import de.bornemisza.users.entity.SrvRecord;
-import java.util.stream.Collectors;
-import javax.naming.InitialContext;
 
-public class ConnectorPoolFactory implements ObjectFactory {
+public class ConnectionPoolFactory implements ObjectFactory {
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
@@ -43,7 +39,7 @@ public class ConnectorPoolFactory implements ObjectFactory {
         else {
             Reference ref = (Reference) obj;
             String refClassName = ref.getClassName();
-            String expectedClass = ConnectorPool.class.getName();
+            String expectedClass = ConnectionPool.class.getName();
             if (refClassName.equals(expectedClass)) {
                 String service = (String) ref.get("service").getContent();
                 String db = (String) ref.get("db").getContent();
@@ -52,13 +48,12 @@ public class ConnectorPoolFactory implements ObjectFactory {
                 List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                         .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                         .collect(Collectors.toList());
-                Map<String, CouchDbConnector> connectors = new HashMap<>();
+                Map<String, CouchDbConnection> connections = new HashMap<>();
                 for (String hostname : hostnames) {
-                    HttpClient httpClient = createHttpClient(hostname, db, userName, password);
-                    CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-                    connectors.put(hostname, new StdCouchDbConnector(db, dbInstance));
+                    CouchDbConnection conn = new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
+                    connections.put(hostname, conn);
                 }
-                return new ConnectorPool(connectors, getHazelcast(), new HealthChecks());
+                return new ConnectionPool(connections, getHazelcast(), new HealthChecks());
             }
             else {
                 throw new NamingException("Expected Class: " + expectedClass + ", configured Class: " + refClassName);
@@ -88,13 +83,6 @@ public class ConnectorPoolFactory implements ObjectFactory {
         else {
             return new ArrayList<>(sortedRecords);
         }
-    }
-
-    private HttpClient createHttpClient(String hostname, String db, String userName, String password) throws MalformedURLException {
-        return new StdHttpClient.Builder()
-                .url("https://" + hostname + "/" + db)
-                .username(userName).password(password)
-                .build();
     }
 
     private HazelcastInstance getHazelcast() throws NamingException {

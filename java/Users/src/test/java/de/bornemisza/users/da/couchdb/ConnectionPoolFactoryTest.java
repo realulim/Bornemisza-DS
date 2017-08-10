@@ -15,14 +15,14 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.users.entity.SrvRecord;
 
-public class ConnectorPoolFactoryTest {
+public class ConnectionPoolFactoryTest {
 
     private final String service = "_db._tcp.somedomain.com";
 
     @Test
     public void getSrvRecordsSortedByPriority_noServiceFound() throws Exception {
         try {
-            ConnectorPoolFactory CUT = new ConnectorPoolFactory();
+            ConnectionPoolFactory CUT = new ConnectionPoolFactory();
             DirContext ctx = mock(DirContext.class);
             NamingEnumeration<?> enumeration = createEnumerationMock(ctx);
 
@@ -37,7 +37,7 @@ public class ConnectorPoolFactoryTest {
 
     @Test
     public void getSrvRecordsSortedByPriority() throws Exception {
-        ConnectorPoolFactory CUT = new ConnectorPoolFactory();
+        ConnectionPoolFactory CUT = new ConnectionPoolFactory();
         DirContext ctx = mock(DirContext.class);
         NamingEnumeration<?> enumeration = createEnumerationMock(ctx);
         when(enumeration.hasMore()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);

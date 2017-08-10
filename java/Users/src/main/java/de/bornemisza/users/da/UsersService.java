@@ -11,13 +11,13 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.Options;
 import org.ektorp.UpdateConflictException;
 
-import de.bornemisza.users.da.couchdb.ConnectorPool;
+import de.bornemisza.users.da.couchdb.ConnectionPool;
 import de.bornemisza.users.entity.User;
 
 public class UsersService {
 
     @Resource(name="couchdb/Users")
-    ConnectorPool pool;
+    ConnectionPool pool;
 
     private UsersRepository repo;
 
@@ -26,12 +26,12 @@ public class UsersService {
 
     @PostConstruct
     public void init() {
-        CouchDbConnector db = pool.getMember();
-        if (db == null) throw new IllegalStateException("No Database reachable at all!");
-        DbInfo dbInfo = db.getDbInfo();
+        CouchDbConnector conn = pool.getConnection();
+        if (conn == null) throw new IllegalStateException("No Database reachable at all!");
+        DbInfo dbInfo = conn.getDbInfo();
         String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
         Logger.getAnonymousLogger().info(msg);
-        repo = new UsersRepository(db);
+        repo = new UsersRepository(conn);
     }
 
     public User createUser(User user) throws UpdateConflictException {

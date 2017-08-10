@@ -1,36 +1,38 @@
 package de.bornemisza.users.da.couchdb;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ektorp.CouchDbConnector;
+import org.ektorp.http.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import org.ektorp.CouchDbConnector;
-
 import de.bornemisza.users.PseudoHazelcastList;
 import de.bornemisza.users.PseudoHazelcastMap;
+import de.bornemisza.users.da.CouchDbConnection;
 
-public class ConnectorPoolTest {
+public class ConnectionPoolTest {
 
     private final SecureRandom wheel = new SecureRandom();
 
     private List<String> hostnames;
-    private Map<String, CouchDbConnector> allConnectors;
+    private Map<String, CouchDbConnection> allConnections;
     private HazelcastInstance hazelcast;
     private PseudoHazelcastList hostQueue;
     private PseudoHazelcastMap utilisationMap;
     private HealthChecks healthChecks;
 
-    private ConnectorPool CUT;
+    private ConnectionPool CUT;
 
     @Before
     public void setUp() {
@@ -39,9 +41,10 @@ public class ConnectorPoolTest {
             hostnames.add("hostname" + i + ".domain.de");
         }
         
-        allConnectors = new HashMap<>();
+        allConnections = new HashMap<>();
+        CouchDbConnection conn = getConnection();
         for (String hostname : hostnames) {
-            allConnectors.put(hostname, mock(CouchDbConnector.class));
+            allConnections.put(hostname, conn);
         }
         
         hazelcast = mock(HazelcastInstance.class);
@@ -52,43 +55,43 @@ public class ConnectorPoolTest {
         
         healthChecks = mock(HealthChecks.class);
 
-        CUT = new ConnectorPool(allConnectors, hazelcast, healthChecks);
+        CUT = new ConnectionPool(allConnections, hazelcast, healthChecks);
     }
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(true);
-        CouchDbConnector db = CUT.getMember();
-        assertNotNull(db);
-        assertEquals(allConnectors.size(), hostQueue.size(), utilisationMap.size());
+        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        CouchDbConnector dbConn = CUT.getConnection();
+        assertNotNull(dbConn);
+        assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size());
     }
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(false).thenReturn(true);
-        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(true);
-        CouchDbConnector db = CUT.getMember();
-        assertEquals(allConnectors.size(), hostQueue.size(), utilisationMap.size() - 1);
-        if (allConnectors.size() > 1) assertNotNull(db); // we need at least two hosts, because the first is unavailable
+        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        CouchDbConnector dbConn = CUT.getConnection();
+        assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size() - 1);
+        if (allConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(false);
-        CouchDbConnector db = CUT.getMember();
+        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(false);
+        CouchDbConnector dbConn = CUT.getConnection();
         assertEquals(0, hostQueue.size(), utilisationMap.size());
-        assertNull(db);
+        assertNull(dbConn);
     }
 
     @Test
     public void getMember_preExisting_HostQueue_and_Utilisation() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbAvailable(any(CouchDbConnector.class))).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
-        allConnectors.clear();
-        allConnectors.put(hostname, mock(CouchDbConnector.class));
+        allConnections.clear();
+        allConnections.put(hostname, getConnection());
         hostQueue.clear();
         hostQueue.add(hostname);
         utilisationMap.clear();
@@ -96,9 +99,18 @@ public class ConnectorPoolTest {
         utilisationMap.put(hostname, startUsageCount);
         int additionalUsageCount = wheel.nextInt(10);
         for (int i = 0; i < additionalUsageCount; i++) {
-            assertNotNull(CUT.getMember());
+            assertNotNull(CUT.getConnection());
         }
         assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname));
+    }
+
+    private CouchDbConnection getConnection() {
+        try {
+            return new CouchDbConnection(new URL("https://localhost/"), "users", "admin", "secret");
+        } 
+        catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 }
