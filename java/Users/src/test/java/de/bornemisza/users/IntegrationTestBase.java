@@ -1,7 +1,5 @@
 package de.bornemisza.users;
 
-import de.bornemisza.users.entity.User;
-import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -12,17 +10,22 @@ import io.restassured.specification.RequestSpecification;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import static io.restassured.RestAssured.given;
 
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import static org.junit.Assert.fail;
+
+import de.bornemisza.users.entity.User;
 
 public class IntegrationTestBase {
 
     protected static final String BASE_URI_PROP = "BASE.URI";
+    protected static final String USERNAME_PROP = "TESTUSER.USERNAME";
+    protected static final String PASSWORD_PROP = "TESTUSER.PASSWORD";
     protected RequestSpecification requestSpec;
     protected URI baseUri;
     protected User user;
@@ -39,12 +42,17 @@ public class IntegrationTestBase {
     public void setUp() {
         String configuredUri = System.getProperty(BASE_URI_PROP);
         if (configuredUri == null) fail("Please configure the System Property " + BASE_URI_PROP);
+        String userName = System.getProperty(USERNAME_PROP);
+        if (userName == null) fail("Please configure the System Property " + USERNAME_PROP);
+        String password = System.getProperty(PASSWORD_PROP);
+        if (password == null) fail("Please configure the System Property " + PASSWORD_PROP);
         baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();
+        requestSpec.auth().basic(userName, password);
         user = new User();
         user.setName("Fazil Ongudar");
         user.setPassword("secret");
