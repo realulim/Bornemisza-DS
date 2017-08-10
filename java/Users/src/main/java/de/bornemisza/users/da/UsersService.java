@@ -22,6 +22,7 @@ public class UsersService {
     @Resource(name="admin@couchdb/Users")
     ConnectionPool adminPool;
 
+    private UsersRepository adminRepo;
     private UsersRepository repo;
 
     public UsersService() {
@@ -29,22 +30,26 @@ public class UsersService {
 
     @PostConstruct
     public void init() {
-        CouchDbConnector conn = adminPool.getAdminConnection();
+        CouchDbConnector conn = pool.getConnection();
         if (conn == null) throw new IllegalStateException("No Database reachable at all!");
-        DbInfo dbInfo = conn.getDbInfo();
+        repo = new UsersRepository(conn);
+
+        CouchDbConnector adminConn = adminPool.getConnection();
+        if (adminConn == null) throw new IllegalStateException("No Database reachable at all!");
+        DbInfo dbInfo = adminConn.getDbInfo();
         String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
         Logger.getAnonymousLogger().info(msg);
-        repo = new UsersRepository(conn);
+        adminRepo = new UsersRepository(adminConn);
     }
 
     public User createUser(User user) throws UpdateConflictException {
-        repo.add(user);
+        adminRepo.add(user);
         Logger.getAnonymousLogger().info("Added user: " + user);
         return user;
     }
 
     public User updateUser(User user) throws UpdateConflictException {
-        repo.update(user);
+        adminRepo.update(user);
         Logger.getAnonymousLogger().info("Updated user: " + user);
         return user;
     }
@@ -59,7 +64,7 @@ public class UsersService {
 
     private User readUser(String userName, Options options) throws DocumentNotFoundException {
         userName = User.USERNAME_PREFIX + userName;
-        User user = (options == null ? repo.get(userName) : repo.get(userName, options));
+        User user = (options == null ? adminRepo.get(userName) : adminRepo.get(userName, options));
         Logger.getAnonymousLogger().info("Read user: " + user);
         return user;
     }
@@ -68,7 +73,7 @@ public class UsersService {
         User user = new User();
         user.setName(userName);
         user.setRevision(rev);
-        repo.remove(user);
+        adminRepo.remove(user);
         Logger.getAnonymousLogger().info("Removed user: " + user);
     }
 
