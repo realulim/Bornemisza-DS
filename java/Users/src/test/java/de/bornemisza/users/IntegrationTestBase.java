@@ -55,7 +55,7 @@ public class IntegrationTestBase {
 
     protected Response getUser(String docId, int expectedStatusCode) {
         requestSpec.accept(ContentType.JSON);
-        return given().spec(requestSpec)
+        return given(requestSpec)
                 .when().get(docId)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
@@ -63,7 +63,7 @@ public class IntegrationTestBase {
 
     protected Response postUser(User user, int expectedStatusCode) {
         requestSpec.contentType(ContentType.JSON).body(user);
-        return given().spec(requestSpec)
+        return given(requestSpec)
                 .when().post("")
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
@@ -71,7 +71,7 @@ public class IntegrationTestBase {
 
     protected ResponseBody putUser(User user, int expectedStatusCode) {
         requestSpec.contentType(ContentType.JSON).body(user);
-        return given().spec(requestSpec)
+        return given(requestSpec)
                 .when().put("")
                 .then().statusCode(expectedStatusCode)
                 .extract().response().getBody();
@@ -79,7 +79,7 @@ public class IntegrationTestBase {
 
     protected Response deleteUser(String userName, String rev, int expectedStatusCode) {
         requestSpec.accept(ContentType.ANY);
-        return given().spec(requestSpec)
+        return given(requestSpec)
                 .when().delete(userName + "/" + rev)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
