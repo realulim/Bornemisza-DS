@@ -62,7 +62,7 @@ public class ConnectionPoolTest {
     public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
-        CouchDbConnector dbConn = CUT.getConnection();
+        CouchDbConnector dbConn = CUT.getAdminConnection();
         assertNotNull(dbConn);
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size());
     }
@@ -71,7 +71,7 @@ public class ConnectionPoolTest {
     public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(false).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
-        CouchDbConnector dbConn = CUT.getConnection();
+        CouchDbConnector dbConn = CUT.getAdminConnection();
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size() - 1);
         if (allConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
@@ -80,7 +80,7 @@ public class ConnectionPoolTest {
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(false);
-        CouchDbConnector dbConn = CUT.getConnection();
+        CouchDbConnector dbConn = CUT.getAdminConnection();
         assertEquals(0, hostQueue.size(), utilisationMap.size());
         assertNull(dbConn);
     }
@@ -99,7 +99,7 @@ public class ConnectionPoolTest {
         utilisationMap.put(hostname, startUsageCount);
         int additionalUsageCount = wheel.nextInt(10);
         for (int i = 0; i < additionalUsageCount; i++) {
-            assertNotNull(CUT.getConnection());
+            assertNotNull(CUT.getAdminConnection());
         }
         assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname));
     }

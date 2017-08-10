@@ -25,6 +25,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.users.da.CouchDbConnection;
 import de.bornemisza.users.entity.SrvRecord;
+import javax.naming.RefAddr;
 
 public class ConnectionPoolFactory implements ObjectFactory {
 
@@ -43,8 +44,10 @@ public class ConnectionPoolFactory implements ObjectFactory {
             if (refClassName.equals(expectedClass)) {
                 String service = (String) ref.get("service").getContent();
                 String db = (String) ref.get("db").getContent();
-                String userName = (String) ref.get("username").getContent();
-                String password = (String) ref.get("password").getContent();
+                RefAddr userNameAddr = ref.get("username");
+                String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
+                RefAddr passwordAddr = ref.get("password");
+                String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
                 List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                         .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                         .collect(Collectors.toList());

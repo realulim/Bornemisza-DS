@@ -43,7 +43,7 @@ public class ConnectionPool {
         }
     }
 
-    public CouchDbConnector getConnection() {
+    public CouchDbConnector getAdminConnection() {
         for (String hostname : couchDbHostQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
             HttpClient httpClient = createHttpClient(conn);

@@ -19,6 +19,9 @@ public class UsersService {
     @Resource(name="couchdb/Users")
     ConnectionPool pool;
 
+    @Resource(name="admin@couchdb/Users")
+    ConnectionPool adminPool;
+
     private UsersRepository repo;
 
     public UsersService() {
@@ -26,7 +29,7 @@ public class UsersService {
 
     @PostConstruct
     public void init() {
-        CouchDbConnector conn = pool.getConnection();
+        CouchDbConnector conn = adminPool.getAdminConnection();
         if (conn == null) throw new IllegalStateException("No Database reachable at all!");
         DbInfo dbInfo = conn.getDbInfo();
         String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
