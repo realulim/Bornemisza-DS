@@ -6,7 +6,7 @@ source ./config.sh $1
 # create common state tree
 mkdir -p $PillarLocal
 
-if [ ! -d $SaltLocal ]; then
+if [ ! -e $SaltLocal/top.sls ]; then
 	svn export --force $SvnTrunk/salt/common/srv/salt /srv/salt
 	chmod u+x /srv/salt/files/basics/cloudflare.sh
 fi
