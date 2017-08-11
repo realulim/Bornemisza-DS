@@ -24,8 +24,9 @@ public class UsersFacade {
         this.usersService = usersService;
     }
 
-    public User createUser(User user) {
+    public User createUser(User user, String authHeader) {
         try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.createUser(user);
         }
         catch (UpdateConflictException e) {
@@ -34,8 +35,9 @@ public class UsersFacade {
         }
     }
 
-    public User updateUser(User user) {
+    public User updateUser(User user, String authHeader) {
         try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.updateUser(user);
         }
         catch (UpdateConflictException e) {
@@ -44,8 +46,9 @@ public class UsersFacade {
         }
     }
 
-    public User getUser(String userName) {
+    public User getUser(String userName, String authHeader) {
         try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.getUser(userName);
         }
         catch (DocumentNotFoundException e) {
@@ -53,8 +56,9 @@ public class UsersFacade {
         }
     }
 
-    public boolean deleteUser(String userName, String rev) {
+    public boolean deleteUser(String userName, String rev, String authHeader) {
         try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             usersService.deleteUser(userName, rev);
             return true;
         }

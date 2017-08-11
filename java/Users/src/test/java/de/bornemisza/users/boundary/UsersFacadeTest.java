@@ -26,30 +26,30 @@ public class UsersFacadeTest {
     @Test
     public void createUser_failed() {
         when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException());
-        assertNull(CUT.createUser(new User()));
+        assertNull(CUT.createUser(new User(), null));
     }
 
     @Test
     public void updateUser_failed() {
         when(usersService.updateUser(any(User.class))).thenThrow(new UpdateConflictException());
-        assertNull(CUT.updateUser(new User()));
+        assertNull(CUT.updateUser(new User(), null));
     }
 
     @Test
     public void getUser_failed() {
         when(usersService.getUser(anyString())).thenThrow(new DocumentNotFoundException("/some/path"));
-        assertNull(CUT.getUser("Ike"));
+        assertNull(CUT.getUser("Ike", null));
     }
 
     @Test
     public void deleteUser_failed() {
         doThrow(new UpdateConflictException()).when(usersService).deleteUser(anyString(), anyString());
-        assertFalse(CUT.deleteUser("Ike", "3454353"));
+        assertFalse(CUT.deleteUser("Ike", "3454353", null));
     }
 
     @Test
     public void deleteUser() {
-        assertTrue(CUT.deleteUser("Ike", "3454353"));
+        assertTrue(CUT.deleteUser("Ike", "3454353", null));
     }
 
 }
