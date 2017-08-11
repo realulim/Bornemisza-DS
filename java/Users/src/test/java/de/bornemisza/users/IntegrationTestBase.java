@@ -41,11 +41,11 @@ public class IntegrationTestBase {
     @Before
     public void setUp() {
         String configuredUri = System.getProperty(BASE_URI_PROP);
-        if (configuredUri == null) fail("Please configure the System Property " + BASE_URI_PROP);
+        if (configuredUri == null) fail("Please configure " + BASE_URI_PROP + " in your build.properties");
         String userName = System.getProperty(USERNAME_PROP);
-        if (userName == null) fail("Please configure the System Property " + USERNAME_PROP);
+        if (userName == null) fail("Please configure " + USERNAME_PROP + " in your build.properties");
         String password = System.getProperty(PASSWORD_PROP);
-        if (password == null) fail("Please configure the System Property " + PASSWORD_PROP);
+        if (password == null) fail("Please configure " + PASSWORD_PROP + " in your build.properties");
         baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)

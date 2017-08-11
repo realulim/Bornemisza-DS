@@ -64,12 +64,9 @@
                 <version>2.20</version>
                 <configuration>
                     <systemPropertyVariables>
-                        <propertyName>TESTUSER.USERNAME</propertyName>
-                        <buildDirectory>${project.build.directory}</buildDirectory>
-                    </systemPropertyVariables>
-                    <systemPropertyVariables>
-                        <propertyName>TESTUSER.PASSWORD</propertyName>
-                        <buildDirectory>${project.build.directory}</buildDirectory>
+                        <BASE.URI>${BASE.URI}</BASE.URI>
+                        <TESTUSER.USERNAME>${TESTUSER.USERNAME}</TESTUSER.USERNAME>
+                        <TESTUSER.PASSWORD>${TESTUSER.PASSWORD}</TESTUSER.PASSWORD>
                     </systemPropertyVariables>
                 </configuration> 
                 <executions>
@@ -104,6 +101,24 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${basedir}/build.properties</file>
+                            </files>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
