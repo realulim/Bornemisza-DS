@@ -52,7 +52,7 @@ public class IntegrationTestBase {
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();
-        requestSpec.auth().basic(userName, password);
+        requestSpec.auth().preemptive().basic(userName, password);
         user = new User();
         user.setName("Fazil Ongudar");
         user.setPassword("secret");
