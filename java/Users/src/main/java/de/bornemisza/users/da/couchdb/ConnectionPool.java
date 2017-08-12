@@ -5,12 +5,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
-import org.ektorp.impl.StdCouchDbConnector;
 import org.ektorp.impl.StdCouchDbInstance;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -45,11 +43,11 @@ public class ConnectionPool {
         }
     }
 
-    public CouchDbConnector getConnection() {
+    public MyCouchDbConnector getConnection() {
         return getConnection(null);
     }
 
-    public CouchDbConnector getConnection(BasicAuthCredentials creds) {
+    public MyCouchDbConnector getConnection(BasicAuthCredentials creds) {
         for (String hostname : couchDbHostQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
             HttpClient httpClient = createHttpClient(conn, creds);
@@ -58,7 +56,7 @@ public class ConnectionPool {
                 Integer usageCount = this.couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-                return new StdCouchDbConnector(conn.getDatabaseName(), dbInstance);
+                return new MyCouchDbConnector(hostname, conn.getDatabaseName(), dbInstance);
             }
             else {
                 Logger.getAnonymousLogger().info(hostname + " unreachable...");
