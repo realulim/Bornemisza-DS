@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ektorp.CouchDbConnector;
+import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,9 +81,14 @@ public class ConnectionPoolTest {
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(false);
-        CouchDbConnector dbConn = CUT.getConnection();
-        assertEquals(0, hostQueue.size(), utilisationMap.size());
-        assertNull(dbConn);
+        try {
+            CUT.getConnection();
+            fail();
+        }
+        catch (DbAccessException ex) {
+            // expected
+            assertEquals(0, hostQueue.size(), utilisationMap.size());
+        }
     }
 
     @Test

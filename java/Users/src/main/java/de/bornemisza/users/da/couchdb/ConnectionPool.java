@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.CouchDbInstance;
+import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbConnector;
@@ -14,6 +15,7 @@ import org.ektorp.impl.StdCouchDbInstance;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import de.bornemisza.users.boundary.BasicAuthCredentials;
 import de.bornemisza.users.da.CouchDbConnection;
 import static de.bornemisza.users.JAXRSConfiguration.COUCHDB_HOSTQUEUE;
 import static de.bornemisza.users.JAXRSConfiguration.COUCHDB_UTILISATION;
@@ -44,11 +46,15 @@ public class ConnectionPool {
     }
 
     public CouchDbConnector getConnection() {
+        return getConnection(null);
+    }
+
+    public CouchDbConnector getConnection(BasicAuthCredentials creds) {
         for (String hostname : couchDbHostQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
-            HttpClient httpClient = createHttpClient(conn);
+            HttpClient httpClient = createHttpClient(conn, creds);
             if (healthChecks.isCouchDbReady(httpClient)) {
-                Logger.getAnonymousLogger().info(hostname + " available, using it.");
+                Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 Integer usageCount = this.couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
@@ -59,15 +65,20 @@ public class ConnectionPool {
             }
         }
         Logger.getAnonymousLogger().warning("No CouchDB Hosts available at all!");
-        return null;
+        throw new DbAccessException("No CouchDB Backend ready!");
     }
 
-    private HttpClient createHttpClient(CouchDbConnection conn) {
-        return new StdHttpClient.Builder()
-                .url(conn.getUrl())
-                .username(conn.getUserName())
-                .password(conn.getPassword())
-                .build();
+    private HttpClient createHttpClient(CouchDbConnection conn, BasicAuthCredentials creds) {
+        if (creds == null) return new StdHttpClient.Builder()
+                    .url(conn.getUrl())
+                    .username(conn.getUserName())
+                    .password(conn.getPassword())
+                    .build();
+        else return new StdHttpClient.Builder()
+                    .url(conn.getUrl())
+                    .username(creds.getUserName())
+                    .password(creds.getPassword())
+                    .build();
     }
 
 }

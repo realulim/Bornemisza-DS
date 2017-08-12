@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
@@ -32,6 +33,7 @@ public class HealthChecks {
             return allDatabases.size() > 0;
         }
         catch (DbAccessException e) {
+            Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
             return false;
         }
     }

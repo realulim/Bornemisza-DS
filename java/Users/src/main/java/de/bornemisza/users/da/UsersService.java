@@ -11,6 +11,7 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.Options;
 import org.ektorp.UpdateConflictException;
 
+import de.bornemisza.users.boundary.BasicAuthCredentials;
 import de.bornemisza.users.da.couchdb.ConnectionPool;
 import de.bornemisza.users.entity.User;
 
@@ -23,17 +24,12 @@ public class UsersService {
     ConnectionPool adminPool;
 
     private UsersRepository adminRepo;
-    private UsersRepository repo;
 
     public UsersService() {
     }
 
     @PostConstruct
     public void init() {
-        CouchDbConnector conn = pool.getConnection();
-        if (conn == null) throw new IllegalStateException("No Database reachable at all!");
-        repo = new UsersRepository(conn);
-
         CouchDbConnector adminConn = adminPool.getConnection();
         if (adminConn == null) throw new IllegalStateException("No Database reachable at all!");
         DbInfo dbInfo = adminConn.getDbInfo();
@@ -42,38 +38,42 @@ public class UsersService {
         adminRepo = new UsersRepository(adminConn);
     }
 
-    public User createUser(User user) throws UpdateConflictException {
-        adminRepo.add(user);
+    public User createUser(User user, BasicAuthCredentials creds) {
+        UsersRepository repo = new UsersRepository(pool.getConnection(creds));
+        repo.add(user);
         Logger.getAnonymousLogger().info("Added user: " + user);
         return user;
     }
 
-    public User updateUser(User user) throws UpdateConflictException {
-        adminRepo.update(user);
+    public User updateUser(User user, BasicAuthCredentials creds) throws UpdateConflictException {
+        UsersRepository repo = new UsersRepository(pool.getConnection(creds));
+        repo.update(user);
         Logger.getAnonymousLogger().info("Updated user: " + user);
         return user;
     }
 
-    public User getUser(String userName) throws DocumentNotFoundException {
-        return readUser(userName);
+    public User getUser(String userName, BasicAuthCredentials creds) throws DocumentNotFoundException {
+        return readUser(userName, creds);
     }
 
-    private User readUser(String userName) {
-        return readUser(userName, null);
+    private User readUser(String userName, BasicAuthCredentials creds) {
+        return readUser(userName, null, creds);
     }
 
-    private User readUser(String userName, Options options) throws DocumentNotFoundException {
+    private User readUser(String userName, Options options, BasicAuthCredentials creds) throws DocumentNotFoundException {
         userName = User.USERNAME_PREFIX + userName;
-        User user = (options == null ? adminRepo.get(userName) : adminRepo.get(userName, options));
+        UsersRepository repo = new UsersRepository(pool.getConnection(creds));
+        User user = (options == null ? repo.get(userName) : repo.get(userName, options));
         Logger.getAnonymousLogger().info("Read user: " + user);
         return user;
     }
 
-    public void deleteUser(String userName, String rev) throws UpdateConflictException {
+    public void deleteUser(String userName, String rev, BasicAuthCredentials creds) throws UpdateConflictException {
         User user = new User();
         user.setName(userName);
         user.setRevision(rev);
-        adminRepo.remove(user);
+        UsersRepository repo = new UsersRepository(pool.getConnection(creds));
+        repo.remove(user);
         Logger.getAnonymousLogger().info("Removed user: " + user);
     }
 
