@@ -20,6 +20,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.users.PseudoHazelcastList;
 import de.bornemisza.users.PseudoHazelcastMap;
+import de.bornemisza.users.boundary.BasicAuthCredentials;
 import de.bornemisza.users.da.CouchDbConnection;
 
 public class ConnectionPoolTest {
@@ -110,6 +111,49 @@ public class ConnectionPoolTest {
         assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname));
     }
 
+    @Test
+    public void getMember_nullCredentials() {
+        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        CouchDbConnection conn = getConnectionMock();
+        String hostname = "hostname.domain.de";
+        allConnections.clear();
+        allConnections.put(hostname, conn);
+        hostQueue.clear();
+        hostQueue.add(hostname);
+        utilisationMap.clear();
+        utilisationMap.put(hostname, 1);
+ 
+        CUT.getConnection(null);
+        verify(conn).getUrl();
+        verify(conn).getDatabaseName();
+        verify(conn).getUserName();
+        verify(conn).getPassword();
+    }
+
+    @Test
+    public void getMember_credentialsGiven() {
+        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        CouchDbConnection conn = getConnectionMock();
+        String hostname = "hostname.domain.de";
+        allConnections.clear();
+        allConnections.put(hostname, conn);
+        hostQueue.clear();
+        hostQueue.add(hostname);
+        utilisationMap.clear();
+        utilisationMap.put(hostname, 1);
+ 
+        BasicAuthCredentials creds = getBasicAuthCredentialsMock();
+        CUT.getConnection(creds);
+        verify(conn).getUrl();
+        verify(conn).getDatabaseName();
+        verify(creds).getUserName();
+        verify(creds).getPassword();
+        verifyNoMoreInteractions(conn);
+        verifyNoMoreInteractions(creds);
+    }
+
     private CouchDbConnection getConnection() {
         try {
             return new CouchDbConnection(new URL("https://localhost/"), "users", "admin", "secret");
@@ -117,6 +161,27 @@ public class ConnectionPoolTest {
         catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private CouchDbConnection getConnectionMock() {
+        CouchDbConnection conn = mock(CouchDbConnection.class);
+        try {
+            when(conn.getUrl()).thenReturn(new URL("https://localhost/"));
+            when(conn.getUserName()).thenReturn("admin");
+            when(conn.getPassword()).thenReturn("secret");
+            when(conn.getDatabaseName()).thenReturn("users");
+            return conn;
+        } 
+        catch (MalformedURLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private BasicAuthCredentials getBasicAuthCredentialsMock() {
+        BasicAuthCredentials creds = mock(BasicAuthCredentials.class);
+        when(creds.getUserName()).thenReturn("admin");
+        when(creds.getPassword()).thenReturn("secret");
+        return creds;
     }
 
 }
