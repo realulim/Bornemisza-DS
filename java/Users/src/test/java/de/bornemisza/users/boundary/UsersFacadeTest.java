@@ -1,5 +1,6 @@
 package de.bornemisza.users.boundary;
 
+import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 import org.junit.Before;
@@ -22,27 +23,79 @@ public class UsersFacadeTest {
     }
 
     @Test
-    public void createUser_failed() {
+    public void createUser_userExists() {
         when(usersService.createUser(any(User.class), any())).thenThrow(new UpdateConflictException());
         assertNull(CUT.createUser(new User(), null));
     }
 
     @Test
-    public void updateUser_failed() {
+    public void createUser_TechnicalException() {
+        String msg = "401 - Unauthorized";
+        when(usersService.createUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
+        try {
+            CUT.createUser(new User(), "someAuthString");
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
+    public void updateUser_noSuchUser() {
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
         assertNull(CUT.updateUser(new User(), null));
     }
 
     @Test
-    public void getUser_failed() {
+    public void updateUser_TechnicalException() {
+        String msg = "401 - Unauthorized";
+        when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
+        try {
+            CUT.updateUser(new User(), "someAuthString");
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
+    public void getUser_noSuchUser() {
         when(usersService.getUser(anyString(), any())).thenThrow(new DocumentNotFoundException("/some/path"));
         assertNull(CUT.getUser("Ike", null));
     }
 
     @Test
-    public void deleteUser_failed() {
+    public void getUser_TechnicalException() {
+        String msg = "401 - Unauthorized";
+        when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
+        try {
+            CUT.getUser("Silly Willy", "someAuthString");
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
+    public void deleteUser_noSuchUser() {
         doThrow(new UpdateConflictException()).when(usersService).deleteUser(anyString(), anyString(), any());
         assertFalse(CUT.deleteUser("Ike", "3454353", null));
+    }
+
+    @Test
+    public void deleteUser_TechnicalException() {
+        String msg = "401 - Unauthorized";
+        doThrow(new DbAccessException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
+        try {
+            CUT.deleteUser("Silly Willy", "rev123", "someAuthString");
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
     }
 
     @Test
