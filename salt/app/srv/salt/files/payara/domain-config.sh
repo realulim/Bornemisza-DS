@@ -18,4 +18,4 @@
 
 # create SMTP resource
 {{ ASADMIN_CMD }} delete-javamail-resource mail/Outgoing
-{{ ASADMIN_CMD }} create-javamail-resource --mailhost localhost --fromaddress noreply@$3 mail/Outgoing
+{{ ASADMIN_CMD }} create-javamail-resource --mailuser root --mailhost localhost --fromaddress noreply@$3 mail/Outgoing
