@@ -1,5 +1,5 @@
-{% set COUCHDB_DIR='apache-couchdb-2.0.0' %}
-{% set COUCHDB_TARGZ='apache-couchdb-2.0.0.tar.gz' %}
+{% set COUCHDB_DIR='apache-couchdb-2.1.0' %}
+{% set COUCHDB_TARGZ='apache-couchdb-2.1.0.tar.gz' %}
 {% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 {% set COUCHDB_CONFIG='/home/couchpotato/couchdb/etc/local.ini' %}
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
@@ -38,7 +38,7 @@ couchpotato:
 
 download-couchdb:
   cmd.run:
-    - name: bash -c 'mkdir tmp && cd tmp && wget http://mirror.synyx.de/apache/couchdb/source/2.0.0/{{ COUCHDB_TARGZ }}'
+    - name: bash -c 'mkdir tmp && cd tmp && wget http://mirror.synyx.de/apache/couchdb/source/2.1.0/{{ COUCHDB_TARGZ }}'
     - cwd: /home/couchpotato
     - runas: couchpotato
     - unless: ls ./tmp/{{ COUCHDB_TARGZ }}
