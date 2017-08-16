@@ -56,16 +56,14 @@ install-couchdb:
     - runas: couchpotato
     - unless: ls {{ COUCHDB_BINARY }}
 
+set-permissions-couchdb:
+  cmd.run:
+    - name: find /home/couchpotato/couchdb -type d -exec chmod 0770 {} \;
+
 install-systemctl-unitfile:
    file.managed:
     - name: /usr/lib/systemd/system/couchdb.service
     - source: salt://files/couchdb/couchdb.service
-
-/home/couchpotato/couchdb/etc/local.d:
-  file.directory:
-    - user: couchpotato
-    - group: couchpotato
-    - dir_mode: 700
 
 /home/couchpotato/couchdb/etc/local.d/admins.ini:
   file.copy:
@@ -87,6 +85,9 @@ configure-couchdb:
   file.managed:
     - name: /home/couchpotato/couchdb/etc/local.ini
     - source: salt://files/couchdb/local.ini
+    - user: couchpotato
+    - group: couchpotato
+    - mode: 644
     - template: jinja
 
 /home/couchpotato/couchdb/etc/vm.args:
