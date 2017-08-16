@@ -1,9 +1,14 @@
 [Unit]
-Description=CouchDB 2.0 service
-After=network.target
- 
+Description=Apache CouchDB
+Wants=network-online.target
+After=network-online.target
+
 [Service]
-Type=simple
+RuntimeDirectory=couchdb
 User=couchpotato
-ExecStart=/home/couchpotato/couchdb/bin/couchdb -o /dev/stdout -e /dev/stderr
-Restart=on-failure
+Group=couchpotato
+ExecStart=/home/couchpotato/couchdb/bin/couchdb
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
