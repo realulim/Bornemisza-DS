@@ -73,9 +73,9 @@ configure-admin-password:
   file.replace:
     - name: /home/couchpotato/couchdb/etc/default.d/admins.ini
     - pattern: |
-	;admin = mysecretpassword
+        ;admin = mysecretpassword
     - repl: |
-	admin = {{ pillar['couchdb-admin-password'] }}
+        admin = {{ pillar['couchdb-admin-password'] }}
     - show_changes: False
 
 configure-couchdb:
