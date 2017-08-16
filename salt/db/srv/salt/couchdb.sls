@@ -68,6 +68,12 @@ install-systemctl-unitfile:
     - group: couchpotato
     - mode: 644
 
+/home/couchpotato/couchdb/etc/local.d:
+  file.directory:
+    - user: couchpotato
+    - group: couchpotato
+    - dir_mode: 700
+
 configure-couchdb:
   file.managed:
     - name: /home/couchpotato/couchdb/etc/local.ini
