@@ -61,28 +61,28 @@ install-systemctl-unitfile:
     - name: /usr/lib/systemd/system/couchdb.service
     - source: salt://files/couchdb/couchdb.service
 
-/home/couchpotato/couchdb/etc/default.d/admins.ini:
-  file.copy:
-    - name: /home/couchpotato/couchdb/etc/default.d/admins.ini
-    - source: /srv/salt/files/couchdb/admins.ini
-    - user: couchpotato
-    - group: couchpotato
-    - mode: 644
-
-configure-admin-password:
-  file.replace:
-    - name: /home/couchpotato/couchdb/etc/default.d/admins.ini
-    - pattern: |
-        ;admin = mysecretpassword
-    - repl: |
-        admin = {{ pillar['couchdb-admin-password'] }}
-    - show_changes: False
+#/home/couchpotato/couchdb/etc/default.d/admins.ini:
+#  file.copy:
+#    - name: /home/couchpotato/couchdb/etc/default.d/admins.ini
+#    - source: /srv/salt/files/couchdb/admins.ini
+#    - user: couchpotato
+#    - group: couchpotato
+#    - mode: 644
 
 configure-couchdb:
   file.managed:
     - name: /home/couchpotato/couchdb/etc/local.ini
     - source: salt://files/couchdb/local.ini
     - template: jinja
+    - show_changes: False
+
+configure-admin-password:
+  file.replace:
+    - name: /home/couchpotato/couchdb/etc/local.ini
+    - pattern: |
+        ;admin = mysecretpassword
+    - repl: |
+        admin = {{ pillar['couchdb-admin-password'] }}
     - show_changes: False
 
 /home/couchpotato/couchdb/etc/vm.args:
@@ -109,7 +109,7 @@ run-couchdb:
     - init_delay: 5
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
-      - file: /home/couchpotato/couchdb/etc/default.d/admins.ini
+#      - file: /home/couchpotato/couchdb/etc/default.d/admins.ini
       - file: /home/couchpotato/couchdb/etc/local.ini
       - file: /home/couchpotato/couchdb/etc/vm.args
 
