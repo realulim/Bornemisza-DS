@@ -1,7 +1,6 @@
 {% set COUCHDB_DIR='apache-couchdb-2.1.0' %}
 {% set COUCHDB_TARGZ='apache-couchdb-2.1.0.tar.gz' %}
 {% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
-{% set COUCHDB_CONFIG='/home/couchpotato/couchdb/etc/local.ini' %}
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
 {% set URL='http://' + pillar['privip'] + ':5984' %}
 {% set BACKDOORURL='http://localhost:5986' %}
@@ -62,26 +61,28 @@ install-systemctl-unitfile:
     - name: /usr/lib/systemd/system/couchdb.service
     - source: salt://files/couchdb/couchdb.service
 
-configure-couchdb:
-  file.replace:
-    - name: {{ COUCHDB_CONFIG }}
-    - pattern: |
-        ;bind_address = 127.0.0.1
-    - repl: |
-        bind_address = {{ pillar['privip'] }}
+/home/couchpotato/couchdb/etc/default.d/admins.ini:
+  file.copy:
+    - name: /home/couchpotato/couchdb/etc/default.d/admins.ini
+    - source: /srv/salt/files/couchdb/admins.ini
+    - user: couchpotato
+    - group: couchpotato
+    - mode: 644
 
-configure-admin-password-and-logging:
+configure-admin-password:
   file.replace:
-    - name: {{ COUCHDB_CONFIG }}
+    - name: /home/couchpotato/couchdb/etc/default.d/admins.ini
     - pattern: |
-        ;admin = mysecretpassword
+	;admin = mysecretpassword
     - repl: |
-        admin = {{ pillar['couchdb-admin-password'] }}
-        
-        [log]
-        writer = file
-        file = /home/couchpotato/couchdb.log
-        level = info
+	admin = {{ pillar['couchdb-admin-password'] }}
+    - show_changes: False
+
+configure-couchdb:
+  file.managed:
+    - name: /home/couchpotato/couchdb/etc/local.ini
+    - source: salt://files/couchdb/local.ini
+    - template: jinja
     - show_changes: False
 
 /home/couchpotato/couchdb/etc/vm.args:
@@ -108,7 +109,8 @@ run-couchdb:
     - init_delay: 5
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
-      - file: {{ COUCHDB_CONFIG }}
+      - file: /home/couchpotato/couchdb/etc/default.d/admins.ini
+      - file: /home/couchpotato/couchdb/etc/local.ini
       - file: /home/couchpotato/couchdb/etc/vm.args
 
 join-couchdb-cluster:
