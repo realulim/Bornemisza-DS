@@ -53,9 +53,9 @@ public class Users {
     @Produces(MediaType.APPLICATION_JSON)
     public User createUser(User user, 
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (user == null) {
+        if (user == null || user.getEmail() == null) {
             throw new WebApplicationException(
-                    Response.status(Status.BAD_REQUEST).entity("No User to create!").build());
+                    Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
         }
         User createdUser = null;
         try {

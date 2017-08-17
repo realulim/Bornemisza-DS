@@ -10,6 +10,8 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 public class UsersTest {
 
@@ -51,10 +53,12 @@ public class UsersTest {
     }
 
     @Test
-    public void createUser_technicalException() {
+    public void createUser_technicalException() throws AddressException {
         when(facade.createUser(any(User.class), any())).thenThrow(new RuntimeException("Some technical problem..."));
+        User user = new User();
+        user.setEmail(new InternetAddress("foo@bar.de"));
         try {
-            CUT.createUser(new User(), null);
+            CUT.createUser(user, null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -74,10 +78,23 @@ public class UsersTest {
     }
 
     @Test
-    public void createUser_userAlreadyExists() {
-        when(facade.createUser(any(User.class), any())).thenReturn(null);
+    public void createUser_nullEmail() {
         try {
             CUT.createUser(new User(), null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void createUser_userAlreadyExists() throws AddressException {
+        when(facade.createUser(any(User.class), any())).thenReturn(null);
+        User user = new User();
+        user.setEmail(new InternetAddress("foo@bar.de"));
+        try {
+            CUT.createUser(user, null);
             fail();
         }
         catch (WebApplicationException ex) {
