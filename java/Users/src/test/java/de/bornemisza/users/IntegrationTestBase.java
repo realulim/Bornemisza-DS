@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 import static io.restassured.RestAssured.given;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -39,7 +42,7 @@ public class IntegrationTestBase {
     };
 
     @Before
-    public void setUp() {
+    public void setUp() throws AddressException {
         String configuredUri = System.getProperty(BASE_URI_PROP);
         if (configuredUri == null) fail("Please configure " + BASE_URI_PROP + " in your build.properties");
         String userName = System.getProperty(USERNAME_PROP);
@@ -56,7 +59,7 @@ public class IntegrationTestBase {
         user = new User();
         user.setName("Fazil Ongudar");
         user.setPassword("secret");
-        user.setEmail("fazil@ongudar.de");
+        user.setEmail(new InternetAddress("fazil.ongudar@restmail.net"));
         List<String> roles = Arrays.asList(new String[]{"customer", "user"});
         user.setRoles(roles);
     }

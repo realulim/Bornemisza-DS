@@ -2,12 +2,17 @@ package de.bornemisza.users.entity;
 
 import java.util.List;
 
+import javax.mail.internet.InternetAddress;
 import javax.validation.constraints.NotNull;
+import org.ektorp.support.CouchDbDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.ektorp.support.CouchDbDocument;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import de.bornemisza.users.entity.convert.InternetAddressDeserializer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,7 +35,9 @@ public class User extends CouchDbDocument {
     private String password;
 
     @JsonProperty(value = "email")
-    private String email;
+    @JsonSerialize(using = ToStringSerializer.class)
+    @JsonDeserialize(using = InternetAddressDeserializer.class)
+    private InternetAddress email;
 
     @JsonProperty(value = "roles")
     private List<String> roles;
@@ -60,11 +67,11 @@ public class User extends CouchDbDocument {
         this.password = password;
     }
 
-    public String getEmail() {
+    public InternetAddress getEmail() {
         return email;
     }
 
-    public void setEmail(@NotNull String email) {
+    public void setEmail(@NotNull InternetAddress email) {
         this.email = email;
     }
 
