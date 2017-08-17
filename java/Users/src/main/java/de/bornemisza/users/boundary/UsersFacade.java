@@ -25,10 +25,9 @@ public class UsersFacade {
         this.usersService = usersService;
     }
 
-    public User createUser(User user, String authHeader) {
+    public User createUser(User user) {
         try {
-            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            return usersService.createUser(user, creds);
+            return usersService.createUser(user);
         }
         catch (UpdateConflictException e) {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());

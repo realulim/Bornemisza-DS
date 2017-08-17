@@ -25,6 +25,7 @@ public class UsersIT extends IntegrationTestBase {
 
     @Test
     public void t1_readUser() {
+        requestSpec.auth().none();
         Response response = getUser(user.getName(), 200);
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");

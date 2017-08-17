@@ -24,16 +24,16 @@ public class UsersFacadeTest {
 
     @Test
     public void createUser_userExists() {
-        when(usersService.createUser(any(User.class), any())).thenThrow(new UpdateConflictException());
-        assertNull(CUT.createUser(new User(), null));
+        when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException());
+        assertNull(CUT.createUser(new User()));
     }
 
     @Test
     public void createUser_TechnicalException() {
         String msg = "401 - Unauthorized";
-        when(usersService.createUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
+        when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
         try {
-            CUT.createUser(new User(), "someAuthString");
+            CUT.createUser(new User());
             fail();
         }
         catch (TechnicalException ex) {

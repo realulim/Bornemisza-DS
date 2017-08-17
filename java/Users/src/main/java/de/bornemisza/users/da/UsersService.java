@@ -38,8 +38,8 @@ public class UsersService {
         adminRepo = new UsersRepository(adminConn);
     }
 
-    public User createUser(User user, BasicAuthCredentials creds) {
-        MyCouchDbConnector conn = pool.getConnection(creds);
+    public User createUser(User user) {
+        MyCouchDbConnector conn = adminPool.getConnection();
         UsersRepository repo = new UsersRepository(conn);
         repo.add(user);
         Logger.getLogger(conn.getHostname()).info("Added user: " + user);

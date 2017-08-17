@@ -1,17 +1,16 @@
 package de.bornemisza.users.endpoint;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.ws.rs.WebApplicationException;
 
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 public class UsersTest {
 
@@ -54,11 +53,11 @@ public class UsersTest {
 
     @Test
     public void createUser_technicalException() throws AddressException {
-        when(facade.createUser(any(User.class), any())).thenThrow(new RuntimeException("Some technical problem..."));
+        when(facade.createUser(any(User.class))).thenThrow(new RuntimeException("Some technical problem..."));
         User user = new User();
         user.setEmail(new InternetAddress("foo@bar.de"));
         try {
-            CUT.createUser(user, null);
+            CUT.createUser(user);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -69,7 +68,7 @@ public class UsersTest {
     @Test
     public void createUser_nullUser() {
         try {
-            CUT.createUser(null, null);
+            CUT.createUser(null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -80,7 +79,7 @@ public class UsersTest {
     @Test
     public void createUser_nullEmail() {
         try {
-            CUT.createUser(new User(), null);
+            CUT.createUser(new User());
             fail();
         }
         catch (WebApplicationException ex) {
@@ -90,11 +89,11 @@ public class UsersTest {
 
     @Test
     public void createUser_userAlreadyExists() throws AddressException {
-        when(facade.createUser(any(User.class), any())).thenReturn(null);
+        when(facade.createUser(any(User.class))).thenReturn(null);
         User user = new User();
         user.setEmail(new InternetAddress("foo@bar.de"));
         try {
-            CUT.createUser(user, null);
+            CUT.createUser(user);
             fail();
         }
         catch (WebApplicationException ex) {

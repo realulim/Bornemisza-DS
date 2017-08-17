@@ -51,15 +51,14 @@ public class Users {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public User createUser(User user, 
-                           @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public User createUser(User user) {
         if (user == null || user.getEmail() == null) {
             throw new WebApplicationException(
                     Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
         }
         User createdUser = null;
         try {
-            createdUser = facade.createUser(user, authHeader);
+            createdUser = facade.createUser(user);
         }
         catch (RuntimeException ex) {
             throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
