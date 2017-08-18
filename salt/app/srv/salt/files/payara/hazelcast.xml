@@ -15,7 +15,7 @@
 
 	<ringbuffer name="New User Account">
 		<capacity>10000</capacity>
-		<time-to-live-seconds>86400</time-to-live-seconds>
+		<time-to-live-seconds>604800</time-to-live-seconds>
 	</ringbuffer>
 
 	<ringbuffer name="Send Confirmation Mail">
