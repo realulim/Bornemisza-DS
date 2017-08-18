@@ -13,4 +13,30 @@
 		</join>
 	</network>
 
+	<ringbuffer name="New User Account">
+		<capacity>10000</capacity>
+		<time-to-live-seconds>86400</time-to-live-seconds>
+	</ringbuffer>
+
+	<ringbuffer name="Send Confirmation Mail">
+		<capacity>10000</capacity>
+		<time-to-live-seconds>86400</time-to-live-seconds>
+	</ringbuffer>
+
+	<reliable-topic name="New User Account">
+		<statistics-enabled>true</statistics-enabled>
+		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
+		<message-listeners>
+			<message-listener>de.bornemisza.users.subscriber.NewUserAccountListener</message-listener>
+		</message-listeners>
+	</reliable-topic>
+
+	<reliable-topic name="Send Confirmation Mail">
+		<statistics-enabled>true</statistics-enabled>
+		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
+		<message-listeners>
+			<message-listener>de.bornemisza.users.subscriber.ConfirmationMailListener</message-listener>
+		</message-listeners>
+	</reliable-topic>
+
 </hazelcast>
