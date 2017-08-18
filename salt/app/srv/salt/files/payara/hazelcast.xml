@@ -26,4 +26,8 @@
 		</message-listeners>
 	</reliable-topic>
 
+	<map name="New User Account">
+		<time-to-live-seconds>604800</time-to-live-seconds>
+	</map>
+
 </hazelcast>
