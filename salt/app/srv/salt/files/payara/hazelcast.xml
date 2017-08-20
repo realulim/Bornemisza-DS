@@ -13,14 +13,20 @@
 		</join>
 	</network>
 
-	<queue name="NewUserAccount">
-		<max-size>1000</max-size>
-		<item-listeners>
-			<item-listener include-value="true">de.bornemisza.users.consumer.NewUserAccountListener</item-listener>
-		</item-listeners>
-	</queue>
+	<ringbuffer name="NewUserAccount">
+		<capacity>10000</capacity>
+		<time-to-live-seconds>86400</time-to-live-seconds>
+	</ringbuffer>
 
-	<map name="NewUserAccount">
+	<reliable-topic name="NewUserAccount">
+		<statistics-enabled>true</statistics-enabled>
+		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
+		<message-listeners>
+			<message-listener>de.bornemisza.users.subscriber.NewUserAccountListener</message-listener>
+		</message-listeners>
+	</reliable-topic>
+
+	<map name="NewUserAccountMap">
 		<time-to-live-seconds>604800</time-to-live-seconds>
 	</map>
 
