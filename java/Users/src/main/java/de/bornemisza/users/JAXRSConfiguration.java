@@ -26,9 +26,8 @@ public class JAXRSConfiguration extends Application {
         return classes;
     }
 
-    public static String COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
-    public static String COUCHDB_UTILISATION = "CouchDBUtilisation";
-    public static String TOPIC_NEW_USER_ACCOUNT = "New User Account";
-    public static String TOPIC_SEND_CONFIRMATION_MAIL = "Send Confirmation Mail";
+    public static String LIST_COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
+    public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
+    public static String TOPIC_NEW_USER_ACCOUNT = "NewUserAccount";
 
 }

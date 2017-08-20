@@ -25,8 +25,8 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import static de.bornemisza.users.JAXRSConfiguration.COUCHDB_HOSTQUEUE;
-import static de.bornemisza.users.JAXRSConfiguration.COUCHDB_UTILISATION;
+import static de.bornemisza.users.JAXRSConfiguration.LIST_COUCHDB_HOSTQUEUE;
+import static de.bornemisza.users.JAXRSConfiguration.MAP_COUCHDB_UTILISATION;
 
 @Singleton
 @Startup
@@ -67,8 +67,8 @@ public class PoolMaintenance {
 
     @PostConstruct
     public void init() {
-        couchDbHostUtilisation = hazelcast.getMap(COUCHDB_UTILISATION);
-        couchDbHostQueue = hazelcast.getList(COUCHDB_HOSTQUEUE);
+        couchDbHostUtilisation = hazelcast.getMap(MAP_COUCHDB_UTILISATION);
+        couchDbHostQueue = hazelcast.getList(LIST_COUCHDB_HOSTQUEUE);
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
             @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }

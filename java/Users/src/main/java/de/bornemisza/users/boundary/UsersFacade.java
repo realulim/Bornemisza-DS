@@ -2,6 +2,7 @@ package de.bornemisza.users.boundary;
 
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -9,14 +10,24 @@ import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ITopic;
+
+import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
+import de.bornemisza.users.subscriber.NewUserAccountListener;
 
 @Stateless
 public class UsersFacade {
 
     @Inject
     UsersService usersService;
+
+    @Inject
+    HazelcastInstance hazelcast;
+
+    private ITopic<User> newUserAccountTopic;
 
     public UsersFacade() { }
 
@@ -25,8 +36,15 @@ public class UsersFacade {
         this.usersService = usersService;
     }
 
+    @PostConstruct
+    public void init() {
+        newUserAccountTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT);
+        newUserAccountTopic.addMessageListener(new NewUserAccountListener());
+    }
+
     public User createUser(User user) {
         try {
+            newUserAccountTopic.publish(user);
             return usersService.createUser(user);
         }
         catch (UpdateConflictException e) {

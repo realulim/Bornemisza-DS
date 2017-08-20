@@ -15,8 +15,8 @@ import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.users.boundary.BasicAuthCredentials;
 import de.bornemisza.users.da.CouchDbConnection;
-import static de.bornemisza.users.JAXRSConfiguration.COUCHDB_HOSTQUEUE;
-import static de.bornemisza.users.JAXRSConfiguration.COUCHDB_UTILISATION;
+import static de.bornemisza.users.JAXRSConfiguration.LIST_COUCHDB_HOSTQUEUE;
+import static de.bornemisza.users.JAXRSConfiguration.MAP_COUCHDB_UTILISATION;
 
 public class ConnectionPool {
 
@@ -30,8 +30,8 @@ public class ConnectionPool {
                          HealthChecks healthChecks) {
         this.allConnections = connections;
         this.healthChecks = healthChecks;
-        this.couchDbHostQueue = hazelcast.getList(COUCHDB_HOSTQUEUE);
-        this.couchDbHostUtilisation = hazelcast.getMap(COUCHDB_UTILISATION);
+        this.couchDbHostQueue = hazelcast.getList(LIST_COUCHDB_HOSTQUEUE);
+        this.couchDbHostUtilisation = hazelcast.getMap(MAP_COUCHDB_UTILISATION);
         if (couchDbHostQueue.isEmpty()) {
             Set<String> hostnames = allConnections.keySet();
             couchDbHostQueue.addAll(hostnames);
