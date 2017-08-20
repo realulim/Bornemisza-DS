@@ -21,9 +21,6 @@
 	<reliable-topic name="NewUserAccount">
 		<statistics-enabled>true</statistics-enabled>
 		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
-		<message-listeners>
-			<message-listener>de.bornemisza.users.subscriber.NewUserAccountListener</message-listener>
-		</message-listeners>
 	</reliable-topic>
 
 	<map name="NewUserAccountMap">
