@@ -23,7 +23,7 @@
 		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
 	</reliable-topic>
 
-	<map name="NewUserAccountMap">
+	<map name="NewUserAccount">
 		<time-to-live-seconds>604800</time-to-live-seconds>
 	</map>
 
