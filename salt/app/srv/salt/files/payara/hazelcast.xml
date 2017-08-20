@@ -13,14 +13,14 @@
 		</join>
 	</network>
 
-	<queue name="New User Account Queue">
+	<queue name="NewUserAccount">
 		<max-size>1000</max-size>
 		<item-listeners>
 			<item-listener include-value="true">de.bornemisza.users.consumer.NewUserAccountListener</item-listener>
 		</item-listeners>
 	</queue>
 
-	<map name="New User Account Map">
+	<map name="NewUserAccount">
 		<time-to-live-seconds>604800</time-to-live-seconds>
 	</map>
 
