@@ -14,7 +14,7 @@
 	</network>
 
 	<ringbuffer name="NewUserAccount">
-		<capacity>10000</capacity>
+		<capacity>1000</capacity>
 		<time-to-live-seconds>86400</time-to-live-seconds>
 	</ringbuffer>
 
@@ -25,6 +25,8 @@
 
 	<map name="NewUserAccount">
 		<time-to-live-seconds>604800</time-to-live-seconds>
+		<eviction-policy>LRU</eviction-policy>
+		<max-size policy="PER_NODE">1000</max-size>
 	</map>
 
 </hazelcast>
