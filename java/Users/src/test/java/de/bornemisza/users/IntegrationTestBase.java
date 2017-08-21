@@ -20,7 +20,7 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import de.bornemisza.users.entity.User;
 
@@ -94,6 +94,37 @@ public class IntegrationTestBase {
                 .when().delete(userName + "/" + rev)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
+    }
+
+    protected Response clickConfirmationLink(InternetAddress recipient) {
+        String mailUser = recipient.toString().split("@")[0];
+        requestSpec = new RequestSpecBuilder()
+                .setBaseUri("https://restmail.net/mail/")
+                .build();
+        Response response = given(requestSpec)
+                .when().get(mailUser)
+                .then().statusCode(200)
+                .extract().response();
+        String html = response.jsonPath().getString("[0].html");
+        assertNotNull("No Mail for User " + mailUser, html);
+        String confirmationLink = html.split("href=\"")[1].split("\"")[0];
+        requestSpec = new RequestSpecBuilder()
+                .setBaseUri(confirmationLink)
+                .build();
+        return given(requestSpec)
+                .when().get("/")
+                .then().statusCode(201)
+                .extract().response();
+    }
+
+    protected void deleteMails(InternetAddress recipient) {
+        String mailUser = recipient.toString().split("@")[0];
+        requestSpec = new RequestSpecBuilder()
+                .setBaseUri("https://restmail.net/mail/")
+                .build();
+        given(requestSpec)
+                .when().delete(mailUser)
+                .then().statusCode(200);
     }
 
 }
