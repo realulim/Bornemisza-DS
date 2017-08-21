@@ -26,7 +26,7 @@
 	<map name="NewUserAccount">
 		<time-to-live-seconds>604800</time-to-live-seconds>
 		<eviction-policy>LRU</eviction-policy>
-		<max-size policy="PER_NODE">1000</max-size>
+		<max-size policy="PER_NODE">5000</max-size>
 	</map>
 
 </hazelcast>
