@@ -20,7 +20,7 @@ public class UsersService {
     @Resource(name="couchdb/Users")
     ConnectionPool pool;
 
-    @Resource(name="admin@couchdb/Users")
+    @Resource(name="couchdb/Users/admin")
     ConnectionPool adminPool;
 
     private UsersRepository adminRepo;
