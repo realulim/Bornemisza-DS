@@ -12,5 +12,3 @@ exim-running:
   service.running:
     - name: exim
     - enable: true
-    - listen:
-      - file: /etc/exim/exim.conf
