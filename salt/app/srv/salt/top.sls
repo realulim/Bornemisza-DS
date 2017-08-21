@@ -8,3 +8,4 @@ base:
     - haproxy
     - payara
     - maven
+    - exim
