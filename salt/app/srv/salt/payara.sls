@@ -1,7 +1,7 @@
 {% set PAYARA_DIR='/opt/payara' %}
 {% set DOMAIN_DIR='/opt/payara/glassfish/domains/domain1' %}
-{% set PAYARA_VERSION='4.1.2.172' %}
-{% set PAYARA_ARTIFACT='payara-4.1.2.172.zip' %}
+{% set PAYARA_VERSION='4.1.2.173' %}
+{% set PAYARA_ARTIFACT='payara-4.1.2.173.zip' %}
 {% set PWD_FILE='/root/.payara' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 
