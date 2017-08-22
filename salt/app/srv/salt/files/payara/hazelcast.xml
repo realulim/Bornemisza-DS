@@ -27,7 +27,7 @@
 		<time-to-live-seconds>604800</time-to-live-seconds>
 		<eviction-policy>LRU</eviction-policy>
 		<max-size policy="PER_NODE">5000</max-size>
-		<in-memory-format>OBJECT</in-memory-format>
+		<in-memory-format>BINARY</in-memory-format>
 	</map>
 
 </hazelcast>
