@@ -2,7 +2,8 @@
 
 # $1 absolute path to asadmin binary
 # $2 absolute path to password file
-# $3 the domain serviced by this instance of Payara
+# $3 the domain serviced by this Payara instance
+# $4 the fully qualified domain name of this Payara instance
 
 {%- set ASADMIN_CMD='$1 --interactive=false --user admin --passwordfile=$2' %}
 
@@ -19,3 +20,6 @@
 # create SMTP resource
 {{ ASADMIN_CMD }} delete-javamail-resource mail/Outgoing
 {{ ASADMIN_CMD }} create-javamail-resource --mailuser root --mailhost localhost --fromaddress noreply@$3 mail/Outgoing
+
+# create config property FQDN
+{{ ASADMIN_CMD }} set-config-property --propertyName=FQDN --propertyValue=$4 --source=server --sourceName=server1
