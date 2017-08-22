@@ -1,22 +1,24 @@
 package de.bornemisza.users.boundary;
 
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.NotFoundException;
 
 import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
-import de.bornemisza.users.subscriber.NewUserAccountListener;
 
 @Stateless
 public class UsersFacade {
@@ -28,23 +30,31 @@ public class UsersFacade {
     HazelcastInstance hazelcast;
 
     private ITopic<User> newUserAccountTopic;
+    private IMap<UUID, User> newUserAccountMap;
 
     public UsersFacade() { }
 
     // Constructor for Unit Tests
-    public UsersFacade(UsersService usersService) {
+    public UsersFacade(UsersService usersService, ITopic<User> newUserAccountTopic, IMap<UUID, User> newUserAccountMap) {
         this.usersService = usersService;
+        this.newUserAccountTopic = newUserAccountTopic;
+        this.newUserAccountMap = newUserAccountMap;
     }
 
     @PostConstruct
     public void init() {
-        newUserAccountTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT);
-        newUserAccountTopic.addMessageListener(new NewUserAccountListener());
+        this.newUserAccountTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT);
+        this.newUserAccountMap = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT);
     }
 
-    public User createUser(User user) {
+    public void addUser(User user) {
+        newUserAccountTopic.publish(user);
+    }
+
+    public User confirmUser(UUID uuid) {
+        User user = newUserAccountMap.remove(uuid);
+        if (user == null) throw new NotFoundException(uuid.toString());
         try {
-            newUserAccountTopic.publish(user);
             return usersService.createUser(user);
         }
         catch (UpdateConflictException e) {
@@ -99,3 +109,4 @@ public class UsersFacade {
     }
 
 }
+

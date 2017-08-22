@@ -1,10 +1,13 @@
 package de.bornemisza.users.endpoint;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -51,14 +54,43 @@ public class Users {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public User createUser(User user) {
+    public Response addUser(User user) {
         if (user == null || user.getEmail() == null) {
             throw new WebApplicationException(
                     Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
         }
+        try {
+            facade.addUser(user);
+            return Response.accepted(user).build();
+        }
+        catch (RuntimeException ex) {
+            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GET
+    @Path("confirmation/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public User confirmUser(@PathParam("uuid") String uuidStr) {
+        UUID uuid;
+        try {
+            uuid = uuidStr == null ? null : UUID.fromString(uuidStr);
+        }
+        catch (IllegalArgumentException iae) {
+            uuid = null;
+        }
+        if (uuid == null) {
+            throw new WebApplicationException(
+                    Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build());
+        }
+
         User createdUser = null;
         try {
-            createdUser = facade.createUser(user);
+            createdUser = facade.confirmUser(uuid);
+        }
+        catch (NotFoundException e) {
+            throw new WebApplicationException(
+                    Response.status(Status.NOT_FOUND).entity("User does not exist - probably expired!").build());
         }
         catch (RuntimeException ex) {
             throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);

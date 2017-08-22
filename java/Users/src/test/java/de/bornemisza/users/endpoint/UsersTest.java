@@ -1,13 +1,19 @@
 package de.bornemisza.users.endpoint;
 
+import java.util.UUID;
+
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
+import com.hazelcast.topic.TopicOverloadException;
 
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
@@ -52,12 +58,34 @@ public class UsersTest {
     }
 
     @Test
-    public void createUser_technicalException() throws AddressException {
-        when(facade.createUser(any(User.class))).thenThrow(new RuntimeException("Some technical problem..."));
+    public void addUser_nullUser() {
+        try {
+            CUT.addUser(null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void addUser_nullEmail() {
+        try {
+            CUT.addUser(new User());
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void addUser_technicalException() throws AddressException {
         User user = new User();
         user.setEmail(new InternetAddress("foo@bar.de"));
+        doThrow(new TopicOverloadException("Topic overloaded")).when(facade).addUser(user);
         try {
-            CUT.createUser(user);
+            CUT.addUser(user);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -66,34 +94,69 @@ public class UsersTest {
     }
 
     @Test
-    public void createUser_nullUser() {
-        try {
-            CUT.createUser(null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void createUser_nullEmail() {
-        try {
-            CUT.createUser(new User());
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void createUser_userAlreadyExists() throws AddressException {
-        when(facade.createUser(any(User.class))).thenReturn(null);
+    public void addUser() throws AddressException {
         User user = new User();
         user.setEmail(new InternetAddress("foo@bar.de"));
+        Response response = CUT.addUser(user);
+        assertEquals(202, response.getStatus());
+    }
+
+    @Test
+    public void confirmUser_nullUuid() {
         try {
-            CUT.createUser(user);
+            CUT.confirmUser(null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void confirmUser_unparseableUuid() {
+        try {
+            CUT.confirmUser("this-is-not-a-uuid");
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void confirmUser_userExpired() {
+        UUID uuid = UUID.randomUUID();
+        String errMsg = "User does not exist - probably expired!";
+        when(facade.confirmUser(uuid)).thenThrow(new NotFoundException(errMsg));
+        try {
+            CUT.confirmUser(uuid.toString());
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(404, ex.getResponse().getStatus());
+            assertEquals(errMsg, ex.getResponse().getEntity());
+        }
+    }
+
+    @Test
+    public void confirmUser_technicalException() throws AddressException {
+        UUID uuid = UUID.randomUUID();
+        when(facade.confirmUser(uuid)).thenThrow(new RuntimeException("Some technical problem..."));
+        try {
+            CUT.confirmUser(uuid.toString());
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(500, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void confirmUser_userAlreadyExists() throws AddressException {
+        UUID uuid = UUID.randomUUID();
+        when(facade.confirmUser(uuid)).thenReturn(null);
+        try {
+            CUT.confirmUser(uuid.toString());
             fail();
         }
         catch (WebApplicationException ex) {

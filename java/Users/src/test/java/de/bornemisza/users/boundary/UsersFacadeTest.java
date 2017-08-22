@@ -1,12 +1,17 @@
 package de.bornemisza.users.boundary;
 
+import java.util.UUID;
+
 import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
 
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
@@ -14,26 +19,39 @@ import de.bornemisza.users.entity.User;
 public class UsersFacadeTest {
 
     private UsersService usersService;
+    private ITopic<User> newUserAccountTopic;
+    private IMap<UUID, User> newUserAccountMap;
     private UsersFacade CUT;
     
     @Before
     public void setUp() {
         usersService = mock(UsersService.class);
-        CUT = new UsersFacade(usersService);
+        newUserAccountTopic = mock(ITopic.class);
+        newUserAccountMap = mock(IMap.class);
+        CUT = new UsersFacade(usersService, newUserAccountTopic, newUserAccountMap);
     }
 
     @Test
-    public void createUser_userExists() {
+    public void addUser() {
+        User user = new User();
+        CUT.addUser(user);
+        verify(newUserAccountTopic).publish(user);
+    }
+
+    @Test
+    public void confirmUser_userExists() {
+        when(newUserAccountMap.remove(any(UUID.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException());
-        assertNull(CUT.createUser(new User()));
+        assertNull(CUT.confirmUser(UUID.randomUUID()));
     }
 
     @Test
-    public void createUser_TechnicalException() {
+    public void confirmUser_TechnicalException() {
         String msg = "401 - Unauthorized";
+        when(newUserAccountMap.remove(any(UUID.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
         try {
-            CUT.createUser(new User());
+            CUT.confirmUser(UUID.randomUUID());
             fail();
         }
         catch (TechnicalException ex) {

@@ -1,5 +1,6 @@
 package de.bornemisza.users;
 
+import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -7,20 +8,20 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import io.restassured.specification.RequestSpecification;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import static io.restassured.RestAssured.given;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import static org.junit.Assert.*;
 
 import de.bornemisza.users.entity.User;
 
@@ -113,7 +114,7 @@ public class IntegrationTestBase {
                 .build();
         return given(requestSpec)
                 .when().get("/")
-                .then().statusCode(201)
+                .then().statusCode(200)
                 .extract().response();
     }
 
