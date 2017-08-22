@@ -1,6 +1,5 @@
 package de.bornemisza.users;
 
-import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -8,20 +7,21 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 import io.restassured.specification.RequestSpecification;
-
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import static io.restassured.RestAssured.given;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import static org.junit.Assert.*;
 
 import de.bornemisza.users.entity.User;
 
@@ -97,33 +97,44 @@ public class IntegrationTestBase {
                 .extract().response();
     }
 
-    protected Response clickConfirmationLink(InternetAddress recipient) {
+    protected String retrieveConfirmationLink(InternetAddress recipient) {
         String mailUser = recipient.toString().split("@")[0];
-        requestSpec = new RequestSpecBuilder()
+        RequestSpecification localRequestSpec = new RequestSpecBuilder()
                 .setBaseUri("https://restmail.net/mail/")
                 .build();
-        Response response = given(requestSpec)
-                .when().get(mailUser)
-                .then().statusCode(200)
-                .extract().response();
-        String html = response.jsonPath().getString("[0].html");
+
+        // wait up to 30 seconds for mail delivery
+        String html = null;
+        long mailDeliveryTimeout = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(30);
+        while (html == null && System.currentTimeMillis() < mailDeliveryTimeout) {
+            Response response = given(localRequestSpec)
+                    .when().get(mailUser)
+                    .then().statusCode(200)
+                    .extract().response();
+            html = response.jsonPath().getString("[0].html");
+        }
+
         assertNotNull("No Mail for User " + mailUser, html);
-        String confirmationLink = html.split("href=\"")[1].split("\"")[0];
-        requestSpec = new RequestSpecBuilder()
-                .setBaseUri(confirmationLink)
+        return html.split("href=\"")[1].split("\"")[0];
+    }
+
+    protected Response clickConfirmationLink(String confirmationLink) {
+        String uuid = confirmationLink.substring(confirmationLink.lastIndexOf("/") + 1);
+        RequestSpecification localRequestSpec = new RequestSpecBuilder()
+                .setBaseUri(confirmationLink.substring(0, confirmationLink.length() - uuid.length()))
                 .build();
-        return given(requestSpec)
-                .when().get("/")
+        return given(localRequestSpec)
+                .when().get(uuid)
                 .then().statusCode(200)
                 .extract().response();
     }
 
     protected void deleteMails(InternetAddress recipient) {
         String mailUser = recipient.toString().split("@")[0];
-        requestSpec = new RequestSpecBuilder()
+        RequestSpecification localRequestSpec = new RequestSpecBuilder()
                 .setBaseUri("https://restmail.net/mail/")
                 .build();
-        given(requestSpec)
+        given(localRequestSpec)
                 .when().delete(mailUser)
                 .then().statusCode(200);
     }

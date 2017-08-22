@@ -4,16 +4,18 @@ import java.util.UUID;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.topic.TopicOverloadException;
+import de.bornemisza.users.boundary.BusinessException;
+import de.bornemisza.users.boundary.BusinessException.Type;
 
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
@@ -125,11 +127,11 @@ public class UsersTest {
 
     @Test
     public void confirmUser_userExpired() {
-        UUID uuid = UUID.randomUUID();
-        String errMsg = "User does not exist - probably expired!";
-        when(facade.confirmUser(uuid)).thenThrow(new NotFoundException(errMsg));
+        String uuid = UUID.randomUUID().toString();
+        String errMsg = "User does not exist - maybe expired?";
+        when(facade.confirmUser(uuid)).thenThrow(new BusinessException(Type.UUID_NOT_FOUND, errMsg));
         try {
-            CUT.confirmUser(uuid.toString());
+            CUT.confirmUser(uuid);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -140,10 +142,10 @@ public class UsersTest {
 
     @Test
     public void confirmUser_technicalException() throws AddressException {
-        UUID uuid = UUID.randomUUID();
+        String uuid = UUID.randomUUID().toString();
         when(facade.confirmUser(uuid)).thenThrow(new RuntimeException("Some technical problem..."));
         try {
-            CUT.confirmUser(uuid.toString());
+            CUT.confirmUser(uuid);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -153,10 +155,10 @@ public class UsersTest {
 
     @Test
     public void confirmUser_userAlreadyExists() throws AddressException {
-        UUID uuid = UUID.randomUUID();
+        String uuid = UUID.randomUUID().toString();
         when(facade.confirmUser(uuid)).thenReturn(null);
         try {
-            CUT.confirmUser(uuid.toString());
+            CUT.confirmUser(uuid);
             fail();
         }
         catch (WebApplicationException ex) {

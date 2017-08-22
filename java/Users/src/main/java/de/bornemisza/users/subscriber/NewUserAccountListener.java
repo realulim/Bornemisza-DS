@@ -31,14 +31,14 @@ public class NewUserAccountListener implements MessageListener<User> {
     HazelcastInstance hazelcast;
 
     private ITopic<User> newUserAccountTopic;
-    private IMap<UUID, User> newUserAccountMap;
+    private IMap<String, User> newUserAccountMap;
     private String registrationId;
 
     public NewUserAccountListener() {
     }
 
     // Constructor for Unit Tests
-    public NewUserAccountListener(ITopic<User> newUserAccountTopic, IMap<UUID, User> newUserAccountMap, MailSender mailSender) {
+    public NewUserAccountListener(ITopic<User> newUserAccountTopic, IMap<String, User> newUserAccountMap, MailSender mailSender) {
         this.newUserAccountTopic = newUserAccountTopic;
         this.newUserAccountMap = newUserAccountMap;
         this.mailSender = mailSender;
@@ -55,15 +55,15 @@ public class NewUserAccountListener implements MessageListener<User> {
     public void onMessage(Message<User> msg) {
         User user = msg.getMessageObject();
         Logger.getAnonymousLogger().info("Detected new User: " + user.toString());
-        UUID uuid = UUID.randomUUID();
+        String uuid = UUID.randomUUID().toString();
         User previousValue = this.newUserAccountMap.putIfAbsent(uuid, user);
         if (previousValue == null) {
-            String link = "https://www.bornemisza.de/users/confirmation/" + uuid.toString();
+            String link = "https://www.bornemisza.de/users/confirmation/" + uuid;
             boolean mailSent = sendConfirmationMail(user.getEmail(), link);
             if (!mailSent) this.newUserAccountMap.remove(uuid);
         }
         else {
-            Logger.getAnonymousLogger().warning("UUID clash: " + uuid.toString());
+            Logger.getAnonymousLogger().warning("UUID clash: " + uuid);
         }
         Logger.getAnonymousLogger().info("Unconfirmed users: " + newUserAccountMap.size());
     }

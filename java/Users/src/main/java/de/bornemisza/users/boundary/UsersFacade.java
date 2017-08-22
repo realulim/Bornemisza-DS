@@ -1,22 +1,21 @@
 package de.bornemisza.users.boundary;
 
-import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.NotFoundException;
-
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
+import org.ektorp.DbAccessException;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.UpdateConflictException;
+
 import de.bornemisza.users.JAXRSConfiguration;
+import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
 
@@ -30,12 +29,12 @@ public class UsersFacade {
     HazelcastInstance hazelcast;
 
     private ITopic<User> newUserAccountTopic;
-    private IMap<UUID, User> newUserAccountMap;
+    private IMap<String, User> newUserAccountMap;
 
     public UsersFacade() { }
 
     // Constructor for Unit Tests
-    public UsersFacade(UsersService usersService, ITopic<User> newUserAccountTopic, IMap<UUID, User> newUserAccountMap) {
+    public UsersFacade(UsersService usersService, ITopic<User> newUserAccountTopic, IMap<String, User> newUserAccountMap) {
         this.usersService = usersService;
         this.newUserAccountTopic = newUserAccountTopic;
         this.newUserAccountMap = newUserAccountMap;
@@ -51,9 +50,11 @@ public class UsersFacade {
         newUserAccountTopic.publish(user);
     }
 
-    public User confirmUser(UUID uuid) {
+    public User confirmUser(String uuid) throws BusinessException, TechnicalException {
         User user = newUserAccountMap.remove(uuid);
-        if (user == null) throw new NotFoundException(uuid.toString());
+        if (user == null) {
+            throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
+        }
         try {
             return usersService.createUser(user);
         }
@@ -66,7 +67,7 @@ public class UsersFacade {
         }
     }
 
-    public User updateUser(User user, String authHeader) {
+    public User updateUser(User user, String authHeader) throws TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.updateUser(user, creds);
@@ -80,7 +81,7 @@ public class UsersFacade {
         }
     }
 
-    public User getUser(String userName, String authHeader) {
+    public User getUser(String userName, String authHeader) throws TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.getUser(userName, creds);
@@ -93,7 +94,7 @@ public class UsersFacade {
         }
     }
 
-    public boolean deleteUser(String userName, String rev, String authHeader) {
+    public boolean deleteUser(String userName, String rev, String authHeader) throws TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             usersService.deleteUser(userName, rev, creds);

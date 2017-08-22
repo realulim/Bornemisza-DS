@@ -4,10 +4,10 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 
-import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import static org.junit.Assert.*;
 
 import de.bornemisza.users.IntegrationTestBase;
 
@@ -18,17 +18,21 @@ public class UsersIT extends IntegrationTestBase {
 
     @Test
     public void t0_addUser() {
+        deleteMails(user.getEmail());
         Response response = postUser(user, 202);
-        System.out.println("Content-Type: " + response.contentType());
-        System.out.println(response.prettyPrint());
+        JsonPath jsonPath = response.jsonPath();
+        assertEquals(user.getPassword(), jsonPath.getString("password"));
     }
 
     @Test
     public void t1_confirmUser() {
-        Response response = clickConfirmationLink(user.getEmail());
+        long start = System.currentTimeMillis();
+        String confirmationLink = retrieveConfirmationLink(user.getEmail());
+        assertTrue(confirmationLink.startsWith("https://"));
+        System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
+        Response response = clickConfirmationLink(confirmationLink);
         JsonPath jsonPath = response.jsonPath();
-        System.out.println(jsonPath.prettyPrint());
-        System.out.println(response.prettyPrint());
+        assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
     }
 
     @Test
@@ -41,7 +45,7 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t3_udpateUser() {
+    public void t3_updateUser() {
         user.setPassword("changed");
         user.setRevision(revision);
         ResponseBody respBody = putUser(user, 200);

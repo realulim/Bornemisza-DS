@@ -7,7 +7,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -19,6 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import de.bornemisza.users.boundary.BusinessException;
+import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
 
@@ -86,11 +87,12 @@ public class Users {
 
         User createdUser = null;
         try {
-            createdUser = facade.confirmUser(uuid);
+            createdUser = facade.confirmUser(uuidStr);
         }
-        catch (NotFoundException e) {
+        catch (BusinessException e) {
+            Status status = e.getType() == Type.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
             throw new WebApplicationException(
-                    Response.status(Status.NOT_FOUND).entity("User does not exist - probably expired!").build());
+                    Response.status(status).entity("User does not exist - maybe expired?").build());
         }
         catch (RuntimeException ex) {
             throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);

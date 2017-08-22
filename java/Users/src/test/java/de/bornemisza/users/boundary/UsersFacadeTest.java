@@ -1,18 +1,22 @@
 package de.bornemisza.users.boundary;
 
+
 import java.util.UUID;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
+import org.ektorp.DbAccessException;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.UpdateConflictException;
+
+import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
 
@@ -20,7 +24,7 @@ public class UsersFacadeTest {
 
     private UsersService usersService;
     private ITopic<User> newUserAccountTopic;
-    private IMap<UUID, User> newUserAccountMap;
+    private IMap<String, User> newUserAccountMap;
     private UsersFacade CUT;
     
     @Before
@@ -39,19 +43,31 @@ public class UsersFacadeTest {
     }
 
     @Test
+    public void confirmUser_uuidNotFound() {
+        when(newUserAccountMap.remove(any(String.class))).thenReturn(null);
+        try {
+            CUT.confirmUser(UUID.randomUUID().toString());
+            fail();
+        }
+        catch (BusinessException e) {
+            assertEquals(Type.UUID_NOT_FOUND, e.getType());
+        }
+    }
+
+    @Test
     public void confirmUser_userExists() {
-        when(newUserAccountMap.remove(any(UUID.class))).thenReturn(new User());
+        when(newUserAccountMap.remove(any(String.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException());
-        assertNull(CUT.confirmUser(UUID.randomUUID()));
+        assertNull(CUT.confirmUser(UUID.randomUUID().toString()));
     }
 
     @Test
     public void confirmUser_TechnicalException() {
         String msg = "401 - Unauthorized";
-        when(newUserAccountMap.remove(any(UUID.class))).thenReturn(new User());
+        when(newUserAccountMap.remove(any(String.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
         try {
-            CUT.confirmUser(UUID.randomUUID());
+            CUT.confirmUser(UUID.randomUUID().toString());
             fail();
         }
         catch (TechnicalException ex) {
