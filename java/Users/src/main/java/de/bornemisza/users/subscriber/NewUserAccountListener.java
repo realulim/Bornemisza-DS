@@ -16,8 +16,6 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
 import de.bornemisza.users.entity.User;
@@ -32,9 +30,9 @@ public class NewUserAccountListener implements MessageListener<User> {
     @Inject
     HazelcastInstance hazelcast;
 
-    @Inject
-    @ConfigProperty(name="FQDN", defaultValue="UNKNOWN")
-    private String FQDN;
+//    @Inject
+//    @ConfigProperty(name="FQDN", defaultValue="UNKNOWN")
+    private String FQDN = "www.bornemisza.de";
 
     private ITopic<User> newUserAccountTopic;
     private IMap<String, User> newUserAccountMap;
