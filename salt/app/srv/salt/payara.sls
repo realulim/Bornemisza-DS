@@ -3,6 +3,7 @@
 {% set PAYARA_VERSION='4.1.2.173' %}
 {% set PAYARA_ARTIFACT='payara-4.1.2.173.zip' %}
 {% set PWD_FILE='/root/.payara' %}
+{% set INITIAL_PWD_FILE='/root/.payara-initial' %}
 {% set ASADMIN='/opt/payara/bin/asadmin' %}
 
 install_payara_pkgs:
@@ -61,23 +62,24 @@ make-asadmin-executable:
     - onchanges:
       - payara-installed
 
-create-change-admin-password-file:
+create-initial-admin-password-file:
   cmd.run:
-    - name: printf 'AS_ADMIN_PASSWORD=\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}\n' > {{ PWD_FILE }}
-    - unless: grep {{ pillar['asadmin-password'] }} {{ PWD_FILE }}
+    - name: printf 'AS_ADMIN_PASSWORD=\nAS_ADMIN_NEWPASSWORD={{ pillar['asadmin-password'] }}\n' > {{ INITIAL_PWD_FILE }}
+    - unless: grep {{ pillar['asadmin-password'] }} {{ INITIAL_PWD_FILE }}
 
 set-admin-password:
   cmd.run:
-    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ PWD_FILE }} change-admin-password
+    - name: {{ ASADMIN }} --interactive=false --user admin --passwordfile={{ INITIAL_PWD_FILE }} change-admin-password
     - require:
       - make-asadmin-executable
       - payara-running
     - onchanges:
-      - create-change-admin-password-file
+      - create-initial-admin-password-file
+      - payara-installed
 
 create-admin-password-file:
   cmd.run:
-    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}\nAS_ADMIN_ALIASPASSWORD=changeit' > {{ PWD_FILE }}
+    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}\nAS_ADMIN_ALIASPASSWORD=changeit\n' > {{ PWD_FILE }}
     - onchanges:
       - set-admin-password
 

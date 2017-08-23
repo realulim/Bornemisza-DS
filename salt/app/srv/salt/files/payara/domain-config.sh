@@ -22,4 +22,4 @@
 {{ ASADMIN_CMD }} create-javamail-resource --mailuser root --mailhost localhost --fromaddress noreply@$3 mail/Outgoing
 
 # create config property FQDN
-{{ ASADMIN_CMD }} set-config-property --propertyName=FQDN --propertyValue=$4 --source=server --sourceName=server1
+{{ ASADMIN_CMD }} set-config-property --propertyName=FQDN --propertyValue=$4 --source=server --sourceName=server-config
