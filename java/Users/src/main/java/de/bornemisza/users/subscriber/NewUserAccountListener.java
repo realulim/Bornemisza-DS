@@ -30,10 +30,6 @@ public class NewUserAccountListener implements MessageListener<User> {
     @Inject
     HazelcastInstance hazelcast;
 
-//    @Inject
-//    @ConfigProperty(name="FQDN", defaultValue="UNKNOWN")
-    private String FQDN = "www.bornemisza.de";
-
     private ITopic<User> newUserAccountTopic;
     private IMap<String, User> newUserAccountMap;
     private String registrationId;
@@ -62,7 +58,7 @@ public class NewUserAccountListener implements MessageListener<User> {
         String uuid = UUID.randomUUID().toString();
         User previousValue = this.newUserAccountMap.putIfAbsent(uuid, user);
         if (previousValue == null) {
-            String link = "https://" + FQDN + "/users/confirmation/" + uuid;
+            String link = "https://" + "www.bornemisza.de" + "/users/confirmation/" + uuid;
             boolean mailSent = sendConfirmationMail(user.getEmail(), link);
             if (!mailSent) this.newUserAccountMap.remove(uuid);
         }
