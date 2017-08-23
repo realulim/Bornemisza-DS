@@ -74,6 +74,7 @@ set-admin-password:
       - payara-running
     - onchanges:
       - create-change-admin-password-file
+      - payara-installed
 
 create-admin-password-file:
   cmd.run:
