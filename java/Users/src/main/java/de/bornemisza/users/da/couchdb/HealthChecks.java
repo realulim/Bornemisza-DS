@@ -33,8 +33,14 @@ public class HealthChecks {
             return allDatabases.size() > 0;
         }
         catch (DbAccessException e) {
-            Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
-            return false;
+            if (e.getMessage().startsWith("401")) {
+                Logger.getAnonymousLogger().warning("CouchDB probably ready, but Credentials wrong!");
+                return true;
+            }
+            else {
+                Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
+                return false;
+            }
         }
     }
 
