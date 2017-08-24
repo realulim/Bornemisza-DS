@@ -1,7 +1,14 @@
 package de.bornemisza.users.subscriber;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -60,22 +67,28 @@ public class NewUserAccountListener implements MessageListener<User> {
         String uuid = UUID.randomUUID().toString();
         User previousValue = this.newUserAccountMap.putIfAbsent(uuid, user);
         if (previousValue == null) {
-            String link = "https://" + FQDN + "/users/confirmation/" + uuid;
-            boolean mailSent = sendConfirmationMail(user.getEmail(), link);
-            if (!mailSent) this.newUserAccountMap.remove(uuid);
-        }
-        else {
+            boolean mailSent = sendConfirmationMail(user, uuid);
+            if (!mailSent) {
+                this.newUserAccountMap.remove(uuid);
+            }
+        } else {
             Logger.getAnonymousLogger().warning("UUID clash: " + uuid);
         }
         Logger.getAnonymousLogger().info("Unconfirmed users: " + newUserAccountMap.size());
     }
 
-    private boolean sendConfirmationMail(InternetAddress recipient, String link) {
+    private boolean sendConfirmationMail(User user, String uuid) {
+        InternetAddress recipient = createRecipient(user);
         String subject = "Confirmation of new User Account";
-        String content = "<html><h3>Please click on the confirmation link to create your user account:</h3><a href=\"" + link + "\">I'm for real!</a></html>";
-        boolean success = mailSender.sendMail(recipient, subject, content);
-        if (success) Logger.getAnonymousLogger().info("Sent " + link + " to " + recipient.getAddress());
-        else Logger.getAnonymousLogger().info("Sending " + link + " to " + recipient.getAddress() + " failed!");
+        String textContent = createContent(user, uuid, "confirmation-mail.txt", fallbackTextTemplate);
+        String htmlContent = createContent(user, uuid, "confirmation-mail.html", fallbackHtmlTemplate);
+        boolean success = mailSender.sendMail(recipient, subject, textContent, htmlContent);
+        if (success) {
+            Logger.getAnonymousLogger().info("Sent " + uuid + " to " + recipient.getAddress());
+        }
+        else {
+            Logger.getAnonymousLogger().info("Sending " + uuid + " to " + recipient.getAddress() + " failed!");
+        }
         return success;
     }
 
@@ -84,5 +97,34 @@ public class NewUserAccountListener implements MessageListener<User> {
         newUserAccountTopic.removeMessageListener(registrationId);
     }
 
-}
+    private InternetAddress createRecipient(User user) {
+        try {
+            return new InternetAddress(user.getEmail().getAddress(), user.getName());
+        }
+        catch (UnsupportedEncodingException ex) {
+            return user.getEmail();
+        }
+    }
 
+    private String createContent(User user, String uuid, String template, String fallbackTemplate) {
+        String content;
+        try {
+            content = getResourceFile(template);
+        }
+        catch (IOException ioe) {
+            content = fallbackTemplate;
+        }
+        return content.replace("$FQDN$", FQDN).replace("$NAME$", user.getName()).replace("$UUID$", uuid);
+    }
+
+    private String getResourceFile(String fileName) throws IOException {
+        FileInputStream inputStream = new FileInputStream(getClass().getClassLoader().getResource(fileName).getFile());
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+            return buffer.lines().collect(Collectors.joining("\n"));
+        }
+    }
+
+    private final String fallbackHtmlTemplate = "<html><h3>Please click on the confirmation link to create your user account:</h3><a href=\"https://$FQDN$/users/confirmation/$UUID$\">Yes, I'm $NAME$ and I want to become a Member!</a></html>";
+    private final String fallbackTextTemplate = "Dear $NAME$, please copy this link into your browser to create your user account: https://$FQDN$/users/confirmation/$UUID$";
+
+}

@@ -1,15 +1,14 @@
 package de.bornemisza.users.subscriber;
 
-
+import java.io.IOException;
 
 import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.mockito.ArgumentCaptor;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +36,9 @@ public class NewUserAccountListenerTest {
     public void setUp() throws AddressException {
         user = new User();
         InternetAddress recipient = new InternetAddress("user@localhost.de");
+        user.setName("Fazil Ongudar");
         user.setEmail(recipient);
+        System.setProperty("FQDN", "www.bornemisza.de");
 
         msg = mock(Message.class);
         when(msg.getMessageObject()).thenReturn(user);
@@ -47,28 +48,37 @@ public class NewUserAccountListenerTest {
         mailSender = mock(MailSender.class);
         CUT = new NewUserAccountListener(newUserAccountTopic, newUserAccountMap, mailSender);
     }
-    
+
     @Test
-    public void onMessage_mailSent() throws AddressException, NoSuchProviderException {
+    public void onMessage_mailSent_styledTemplate() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
         when(newUserAccountMap.putIfAbsent(uuidCaptor.capture(), eq(user))).thenReturn(null);
 
-        ArgumentCaptor<String> contentCaptor = ArgumentCaptor.forClass(String.class);
-        when(mailSender.sendMail(eq(user.getEmail()), contains("Confirmation"), contentCaptor.capture())).thenReturn(true);
+        ArgumentCaptor<String> textContentCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> htmlContentCaptor = ArgumentCaptor.forClass(String.class);
+        when(mailSender.sendMail(any(InternetAddress.class), anyString(), textContentCaptor.capture(), htmlContentCaptor.capture())).thenReturn(true);
+
         CUT.onMessage(msg);
 
-        // MailBody must contain Link and generated UUID
-        String mailBody = contentCaptor.getValue();
-        assertTrue(mailBody.contains("https://"));
-        assertTrue(mailBody.contains(uuidCaptor.getValue()));
-    }
+        // Text-Mailbody must contain Link
+        String expectedLink = "https://" + System.getProperty("FQDN") + "/users/confirmation/" + uuidCaptor.getValue();
+        String textMailBody = textContentCaptor.getValue();
+        System.out.println(textMailBody);
+        assertTrue(textMailBody.contains(expectedLink));
 
+        // Html-Mailbody must contain Link and Style
+        expectedLink = "<a href=\"https://" + System.getProperty("FQDN") + "/users/confirmation/" + uuidCaptor.getValue() + "\"";
+        String htmlMailBody = htmlContentCaptor.getValue();
+        assertTrue(htmlMailBody.contains(expectedLink));
+        assertTrue(htmlMailBody.contains("font-family:Verdana, Helvetica, Arial, sans-serif"));
+    }
+    
     @Test
-    public void onMessage_mailNotSent() throws AddressException, NoSuchProviderException {
+    public void onMessage_mailNotSent() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
         when(newUserAccountMap.putIfAbsent(uuidCaptor.capture(), eq(user))).thenReturn(null);
 
-        when(mailSender.sendMail(eq(user.getEmail()), contains("Confirmation"), anyString())).thenReturn(false);
+        when(mailSender.sendMail(eq(user.getEmail()), contains("Confirmation"), anyString(), anyString())).thenReturn(false);
         CUT.onMessage(msg);
 
         verify(newUserAccountMap).remove(uuidCaptor.getValue());
