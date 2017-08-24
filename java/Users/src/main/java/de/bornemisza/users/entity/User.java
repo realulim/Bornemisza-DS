@@ -37,6 +37,12 @@ public class User extends CouchDbDocument {
     @JsonSerialize(using = ToStringSerializer.class)
     private InternetAddress email;
 
+    @JsonProperty(value = "derived_key")
+    private String derivedKey;
+
+    @JsonProperty(value = "salt")
+    private String salt;
+
     @JsonProperty(value = "roles")
     private List<String> roles;
 
@@ -73,6 +79,22 @@ public class User extends CouchDbDocument {
         this.email = email;
     }
 
+    public String getDerivedKey() {
+        return derivedKey;
+    }
+
+    public void setDerivedKey(String derivedKey) {
+        this.derivedKey = derivedKey;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
     public List<String> getRoles() {
         return roles;
     }
@@ -84,7 +106,7 @@ public class User extends CouchDbDocument {
     @Override
     public String toString() {
         return "CouchDbDocument{" + "id=" + getId() + ", rev=" + getRevision() + ", attachments=" + getAttachments() + ", conflicts=" + getConflicts() + "}" +
-            "User{" + "type=" + type + ", name=" + name + ", password=" + password + ", email=" + email + ", roles=" + roles + '}';
+               "User{" + "type=" + type + ", name=" + name + ", password=" + password + ", email=" + email + ", derivedKey=" + derivedKey + ", salt=" + salt + ", roles=" + roles + '}';
     }
 
 }

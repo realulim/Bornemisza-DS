@@ -42,6 +42,8 @@ public class UsersIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
         assertTrue(revision.length() > 10);
+        assertTrue(jsonPath.getString("derived_key").length() > 10);
+        assertTrue(jsonPath.getString("salt").length() > 10);
     }
 
     @Test
