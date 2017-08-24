@@ -20,3 +20,7 @@
 # create SMTP resource
 {{ ASADMIN_CMD }} delete-javamail-resource mail/Outgoing
 {{ ASADMIN_CMD }} create-javamail-resource --mailuser root --mailhost localhost --fromaddress noreply@$3 mail/Outgoing
+
+# create FQDN system property
+{{ ASADMIN_CMD }} delete-system-property FQDN
+{{ ASADMIN_CMD }} create-system-properties FQDN=$4
