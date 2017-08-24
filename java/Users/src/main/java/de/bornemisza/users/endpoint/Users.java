@@ -20,8 +20,10 @@ import javax.ws.rs.core.Response.Status;
 
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
+import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
+import java.util.logging.Logger;
 
 @Path("/")
 public class Users {
@@ -44,6 +46,9 @@ public class Users {
         User user = null;
         try {
             user = facade.getUser(userName, authHeader);
+        }
+        catch (UnauthorizedException e) {
+            throw new WebApplicationException(Status.UNAUTHORIZED);
         }
         catch (RuntimeException ex) {
             throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
@@ -118,6 +123,9 @@ public class Users {
             try {
                 updatedUser = facade.updateUser(user, authHeader);
             }
+            catch (UnauthorizedException e) {
+                throw new WebApplicationException(Status.UNAUTHORIZED);
+            }
             catch (RuntimeException ex) {
                 throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
             }
@@ -134,18 +142,23 @@ public class Users {
     public void deleteUser(@PathParam("name") String name, 
                            @PathParam("rev") String revision,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (name == null || isVoid(revision) || facade.getUser(name, authHeader) == null) {
+        if (name == null || isVoid(revision)) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
         else {
+            try {
+                User user = facade.getUser(name, authHeader);
+                if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
+            }
+            catch (UnauthorizedException e) {
+                throw new WebApplicationException(Status.UNAUTHORIZED);
+            }
             boolean success;
             try {
                 success = facade.deleteUser(name, revision, authHeader);
             }
             catch (RuntimeException ex) {
-                throw new WebApplicationException(
-                        Response.status(Status.INTERNAL_SERVER_ERROR)
-                                .entity(ex.getMessage()).build());
+                throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
             }
             if (! success) {
                 throw new WebApplicationException(Status.CONFLICT);

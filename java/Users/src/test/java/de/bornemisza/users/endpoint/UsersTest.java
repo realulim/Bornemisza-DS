@@ -16,6 +16,7 @@ import static org.mockito.Mockito.*;
 import com.hazelcast.topic.TopicOverloadException;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
+import de.bornemisza.users.boundary.UnauthorizedException;
 
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
@@ -56,6 +57,18 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(404, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void getUser_unauthorized() {
+        when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
+        try {
+            CUT.getUser("Ike", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(401, ex.getResponse().getStatus());
         }
     }
 
@@ -202,6 +215,18 @@ public class UsersTest {
     }
 
     @Test
+    public void updateUser_unauthorized() {
+        when(facade.updateUser(any(User.class), any())).thenThrow(new UnauthorizedException("401"));
+        try {
+            CUT.updateUser(new User(), null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(401, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
     public void deleteUser_technicalException() {
         when(facade.deleteUser(anyString(), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
         when(facade.getUser(anyString(), any())).thenReturn(new User());
@@ -211,6 +236,17 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(500, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void deleteUser_nullRevision() {
+        try {
+            CUT.deleteUser("Ike", "null", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(404, ex.getResponse().getStatus());
         }
     }
 
@@ -236,6 +272,18 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(409, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void deleteUser_unauthorized() {
+        when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
+        try {
+            CUT.deleteUser("Ike", "some revision", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(401, ex.getResponse().getStatus());
         }
     }
 

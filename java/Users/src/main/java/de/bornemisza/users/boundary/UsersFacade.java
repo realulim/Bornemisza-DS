@@ -67,7 +67,7 @@ public class UsersFacade {
         }
     }
 
-    public User updateUser(User user, String authHeader) throws TechnicalException {
+    public User updateUser(User user, String authHeader) throws UnauthorizedException, TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.updateUser(user, creds);
@@ -77,11 +77,12 @@ public class UsersFacade {
             return null;
         }
         catch (DbAccessException ex) {
-            throw new TechnicalException(ex.toString());
+            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
+            else throw new TechnicalException(ex.toString());
         }
     }
 
-    public User getUser(String userName, String authHeader) throws TechnicalException {
+    public User getUser(String userName, String authHeader) throws UnauthorizedException, TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.getUser(userName, creds);
@@ -90,11 +91,12 @@ public class UsersFacade {
             return null;
         }
         catch (DbAccessException ex) {
-            throw new TechnicalException(ex.toString());
+            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
+            else throw new TechnicalException(ex.toString());
         }
     }
 
-    public boolean deleteUser(String userName, String rev, String authHeader) throws TechnicalException {
+    public boolean deleteUser(String userName, String rev, String authHeader) throws UnauthorizedException, TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             usersService.deleteUser(userName, rev, creds);
@@ -105,7 +107,8 @@ public class UsersFacade {
             return false;
         }
         catch (DbAccessException ex) {
-            throw new TechnicalException(ex.toString());
+            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
+            else throw new TechnicalException(ex.toString());
         }
     }
 

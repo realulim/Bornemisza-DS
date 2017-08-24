@@ -63,7 +63,7 @@ public class UsersFacadeTest {
 
     @Test
     public void confirmUser_TechnicalException() {
-        String msg = "401 - Unauthorized";
+        String msg = "Database kaput";
         when(newUserAccountMap.remove(any(String.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
         try {
@@ -78,15 +78,15 @@ public class UsersFacadeTest {
     @Test
     public void updateUser_noSuchUser() {
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
-        assertNull(CUT.updateUser(new User(), null));
+        assertNull(CUT.updateUser(new User(), "Basic someAuthString"));
     }
 
     @Test
     public void updateUser_TechnicalException() {
-        String msg = "401 - Unauthorized";
+        String msg = "Database kaput";
         when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.updateUser(new User(), "someAuthString");
+            CUT.updateUser(new User(), "Basic someAuthString");
             fail();
         }
         catch (TechnicalException ex) {
@@ -97,15 +97,15 @@ public class UsersFacadeTest {
     @Test
     public void getUser_noSuchUser() {
         when(usersService.getUser(anyString(), any())).thenThrow(new DocumentNotFoundException("/some/path"));
-        assertNull(CUT.getUser("Ike", null));
+        assertNull(CUT.getUser("Ike", "Basic someAuthString"));
     }
 
     @Test
     public void getUser_TechnicalException() {
-        String msg = "401 - Unauthorized";
+        String msg = "Database kaput";
         when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.getUser("Silly Willy", "someAuthString");
+            CUT.getUser("Silly Willy", "Basic someAuthString");
             fail();
         }
         catch (TechnicalException ex) {
@@ -116,15 +116,15 @@ public class UsersFacadeTest {
     @Test
     public void deleteUser_noSuchUser() {
         doThrow(new UpdateConflictException()).when(usersService).deleteUser(anyString(), anyString(), any());
-        assertFalse(CUT.deleteUser("Ike", "3454353", null));
+        assertFalse(CUT.deleteUser("Ike", "3454353", "Basic someAuthString"));
     }
 
     @Test
     public void deleteUser_TechnicalException() {
-        String msg = "401 - Unauthorized";
+        String msg = "Database kaput";
         doThrow(new DbAccessException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
         try {
-            CUT.deleteUser("Silly Willy", "rev123", "someAuthString");
+            CUT.deleteUser("Silly Willy", "rev123", "Basic someAuthString");
             fail();
         }
         catch (TechnicalException ex) {
@@ -134,7 +134,7 @@ public class UsersFacadeTest {
 
     @Test
     public void deleteUser() {
-        assertTrue(CUT.deleteUser("Ike", "3454353", null));
+        assertTrue(CUT.deleteUser("Ike", "3454353", "Basic someAuthString"));
     }
 
 }

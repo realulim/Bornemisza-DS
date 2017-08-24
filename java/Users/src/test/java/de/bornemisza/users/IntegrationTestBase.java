@@ -34,6 +34,8 @@ public class IntegrationTestBase {
     protected URI baseUri;
     protected User user;
 
+    protected String adminUserName, adminPassword;
+
     @Rule
     public TestRule watcher = new TestWatcher() {
         @Override
@@ -46,9 +48,9 @@ public class IntegrationTestBase {
     public void setUp() throws AddressException {
         String configuredUri = System.getProperty(BASE_URI_PROP);
         if (configuredUri == null) fail("Please configure " + BASE_URI_PROP + " in your build.properties");
-        String adminUserName = System.getProperty(ADMIN_USERNAME_PROP);
+        adminUserName = System.getProperty(ADMIN_USERNAME_PROP);
         if (adminUserName == null) fail("Please configure " + ADMIN_USERNAME_PROP + " in your build.properties");
-        String adminPassword = System.getProperty(ADMIN_PASSWORD_PROP);
+        adminPassword = System.getProperty(ADMIN_PASSWORD_PROP);
         if (adminPassword == null) fail("Please configure " + ADMIN_PASSWORD_PROP + " in your build.properties");
         baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
@@ -56,7 +58,6 @@ public class IntegrationTestBase {
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();
-        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         user = new User();
         user.setName("Fazil Ongudar");
         user.setPassword(new char[]{'s','e','c','r','e','t'});

@@ -9,8 +9,7 @@ public class BasicAuthCredentials {
 
     public BasicAuthCredentials(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
-            this.userName = null;
-            this.password = null;
+            throw new UnauthorizedException("AuthHeader broken: " + authHeader);
         }
         else {
             authHeader = authHeader.substring(6);

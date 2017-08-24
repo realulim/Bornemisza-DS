@@ -1,9 +1,9 @@
 package de.bornemisza.users.boundary;
 
-import org.glassfish.jersey.internal.util.Base64;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import org.glassfish.jersey.internal.util.Base64;
 
 public class BasicAuthCredentialsTest {
 
@@ -21,16 +21,24 @@ public class BasicAuthCredentialsTest {
 
     @Test
     public void nullAuthString() {
-        BasicAuthCredentials CUT = new BasicAuthCredentials(null);
-        assertNull(CUT.getUserName());
-        assertNull(CUT.getPassword());
+        try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(null);
+            fail(creds.getPassword());
+        }
+        catch (UnauthorizedException e) {
+            assertTrue(e.getMessage().startsWith("AuthHeader broken"));
+        }
     }
 
     @Test
     public void illegalAuthString() {
-        BasicAuthCredentials CUT = new BasicAuthCredentials(encodedAuthString);
-        assertNull(CUT.getUserName());
-        assertNull(CUT.getPassword());
+        try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(encodedAuthString);
+            fail(creds.getPassword());
+        }
+        catch (UnauthorizedException e) {
+            assertTrue(e.getMessage().startsWith("AuthHeader broken"));
+        }
     }
 
     @Test

@@ -4,6 +4,9 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -36,8 +39,19 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t2_readUser() {
-        requestSpec.auth().none();
+    public void t2_readUser_notAuthorized() {
+        getUser(user.getName(), 401);
+    }
+
+    @Test
+    public void t3_readUser_unauthorized() {
+        requestSpec.auth().preemptive().basic("root", "scriptkiddieguess");
+        getUser(user.getName(), 401);
+    }
+
+    @Test
+    public void t4_readUser() {
+        requestSpec.auth().preemptive().basic(user.getName(), String.valueOf(user.getPassword()));
         Response response = getUser(user.getName(), 200);
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
@@ -49,19 +63,37 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t3_updateUser() {
-        user.setPassword(new char[]{'c','h','a','n','g','e','d'});
+    public void t5_updateUser() throws AddressException {
+        requestSpec.auth().preemptive().basic(user.getName(), String.valueOf(user.getPassword()));
+        String newEmailAddress = "fazil@fazil.de";
+        user.setEmail(new InternetAddress(newEmailAddress));
         user.setRevision(revision);
         ResponseBody respBody = putUser(user, 200);
         JsonPath jsonPath = respBody.jsonPath();
+        assertEquals(newEmailAddress, jsonPath.getString("email"));
         revision = jsonPath.getString("_rev");
+    }
+
+/*
+    @Test
+    public void t6_changePassword() {
+        ResponseBody respBody = putUser(user, 200);
+        JsonPath jsonPath = respBody.jsonPath();
         assertNotEquals(derivedKey, jsonPath.getString("derived_key"));
         assertNotEquals(salt, jsonPath.getString("salt"));
     }
+*/
 
     @Test
-    public void t4_removeUser() {
+    public void t7_removeUser() {
+        requestSpec.auth().preemptive().basic(user.getName(), String.valueOf(user.getPassword()));
         deleteUser(user.getName(), revision, 204);
+        getUser(user.getId(), 401);
+    }
+
+    @Test
+    public void t8_checkUserRemoved() {
+        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(user.getId(), 404);
     }
 
