@@ -52,6 +52,7 @@ public class UsersService {
         MyCouchDbConnector conn = pool.getConnection(creds);
         UsersRepository repo = new UsersRepository(conn);
         repo.update(user);
+        user = repo.get(user.getId());
         Logger.getLogger(conn.getHostname()).info("Updated user: " + user);
         return user;
     }

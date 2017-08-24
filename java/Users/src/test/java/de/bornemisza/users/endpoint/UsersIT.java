@@ -14,7 +14,7 @@ import de.bornemisza.users.IntegrationTestBase;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UsersIT extends IntegrationTestBase {
 
-    private static String revision;
+    private static String revision, derivedKey, salt;
 
     @Test
     public void t0_addUser() {
@@ -42,8 +42,10 @@ public class UsersIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
         assertTrue(revision.length() > 10);
-        assertTrue(jsonPath.getString("derived_key").length() > 10);
-        assertTrue(jsonPath.getString("salt").length() > 10);
+        derivedKey = jsonPath.getString("derived_key");
+        assertTrue(derivedKey.length() > 10);
+        salt = jsonPath.getString("salt");
+        assertTrue(salt.length() > 10);
     }
 
     @Test
@@ -53,6 +55,8 @@ public class UsersIT extends IntegrationTestBase {
         ResponseBody respBody = putUser(user, 200);
         JsonPath jsonPath = respBody.jsonPath();
         revision = jsonPath.getString("_rev");
+        assertNotEquals(derivedKey, jsonPath.getString("derived_key"));
+        assertNotEquals(salt, jsonPath.getString("salt"));
     }
 
     @Test
