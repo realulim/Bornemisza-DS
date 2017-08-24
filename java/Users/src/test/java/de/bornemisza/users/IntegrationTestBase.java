@@ -28,8 +28,8 @@ import de.bornemisza.users.entity.User;
 public class IntegrationTestBase {
 
     protected static final String BASE_URI_PROP = "BASE.URI";
-    protected static final String USERNAME_PROP = "ADMIN.USERNAME";
-    protected static final String PASSWORD_PROP = "ADMIN.PASSWORD";
+    protected static final String ADMIN_USERNAME_PROP = "ADMIN.USERNAME";
+    protected static final String ADMIN_PASSWORD_PROP = "ADMIN.PASSWORD";
     protected RequestSpecification requestSpec;
     protected URI baseUri;
     protected User user;
@@ -46,10 +46,10 @@ public class IntegrationTestBase {
     public void setUp() throws AddressException {
         String configuredUri = System.getProperty(BASE_URI_PROP);
         if (configuredUri == null) fail("Please configure " + BASE_URI_PROP + " in your build.properties");
-        String userName = System.getProperty(USERNAME_PROP);
-        if (userName == null) fail("Please configure " + USERNAME_PROP + " in your build.properties");
-        String password = System.getProperty(PASSWORD_PROP);
-        if (password == null) fail("Please configure " + PASSWORD_PROP + " in your build.properties");
+        String userName = System.getProperty(ADMIN_USERNAME_PROP);
+        if (userName == null) fail("Please configure " + ADMIN_USERNAME_PROP + " in your build.properties");
+        String password = System.getProperty(ADMIN_PASSWORD_PROP);
+        if (password == null) fail("Please configure " + ADMIN_PASSWORD_PROP + " in your build.properties");
         baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)
