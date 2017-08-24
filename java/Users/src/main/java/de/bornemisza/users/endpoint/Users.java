@@ -75,7 +75,7 @@ public class Users {
     public User confirmUser(@PathParam("uuid") String uuidStr) {
         UUID uuid;
         try {
-            uuid = uuidStr == null ? null : UUID.fromString(uuidStr);
+            uuid = isVoid(uuidStr) ? null : UUID.fromString(uuidStr);
         }
         catch (IllegalArgumentException iae) {
             uuid = null;
@@ -134,7 +134,7 @@ public class Users {
     public void deleteUser(@PathParam("name") String name, 
                            @PathParam("rev") String revision,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (name == null || revision == null || facade.getUser(name, authHeader) == null) {
+        if (name == null || isVoid(revision) || facade.getUser(name, authHeader) == null) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
         else {
@@ -143,12 +143,20 @@ public class Users {
                 success = facade.deleteUser(name, revision, authHeader);
             }
             catch (RuntimeException ex) {
-                throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+                throw new WebApplicationException(
+                        Response.status(Status.INTERNAL_SERVER_ERROR)
+                                .entity(ex.getMessage()).build());
             }
             if (! success) {
                 throw new WebApplicationException(Status.CONFLICT);
             }
         }
+    }
+
+    private boolean isVoid(String value) {
+        if (value == null) return true;
+        else if (value.length() == 0) return true;
+        else return value.equals("null");
     }
 
 }
