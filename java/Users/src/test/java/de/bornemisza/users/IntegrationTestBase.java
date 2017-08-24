@@ -28,8 +28,8 @@ import de.bornemisza.users.entity.User;
 public class IntegrationTestBase {
 
     protected static final String BASE_URI_PROP = "BASE.URI";
-    protected static final String USERNAME_PROP = "TESTUSER.USERNAME";
-    protected static final String PASSWORD_PROP = "TESTUSER.PASSWORD";
+    protected static final String USERNAME_PROP = "ADMIN.USERNAME";
+    protected static final String PASSWORD_PROP = "ADMIN.PASSWORD";
     protected RequestSpecification requestSpec;
     protected URI baseUri;
     protected User user;

@@ -65,8 +65,8 @@
                 <configuration>
                     <systemPropertyVariables>
                         <BASE.URI>${BASE.URI}</BASE.URI>
-                        <TESTUSER.USERNAME>${TESTUSER.USERNAME}</TESTUSER.USERNAME>
-                        <TESTUSER.PASSWORD>${TESTUSER.PASSWORD}</TESTUSER.PASSWORD>
+                        <ADMIN.USERNAME>${ADMIN.USERNAME}</ADMIN.USERNAME>
+                        <ADMIN.PASSWORD>${ADMIN.PASSWORD}</ADMIN.PASSWORD>
                     </systemPropertyVariables>
                 </configuration> 
                 <executions>
