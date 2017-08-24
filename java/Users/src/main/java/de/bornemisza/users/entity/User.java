@@ -4,13 +4,14 @@ import java.util.List;
 
 import javax.mail.internet.InternetAddress;
 import javax.validation.constraints.NotNull;
-import org.ektorp.support.CouchDbDocument;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
+import org.ektorp.support.CouchDbDocument;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,7 +31,7 @@ public class User extends CouchDbDocument {
     private String name;
 
     @JsonProperty(value = "password")
-    private String password;
+    private char[] password;
 
     @JsonProperty(value = "email")
     @JsonSerialize(using = ToStringSerializer.class)
@@ -56,11 +57,11 @@ public class User extends CouchDbDocument {
         setId(USERNAME_PREFIX + name);
     }
 
-    public String getPassword() {
+    public char[] getPassword() {
         return password;
     }
 
-    public void setPassword(@NotNull String password) {
+    public void setPassword(@NotNull char[] password) {
         this.password = password;
     }
 

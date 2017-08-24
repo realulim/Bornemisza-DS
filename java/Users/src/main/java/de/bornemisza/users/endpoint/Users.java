@@ -62,7 +62,7 @@ public class Users {
         }
         try {
             facade.addUser(user);
-            return Response.accepted(user).build();
+            return Response.accepted().build();
         }
         catch (RuntimeException ex) {
             throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);

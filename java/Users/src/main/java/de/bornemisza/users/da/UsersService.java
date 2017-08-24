@@ -1,5 +1,6 @@
 package de.bornemisza.users.da;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
@@ -43,6 +44,7 @@ public class UsersService {
         UsersRepository repo = new UsersRepository(conn);
         repo.add(user);
         Logger.getLogger(conn.getHostname()).info("Added user: " + user);
+        Arrays.fill(user.getPassword(), '*');
         return user;
     }
 

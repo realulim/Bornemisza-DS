@@ -20,8 +20,7 @@ public class UsersIT extends IntegrationTestBase {
     public void t0_addUser() {
         deleteMails(user.getEmail());
         Response response = postUser(user, 202);
-        JsonPath jsonPath = response.jsonPath();
-        assertEquals(user.getPassword(), jsonPath.getString("password"));
+        assertEquals(0, response.getBody().prettyPrint().length());
     }
 
     @Test
@@ -33,6 +32,7 @@ public class UsersIT extends IntegrationTestBase {
         Response response = clickConfirmationLink(confirmationLink);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
+        assertEquals("******", jsonPath.getString("password"));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class UsersIT extends IntegrationTestBase {
 
     @Test
     public void t3_updateUser() {
-        user.setPassword("changed");
+        user.setPassword(new char[]{'c','h','a','n','g','e','d'});
         user.setRevision(revision);
         ResponseBody respBody = putUser(user, 200);
         JsonPath jsonPath = respBody.jsonPath();

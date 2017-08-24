@@ -59,7 +59,7 @@ public class IntegrationTestBase {
         requestSpec.auth().preemptive().basic(userName, password);
         user = new User();
         user.setName("Fazil Ongudar");
-        user.setPassword("secret");
+        user.setPassword(new char[]{'s','e','c','r','e','t'});
         user.setEmail(new InternetAddress("fazil.ongudar@restmail.net"));
         List<String> roles = Arrays.asList(new String[]{"customer", "user"});
         user.setRoles(roles);
