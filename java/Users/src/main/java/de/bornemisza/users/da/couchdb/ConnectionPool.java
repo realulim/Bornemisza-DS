@@ -5,14 +5,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.hazelcast.core.HazelcastInstance;
+
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import com.hazelcast.core.HazelcastInstance;
-
+import de.bornemisza.users.HealthChecks;
 import de.bornemisza.users.boundary.BasicAuthCredentials;
 import de.bornemisza.users.da.CouchDbConnection;
 import static de.bornemisza.users.JAXRSConfiguration.LIST_COUCHDB_HOSTQUEUE;

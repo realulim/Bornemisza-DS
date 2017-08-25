@@ -8,16 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ektorp.CouchDbConnector;
-import org.ektorp.DbAccessException;
-import org.ektorp.http.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DbAccessException;
+import org.ektorp.http.HttpClient;
+
+import de.bornemisza.users.HealthChecks;
 import de.bornemisza.users.PseudoHazelcastList;
 import de.bornemisza.users.PseudoHazelcastMap;
 import de.bornemisza.users.boundary.BasicAuthCredentials;

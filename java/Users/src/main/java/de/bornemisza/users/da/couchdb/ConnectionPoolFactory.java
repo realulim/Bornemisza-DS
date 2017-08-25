@@ -15,6 +15,7 @@ import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
@@ -23,9 +24,9 @@ import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import de.bornemisza.users.HealthChecks;
 import de.bornemisza.users.da.CouchDbConnection;
 import de.bornemisza.users.entity.SrvRecord;
-import javax.naming.RefAddr;
 
 public class ConnectionPoolFactory implements ObjectFactory {
 

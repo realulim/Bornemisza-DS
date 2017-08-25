@@ -19,6 +19,8 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
+import de.bornemisza.users.HealthChecks;
+
 public class PoolMaintenanceTest {
 
     private SecureRandom wheel;
