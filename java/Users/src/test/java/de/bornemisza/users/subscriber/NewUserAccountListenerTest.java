@@ -70,7 +70,7 @@ public class NewUserAccountListenerTest {
         expectedLink = "<a href=\"https://" + System.getProperty("FQDN") + "/users/confirmation/" + uuidCaptor.getValue() + "\"";
         String htmlMailBody = htmlContentCaptor.getValue();
         assertTrue(htmlMailBody.contains(expectedLink));
-        assertTrue(htmlMailBody.contains("font-family:Verdana, Helvetica, Arial, sans-serif"));
+        assertTrue(htmlMailBody.contains("font-family:Helvetica, Arial, sans-serif"));
     }
     
     @Test
