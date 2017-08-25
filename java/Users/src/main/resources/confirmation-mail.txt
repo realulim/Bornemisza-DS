@@ -1,10 +1,9 @@
 Please activate your new User Account by clicking the Link below.
 -----------------------------------------------------------------
 
-If you have not signed up for our service, please
-ignore this message.
+If you have not signed up for our service, please ignore this message.
 
-Yes, I'm $NAME$ and I want to become a member! ( https://$FQDN$/users/confirmation/$UUID$ )
+Yes, I'm $NAME$. Henceforth I shall be a Member! ( https://$FQDN$/users/confirmation/$UUID$ )
 
 - The Baron
 
