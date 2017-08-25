@@ -18,7 +18,6 @@ import com.hazelcast.core.HazelcastInstance;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.DbAccessException;
-import org.ektorp.http.HttpClient;
 
 import de.bornemisza.users.HealthChecks;
 import de.bornemisza.users.PseudoHazelcastList;
@@ -66,7 +65,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnection();
         assertNotNull(dbConn);
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size());
@@ -75,7 +74,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(false).thenReturn(true);
-        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnection();
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size() - 1);
         if (allConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
@@ -84,7 +83,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(false);
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
         try {
             CUT.getConnection();
             fail();
@@ -98,7 +97,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_preExisting_HostQueue_and_Utilisation() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
         allConnections.clear();
         allConnections.put(hostname, getConnection());
@@ -117,7 +116,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_nullCredentials() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
         allConnections.clear();
@@ -137,7 +136,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_credentialsGiven() {
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        when(healthChecks.isCouchDbReady(any(HttpClient.class))).thenReturn(true);
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
         allConnections.clear();

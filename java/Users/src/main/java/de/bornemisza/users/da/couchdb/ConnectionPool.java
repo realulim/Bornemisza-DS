@@ -51,11 +51,11 @@ public class ConnectionPool {
     public MyCouchDbConnector getConnection(BasicAuthCredentials creds) {
         for (String hostname : couchDbHostQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
-            HttpClient httpClient = createHttpClient(conn, creds);
-            if (healthChecks.isCouchDbReady(httpClient)) {
+            if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 Integer usageCount = this.couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
+                HttpClient httpClient = createHttpClient(conn, creds);
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
                 return new MyCouchDbConnector(hostname, conn.getDatabaseName(), dbInstance);
             }

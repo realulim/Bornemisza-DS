@@ -3,13 +3,15 @@ package de.bornemisza.users;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
+import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
+
+import de.bornemisza.users.da.CouchDbConnection;
 
 public class HealthChecks {
 
@@ -26,21 +28,19 @@ public class HealthChecks {
         }
     }
 
-    public boolean isCouchDbReady(HttpClient httpClient) {
+    public boolean isCouchDbReady(CouchDbConnection conn) {
         try {
+            HttpClient httpClient = new StdHttpClient.Builder()
+                        .url(conn.getUrl())
+                        .username(conn.getUserName())
+                        .password(conn.getPassword())
+                        .build();
             CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-            List<String> allDatabases = dbInstance.getAllDatabases();
-            return allDatabases.size() > 0;
+            return dbInstance.checkIfDbExists(conn.getDatabaseName());
         }
         catch (DbAccessException e) {
-            if (e.getMessage().startsWith("401")) {
-                Logger.getAnonymousLogger().warning("CouchDB probably ready, but Credentials wrong!");
-                return true;
-            }
-            else {
-                Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
-                return false;
-            }
+            Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
+            return false;
         }
     }
 
