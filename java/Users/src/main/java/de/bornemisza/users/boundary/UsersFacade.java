@@ -67,10 +67,13 @@ public class UsersFacade {
         }
     }
 
-    public User updateUser(User user, String authHeader) throws UnauthorizedException, TechnicalException {
+    public User updateUser(User user, String authHeader) throws UnauthorizedException, BusinessException, TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            return usersService.updateUser(user, creds);
+            if (getUser(user.getName(), authHeader) != null) {
+                return usersService.updateUser(user, creds);
+            }
+            else throw new BusinessException(Type.USER_NOT_FOUND, user.getName());
         }
         catch (UpdateConflictException e) {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());

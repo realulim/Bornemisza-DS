@@ -23,7 +23,6 @@ import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
-import java.util.logging.Logger;
 
 @Path("/")
 public class Users {
@@ -122,6 +121,11 @@ public class Users {
             User updatedUser = null;
             try {
                 updatedUser = facade.updateUser(user, authHeader);
+            }
+            catch (BusinessException e) {
+            Status status = e.getType() == Type.USER_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
+                throw new WebApplicationException(
+                        Response.status(status).entity("User does not exist - maybe expired?").build());
             }
             catch (UnauthorizedException e) {
                 throw new WebApplicationException(Status.UNAUTHORIZED);

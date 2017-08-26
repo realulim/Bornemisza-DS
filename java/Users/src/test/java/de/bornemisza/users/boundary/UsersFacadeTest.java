@@ -77,16 +77,34 @@ public class UsersFacadeTest {
 
     @Test
     public void updateUser_noSuchUser() {
+        when(usersService.getUser(anyString(), any(BasicAuthCredentials.class))).thenReturn(null);
+        try {
+            CUT.updateUser(new User(), "Basic someAuthString");
+            fail();
+        }
+        catch (BusinessException e) {
+            assertEquals(Type.USER_NOT_FOUND, e.getType());
+        }
+    }
+
+    @Test
+    public void updateUser_updateConflict() {
+        User user = new User();
+        user.setName("Bogumil");
+        when(usersService.getUser(anyString(), any(BasicAuthCredentials.class))).thenReturn(new User());
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
-        assertNull(CUT.updateUser(new User(), "Basic someAuthString"));
+        assertNull(CUT.updateUser(user, "Basic someAuthString"));
     }
 
     @Test
     public void updateUser_TechnicalException() {
         String msg = "Database kaput";
+        User user = new User();
+        user.setName("Bogumil");
+        when(usersService.getUser(anyString(), any(BasicAuthCredentials.class))).thenReturn(new User());
         when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.updateUser(new User(), "Basic someAuthString");
+            CUT.updateUser(user, "Basic someAuthString");
             fail();
         }
         catch (TechnicalException ex) {
