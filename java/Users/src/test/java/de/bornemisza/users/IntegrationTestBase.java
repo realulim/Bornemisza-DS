@@ -119,14 +119,14 @@ public class IntegrationTestBase {
         return html.split("href=\"")[1].split("\"")[0];
     }
 
-    protected Response clickConfirmationLink(String confirmationLink) {
+    protected Response clickConfirmationLink(String confirmationLink, int expectedStatusCode) {
         String uuid = confirmationLink.substring(confirmationLink.lastIndexOf("/") + 1);
         RequestSpecification localRequestSpec = new RequestSpecBuilder()
                 .setBaseUri(confirmationLink.substring(0, confirmationLink.length() - uuid.length()))
                 .build();
         return given(localRequestSpec)
                 .when().get(uuid)
-                .then().statusCode(200)
+                .then().statusCode(expectedStatusCode)
                 .extract().response();
     }
 

@@ -32,10 +32,14 @@ public class UsersIT extends IntegrationTestBase {
         String confirmationLink = retrieveConfirmationLink(user.getEmail());
         assertTrue(confirmationLink.startsWith("https://"));
         System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
-        Response response = clickConfirmationLink(confirmationLink);
+        Response response = clickConfirmationLink(confirmationLink, 200);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
         assertEquals("******", jsonPath.getString("password"));
+
+        // User is removed from Map by either Expiry or previous Confirmation, so this must fail
+        response = clickConfirmationLink(confirmationLink, 404);
+        assertEquals("User does not exist - maybe expired?", response.print());
     }
 
     @Test
@@ -95,6 +99,12 @@ public class UsersIT extends IntegrationTestBase {
     public void t8_checkUserRemoved() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(user.getId(), 404);
+    }
+
+    @Test
+    public void t9_removeNonExistingUser() {
+        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
+        deleteUser(user.getName(), revision, 404);
     }
 
 }
