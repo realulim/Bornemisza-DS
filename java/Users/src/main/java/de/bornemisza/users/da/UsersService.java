@@ -42,7 +42,7 @@ public class UsersService {
     public User createUser(User user) {
         MyCouchDbConnector conn = adminPool.getConnection();
         UsersRepository repo = new UsersRepository(conn);
-        repo.add(user);
+        repo.update(user); // CouchDB uses PUT not POST for user creation
         Logger.getLogger(conn.getHostname()).info("Added user: " + user);
         Arrays.fill(user.getPassword(), '*');
         return user;
