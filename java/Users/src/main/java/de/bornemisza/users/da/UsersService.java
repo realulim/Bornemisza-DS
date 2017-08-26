@@ -48,15 +48,6 @@ public class UsersService {
         return user;
     }
 
-    public User updateUser(User user, BasicAuthCredentials creds) throws UpdateConflictException {
-        MyCouchDbConnector conn = pool.getConnection(creds);
-        UsersRepository repo = new UsersRepository(conn);
-        repo.update(user);
-        user = repo.get(user.getId());
-        Logger.getLogger(conn.getHostname()).info("Updated user: " + user);
-        return user;
-    }
-
     public User getUser(String userName, BasicAuthCredentials creds) throws DocumentNotFoundException {
         return readUser(userName, creds);
     }
@@ -72,6 +63,19 @@ public class UsersService {
         User user = (options == null ? repo.get(userName) : repo.get(userName, options));
         Logger.getLogger(conn.getHostname()).info("Read user: " + user);
         return user;
+    }
+
+    public User changePassword(User user, String ref, BasicAuthCredentials creds) throws UpdateConflictException {
+        MyCouchDbConnector conn = pool.getConnection(creds);
+        UsersRepository repo = new UsersRepository(conn);
+        repo.update(user);
+        Logger.getLogger(conn.getHostname()).info("Changed password for user: " + user);
+
+        // change credentials to reflect new password
+        creds.changePassword(String.valueOf(user.getPassword()));
+        conn = pool.getConnection(creds);
+        repo = new UsersRepository(conn);
+        return repo.get(user.getId());
     }
 
     public void deleteUser(String userName, String rev, BasicAuthCredentials creds) throws UpdateConflictException {

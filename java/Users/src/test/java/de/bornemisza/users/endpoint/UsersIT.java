@@ -2,10 +2,6 @@ package de.bornemisza.users.endpoint;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import io.restassured.response.ResponseBody;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -22,6 +18,7 @@ public class UsersIT extends IntegrationTestBase {
     @Test
     public void t0_addUser() {
         deleteMails(user.getEmail());
+        user.setPassword(userPassword.toCharArray());
         Response response = postUser(user, 202);
         assertEquals(0, response.getBody().prettyPrint().length());
     }
@@ -44,19 +41,19 @@ public class UsersIT extends IntegrationTestBase {
 
     @Test
     public void t2_readUser_notAuthorized() {
-        getUser(user.getName(), 401);
+        getUser(userName, 401);
     }
 
     @Test
     public void t3_readUser_unauthorized() {
-        requestSpec.auth().preemptive().basic("root", "scriptkiddieguess");
-        getUser(user.getName(), 401);
+        requestSpec.auth().preemptive().basic("root", "guessedpassword");
+        getUser(userName, 401);
     }
 
     @Test
     public void t4_readUser() {
-        requestSpec.auth().preemptive().basic(user.getName(), String.valueOf(user.getPassword()));
-        Response response = getUser(user.getName(), 200);
+        requestSpec.auth().preemptive().basic(userName, userPassword);
+        Response response = getUser(userName, 200);
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
         assertTrue(revision.length() > 10);
@@ -67,44 +64,41 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t5_updateUser() throws AddressException {
-        requestSpec.auth().preemptive().basic(user.getName(), String.valueOf(user.getPassword()));
-        String newEmailAddress = "fazil@fazil.de";
-        user.setEmail(new InternetAddress(newEmailAddress));
-        user.setRevision(revision);
-        ResponseBody respBody = putUser(user, 200);
-        JsonPath jsonPath = respBody.jsonPath();
-        assertEquals(newEmailAddress, jsonPath.getString("email"));
-        revision = jsonPath.getString("_rev");
+    public void t5_changePassword() {
+        requestSpec.auth().preemptive().basic(userName, userPassword);
+        Response response = changePassword(userName, revision, newUserPassword, 200);
+        JsonPath jsonPath = response.getBody().jsonPath();
+        String newRevision = jsonPath.getString("_rev");
+        assertNotEquals(newRevision, revision);
+        revision = newRevision;
     }
 
-/*
     @Test
-    public void t6_changePassword() {
-        ResponseBody respBody = putUser(user, 200);
-        JsonPath jsonPath = respBody.jsonPath();
-        assertNotEquals(derivedKey, jsonPath.getString("derived_key"));
-        assertNotEquals(salt, jsonPath.getString("salt"));
-    }
-*/
-
-    @Test
-    public void t7_removeUser() {
-        requestSpec.auth().preemptive().basic(user.getName(), String.valueOf(user.getPassword()));
-        deleteUser(user.getName(), revision, 204);
+    public void t6_removeUser() {
+        requestSpec.auth().preemptive().basic(userName, newUserPassword);
+        deleteUser(userName, revision, 204);
         getUser(user.getId(), 401);
     }
 
     @Test
-    public void t8_checkUserRemoved() {
+    public void t7_checkUserRemoved() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(user.getId(), 404);
     }
 
     @Test
-    public void t9_removeNonExistingUser() {
+    public void t8_removeNonExistingUser() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
-        deleteUser(user.getName(), revision, 404);
+        deleteUser(userName, revision, 404);
     }
+
+//    @Test
+//    public void t999_cleanup() {
+//        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
+//        Response response = getUser(userName, 200);
+//        JsonPath jsonPath = response.jsonPath();
+//        revision = jsonPath.getString("_rev");
+//        deleteUser(userName, revision, 204);
+//    }
 
 }

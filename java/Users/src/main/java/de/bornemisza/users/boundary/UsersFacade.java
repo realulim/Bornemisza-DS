@@ -6,13 +6,13 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
-
 import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
 
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -63,23 +63,6 @@ public class UsersFacade {
             return null;
         }
         catch (DbAccessException ex) {
-            throw new TechnicalException(ex.toString());
-        }
-    }
-
-    public User updateUser(User user, String authHeader) throws UnauthorizedException, BusinessException, TechnicalException {
-        try {
-            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            if (getUser(user.getName(), authHeader) != null) {
-                return usersService.updateUser(user, creds);
-            }
-            else throw new BusinessException(Type.USER_NOT_FOUND, user.getName());
-        }
-        catch (UpdateConflictException e) {
-            Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());
-            return null;
-        }
-        catch (DbAccessException ex) {
             if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
             else throw new TechnicalException(ex.toString());
         }
@@ -91,6 +74,21 @@ public class UsersFacade {
             return usersService.getUser(userName, creds);
         }
         catch (DocumentNotFoundException e) {
+            return null;
+        }
+        catch (DbAccessException ex) {
+            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
+            else throw new TechnicalException(ex.toString());
+        }
+    }
+
+    public User changePassword(User user, String rev, String authHeader) throws UnauthorizedException, TechnicalException {
+        try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
+            return usersService.changePassword(user, rev, creds);
+        }
+        catch (UpdateConflictException e) {
+            Logger.getAnonymousLogger().warning("Update Conflict: " + user.getName() + "\n" + e.getMessage());
             return null;
         }
         catch (DbAccessException ex) {

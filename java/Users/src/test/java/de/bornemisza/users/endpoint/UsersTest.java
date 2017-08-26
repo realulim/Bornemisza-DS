@@ -178,12 +178,12 @@ public class UsersTest {
             assertEquals(409, ex.getResponse().getStatus());
         }
     }
-
     @Test
-    public void updateUser_technicalException() {
-        when(facade.updateUser(any(User.class), any())).thenThrow(new RuntimeException("Some technical problem..."));
+    public void changePassword_technicalException() {
+        when(facade.getUser(anyString(), any())).thenReturn(new User());
+        when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
         try {
-            CUT.updateUser(new User(), null);
+            CUT.changePassword("Ike", "some revision", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -192,21 +192,34 @@ public class UsersTest {
     }
 
     @Test
-    public void updateUser_nullUser() {
+    public void changePassword_emptyRevision() {
         try {
-            CUT.updateUser(null, null);
+            CUT.changePassword("Ike", "", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
+            assertEquals(404, ex.getResponse().getStatus());
         }
     }
 
     @Test
-    public void updateUser_newerRevisionAlreadyExists() {
-        when(facade.updateUser(any(User.class), any())).thenReturn(null);
+    public void changePassword_nonExistingUser() {
+        when(facade.getUser(anyString(), any())).thenReturn(null);
         try {
-            CUT.updateUser(new User(), null);
+            CUT.changePassword("Ike", "some revision", "newPassword", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(404, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void changePassword_newerRevisionAlreadyExists() {
+        when(facade.getUser(anyString(), any())).thenReturn(new User());
+        when(facade.changePassword(any(User.class), anyString(), any())).thenReturn(null);
+        try {
+            CUT.changePassword("Ike", "some revision", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -215,10 +228,10 @@ public class UsersTest {
     }
 
     @Test
-    public void updateUser_unauthorized() {
-        when(facade.updateUser(any(User.class), any())).thenThrow(new UnauthorizedException("401"));
+    public void changePassword_unauthorized() {
+        when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
         try {
-            CUT.updateUser(new User(), null);
+            CUT.changePassword("Ike", "some revision", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {

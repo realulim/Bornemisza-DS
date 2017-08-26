@@ -5,7 +5,6 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.restassured.response.ResponseBody;
 import io.restassured.specification.RequestSpecification;
 import java.net.URI;
 import java.util.Arrays;
@@ -34,7 +33,7 @@ public class IntegrationTestBase {
     protected URI baseUri;
     protected User user;
 
-    protected String adminUserName, adminPassword;
+    protected String adminUserName, adminPassword, userName, userPassword, newUserPassword;
 
     @Rule
     public TestRule watcher = new TestWatcher() {
@@ -52,6 +51,10 @@ public class IntegrationTestBase {
         if (adminUserName == null) fail("Please configure " + ADMIN_USERNAME_PROP + " in your build.properties");
         adminPassword = System.getProperty(ADMIN_PASSWORD_PROP);
         if (adminPassword == null) fail("Please configure " + ADMIN_PASSWORD_PROP + " in your build.properties");
+        userName = "Fazil Ongudar";
+        userPassword = "secret";
+        newUserPassword = "changed";
+
         baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
                 .setBaseUri(baseUri)
@@ -59,8 +62,7 @@ public class IntegrationTestBase {
                 .addFilter(new ResponseLoggingFilter())
                 .build();
         user = new User();
-        user.setName("Fazil Ongudar");
-        user.setPassword(new char[]{'s','e','c','r','e','t'});
+        user.setName(userName);
         user.setEmail(new InternetAddress("fazil.ongudar@restmail.net"));
         List<String> roles = Arrays.asList(new String[]{"customer", "user"});
         user.setRoles(roles);
@@ -80,14 +82,6 @@ public class IntegrationTestBase {
                 .when().post("")
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
-    }
-
-    protected ResponseBody putUser(User user, int expectedStatusCode) {
-        requestSpec.contentType(ContentType.JSON).body(user);
-        return given(requestSpec)
-                .when().put("")
-                .then().statusCode(expectedStatusCode)
-                .extract().response().getBody();
     }
 
     protected Response deleteUser(String userName, String rev, int expectedStatusCode) {
@@ -126,6 +120,14 @@ public class IntegrationTestBase {
                 .build();
         return given(localRequestSpec)
                 .when().get(uuid)
+                .then().statusCode(expectedStatusCode)
+                .extract().response();
+    }
+
+    protected Response changePassword(String userName, String rev, String password, int expectedStatusCode) {
+        requestSpec.accept(ContentType.JSON);
+        return given(requestSpec)
+                .when().put(userName + "/" + rev + "/password/" + password)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
     }

@@ -5,7 +5,7 @@ import org.glassfish.jersey.internal.util.Base64;
 public class BasicAuthCredentials {
 
     private final String userName;
-    private final String password;
+    private String password;
 
     public BasicAuthCredentials(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
@@ -32,6 +32,10 @@ public class BasicAuthCredentials {
 
     public String getPassword() {
         return password;
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
     }
 
 }

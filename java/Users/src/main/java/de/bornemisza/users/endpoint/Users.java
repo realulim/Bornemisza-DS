@@ -109,38 +109,39 @@ public class Users {
     }
 
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("{name}/{rev}/password/{newpassword}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User updateUser(User user,
+    public User changePassword(@PathParam("name") String name, 
+                           @PathParam("rev") String revision,
+                           @PathParam("newpassword") String password,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (user == null) {
-            throw new WebApplicationException(
-                    Response.status(Status.BAD_REQUEST).entity("No User to update!").build());
+        if (name == null || isVoid(revision) || isVoid(password)) {
+            throw new WebApplicationException(Status.NOT_FOUND);
         }
         else {
-            User updatedUser = null;
+            User user;
             try {
-                updatedUser = facade.updateUser(user, authHeader);
-            }
-            catch (BusinessException e) {
-            Status status = e.getType() == Type.USER_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
-                throw new WebApplicationException(
-                        Response.status(status).entity("User does not exist - maybe expired?").build());
+                user = facade.getUser(name, authHeader);
+                if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
+                else user.setPassword(password.toCharArray());
             }
             catch (UnauthorizedException e) {
                 throw new WebApplicationException(Status.UNAUTHORIZED);
             }
+            try {
+                user = facade.changePassword(user, revision, authHeader);
+            }
             catch (RuntimeException ex) {
                 throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
             }
-            if (updatedUser == null) {
+            if (user == null) {
                 throw new WebApplicationException(
                     Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
             }
-            return updatedUser;
+            return user;
         }
     }
-
+    
     @DELETE
     @Path("{name}/{rev}")
     public void deleteUser(@PathParam("name") String name, 
