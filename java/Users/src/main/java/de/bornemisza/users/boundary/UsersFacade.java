@@ -76,6 +76,28 @@ public class UsersFacade {
         }
     }
 
+    public User confirmEmail(String uuid, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
+        User user = changeEmailRequestMap.remove(uuid);
+        if (user == null) {
+            throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
+        }
+        try {
+            BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
+            User newUser = usersService.getUser(user.getName(), creds);
+            if (newUser == null) throw new BusinessException(Type.USER_NOT_FOUND, user.getName());
+            newUser.setEmail(user.getEmail());
+            return usersService.updateUser(newUser, creds);
+        }
+        catch (UpdateConflictException e) {
+            Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());
+            return null;
+        }
+        catch (DbAccessException ex) {
+            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
+            else throw new TechnicalException(ex.toString());
+        }
+    }
+
     public User getUser(String userName, String authHeader) throws UnauthorizedException, TechnicalException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);

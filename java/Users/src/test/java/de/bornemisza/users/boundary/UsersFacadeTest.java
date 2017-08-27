@@ -2,16 +2,18 @@ package de.bornemisza.users.boundary;
 
 import java.util.UUID;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
+
+import org.ektorp.DbAccessException;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.UpdateConflictException;
 
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
@@ -93,6 +95,74 @@ public class UsersFacadeTest {
         catch (TechnicalException ex) {
             assertTrue(ex.getMessage().contains(msg));
         }
+    }
+
+    @Test
+    public void confirmEmail_uuidNotFound() {
+        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(null);
+        try {
+            CUT.confirmEmail(UUID.randomUUID().toString(), null);
+            fail();
+        }
+        catch (BusinessException e) {
+            assertEquals(Type.UUID_NOT_FOUND, e.getType());
+        }
+    }
+
+    @Test
+    public void confirmEmail_nonExistingUser() {
+        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(new User());
+        when(usersService.getUser(anyString(), any())).thenReturn(null);
+        try {
+            CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString");
+            fail();
+        }
+        catch (BusinessException e) {
+            assertEquals(Type.USER_NOT_FOUND, e.getType());
+        }
+    }
+
+    @Test
+    public void confirmEmail_unauthorized() {
+        String msg = "401 - Unauthorized";
+        User user = new User();
+        user.setName("Ike");
+        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
+        try {
+            CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString");
+            fail();
+        }
+        catch (UnauthorizedException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
+    public void confirmEmail_TechnicalException() {
+        String msg = "java.net.SocketTimeoutException: connect timed out";
+        User user = new User();
+        user.setName("Ike");
+        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
+        try {
+            CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString");
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
+    public void confirmEmail_updateConflict() {
+        User user = new User();
+        user.setName("Ike");
+        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
+        assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString"));
     }
 
     @Test

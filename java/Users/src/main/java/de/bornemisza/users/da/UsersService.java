@@ -48,6 +48,13 @@ public class UsersService {
         return user;
     }
 
+    public User updateUser(User user, BasicAuthCredentials creds) {
+        MyCouchDbConnector conn = pool.getConnection(creds);
+        UserRepository repo = new UserRepository(conn);
+        repo.update(user);
+        return repo.get(user.getId());
+    }
+
     public User getUser(String userName, BasicAuthCredentials creds) throws DocumentNotFoundException {
         return readUser(userName, creds);
     }
