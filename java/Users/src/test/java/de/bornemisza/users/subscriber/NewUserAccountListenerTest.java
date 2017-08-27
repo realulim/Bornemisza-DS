@@ -61,13 +61,13 @@ public class NewUserAccountListenerTest {
         CUT.onMessage(msg);
 
         // Text-Mailbody must contain Link
-        String expectedLink = "https://" + System.getProperty("FQDN") + "/users/confirmation/" + uuidCaptor.getValue();
+        String expectedLink = "https://" + System.getProperty("FQDN") + "/users/confirmation/user/" + uuidCaptor.getValue();
         String textMailBody = textContentCaptor.getValue();
         System.out.println(textMailBody);
         assertTrue(textMailBody.contains(expectedLink));
 
         // Html-Mailbody must contain Link and Style
-        expectedLink = "<a href=\"https://" + System.getProperty("FQDN") + "/users/confirmation/" + uuidCaptor.getValue() + "\"";
+        expectedLink = "<a href=\"https://" + System.getProperty("FQDN") + "/users/confirmation/user/" + uuidCaptor.getValue() + "\"";
         String htmlMailBody = htmlContentCaptor.getValue();
         assertTrue(htmlMailBody.contains(expectedLink));
         assertTrue(htmlMailBody.contains("font-family:Helvetica, Arial, sans-serif"));

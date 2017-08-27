@@ -124,7 +124,7 @@ public class NewUserAccountListener implements MessageListener<User> {
         }
     }
 
-    private final String fallbackHtmlTemplate = "<html><h3>Please click on the confirmation link to create your user account:</h3><a href=\"https://$FQDN$/users/confirmation/$UUID$\">Yes, I'm $NAME$ and I want to become a Member!</a></html>";
-    private final String fallbackTextTemplate = "Dear $NAME$, please copy this link into your browser to create your user account: https://$FQDN$/users/confirmation/$UUID$";
+    private final String fallbackHtmlTemplate = "<html><h3>Please click on the confirmation link to create your user account:</h3><a href=\"https://$FQDN$/users/confirmation/user/$UUID$\">Yes, I'm $NAME$ and I want to become a Member!</a></html>";
+    private final String fallbackTextTemplate = "Dear $NAME$, please copy this link into your browser to create your user account: https://$FQDN$/users/confirmation/user/$UUID$";
 
 }

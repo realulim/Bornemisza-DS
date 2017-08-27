@@ -50,6 +50,10 @@ public class UsersFacade {
         newUserAccountTopic.publish(user);
     }
 
+    public void changeEmail(User user) {
+        // to be implemented
+    }
+
     public User confirmUser(String uuid) throws BusinessException, TechnicalException {
         User user = newUserAccountMap.remove(uuid);
         if (user == null) {

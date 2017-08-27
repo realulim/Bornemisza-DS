@@ -3,6 +3,8 @@ package de.bornemisza.users.endpoint;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -77,7 +79,7 @@ public class Users {
     }
 
     @GET
-    @Path("confirmation/{uuid}")
+    @Path("confirmation/user/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public User confirmUser(@PathParam("uuid") String uuidStr) {
         UUID uuid;
@@ -109,6 +111,41 @@ public class Users {
                     Response.status(Status.CONFLICT).entity("User already exists!").build());
         }
         return createdUser;
+    }
+
+    @PUT
+    @Path("{name}/email/{newemail}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changeEmail(@PathParam("name") String userName, 
+                           @PathParam("newemail") String email,
+                           @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+        InternetAddress newEmail;
+        try {
+            newEmail = isVoid(email) ? null : new InternetAddress(email);
+        }
+        catch (AddressException ae) {
+            newEmail = null;
+        }
+        if (newEmail == null || isVoid(userName)) {
+            throw new WebApplicationException(
+                    Response.status(Status.BAD_REQUEST).entity("UserName or E-Mail missing or unparseable!").build());
+        }
+        User user;
+        try {
+            user = facade.getUser(userName, authHeader);
+            if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
+            else user.setEmail(newEmail);
+        }
+        catch (UnauthorizedException e) {
+            throw new WebApplicationException(Status.UNAUTHORIZED);
+        }
+        try {
+            facade.changeEmail(user);
+            return Response.accepted().build();
+        }
+        catch (RuntimeException ex) {
+            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PUT
