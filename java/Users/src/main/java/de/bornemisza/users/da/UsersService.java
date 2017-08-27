@@ -24,7 +24,7 @@ public class UsersService {
     @Resource(name="couchdb/admin")
     ConnectionPool adminPool;
 
-    private UsersRepository adminRepo;
+    private UserRepository adminRepo;
 
     public UsersService() {
     }
@@ -36,12 +36,12 @@ public class UsersService {
         DbInfo dbInfo = adminConn.getDbInfo();
         String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
         Logger.getLogger(adminConn.getHostname()).info(msg);
-        adminRepo = new UsersRepository(adminConn);
+        adminRepo = new UserRepository(adminConn);
     }
 
     public User createUser(User user) {
         MyCouchDbConnector conn = adminPool.getConnection();
-        UsersRepository repo = new UsersRepository(conn);
+        UserRepository repo = new UserRepository(conn);
         repo.update(user); // CouchDB uses PUT not POST for user creation
         Logger.getLogger(conn.getHostname()).info("Added user: " + user);
         Arrays.fill(user.getPassword(), '*');
@@ -58,7 +58,7 @@ public class UsersService {
 
     private User readUser(String userName, Options options, BasicAuthCredentials creds) throws DocumentNotFoundException {
         MyCouchDbConnector conn = pool.getConnection(creds);
-        UsersRepository repo = new UsersRepository(conn);
+        UserRepository repo = new UserRepository(conn);
         userName = User.USERNAME_PREFIX + userName;
         User user = (options == null ? repo.get(userName) : repo.get(userName, options));
         Logger.getLogger(conn.getHostname()).info("Read user: " + user);
@@ -67,20 +67,20 @@ public class UsersService {
 
     public User changePassword(User user, String ref, BasicAuthCredentials creds) throws UpdateConflictException {
         MyCouchDbConnector conn = pool.getConnection(creds);
-        UsersRepository repo = new UsersRepository(conn);
+        UserRepository repo = new UserRepository(conn);
         repo.update(user);
         Logger.getLogger(conn.getHostname()).info("Changed password for user: " + user);
 
         // change credentials to reflect new password
         creds.changePassword(String.valueOf(user.getPassword()));
         conn = pool.getConnection(creds);
-        repo = new UsersRepository(conn);
+        repo = new UserRepository(conn);
         return repo.get(user.getId());
     }
 
     public void deleteUser(String userName, String rev, BasicAuthCredentials creds) throws UpdateConflictException {
         MyCouchDbConnector conn = pool.getConnection(creds);
-        UsersRepository repo = new UsersRepository(conn);
+        UserRepository repo = new UserRepository(conn);
         User user = new User();
         user.setName(userName);
         user.setRevision(rev);

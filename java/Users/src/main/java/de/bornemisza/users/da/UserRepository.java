@@ -5,9 +5,9 @@ import org.ektorp.support.CouchDbRepositorySupport;
 
 import de.bornemisza.users.entity.User;
 
-public class UsersRepository extends CouchDbRepositorySupport<User> {
+public class UserRepository extends CouchDbRepositorySupport<User> {
 
-    public UsersRepository(CouchDbConnector db) {
+    public UserRepository(CouchDbConnector db) {
         super(User.class, db);
     }
 
