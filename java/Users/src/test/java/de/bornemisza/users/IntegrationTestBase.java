@@ -124,10 +124,10 @@ public class IntegrationTestBase {
                 .extract().response();
     }
 
-    protected Response changePassword(String userName, String rev, String password, int expectedStatusCode) {
+    protected Response changePassword(String userName, String password, int expectedStatusCode) {
         requestSpec.accept(ContentType.JSON);
         return given(requestSpec)
-                .when().put(userName + "/" + rev + "/password/" + password)
+                .when().put(userName + "/password/" + password)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
     }

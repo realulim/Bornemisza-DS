@@ -66,7 +66,7 @@ public class UsersIT extends IntegrationTestBase {
     @Test
     public void t5_changePassword() {
         requestSpec.auth().preemptive().basic(userName, userPassword);
-        Response response = changePassword(userName, revision, newUserPassword, 200);
+        Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
         String newRevision = jsonPath.getString("_rev");
         assertNotEquals(newRevision, revision);

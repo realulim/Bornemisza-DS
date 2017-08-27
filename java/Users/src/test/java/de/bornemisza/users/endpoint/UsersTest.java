@@ -180,10 +180,12 @@ public class UsersTest {
     }
     @Test
     public void changePassword_technicalException() {
-        when(facade.getUser(anyString(), any())).thenReturn(new User());
+        User user = new User();
+        user.setRevision("rev123");
+        when(facade.getUser(anyString(), any())).thenReturn(user);
         when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
         try {
-            CUT.changePassword("Ike", "some revision", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -194,7 +196,7 @@ public class UsersTest {
     @Test
     public void changePassword_emptyRevision() {
         try {
-            CUT.changePassword("Ike", "", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -206,7 +208,7 @@ public class UsersTest {
     public void changePassword_nonExistingUser() {
         when(facade.getUser(anyString(), any())).thenReturn(null);
         try {
-            CUT.changePassword("Ike", "some revision", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -219,7 +221,7 @@ public class UsersTest {
         when(facade.getUser(anyString(), any())).thenReturn(new User());
         when(facade.changePassword(any(User.class), anyString(), any())).thenReturn(null);
         try {
-            CUT.changePassword("Ike", "some revision", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -231,7 +233,7 @@ public class UsersTest {
     public void changePassword_unauthorized() {
         when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
         try {
-            CUT.changePassword("Ike", "some revision", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {

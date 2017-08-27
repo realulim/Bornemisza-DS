@@ -23,6 +23,8 @@ import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 
 @Path("/")
 public class Users {
@@ -109,19 +111,18 @@ public class Users {
     }
 
     @PUT
-    @Path("{name}/{rev}/password/{newpassword}")
+    @Path("{name}/password/{newpassword}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User changePassword(@PathParam("name") String name, 
-                           @PathParam("rev") String revision,
+    public User changePassword(@PathParam("name") String userName, 
                            @PathParam("newpassword") String password,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (name == null || isVoid(revision) || isVoid(password)) {
+        if (userName == null || isVoid(password)) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
         else {
             User user;
             try {
-                user = facade.getUser(name, authHeader);
+                user = facade.getUser(userName, authHeader);
                 if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
                 else user.setPassword(password.toCharArray());
             }
@@ -129,7 +130,7 @@ public class Users {
                 throw new WebApplicationException(Status.UNAUTHORIZED);
             }
             try {
-                user = facade.changePassword(user, revision, authHeader);
+                user = facade.changePassword(user, user.getRevision(), authHeader);
             }
             catch (RuntimeException ex) {
                 throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
