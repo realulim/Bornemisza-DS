@@ -42,6 +42,9 @@ public class Users {
     @Produces(MediaType.APPLICATION_JSON)
     public User getUser(@PathParam("name") String userName,
                         @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+        if (isVoid(userName)) {
+            throw new WebApplicationException(Status.BAD_REQUEST);
+        }
         User user = null;
         try {
             user = facade.getUser(userName, authHeader);
@@ -115,30 +118,28 @@ public class Users {
                            @PathParam("newpassword") String password,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName) || isVoid(password)) {
-            throw new WebApplicationException(Status.NOT_FOUND);
+            throw new WebApplicationException(Status.BAD_REQUEST);
         }
-        else {
-            User user;
-            try {
-                user = facade.getUser(userName, authHeader);
-                if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
-                else user.setPassword(password.toCharArray());
-            }
-            catch (UnauthorizedException e) {
-                throw new WebApplicationException(Status.UNAUTHORIZED);
-            }
-            try {
-                user = facade.changePassword(user, user.getRevision(), authHeader);
-            }
-            catch (RuntimeException ex) {
-                throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
-            }
-            if (user == null) {
-                throw new WebApplicationException(
-                    Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
-            }
-            return user;
+        User user;
+        try {
+            user = facade.getUser(userName, authHeader);
+            if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
+            else user.setPassword(password.toCharArray());
         }
+        catch (UnauthorizedException e) {
+            throw new WebApplicationException(Status.UNAUTHORIZED);
+        }
+        try {
+            user = facade.changePassword(user, user.getRevision(), authHeader);
+        }
+        catch (RuntimeException ex) {
+            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+        }
+        if (user == null) {
+            throw new WebApplicationException(
+                Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
+        }
+        return user;
     }
     
     @DELETE

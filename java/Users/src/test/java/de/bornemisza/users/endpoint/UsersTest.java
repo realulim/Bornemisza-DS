@@ -37,6 +37,17 @@ public class UsersTest {
     }
 
     @Test
+    public void getUser_userNameVoid() {
+        try {
+            CUT.getUser("null", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
     public void getUser_technicalException() {
         when(facade.getUser(anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
         try {
@@ -200,7 +211,7 @@ public class UsersTest {
             fail();
         }
         catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
+            assertEquals(400, ex.getResponse().getStatus());
         }
     }
 
@@ -211,7 +222,7 @@ public class UsersTest {
             fail();
         }
         catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
+            assertEquals(400, ex.getResponse().getStatus());
         }
     }
 
