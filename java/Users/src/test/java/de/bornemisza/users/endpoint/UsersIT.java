@@ -76,7 +76,7 @@ public class UsersIT extends IntegrationTestBase {
     @Test
     public void t6_removeUser() {
         requestSpec.auth().preemptive().basic(userName, newUserPassword);
-        deleteUser(userName, revision, 204);
+        deleteUser(userName, 204);
         getUser(user.getId(), 401);
     }
 
@@ -89,7 +89,7 @@ public class UsersIT extends IntegrationTestBase {
     @Test
     public void t8_removeNonExistingUser() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
-        deleteUser(userName, revision, 404);
+        deleteUser(userName, 404);
     }
 
 //    @Test
@@ -98,7 +98,7 @@ public class UsersIT extends IntegrationTestBase {
 //        Response response = getUser(userName, 200);
 //        JsonPath jsonPath = response.jsonPath();
 //        revision = jsonPath.getString("_rev");
-//        deleteUser(userName, revision, 204);
+//        deleteUser(userName, 204);
 //    }
 
 }

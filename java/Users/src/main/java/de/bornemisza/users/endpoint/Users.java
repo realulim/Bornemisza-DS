@@ -23,8 +23,6 @@ import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 @Path("/")
 public class Users {
@@ -116,7 +114,7 @@ public class Users {
     public User changePassword(@PathParam("name") String userName, 
                            @PathParam("newpassword") String password,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (userName == null || isVoid(password)) {
+        if (isVoid(userName) || isVoid(password)) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
         else {
@@ -144,16 +142,16 @@ public class Users {
     }
     
     @DELETE
-    @Path("{name}/{rev}")
+    @Path("{name}")
     public void deleteUser(@PathParam("name") String name, 
-                           @PathParam("rev") String revision,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (name == null || isVoid(revision)) {
+        if (isVoid(name)) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
         else {
+            User user;
             try {
-                User user = facade.getUser(name, authHeader);
+                user = facade.getUser(name, authHeader);
                 if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
             }
             catch (UnauthorizedException e) {
@@ -161,13 +159,14 @@ public class Users {
             }
             boolean success;
             try {
-                success = facade.deleteUser(name, revision, authHeader);
+                success = facade.deleteUser(name, user.getRevision(), authHeader);
             }
             catch (RuntimeException ex) {
                 throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
             }
             if (! success) {
-                throw new WebApplicationException(Status.CONFLICT);
+                throw new WebApplicationException(
+                        Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
             }
         }
     }

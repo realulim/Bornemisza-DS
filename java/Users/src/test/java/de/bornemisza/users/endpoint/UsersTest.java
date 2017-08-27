@@ -194,9 +194,20 @@ public class UsersTest {
     }
 
     @Test
-    public void changePassword_emptyRevision() {
+    public void changePassword_userNameVoid() {
         try {
-            CUT.changePassword("Ike", "newPassword", null);
+            CUT.changePassword("", "newPassword", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(404, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void changePassword_passwordVoid() {
+        try {
+            CUT.changePassword("Ike", null, null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -243,10 +254,12 @@ public class UsersTest {
 
     @Test
     public void deleteUser_technicalException() {
+        User user = new User();
+        user.setRevision("rev123");
         when(facade.deleteUser(anyString(), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
-        when(facade.getUser(anyString(), any())).thenReturn(new User());
+        when(facade.getUser(anyString(), any())).thenReturn(user);
         try {
-            CUT.deleteUser("Ike", "some revision", null);
+            CUT.deleteUser("Ike", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -255,9 +268,9 @@ public class UsersTest {
     }
 
     @Test
-    public void deleteUser_nullRevision() {
+    public void deleteUser_nameVoid() {
         try {
-            CUT.deleteUser("Ike", "null", null);
+            CUT.deleteUser("null", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -269,7 +282,7 @@ public class UsersTest {
     public void deleteUser_nullUser() {
         when(facade.getUser(anyString(), anyString())).thenReturn(null);
         try {
-            CUT.deleteUser("Ike", "some revision", null);
+            CUT.deleteUser("Ike", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -282,7 +295,7 @@ public class UsersTest {
         when(facade.getUser(anyString(), any())).thenReturn(new User());
         when(facade.deleteUser(anyString(), anyString(), any())).thenReturn(false);
         try {
-            CUT.deleteUser("Ike", "some revision", null);
+            CUT.deleteUser("Ike", null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -294,7 +307,7 @@ public class UsersTest {
     public void deleteUser_unauthorized() {
         when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
         try {
-            CUT.deleteUser("Ike", "some revision", null);
+            CUT.deleteUser("Ike", null);
             fail();
         }
         catch (WebApplicationException ex) {

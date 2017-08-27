@@ -84,10 +84,10 @@ public class IntegrationTestBase {
                 .extract().response();
     }
 
-    protected Response deleteUser(String userName, String rev, int expectedStatusCode) {
+    protected Response deleteUser(String userName, int expectedStatusCode) {
         requestSpec.accept(ContentType.ANY);
         return given(requestSpec)
-                .when().delete(userName + "/" + rev)
+                .when().delete(userName)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
     }
