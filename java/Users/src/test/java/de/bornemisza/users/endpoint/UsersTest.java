@@ -84,9 +84,9 @@ public class UsersTest {
     }
 
     @Test
-    public void addUser_nullUser() {
+    public void userAccountCreationRequest_nullUser() {
         try {
-            CUT.addUser(null);
+            CUT.userAccountCreationRequest(null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -95,9 +95,9 @@ public class UsersTest {
     }
 
     @Test
-    public void addUser_nullEmail() {
+    public void userAccountCreationRequest_nullEmail() {
         try {
-            CUT.addUser(new User());
+            CUT.userAccountCreationRequest(new User());
             fail();
         }
         catch (WebApplicationException ex) {
@@ -106,12 +106,12 @@ public class UsersTest {
     }
 
     @Test
-    public void addUser_technicalException() throws AddressException {
+    public void userAccountCreationRequest_technicalException() throws AddressException {
         User user = new User();
         user.setEmail(new InternetAddress("foo@bar.de"));
         doThrow(new TopicOverloadException("Topic overloaded")).when(facade).addUser(user);
         try {
-            CUT.addUser(user);
+            CUT.userAccountCreationRequest(user);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -120,10 +120,10 @@ public class UsersTest {
     }
 
     @Test
-    public void addUser() throws AddressException {
+    public void userAccountCreationRequest() throws AddressException {
         User user = new User();
         user.setEmail(new InternetAddress("foo@bar.de"));
-        Response response = CUT.addUser(user);
+        Response response = CUT.userAccountCreationRequest(user);
         assertEquals(202, response.getStatus());
     }
 
@@ -152,7 +152,7 @@ public class UsersTest {
     @Test
     public void confirmUser_userExpired() {
         String uuid = UUID.randomUUID().toString();
-        String errMsg = "User does not exist - maybe expired?";
+        String errMsg = "User Account Creation Request does not exist - maybe expired?";
         when(facade.confirmUser(uuid)).thenThrow(new BusinessException(Type.UUID_NOT_FOUND, errMsg));
         try {
             CUT.confirmUser(uuid);

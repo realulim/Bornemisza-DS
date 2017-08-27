@@ -1,6 +1,7 @@
 package de.bornemisza.users.endpoint;
 
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
@@ -47,15 +48,16 @@ public class Users {
         if (isVoid(userName)) {
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
-        User user = null;
+        User user;
         try {
             user = facade.getUser(userName, authHeader);
         }
-        catch (UnauthorizedException e) {
+        catch (UnauthorizedException ex) {
             throw new WebApplicationException(Status.UNAUTHORIZED);
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
         if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
         else return user;
@@ -64,7 +66,7 @@ public class Users {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addUser(User user) {
+    public Response userAccountCreationRequest(User user) {
         if (user == null || user.getEmail() == null) {
             throw new WebApplicationException(
                     Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
@@ -74,7 +76,8 @@ public class Users {
             return Response.accepted().build();
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
     }
 
@@ -82,41 +85,22 @@ public class Users {
     @Path("confirmation/user/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public User confirmUser(@PathParam("uuid") String uuidStr) {
-        UUID uuid;
-        try {
-            uuid = isVoid(uuidStr) ? null : UUID.fromString(uuidStr);
-        }
-        catch (IllegalArgumentException iae) {
-            uuid = null;
-        }
-        if (uuid == null) {
-            throw new WebApplicationException(
-                    Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build());
-        }
-
-        User createdUser = null;
-        try {
-            createdUser = facade.confirmUser(uuidStr);
-        }
-        catch (BusinessException e) {
-            Status status = e.getType() == Type.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
-            throw new WebApplicationException(
-                    Response.status(status).entity("User does not exist - maybe expired?").build());
-        }
-        catch (RuntimeException ex) {
-            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
-        }
-        if (createdUser == null) {
-            throw new WebApplicationException(
-                    Response.status(Status.CONFLICT).entity("User already exists!").build());
-        }
-        return createdUser;
+        validateUuid(uuidStr);
+        Function confirmUserFunction = new Function<UsersFacade, User>() {
+            @Override
+            public User apply(UsersFacade facade) {
+                return facade.confirmUser(uuidStr);
+            }
+        };
+        String expiryMsg = "User Account Creation Request does not exist - maybe expired?";
+        String conflictMsg = "User already exists!";
+        return executeConfirmation(confirmUserFunction, expiryMsg, conflictMsg);
     }
 
     @PUT
     @Path("{name}/email/{newemail}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response changeEmail(@PathParam("name") String userName, 
+    public Response changeEmailRequest(@PathParam("name") String userName, 
                            @PathParam("newemail") String email,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         InternetAddress newEmail;
@@ -144,8 +128,26 @@ public class Users {
             return Response.accepted().build();
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
+    }
+
+    @GET
+    @Path("confirmation/email/{uuid}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public User confirmEmail(@PathParam("uuid") String uuidStr,
+                             @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+        validateUuid(uuidStr);
+        Function confirmEmailFunction = new Function<UsersFacade, User>() {
+            @Override
+            public User apply(UsersFacade facade) {
+                return facade.confirmEmail(uuidStr, authHeader);
+            }
+        };
+        String expiryMsg = "Email Change Request does not exist - maybe expired?";
+        String conflictMsg = "Newer Revision exists!";
+        return executeConfirmation(confirmEmailFunction, expiryMsg, conflictMsg);
     }
 
     @PUT
@@ -170,7 +172,8 @@ public class Users {
             user = facade.changePassword(user, user.getRevision(), authHeader);
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
         if (user == null) {
             throw new WebApplicationException(
@@ -200,7 +203,8 @@ public class Users {
                 success = facade.deleteUser(name, user.getRevision(), authHeader);
             }
             catch (RuntimeException ex) {
-                throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+                throw new WebApplicationException(
+                        Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
             }
             if (! success) {
                 throw new WebApplicationException(
@@ -213,6 +217,41 @@ public class Users {
         if (value == null) return true;
         else if (value.length() == 0) return true;
         else return value.equals("null");
+    }
+
+    private void validateUuid(String uuidStr) throws WebApplicationException {
+        UUID uuid;
+        try {
+            uuid = isVoid(uuidStr) ? null : UUID.fromString(uuidStr);
+        }
+        catch (IllegalArgumentException iae) {
+            uuid = null;
+        }
+        if (uuid == null) {
+            throw new WebApplicationException(
+                    Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build());
+        }
+    }
+
+    private User executeConfirmation(Function<UsersFacade, User> function, String expiryMsg, String conflictMsg) {
+        User confirmedUser = null;
+        try {
+            confirmedUser = function.apply(facade);
+        }
+        catch (BusinessException e) {
+            Status status = e.getType() == Type.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
+            throw new WebApplicationException(
+                    Response.status(status).entity(expiryMsg).build());
+        }
+        catch (RuntimeException ex) {
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+        }
+        if (confirmedUser == null) {
+            throw new WebApplicationException(
+                    Response.status(Status.CONFLICT).entity(conflictMsg).build());
+        }
+        return confirmedUser;
     }
 
 }

@@ -16,7 +16,7 @@ public class UsersIT extends IntegrationTestBase {
     private static String revision, derivedKey, salt;
 
     @Test
-    public void t0_addUser() {
+    public void t0_userAccountCreationRequest() {
         deleteMails(user.getEmail());
         user.setPassword(userPassword.toCharArray());
         Response response = postUser(user, 202);
@@ -36,7 +36,7 @@ public class UsersIT extends IntegrationTestBase {
 
         // User is removed from Map by either Expiry or previous Confirmation, so this must fail
         response = clickConfirmationLink(confirmationLink, 404);
-        assertEquals("User does not exist - maybe expired?", response.print());
+        assertEquals("User Account Creation Request does not exist - maybe expired?", response.print());
     }
 
     @Test
