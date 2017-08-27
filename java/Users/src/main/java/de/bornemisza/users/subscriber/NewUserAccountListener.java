@@ -80,8 +80,8 @@ public class NewUserAccountListener implements MessageListener<User> {
     private boolean sendConfirmationMail(User user, String uuid) {
         InternetAddress recipient = createRecipient(user);
         String subject = "Confirmation of new User Account";
-        String textContent = createContent(user, uuid, "confirmation-mail.txt", fallbackTextTemplate);
-        String htmlContent = createContent(user, uuid, "confirmation-mail.html", fallbackHtmlTemplate);
+        String textContent = createContent(user, uuid, "confirmation-mail-user.txt", fallbackTextTemplate);
+        String htmlContent = createContent(user, uuid, "confirmation-mail-user.html", fallbackHtmlTemplate);
         boolean success = mailSender.sendMail(recipient, subject, textContent, htmlContent);
         if (success) {
             Logger.getAnonymousLogger().info("Sent " + uuid + " to " + recipient.getAddress());
