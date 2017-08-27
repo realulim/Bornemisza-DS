@@ -33,6 +33,8 @@ public class JAXRSConfiguration extends Application {
     public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
     public static String TOPIC_NEW_USER_ACCOUNT = "NewUserAccount";
     public static String MAP_NEW_USER_ACCOUNT = "NewUserAccount";
+    public static String TOPIC_CHANGE_EMAIL_REQUEST = "ChangeEmailRequest";
+    public static String MAP_CHANGE_EMAIL_REQUEST = "ChangeEmailRequest";
 
 }
 

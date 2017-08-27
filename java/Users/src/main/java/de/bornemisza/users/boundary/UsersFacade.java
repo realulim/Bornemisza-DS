@@ -28,22 +28,26 @@ public class UsersFacade {
     @Inject
     HazelcastInstance hazelcast;
 
-    private ITopic<User> newUserAccountTopic;
-    private IMap<String, User> newUserAccountMap;
+    private ITopic<User> newUserAccountTopic, changeEmailRequestTopic;
+    private IMap<String, User> newUserAccountMap, changeEmailRequestMap;
 
     public UsersFacade() { }
 
     // Constructor for Unit Tests
-    public UsersFacade(UsersService usersService, ITopic<User> newUserAccountTopic, IMap<String, User> newUserAccountMap) {
+    public UsersFacade(UsersService usersService, ITopic<User> newUserAccountTopic, ITopic<User> changeEmailRequestTopic, IMap<String, User> newUserAccountMap, IMap<String, User> changeEmailRequestMap) {
         this.usersService = usersService;
         this.newUserAccountTopic = newUserAccountTopic;
+        this.changeEmailRequestTopic = changeEmailRequestTopic;
         this.newUserAccountMap = newUserAccountMap;
+        this.changeEmailRequestMap = changeEmailRequestMap;
     }
 
     @PostConstruct
     public void init() {
         this.newUserAccountTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT);
         this.newUserAccountMap = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT);
+        this.changeEmailRequestTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_CHANGE_EMAIL_REQUEST);
+        this.changeEmailRequestMap = hazelcast.getMap(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST);
     }
 
     public void addUser(User user) {
@@ -51,7 +55,7 @@ public class UsersFacade {
     }
 
     public void changeEmail(User user) {
-        // to be implemented
+        changeEmailRequestTopic.publish(user);
     }
 
     public User confirmUser(String uuid) throws BusinessException, TechnicalException {

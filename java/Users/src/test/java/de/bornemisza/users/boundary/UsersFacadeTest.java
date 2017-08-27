@@ -20,8 +20,8 @@ import de.bornemisza.users.entity.User;
 public class UsersFacadeTest {
 
     private UsersService usersService;
-    private ITopic<User> newUserAccountTopic;
-    private IMap<String, User> newUserAccountMap;
+    private ITopic<User> newUserAccountTopic, changeEmailRequestTopic;
+    private IMap<String, User> newUserAccountMap, changeEmailRequestMap;
     private UsersFacade CUT;
     
     @Before
@@ -29,7 +29,9 @@ public class UsersFacadeTest {
         usersService = mock(UsersService.class);
         newUserAccountTopic = mock(ITopic.class);
         newUserAccountMap = mock(IMap.class);
-        CUT = new UsersFacade(usersService, newUserAccountTopic, newUserAccountMap);
+        changeEmailRequestTopic = mock(ITopic.class);
+        changeEmailRequestMap = mock(IMap.class);
+        CUT = new UsersFacade(usersService, newUserAccountTopic, changeEmailRequestTopic, newUserAccountMap, changeEmailRequestMap);
     }
 
     @Test
@@ -37,6 +39,13 @@ public class UsersFacadeTest {
         User user = new User();
         CUT.addUser(user);
         verify(newUserAccountTopic).publish(user);
+    }
+
+    @Test
+    public void changeEmail() {
+        User user = new User();
+        CUT.changeEmail(user);
+        verify(changeEmailRequestTopic).publish(user);
     }
 
     @Test
