@@ -3,10 +3,11 @@ package de.bornemisza.users.endpoint;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import static org.junit.Assert.*;
 
 import de.bornemisza.users.IntegrationTestBase;
 
@@ -16,7 +17,7 @@ public class UsersIT extends IntegrationTestBase {
     private static String revision, derivedKey, salt;
 
     @Test
-    public void t0_userAccountCreationRequest() {
+    public void t00_userAccountCreationRequest() {
         deleteMails(user.getEmail());
         user.setPassword(userPassword.toCharArray());
         Response response = postUser(user, 202);
@@ -24,7 +25,7 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t1_confirmUser() {
+    public void t01_confirmUser() {
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(user.getEmail());
         assertTrue(confirmationLink.startsWith("https://"));
@@ -34,24 +35,24 @@ public class UsersIT extends IntegrationTestBase {
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
         assertEquals("******", jsonPath.getString("password"));
 
-        // User is removed from Map by either Expiry or previous Confirmation, so this must fail
+        // Request is removed from Map by either Expiry or previous Confirmation, so this must fail
         response = clickConfirmationLink(confirmationLink, 404);
         assertEquals("User Account Creation Request does not exist - maybe expired?", response.print());
     }
 
     @Test
-    public void t2_readUser_notAuthorized() {
+    public void t02_readUser_notAuthorized() {
         getUser(userName, 401);
     }
 
     @Test
-    public void t3_readUser_unauthorized() {
+    public void t03_readUser_unauthorized() {
         requestSpec.auth().preemptive().basic("root", "guessedpassword");
         getUser(userName, 401);
     }
 
     @Test
-    public void t4_readUser() {
+    public void t04_readUser() {
         requestSpec.auth().preemptive().basic(userName, userPassword);
         Response response = getUser(userName, 200);
         JsonPath jsonPath = response.jsonPath();
@@ -64,7 +65,7 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t5_changePassword() {
+    public void t05_changePassword() {
         requestSpec.auth().preemptive().basic(userName, userPassword);
         Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
@@ -74,26 +75,50 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t6_removeUser() {
+    public void t06_changeEmailRequest() {
+        requestSpec.auth().preemptive().basic(userName, newUserPassword);
+        deleteMails(newEmail);
+        user.setEmail(newEmail);
+        Response response = putEmail(user, 202);
+        assertEquals(0, response.getBody().prettyPrint().length());
+    }
+
+//    @Test
+    public void t07_confirmEmail() {
+        long start = System.currentTimeMillis();
+        String confirmationLink = retrieveConfirmationLink(newEmail);
+        assertTrue(confirmationLink.startsWith("https://"));
+        System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
+        Response response = clickConfirmationLink(confirmationLink, 200);
+        JsonPath jsonPath = response.jsonPath();
+        assertEquals(newEmail.toString(), jsonPath.getString("email"));
+
+        // Request is removed from Map by either Expiry or previous Confirmation, so this must fail
+        response = clickConfirmationLink(confirmationLink, 404);
+        assertEquals("E-Mail Change Request does not exist - maybe expired?", response.print());
+    }
+
+    @Test
+    public void t08_removeUser() {
         requestSpec.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(user.getId(), 401);
     }
 
     @Test
-    public void t7_checkUserRemoved() {
+    public void t09_checkUserRemoved() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(user.getId(), 404);
     }
 
     @Test
-    public void t8_removeNonExistingUser() {
+    public void t10_removeNonExistingUser() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }
 
 //    @Test
-//    public void t999_cleanup() {
+//    public void t99_cleanup() {
 //        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
 //        Response response = getUser(userName, 200);
 //        JsonPath jsonPath = response.jsonPath();

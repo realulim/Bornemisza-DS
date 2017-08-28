@@ -1,5 +1,6 @@
 package de.bornemisza.users;
 
+import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -10,18 +11,18 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import static io.restassured.RestAssured.given;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import static org.junit.Assert.*;
 
+import de.bornemisza.users.boundary.BasicAuthCredentials;
 import de.bornemisza.users.entity.User;
 
 public class IntegrationTestBase {
@@ -34,6 +35,7 @@ public class IntegrationTestBase {
     protected User user;
 
     protected String adminUserName, adminPassword, userName, userPassword, newUserPassword;
+    protected InternetAddress newEmail;
 
     @Rule
     public TestRule watcher = new TestWatcher() {
@@ -54,6 +56,7 @@ public class IntegrationTestBase {
         userName = "Fazil Ongudar";
         userPassword = "secret";
         newUserPassword = "changed";
+        newEmail = new InternetAddress("fazil.changed@restmail.net");
 
         baseUri = URI.create(configuredUri);
         requestSpec = new RequestSpecBuilder()
@@ -84,6 +87,14 @@ public class IntegrationTestBase {
                 .extract().response();
     }
 
+    protected Response putEmail(User user, int expectedStatusCode) {
+        requestSpec.contentType(ContentType.TEXT).body(user.getEmail().toString());
+        return given(requestSpec)
+                .when().put("/" + user.getName() + "/email")
+                .then().statusCode(expectedStatusCode)
+                .extract().response();
+    }
+
     protected Response deleteUser(String userName, int expectedStatusCode) {
         requestSpec.accept(ContentType.ANY);
         return given(requestSpec)
@@ -96,6 +107,8 @@ public class IntegrationTestBase {
         String mailUser = recipient.toString().split("@")[0];
         RequestSpecification localRequestSpec = new RequestSpecBuilder()
                 .setBaseUri("https://restmail.net/mail/")
+                .addFilter(new RequestLoggingFilter())
+                .addFilter(new ResponseLoggingFilter())
                 .build();
 
         // wait up to 30 seconds for mail delivery
@@ -114,10 +127,17 @@ public class IntegrationTestBase {
     }
 
     protected Response clickConfirmationLink(String confirmationLink, int expectedStatusCode) {
+        return clickConfirmationLink(confirmationLink, expectedStatusCode, null);
+    }
+
+    protected Response clickConfirmationLink(String confirmationLink, int expectedStatusCode, BasicAuthCredentials creds) {
         String uuid = confirmationLink.substring(confirmationLink.lastIndexOf("/") + 1);
         RequestSpecification localRequestSpec = new RequestSpecBuilder()
                 .setBaseUri(confirmationLink.substring(0, confirmationLink.length() - uuid.length()))
+                .addFilter(new RequestLoggingFilter())
+                .addFilter(new ResponseLoggingFilter())
                 .build();
+        if (creds != null) localRequestSpec.auth().preemptive().basic(creds.getUserName(), creds.getPassword());
         return given(localRequestSpec)
                 .when().get(uuid)
                 .then().statusCode(expectedStatusCode)
@@ -136,6 +156,8 @@ public class IntegrationTestBase {
         String mailUser = recipient.toString().split("@")[0];
         RequestSpecification localRequestSpec = new RequestSpecBuilder()
                 .setBaseUri("https://restmail.net/mail/")
+                .addFilter(new RequestLoggingFilter())
+                .addFilter(new ResponseLoggingFilter())
                 .build();
         given(localRequestSpec)
                 .when().delete(mailUser)
