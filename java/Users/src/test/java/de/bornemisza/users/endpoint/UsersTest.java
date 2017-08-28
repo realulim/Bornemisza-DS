@@ -7,17 +7,16 @@ import javax.mail.internet.InternetAddress;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.topic.TopicOverloadException;
+
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UnauthorizedException;
-
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
 
@@ -27,6 +26,9 @@ public class UsersTest {
 
     private Users CUT;
     
+    private static final String AUTH_HEADER = "Basic someAuthString";
+    private static final String SOCKET_TIMEOUT = "java.net.SocketTimeoutException: connect timed out";
+
     public UsersTest() {
     }
     
@@ -49,13 +51,14 @@ public class UsersTest {
 
     @Test
     public void getUser_technicalException() {
-        when(facade.getUser(anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
+        when(facade.getUser(anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         try {
             CUT.getUser("Ike", null);
             fail();
         }
         catch (WebApplicationException ex) {
             assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
         }
     }
 
@@ -151,7 +154,7 @@ public class UsersTest {
     }
 
     @Test
-    public void confirmUser_userExpired() {
+    public void confirmUser_requestExpired() {
         String uuid = UUID.randomUUID().toString();
         String errMsg = "User Account Creation Request does not exist - maybe expired?";
         when(facade.confirmUser(uuid)).thenThrow(new BusinessException(Type.UUID_NOT_FOUND, errMsg));
@@ -168,13 +171,14 @@ public class UsersTest {
     @Test
     public void confirmUser_technicalException() throws AddressException {
         String uuid = UUID.randomUUID().toString();
-        when(facade.confirmUser(uuid)).thenThrow(new RuntimeException("Some technical problem..."));
+        when(facade.confirmUser(uuid)).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         try {
             CUT.confirmUser(uuid);
             fail();
         }
         catch (WebApplicationException ex) {
             assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
         }
     }
 
@@ -184,6 +188,94 @@ public class UsersTest {
         when(facade.confirmUser(uuid)).thenReturn(null);
         try {
             CUT.confirmUser(uuid);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(409, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void changeEmailRequest_userNameVoid() {
+        try {
+            CUT.changeEmailRequest("", "foo@bar.de", AUTH_HEADER);
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void changeEmailRequest_nullEmail() {
+        try {
+            CUT.changeEmailRequest("Ike", "null", AUTH_HEADER);
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+            assertEquals("E-Mail missing or unparseable!", ex.getResponse().getEntity().toString());
+        }
+    }
+
+    @Test
+    public void changeEmailRequest_unparseableEmail() {
+        try {
+            CUT.changeEmailRequest("Ike", "foobar@foo@.de", AUTH_HEADER);
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+            assertEquals("E-Mail missing or unparseable!", ex.getResponse().getEntity().toString());
+        }
+    }
+
+    @Test
+    public void changeEmailRequest_technicalException() throws AddressException {
+        String emailStr = "foo@bar.de";
+        User user = new User();
+        user.setName("Ike");
+        user.setEmail(new InternetAddress(emailStr));
+        when(facade.getUser(anyString(), any())).thenReturn(user);
+        doThrow(new TopicOverloadException("Topic overloaded")).when(facade).changeEmail(user);
+        try {
+            CUT.changeEmailRequest(user.getName(), emailStr, AUTH_HEADER);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(500, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void changeEmailRequest() throws AddressException {
+        String emailStr = "foo@bar.de";
+        User user = new User();
+        user.setName("Ike");
+        user.setEmail(new InternetAddress(emailStr));
+        when(facade.getUser(anyString(), any())).thenReturn(user);
+        Response response = CUT.changeEmailRequest(user.getName(), emailStr, AUTH_HEADER);
+        assertEquals(202, response.getStatus());
+    }
+
+    @Test
+    public void confirmEmail_requestExpired() {
+        String uuid = UUID.randomUUID().toString();
+        String errMsg = "E-Mail Change Request does not exist - maybe expired?";
+        when(facade.confirmEmail(uuid, AUTH_HEADER)).thenThrow(new BusinessException(Type.UUID_NOT_FOUND, errMsg));
+        try {
+            CUT.confirmEmail(uuid, AUTH_HEADER);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(404, ex.getResponse().getStatus());
+            assertEquals(errMsg, ex.getResponse().getEntity());
+        }
+    }
+
+    @Test
+    public void confirmEmail_newerRevisionExists() throws AddressException {
+        String uuid = UUID.randomUUID().toString();
+        when(facade.confirmEmail(uuid, AUTH_HEADER)).thenReturn(null);
+        try {
+            CUT.confirmEmail(uuid, AUTH_HEADER);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -218,13 +310,14 @@ public class UsersTest {
         User user = new User();
         user.setRevision("rev123");
         when(facade.getUser(anyString(), any())).thenReturn(user);
-        when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
+        when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         try {
             CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
             assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
         }
     }
 
@@ -257,7 +350,7 @@ public class UsersTest {
     public void deleteUser_technicalException() {
         User user = new User();
         user.setRevision("rev123");
-        when(facade.deleteUser(anyString(), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
+        when(facade.deleteUser(anyString(), anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         when(facade.getUser(anyString(), any())).thenReturn(user);
         try {
             CUT.deleteUser("Ike", null);
@@ -265,6 +358,7 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(500, ex.getResponse().getStatus());
+            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
         }
     }
 

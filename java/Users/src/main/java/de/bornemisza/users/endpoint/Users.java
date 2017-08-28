@@ -130,7 +130,7 @@ public class Users {
                 return facade.confirmEmail(uuidStr, authHeader);
             }
         };
-        String expiryMsg = "Email Change Request does not exist - maybe expired?";
+        String expiryMsg = "E-Mail Change Request does not exist - maybe expired?";
         String conflictMsg = "Newer Revision exists!";
         return executeConfirmation(confirmEmailFunction, expiryMsg, conflictMsg);
     }
