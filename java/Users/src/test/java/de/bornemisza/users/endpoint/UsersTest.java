@@ -146,6 +146,7 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(400, ex.getResponse().getStatus());
+            assertEquals("UUID missing or unparseable!", ex.getResponse().getEntity().toString());
         }
     }
 
@@ -189,20 +190,6 @@ public class UsersTest {
             assertEquals(409, ex.getResponse().getStatus());
         }
     }
-    @Test
-    public void changePassword_technicalException() {
-        User user = new User();
-        user.setRevision("rev123");
-        when(facade.getUser(anyString(), any())).thenReturn(user);
-        when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
-        try {
-            CUT.changePassword("Ike", "newPassword", null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-        }
-    }
 
     @Test
     public void changePassword_userNameVoid() {
@@ -227,14 +214,17 @@ public class UsersTest {
     }
 
     @Test
-    public void changePassword_nonExistingUser() {
-        when(facade.getUser(anyString(), any())).thenReturn(null);
+    public void changePassword_technicalException() {
+        User user = new User();
+        user.setRevision("rev123");
+        when(facade.getUser(anyString(), any())).thenReturn(user);
+        when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException("Some technical problem..."));
         try {
             CUT.changePassword("Ike", "newPassword", null);
             fail();
         }
         catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
+            assertEquals(500, ex.getResponse().getStatus());
         }
     }
 
@@ -248,18 +238,18 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(409, ex.getResponse().getStatus());
+            assertEquals("Newer Revision exists!", ex.getResponse().getEntity().toString());
         }
     }
 
     @Test
-    public void changePassword_unauthorized() {
-        when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
+    public void deleteUser_nameVoid() {
         try {
-            CUT.changePassword("Ike", "newPassword", null);
+            CUT.deleteUser("null", null);
             fail();
         }
         catch (WebApplicationException ex) {
-            assertEquals(401, ex.getResponse().getStatus());
+            assertEquals(404, ex.getResponse().getStatus());
         }
     }
 
@@ -279,29 +269,6 @@ public class UsersTest {
     }
 
     @Test
-    public void deleteUser_nameVoid() {
-        try {
-            CUT.deleteUser("null", null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void deleteUser_nullUser() {
-        when(facade.getUser(anyString(), anyString())).thenReturn(null);
-        try {
-            CUT.deleteUser("Ike", null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
     public void deleteUser_newerRevisionAlreadyExists() {
         when(facade.getUser(anyString(), any())).thenReturn(new User());
         when(facade.deleteUser(anyString(), anyString(), any())).thenReturn(false);
@@ -311,18 +278,7 @@ public class UsersTest {
         }
         catch (WebApplicationException ex) {
             assertEquals(409, ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void deleteUser_unauthorized() {
-        when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
-        try {
-            CUT.deleteUser("Ike", null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(401, ex.getResponse().getStatus());
+            assertEquals("Newer Revision exists!", ex.getResponse().getEntity().toString());
         }
     }
 

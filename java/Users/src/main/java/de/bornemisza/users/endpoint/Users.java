@@ -1,6 +1,7 @@
 package de.bornemisza.users.endpoint;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.inject.Inject;
@@ -71,14 +72,13 @@ public class Users {
             throw new WebApplicationException(
                     Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
         }
-        try {
-            facade.addUser(user);
-            return Response.accepted().build();
-        }
-        catch (RuntimeException ex) {
-            throw new WebApplicationException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
-        }
+        Consumer userAccountCreationRequestConsumer = new Consumer<UsersFacade>() {
+            @Override
+            public void accept(UsersFacade facade) {
+                facade.addUser(user);
+            }
+        };
+        return executeRequest(userAccountCreationRequestConsumer);
     }
 
     @GET
@@ -101,36 +101,21 @@ public class Users {
     @Path("{name}/email/{newemail}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response changeEmailRequest(@PathParam("name") String userName, 
-                           @PathParam("newemail") String email,
+                           @PathParam("newemail") String emailStr,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        InternetAddress newEmail;
-        try {
-            newEmail = isVoid(email) ? null : new InternetAddress(email);
+        if (isVoid(userName)) {
+            throw new WebApplicationException(Status.BAD_REQUEST);
         }
-        catch (AddressException ae) {
-            newEmail = null;
-        }
-        if (newEmail == null || isVoid(userName)) {
-            throw new WebApplicationException(
-                    Response.status(Status.BAD_REQUEST).entity("UserName or E-Mail missing or unparseable!").build());
-        }
-        User user;
-        try {
-            user = facade.getUser(userName, authHeader);
-            if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
-            else user.setEmail(newEmail);
-        }
-        catch (UnauthorizedException e) {
-            throw new WebApplicationException(Status.UNAUTHORIZED);
-        }
-        try {
-            facade.changeEmail(user);
-            return Response.accepted().build();
-        }
-        catch (RuntimeException ex) {
-            throw new WebApplicationException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
-        }
+        InternetAddress email = validateEmail(emailStr);
+        User user = getUser(userName, authHeader);
+        user.setEmail(email);
+        Consumer changeEmailRequestConsumer = new Consumer<UsersFacade>() {
+            @Override
+            public void accept(UsersFacade facade) {
+                facade.changeEmail(user);
+            }
+        };
+        return executeRequest(changeEmailRequestConsumer);
     }
 
     @GET
@@ -159,15 +144,8 @@ public class Users {
         if (isVoid(userName) || isVoid(password)) {
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
-        User user;
-        try {
-            user = facade.getUser(userName, authHeader);
-            if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
-            else user.setPassword(password.toCharArray());
-        }
-        catch (UnauthorizedException e) {
-            throw new WebApplicationException(Status.UNAUTHORIZED);
-        }
+        User user = getUser(userName, authHeader);
+        user.setPassword(password.toCharArray());
         try {
             user = facade.changePassword(user, user.getRevision(), authHeader);
         }
@@ -184,32 +162,23 @@ public class Users {
     
     @DELETE
     @Path("{name}")
-    public void deleteUser(@PathParam("name") String name, 
+    public void deleteUser(@PathParam("name") String userName, 
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (isVoid(name)) {
+        if (isVoid(userName)) {
             throw new WebApplicationException(Status.NOT_FOUND);
         }
-        else {
-            User user;
-            try {
-                user = facade.getUser(name, authHeader);
-                if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
-            }
-            catch (UnauthorizedException e) {
-                throw new WebApplicationException(Status.UNAUTHORIZED);
-            }
-            boolean success;
-            try {
-                success = facade.deleteUser(name, user.getRevision(), authHeader);
-            }
-            catch (RuntimeException ex) {
-                throw new WebApplicationException(
-                        Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
-            }
-            if (! success) {
-                throw new WebApplicationException(
-                        Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
-            }
+        User user = getUser(userName, authHeader);
+        boolean success;
+        try {
+            success = facade.deleteUser(userName, user.getRevision(), authHeader);
+        }
+        catch (RuntimeException ex) {
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+        }
+        if (! success) {
+            throw new WebApplicationException(
+                    Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
         }
     }
 
@@ -231,6 +200,32 @@ public class Users {
             throw new WebApplicationException(
                     Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build());
         }
+    }
+
+    private InternetAddress validateEmail(String emailStr) throws WebApplicationException {
+        InternetAddress newEmail;
+        try {
+            newEmail = isVoid(emailStr) ? null : new InternetAddress(emailStr);
+        }
+        catch (AddressException ae) {
+            newEmail = null;
+        }
+        if (newEmail == null) {
+            throw new WebApplicationException(
+                    Response.status(Status.BAD_REQUEST).entity("E-Mail missing or unparseable!").build());
+        }
+        return newEmail;
+    }
+
+    private Response executeRequest(Consumer userAccountCreationRequestConsumer) {
+        try {
+            userAccountCreationRequestConsumer.accept(facade);
+        }
+        catch (RuntimeException ex) {
+            throw new WebApplicationException(
+                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+        }
+        return Response.accepted().build();
     }
 
     private User executeConfirmation(Function<UsersFacade, User> function, String expiryMsg, String conflictMsg) {
