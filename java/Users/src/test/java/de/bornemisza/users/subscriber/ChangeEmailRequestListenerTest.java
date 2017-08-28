@@ -12,16 +12,16 @@ import com.hazelcast.core.ITopic;
 
 import de.bornemisza.users.MailSender;
 
-public class NewUserAccountListenerTest extends AbstractConfirmationMailListenerTestbase {
+public class ChangeEmailRequestListenerTest extends AbstractConfirmationMailListenerTestbase {
 
     @Override
     AbstractConfirmationMailListener getRequestListener(ITopic topic, IMap map, MailSender mailSender) {
-        return new NewUserAccountListener(topic, map, mailSender);
+        return new ChangeEmailRequestListener(topic, map, mailSender);
     }
 
     @Override
     String getConfirmationLinkPrefix() {
-        return "https://" + System.getProperty("FQDN") + "/users/confirmation/user";
+        return "https://" + System.getProperty("FQDN") + "/users/confirmation/email";
     }
 
     @Test

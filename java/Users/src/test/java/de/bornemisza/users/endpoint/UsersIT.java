@@ -3,13 +3,13 @@ package de.bornemisza.users.endpoint;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
-
-import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import static org.junit.Assert.*;
 
 import de.bornemisza.users.IntegrationTestBase;
+import de.bornemisza.users.boundary.BasicAuthCredentials;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UsersIT extends IntegrationTestBase {
@@ -85,16 +85,17 @@ public class UsersIT extends IntegrationTestBase {
 
 //    @Test
     public void t07_confirmEmail() {
+        BasicAuthCredentials creds = new BasicAuthCredentials(userName, newUserPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
         assertTrue(confirmationLink.startsWith("https://"));
         System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
-        Response response = clickConfirmationLink(confirmationLink, 200);
+        Response response = clickConfirmationLink(confirmationLink, 200, creds);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(newEmail.toString(), jsonPath.getString("email"));
 
         // Request is removed from Map by either Expiry or previous Confirmation, so this must fail
-        response = clickConfirmationLink(confirmationLink, 404);
+        response = clickConfirmationLink(confirmationLink, 404, creds);
         assertEquals("E-Mail Change Request does not exist - maybe expired?", response.print());
     }
 

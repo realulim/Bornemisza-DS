@@ -7,6 +7,11 @@ public class BasicAuthCredentials {
     private final String userName;
     private String password;
 
+    public BasicAuthCredentials(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+    }
+
     public BasicAuthCredentials(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
             throw new UnauthorizedException("AuthHeader broken: " + authHeader);
