@@ -102,13 +102,13 @@ public class UsersIT extends IntegrationTestBase {
     public void t08_removeUser() {
         requestSpec.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
-        getUser(user.getId(), 401);
+        getUser(userName, 401);
     }
 
     @Test
     public void t09_checkUserRemoved() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
-        getUser(user.getId(), 404);
+        getUser(userName, 404);
     }
 
     @Test
