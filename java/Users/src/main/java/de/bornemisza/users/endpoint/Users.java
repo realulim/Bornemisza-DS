@@ -66,7 +66,6 @@ public class Users {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     public Response userAccountCreationRequest(User user) {
         if (user == null || user.getEmail() == null) {
             throw new WebApplicationException(
@@ -98,11 +97,11 @@ public class Users {
     }
 
     @PUT
-    @Path("{name}/email/{newemail}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response changeEmailRequest(@PathParam("name") String userName, 
-                           @PathParam("newemail") String emailStr,
-                           @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+    @Path("{name}/email")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public Response changeEmailRequest(@PathParam("name") String userName,
+            String emailStr,
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) {
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
