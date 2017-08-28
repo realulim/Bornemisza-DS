@@ -54,10 +54,6 @@ public class UsersFacade {
         newUserAccountTopic.publish(user);
     }
 
-    public void changeEmail(User user) {
-        changeEmailRequestTopic.publish(user);
-    }
-
     public User confirmUser(String uuid) throws BusinessException, TechnicalException {
         User user = newUserAccountMap.remove(uuid);
         if (user == null) {
@@ -74,6 +70,10 @@ public class UsersFacade {
             if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
             else throw new TechnicalException(ex.toString());
         }
+    }
+
+    public void changeEmail(User user) {
+        changeEmailRequestTopic.publish(user);
     }
 
     public User confirmEmail(String uuid, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
