@@ -149,9 +149,8 @@ create-database-{{ db }}:
   file.managed:
     - source: salt://files/couchdb/ddocUser.json
 
-{% for ddoc in ['User'] %}
+update-design-doc-User:
   cmd.run:
-    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/_users/_design/{{ ddoc }} -d '@{{ VIEWS }}/{{ ddoc }}.json'
+    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/_users/_design/User -d '@{{ VIEWS }}/ddocUser.json'
     - onchanges:
-      - {{ VIEWS }}/{{ ddoc }}.json
-{% endfor %}
+      - {{ VIEWS }}/ddocUser.json
