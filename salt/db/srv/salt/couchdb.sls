@@ -60,6 +60,8 @@ install-couchdb:
 set-permissions-couchdb:
   cmd.run:
     - name: find /home/couchpotato/couchdb -type d -exec chmod 0770 {} \;
+    - onchanges:
+      - install-couchdb
 
 install-systemctl-unitfile:
    file.managed:
