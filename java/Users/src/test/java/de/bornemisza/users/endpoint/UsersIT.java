@@ -3,10 +3,10 @@ package de.bornemisza.users.endpoint;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import static org.junit.Assert.*;
 
 import de.bornemisza.users.IntegrationTestBase;
 import de.bornemisza.users.boundary.BasicAuthCredentials;
@@ -35,7 +35,7 @@ public class UsersIT extends IntegrationTestBase {
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
         assertEquals("******", jsonPath.getString("password"));
 
-        // Request is removed from Map by either Expiry or previous Confirmation, so this must fail
+        /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
         response = clickConfirmationLink(confirmationLink, 404);
         assertEquals("User Account Creation Request does not exist - maybe expired?", response.print());
     }
@@ -94,7 +94,7 @@ public class UsersIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         assertEquals(newEmail.toString(), jsonPath.getString("email"));
 
-        // Request is removed from Map by either Expiry or previous Confirmation, so this must fail
+        /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
         response = clickConfirmationLink(confirmationLink, 404, creds);
         assertEquals("E-Mail Change Request does not exist - maybe expired?", response.print());
     }
@@ -117,14 +117,5 @@ public class UsersIT extends IntegrationTestBase {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }
-
-//    @Test
-//    public void t99_cleanup() {
-//        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
-//        Response response = getUser(userName, 200);
-//        JsonPath jsonPath = response.jsonPath();
-//        revision = jsonPath.getString("_rev");
-//        deleteUser(userName, 204);
-//    }
 
 }
