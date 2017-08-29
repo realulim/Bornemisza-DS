@@ -38,8 +38,24 @@ public class UsersFacadeTest {
     }
 
     @Test
+    public void addUser_userAlreadyExists() {
+        User user = new User();
+        user.setName("Ike");
+        when(usersService.existsUser(user.getName())).thenReturn(true);
+        try {
+            CUT.addUser(user);
+            fail();
+        }
+        catch (BusinessException be) {
+            assertEquals(BusinessException.Type.USER_ALREADY_EXISTS, be.getType());
+        }
+    }
+
+    @Test
     public void addUser() {
         User user = new User();
+        user.setName("Ike");
+        when(usersService.existsUser(user.getName())).thenReturn(false);
         CUT.addUser(user);
         verify(newUserAccountTopic).publish(user);
     }
