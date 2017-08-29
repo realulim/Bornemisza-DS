@@ -151,7 +151,7 @@ create-database-{{ db }}:
 
 {% for ddoc in ['User'] %}
   cmd.run:
-    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/{{ db }}/_design/{{ ddoc }} -d '@{{ VIEWS }}/{{ ddoc }}.json'
+    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/_users/_design/{{ ddoc }} -d '@{{ VIEWS }}/{{ ddoc }}.json'
     - onchanges:
       - {{ VIEWS }}/{{ ddoc }}.json
 {% endfor %}
