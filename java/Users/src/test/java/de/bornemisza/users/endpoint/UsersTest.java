@@ -123,8 +123,24 @@ public class UsersTest {
     }
 
     @Test
+    public void userAccountCreationRequest_userAlreadyExists() throws AddressException {
+        User user = new User();
+        user.setName("Ike");
+        user.setEmail(new InternetAddress("foo@bar.de"));
+        doThrow(new BusinessException(Type.USER_ALREADY_EXISTS, user.getName())).when(facade).addUser(user);
+        try {
+            CUT.userAccountCreationRequest(user);
+            fail();
+        }
+        catch (WebApplicationException e) {
+            assertEquals(409, e.getResponse().getStatus());
+        }
+    }
+
+    @Test
     public void userAccountCreationRequest() throws AddressException {
         User user = new User();
+        user.setName("Ike");
         user.setEmail(new InternetAddress("foo@bar.de"));
         Response response = CUT.userAccountCreationRequest(user);
         assertEquals(202, response.getStatus());
