@@ -151,8 +151,8 @@ create-database-{{ db }}:
     - user: couchpotato
     - group: couchpotato
 
-update-design-doc-User:
+create-or-update-design-doc-User:
   cmd.run:
-    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/_users/_design/User -d '@{{ VIEWS }}/User.json'
+    - name: /srv/salt/files/couchdb/ddoc.sh {{ URL }}
     - onchanges:
       - {{ VIEWS }}/User.json
