@@ -4,6 +4,7 @@
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
 {% set URL='http://' + pillar['privip'] + ':5984' %}
 {% set BACKDOORURL='http://localhost:5986' %}
+{% set VIEWS='/home/couchpotato/ddoc' %}
 
 install_couchdb_pkgs:
   pkg.installed:
@@ -134,4 +135,21 @@ create-database-{{ db }}:
       - curl -s {{ AUTH }} {{ URL }}/{{ db }} | grep "Database does not exist"
       - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".all_nodes|length" | grep {{ pillar['clustersize'] }}
       - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".cluster_nodes|length" | grep {{ pillar['clustersize'] }}
+{% endfor %}
+
+{{ VIEWS }}:
+  file.directory:
+    - user: couchpotato
+    - group: couchpotato
+    - dir_mode: 755
+
+{{ VIEWS }}/User.json:
+  file.managed:
+    - source: salt://files/couchdb/ddocUser.json
+
+{% for ddoc in ['User'] %}
+  cmd.run:
+    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/{{ db }}/_design/{{ ddoc }} -d '@{{ VIEWS }}/{{ ddoc }}.json'
+    - onchanges:
+      - {{ VIEWS }}/{{ ddoc }}.json
 {% endfor %}
