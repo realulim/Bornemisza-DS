@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.mail.internet.InternetAddress;
 
 import org.ektorp.DbInfo;
 import org.ektorp.DocumentNotFoundException;
@@ -24,8 +25,6 @@ public class UsersService {
     @Resource(name="couchdb/admin")
     ConnectionPool adminPool;
 
-    private UserRepository adminRepo;
-
     public UsersService() {
     }
 
@@ -36,7 +35,6 @@ public class UsersService {
         DbInfo dbInfo = adminConn.getDbInfo();
         String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
         Logger.getLogger(adminConn.getHostname()).info(msg);
-        adminRepo = new UserRepository(adminConn);
     }
 
     public boolean existsUser(String userName) {
@@ -49,6 +47,12 @@ public class UsersService {
         catch (DocumentNotFoundException e) {
             return false;
         }
+    }
+
+    public boolean existsEmail(InternetAddress email) {
+        MyCouchDbConnector conn = adminPool.getConnection();
+        UserRepository repo = new UserRepository(conn);
+        return repo.findByEmail(email.getAddress()).size() > 0;
     }
 
     public User createUser(User user) throws UpdateConflictException {

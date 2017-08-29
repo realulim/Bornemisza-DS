@@ -221,7 +221,15 @@ public class Users {
             userAccountCreationRequestConsumer.accept(facade);
         }
         catch (BusinessException be) {
-            Response.Status status = be.getType() == Type.USER_ALREADY_EXISTS ? Status.CONFLICT : Status.INTERNAL_SERVER_ERROR;
+            Response.Status status;
+            switch (be.getType()) {
+                case USER_ALREADY_EXISTS:
+                case EMAIL_ALREADY_EXISTS:
+                    status = Status.CONFLICT;
+                    break;
+                default:
+                    status = Status.INTERNAL_SERVER_ERROR;
+            }
             throw new WebApplicationException(
                     Response.status(status).entity(be.getMessage()).build());
         }

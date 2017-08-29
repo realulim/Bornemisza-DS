@@ -6,13 +6,13 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
-
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
+
+import org.ektorp.DbAccessException;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.UpdateConflictException;
 
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -53,6 +53,9 @@ public class UsersFacade {
     public void addUser(User user) {
         if (usersService.existsUser(user.getName())) {
             throw new BusinessException(Type.USER_ALREADY_EXISTS, user.getName() + " already exists!");
+        }
+        else if (usersService.existsEmail(user.getEmail())) {
+            throw new BusinessException(Type.EMAIL_ALREADY_EXISTS, user.getEmail().getAddress() + " already exists!");
         }
         else {
             newUserAccountTopic.publish(user);
