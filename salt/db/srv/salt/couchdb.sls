@@ -156,7 +156,7 @@ create-database-{{ db }}:
     - source: salt://files/couchdb/ddoc.sh
     - user: root
     - group: root
-    - file_mode: 700
+    - mode: 744
 
 create-or-update-design-doc-User:
   cmd.run:
