@@ -51,7 +51,7 @@ public class UsersService {
         }
     }
 
-    public User createUser(User user) {
+    public User createUser(User user) throws UpdateConflictException {
         MyCouchDbConnector conn = adminPool.getConnection();
         UserRepository repo = new UserRepository(conn);
         repo.update(user); // CouchDB uses PUT not POST for user creation
@@ -60,7 +60,7 @@ public class UsersService {
         return repo.get(user.getId());
     }
 
-    public User updateUser(User user, BasicAuthCredentials creds) {
+    public User updateUser(User user, BasicAuthCredentials creds) throws UpdateConflictException {
         MyCouchDbConnector conn = pool.getConnection(creds);
         UserRepository repo = new UserRepository(conn);
         repo.update(user);
