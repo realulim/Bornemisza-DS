@@ -151,8 +151,15 @@ create-database-{{ db }}:
     - user: couchpotato
     - group: couchpotato
 
+/opt/scripts/ddoc.sh:
+  file.managed:
+    - source: salt://files/couchdb/ddoc.sh
+    - user: root
+    - group: root
+    - file_mode: 700
+
 create-or-update-design-doc-User:
   cmd.run:
-    - name: /srv/salt/files/couchdb/ddoc.sh {{ URL }}
+    - name: /opt/scripts/ddoc.sh {{ URL }}
     - onchanges:
       - {{ VIEWS }}/User.json
