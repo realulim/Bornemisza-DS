@@ -25,6 +25,7 @@ public class UsersFacadeTest {
     private ITopic<User> newUserAccountTopic, changeEmailRequestTopic;
     private IMap<String, User> newUserAccountMap, changeEmailRequestMap;
     private UsersFacade CUT;
+    private final String AUTH_HEADER = "Basic RmF6aWwgT25ndWRhcjpjaGFuZ2Vk";
     
     @Before
     public void setUp() {
@@ -114,7 +115,7 @@ public class UsersFacadeTest {
         when(changeEmailRequestMap.remove(any(String.class))).thenReturn(new User());
         when(usersService.getUser(anyString(), any())).thenReturn(null);
         try {
-            CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString");
+            CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
             fail();
         }
         catch (BusinessException e) {
@@ -130,7 +131,7 @@ public class UsersFacadeTest {
         when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString");
+            CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
             fail();
         }
         catch (UnauthorizedException ex) {
@@ -147,7 +148,7 @@ public class UsersFacadeTest {
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString");
+            CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
             fail();
         }
         catch (TechnicalException ex) {
@@ -162,7 +163,7 @@ public class UsersFacadeTest {
         when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
-        assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), "Basic someAuthString"));
+        assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }
 
     @Test
@@ -176,7 +177,7 @@ public class UsersFacadeTest {
         String msg = "401 - Unauthorized";
         when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.getUser("Silly Willy", "Basic someAuthString");
+            CUT.getUser("Silly Willy", AUTH_HEADER);
             fail();
         }
         catch (UnauthorizedException ex) {
@@ -202,7 +203,7 @@ public class UsersFacadeTest {
         User user = new User();
         user.setName("Bogumil");
         when(usersService.changePassword(any(User.class), anyString(), any())).thenThrow(new UpdateConflictException());
-        assertNull(CUT.changePassword(new User(), "rev123", "Basic someAuthHeader"));
+        assertNull(CUT.changePassword(new User(), "rev123", AUTH_HEADER));
     }
 
     @Test
@@ -210,7 +211,7 @@ public class UsersFacadeTest {
         String msg = "401 - Unauthorized";
         when(usersService.changePassword(any(User.class), anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.changePassword(new User(), "rev123", "Basic someAuthHeader");
+            CUT.changePassword(new User(), "rev123", AUTH_HEADER);
             fail();
         }
         catch (UnauthorizedException ex) {
@@ -223,7 +224,7 @@ public class UsersFacadeTest {
         String msg = "java.net.SocketTimeoutException: connect timed out";
         when(usersService.changePassword(any(User.class), anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.changePassword(new User(), "rev123", "Basic someAuthHeader");
+            CUT.changePassword(new User(), "rev123", AUTH_HEADER);
             fail();
         }
         catch (TechnicalException ex) {
@@ -234,7 +235,7 @@ public class UsersFacadeTest {
     @Test
     public void deleteUser_noSuchUser() {
         doThrow(new UpdateConflictException()).when(usersService).deleteUser(anyString(), anyString(), any());
-        assertFalse(CUT.deleteUser("Ike", "3454353", "Basic someAuthString"));
+        assertFalse(CUT.deleteUser("Ike", "3454353", AUTH_HEADER));
     }
 
     @Test
@@ -242,7 +243,7 @@ public class UsersFacadeTest {
         String msg = "401 - Unauthorized";
         doThrow(new DbAccessException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
         try {
-            CUT.deleteUser("Silly Willy", "rev123", "Basic someAuthString");
+            CUT.deleteUser("Silly Willy", "rev123", AUTH_HEADER);
             fail();
         }
         catch (UnauthorizedException ex) {
@@ -255,7 +256,7 @@ public class UsersFacadeTest {
         String msg = "java.net.SocketTimeoutException: connect timed out";
         doThrow(new DbAccessException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
         try {
-            CUT.deleteUser("Silly Willy", "rev123", "Basic someAuthString");
+            CUT.deleteUser("Silly Willy", "rev123", AUTH_HEADER);
             fail();
         }
         catch (TechnicalException ex) {
@@ -265,7 +266,7 @@ public class UsersFacadeTest {
 
     @Test
     public void deleteUser() {
-        assertTrue(CUT.deleteUser("Ike", "3454353", "Basic someAuthString"));
+        assertTrue(CUT.deleteUser("Ike", "3454353", AUTH_HEADER));
     }
 
 }
