@@ -52,7 +52,7 @@ public class UsersFacade {
 
     public void addUser(User user) {
         if (usersService.existsUser(user.getName())) {
-            throw new BusinessException(Type.USER_ALREADY_EXISTS, user.getName());
+            throw new BusinessException(Type.USER_ALREADY_EXISTS, user.getName() + " already exists!");
         }
         else {
             newUserAccountTopic.publish(user);

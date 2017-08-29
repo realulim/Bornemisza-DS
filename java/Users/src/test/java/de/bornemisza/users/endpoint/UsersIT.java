@@ -42,10 +42,9 @@ public class UsersIT extends IntegrationTestBase {
 
     @Test
     public void t02_userAccountCreationRequest_userAlreadyExists() {
-        deleteMails(user.getEmail());
         user.setPassword(userPassword.toCharArray());
         Response response = postUser(user, 409);
-        System.out.println(response.getBody().prettyPrint());
+        assertEquals(user.getName() + " already exists!", response.getBody().print());
     }
 
     @Test
