@@ -153,6 +153,6 @@ create-database-{{ db }}:
 
 update-design-doc-User:
   cmd.run:
-    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/_users/_design/User -d '@{{ VIEWS }}/ddocUser.json'
+    - name: curl -s {{ AUTH }} -X PUT {{ URL }}/_users/_design/User -d '@{{ VIEWS }}/User.json'
     - onchanges:
-      - {{ VIEWS }}/ddocUser.json
+      - {{ VIEWS }}/User.json
