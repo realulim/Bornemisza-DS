@@ -39,6 +39,18 @@ public class UsersService {
         adminRepo = new UserRepository(adminConn);
     }
 
+    public boolean existsUser(String userName) {
+        MyCouchDbConnector conn = adminPool.getConnection();
+        UserRepository repo = new UserRepository(conn);
+        userName = User.USERNAME_PREFIX + userName;
+        try {
+            return repo.get(userName) != null;
+        }
+        catch (DocumentNotFoundException e) {
+            return false;
+        }
+    }
+
     public User createUser(User user) {
         MyCouchDbConnector conn = adminPool.getConnection();
         UserRepository repo = new UserRepository(conn);
@@ -69,7 +81,7 @@ public class UsersService {
         UserRepository repo = new UserRepository(conn);
         userName = User.USERNAME_PREFIX + userName;
         User user = (options == null ? repo.get(userName) : repo.get(userName, options));
-        Logger.getLogger(conn.getHostname()).info("Read user: " + user);
+        Logger.getLogger(conn.getHostname()).fine("Read user: " + user);
         return user;
     }
 

@@ -51,7 +51,12 @@ public class UsersFacade {
     }
 
     public void addUser(User user) {
-        newUserAccountTopic.publish(user);
+        if (usersService.existsUser(user.getName())) {
+            throw new BusinessException(Type.USER_ALREADY_EXISTS, user.getName());
+        }
+        else {
+            newUserAccountTopic.publish(user);
+        }
     }
 
     public User confirmUser(String uuid) throws BusinessException, TechnicalException {

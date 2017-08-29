@@ -41,18 +41,26 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t02_readUser_notAuthorized() {
+    public void t02_userAccountCreationRequest_userAlreadyExists() {
+        deleteMails(user.getEmail());
+        user.setPassword(userPassword.toCharArray());
+        Response response = postUser(user, 409);
+        System.out.println(response.getBody().prettyPrint());
+    }
+
+    @Test
+    public void t03_readUser_notAuthorized() {
         getUser(userName, 401);
     }
 
     @Test
-    public void t03_readUser_unauthorized() {
+    public void t04_readUser_unauthorized() {
         requestSpec.auth().preemptive().basic("root", "guessedpassword");
         getUser(userName, 401);
     }
 
     @Test
-    public void t04_readUser() {
+    public void t05_readUser() {
         requestSpec.auth().preemptive().basic(userName, userPassword);
         Response response = getUser(userName, 200);
         JsonPath jsonPath = response.jsonPath();
@@ -65,7 +73,7 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t05_changePassword() {
+    public void t06_changePassword() {
         requestSpec.auth().preemptive().basic(userName, userPassword);
         Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
@@ -75,7 +83,7 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t06_changeEmailRequest() {
+    public void t07_changeEmailRequest() {
         requestSpec.auth().preemptive().basic(userName, newUserPassword);
         deleteMails(newEmail);
         user.setEmail(newEmail);
@@ -84,7 +92,7 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t07_confirmEmail() {
+    public void t08_confirmEmail() {
         BasicAuthCredentials creds = new BasicAuthCredentials(userName, newUserPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
@@ -100,20 +108,20 @@ public class UsersIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t08_removeUser() {
+    public void t09_removeUser() {
         requestSpec.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(userName, 401);
     }
 
     @Test
-    public void t09_checkUserRemoved() {
+    public void t10_checkUserRemoved() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(userName, 404);
     }
 
     @Test
-    public void t10_removeNonExistingUser() {
+    public void t11_removeNonExistingUser() {
         requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }

@@ -220,6 +220,11 @@ public class Users {
         try {
             userAccountCreationRequestConsumer.accept(facade);
         }
+        catch (BusinessException be) {
+            Response.Status status = be.getType() == Type.USER_ALREADY_EXISTS ? Status.CONFLICT : Status.INTERNAL_SERVER_ERROR;
+            throw new WebApplicationException(
+                    Response.status(status).entity(be.getMessage()).build());
+        }
         catch (RuntimeException ex) {
             throw new WebApplicationException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());

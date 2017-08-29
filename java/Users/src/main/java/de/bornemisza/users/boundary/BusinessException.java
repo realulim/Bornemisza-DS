@@ -7,7 +7,7 @@ public class BusinessException extends RuntimeException {
 
     private final Type type;
 
-    public enum Type { UUID_NOT_FOUND, USER_NOT_FOUND };
+    public enum Type { UUID_NOT_FOUND, USER_NOT_FOUND, USER_ALREADY_EXISTS };
 
     public BusinessException(Type type, String msg) {
         super(msg);
