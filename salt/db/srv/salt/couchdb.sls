@@ -148,6 +148,8 @@ create-database-{{ db }}:
 {{ VIEWS }}/User.json:
   file.managed:
     - source: salt://files/couchdb/ddocUser.json
+    - user: couchpotato
+    - group: couchpotato
 
 update-design-doc-User:
   cmd.run:
