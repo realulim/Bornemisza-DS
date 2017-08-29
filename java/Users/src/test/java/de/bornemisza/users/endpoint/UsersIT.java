@@ -83,7 +83,7 @@ public class UsersIT extends IntegrationTestBase {
         assertEquals(0, response.getBody().prettyPrint().length());
     }
 
-//    @Test
+    @Test
     public void t07_confirmEmail() {
         BasicAuthCredentials creds = new BasicAuthCredentials(userName, newUserPassword);
         long start = System.currentTimeMillis();

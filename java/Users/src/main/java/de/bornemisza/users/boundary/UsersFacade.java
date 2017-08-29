@@ -86,6 +86,7 @@ public class UsersFacade {
             User newUser = usersService.getUser(user.getName(), creds);
             if (newUser == null) throw new BusinessException(Type.USER_NOT_FOUND, user.getName());
             newUser.setEmail(user.getEmail());
+            newUser.setPassword(creds.getPassword().toCharArray()); // otherwise password will be reset by CouchDB
             return usersService.updateUser(newUser, creds);
         }
         catch (UpdateConflictException e) {
