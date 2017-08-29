@@ -33,7 +33,7 @@ public class UsersIT extends IntegrationTestBase {
         Response response = clickConfirmationLink(confirmationLink, 200);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
-        assertEquals("******", jsonPath.getString("password"));
+        assertNull(jsonPath.getString("password"));
 
         /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
         response = clickConfirmationLink(confirmationLink, 404);

@@ -57,7 +57,7 @@ public class UsersService {
         repo.update(user); // CouchDB uses PUT not POST for user creation
         Logger.getLogger(conn.getHostname()).info("Added user: " + user);
         Arrays.fill(user.getPassword(), '*');
-        return user;
+        return repo.get(user.getId());
     }
 
     public User updateUser(User user, BasicAuthCredentials creds) {
