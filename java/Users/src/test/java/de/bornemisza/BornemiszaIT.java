@@ -76,10 +76,6 @@ public class BornemiszaIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
         assertTrue(revision.length() > 10);
-        derivedKey = jsonPath.getString("derived_key");
-        assertTrue(derivedKey.length() > 10);
-        salt = jsonPath.getString("salt");
-        assertTrue(salt.length() > 10);
     }
 
     @Test
