@@ -95,6 +95,11 @@ public class UsersFacade {
             if (newUser == null) throw new BusinessException(Type.USER_NOT_FOUND, user.getName());
             newUser.setEmail(user.getEmail());
             newUser.setPassword(creds.getPassword().toCharArray()); // otherwise password will be reset by CouchDB
+            if (usersService.existsEmail(newUser.getEmail())) {
+                // Someone else has in the meantime acquired this E-Mail address
+                Logger.getAnonymousLogger().warning("Update Conflict: " + newUser.getEmail().getAddress() + " already exists!");
+                return null;
+            }
             return usersService.updateUser(newUser, creds);
         }
         catch (UpdateConflictException e) {

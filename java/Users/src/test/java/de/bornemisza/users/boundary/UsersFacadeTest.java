@@ -179,6 +179,7 @@ public class UsersFacadeTest {
         user.setName("Ike");
         when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
         when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
@@ -190,11 +191,23 @@ public class UsersFacadeTest {
     }
 
     @Test
-    public void confirmEmail_updateConflict() {
+    public void confirmEmail_updateConflict_emailAlreadyExists() throws AddressException {
+        User user = new User();
+        user.setName("Ike");
+        user.setEmail(new InternetAddress("foo@bar.de"));
+        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(true);
+        assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
+    }
+
+    @Test
+    public void confirmEmail_updateConflict_newerRevisionExists() {
         User user = new User();
         user.setName("Ike");
         when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }
