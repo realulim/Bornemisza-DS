@@ -44,6 +44,12 @@ deploy-{{ LIB_NAME }}-library:
     - onchanges:
       - build-{{ LIB_NAME }}-library
 
+restart-payara-on-new-{{ LIB_NAME }}-library:
+  cmd.run:
+    - name: systemctl restart payara
+    - onchanges:
+      - deploy-{{ LIB_NAME }}-library
+
 {% endfor %}
 
 {% for MIC_SRV_NAME in ['Status', 'Users'] %}
