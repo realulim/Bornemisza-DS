@@ -3,7 +3,7 @@ package de.bornemisza.sessions.da;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.support.CouchDbRepositorySupport;
 
-import de.bornemisza.sessions.entity.Session;
+import de.bornemisza.rest.entity.Session;
 
 public class SessionRepository extends CouchDbRepositorySupport<Session> {
 

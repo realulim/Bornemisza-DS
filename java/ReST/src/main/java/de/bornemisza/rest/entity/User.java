@@ -1,4 +1,4 @@
-package de.bornemisza.users.entity;
+package de.bornemisza.rest.entity;
 
 import java.util.List;
 

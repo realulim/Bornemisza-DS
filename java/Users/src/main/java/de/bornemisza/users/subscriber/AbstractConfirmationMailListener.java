@@ -1,16 +1,5 @@
 package de.bornemisza.users.subscriber;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Message;
-import com.hazelcast.core.MessageListener;
-
-import de.bornemisza.users.MailSender;
-import de.bornemisza.users.entity.User;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,8 +9,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Message;
+import com.hazelcast.core.MessageListener;
+
+import de.bornemisza.rest.entity.User;
+import de.bornemisza.users.MailSender;
 
 public abstract class AbstractConfirmationMailListener implements MessageListener<User> {
 

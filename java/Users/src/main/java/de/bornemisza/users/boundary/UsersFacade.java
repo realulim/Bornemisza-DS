@@ -16,10 +16,10 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
 import de.bornemisza.rest.BasicAuthCredentials;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
-import de.bornemisza.users.entity.User;
 
 @Stateless
 public class UsersFacade {

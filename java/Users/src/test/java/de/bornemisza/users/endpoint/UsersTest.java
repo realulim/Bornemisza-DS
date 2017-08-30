@@ -14,12 +14,12 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.topic.TopicOverloadException;
+import de.bornemisza.rest.entity.User;
 
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
-import de.bornemisza.users.entity.User;
 
 public class UsersTest {
 

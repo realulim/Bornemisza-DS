@@ -15,7 +15,7 @@ import org.ektorp.UpdateConflictException;
 import de.bornemisza.couchdb.da.ConnectionPool;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 import de.bornemisza.rest.BasicAuthCredentials;
-import de.bornemisza.users.entity.User;
+import de.bornemisza.rest.entity.User;
 
 public class UsersService {
 

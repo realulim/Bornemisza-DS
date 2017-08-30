@@ -1,4 +1,4 @@
-package de.bornemisza;
+package de.bornemisza.rest;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -8,13 +8,12 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import static org.junit.Assert.*;
 
-import de.bornemisza.rest.BasicAuthCredentials;
-import de.bornemisza.users.entity.User;
+import de.bornemisza.rest.entity.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {
 
-    private static String revision, derivedKey, salt;
+    private static String revision;
 
     @Test
     public void t00_userAccountCreationRequest() {

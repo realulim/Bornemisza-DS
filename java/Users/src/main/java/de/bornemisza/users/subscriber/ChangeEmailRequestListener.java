@@ -1,13 +1,14 @@
 package de.bornemisza.users.subscriber;
 
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
-import de.bornemisza.users.entity.User;
 
 @Singleton
 @Startup

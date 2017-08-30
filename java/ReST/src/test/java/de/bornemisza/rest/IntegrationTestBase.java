@@ -1,4 +1,4 @@
-package de.bornemisza;
+package de.bornemisza.rest;
 
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -22,8 +22,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import static org.junit.Assert.*;
 
-import de.bornemisza.rest.BasicAuthCredentials;
-import de.bornemisza.users.entity.User;
+import de.bornemisza.rest.entity.User;
 
 public class IntegrationTestBase {
 

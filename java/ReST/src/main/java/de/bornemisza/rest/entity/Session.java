@@ -1,4 +1,4 @@
-package de.bornemisza.sessions.entity;
+package de.bornemisza.rest.entity;
 
 import org.ektorp.support.CouchDbDocument;
 

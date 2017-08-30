@@ -1,17 +1,14 @@
 package de.bornemisza.users.subscriber;
 
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Message;
-import de.bornemisza.users.MailSender;
-import de.bornemisza.users.entity.User;
 import java.io.IOException;
+
 import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,6 +18,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Message;
+
+import de.bornemisza.rest.entity.User;
+import de.bornemisza.users.MailSender;
 
 public abstract class AbstractConfirmationMailListenerTestbase {
     
