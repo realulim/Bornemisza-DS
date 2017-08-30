@@ -1,4 +1,4 @@
-package de.bornemisza.users.da.couchdb;
+package de.bornemisza.couchdb.da;
 
 import java.util.List;
 
@@ -8,12 +8,11 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.junit.Test;
 import static org.junit.Assert.*;
-
+import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import de.bornemisza.users.entity.SrvRecord;
+import de.bornemisza.couchdb.entity.SrvRecord;
 
 public class ConnectionPoolFactoryTest {
 

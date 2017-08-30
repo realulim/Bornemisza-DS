@@ -46,6 +46,28 @@ deploy-{{ MIC_SRV_NAME }}-microservice:
 
 {% endfor %}
 
+{% for LIB_NAME in ['CouchDB'] %}
+
+checkout-{{ LIB_NAME }}-library:
+  svn.export:
+    - name: {{ pillar['svn'] }}/java/{{ LIB_NAME }}
+    - target: {{ MIC_DIR }}/{{ LIB_NAME }}
+    - unless: ls {{ MIC_DIR }}/{{ LIB_NAME }}
+
+build-{{ LIB_NAME }}-library:
+  cmd.run:
+    - name: mvn package
+    - cwd: {{ MIC_DIR }}/{{ LIB_NAME }}
+    - creates: {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar
+
+deploy-{{ LIB_NAME }}-library:
+  cmd.run:
+    - name: cp {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar {{ PAYARA_LIBS }}
+    - onchanges:
+      - build-{{ LIB_NAME }}-library
+
+{% endfor %}
+
 restart-payara-on-new-libs:
   cmd.run:
     - name: systemctl restart payara

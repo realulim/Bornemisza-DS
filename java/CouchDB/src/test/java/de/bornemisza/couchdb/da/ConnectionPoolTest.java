@@ -1,4 +1,4 @@
-package de.bornemisza.users.da.couchdb;
+package de.bornemisza.couchdb.da;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,22 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DbAccessException;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import org.ektorp.CouchDbConnector;
-import org.ektorp.DbAccessException;
-
-import de.bornemisza.users.HealthChecks;
-import de.bornemisza.users.PseudoHazelcastList;
-import de.bornemisza.users.PseudoHazelcastMap;
-import de.bornemisza.users.boundary.BasicAuthCredentials;
-import de.bornemisza.users.da.CouchDbConnection;
+import de.bornemisza.couchdb.HealthChecks;
+import de.bornemisza.couchdb.PseudoHazelcastList;
+import de.bornemisza.couchdb.PseudoHazelcastMap;
+import de.bornemisza.couchdb.entity.CouchDbConnection;
 
 public class ConnectionPoolTest {
 
@@ -121,7 +118,7 @@ public class ConnectionPoolTest {
         utilisationMap.clear();
         utilisationMap.put(hostname, 1);
  
-        CUT.getConnection(null);
+        CUT.getConnection(null, null);
         verify(conn).getUrl();
         verify(conn).getDatabaseName();
         verify(conn).getUserName();
@@ -140,14 +137,12 @@ public class ConnectionPoolTest {
         utilisationMap.clear();
         utilisationMap.put(hostname, 1);
  
-        BasicAuthCredentials creds = getBasicAuthCredentialsMock();
-        CUT.getConnection(creds);
+        String userName = "Ike";
+        char[] password = new char[] {'p', 'w'};
+        CUT.getConnection(userName, password);
         verify(conn).getUrl();
         verify(conn).getDatabaseName();
-        verify(creds).getUserName();
-        verify(creds).getPassword();
         verifyNoMoreInteractions(conn);
-        verifyNoMoreInteractions(creds);
     }
 
     private CouchDbConnection getConnection() {
@@ -171,13 +166,6 @@ public class ConnectionPoolTest {
         catch (MalformedURLException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-    private BasicAuthCredentials getBasicAuthCredentialsMock() {
-        BasicAuthCredentials creds = mock(BasicAuthCredentials.class);
-        when(creds.getUserName()).thenReturn("admin");
-        when(creds.getPassword()).thenReturn("secret");
-        return creds;
     }
 
 }

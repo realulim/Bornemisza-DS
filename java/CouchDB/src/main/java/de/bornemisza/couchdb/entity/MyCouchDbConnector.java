@@ -1,4 +1,4 @@
-package de.bornemisza.users.da.couchdb;
+package de.bornemisza.couchdb.entity;
 
 import org.ektorp.CouchDbInstance;
 import org.ektorp.impl.StdCouchDbConnector;

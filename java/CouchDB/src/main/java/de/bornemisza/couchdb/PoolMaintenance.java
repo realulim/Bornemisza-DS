@@ -1,4 +1,4 @@
-package de.bornemisza.users.da.couchdb;
+package de.bornemisza.couchdb;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,10 +24,6 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-import de.bornemisza.users.HealthChecks;
-
-import static de.bornemisza.users.JAXRSConfiguration.LIST_COUCHDB_HOSTQUEUE;
-import static de.bornemisza.users.JAXRSConfiguration.MAP_COUCHDB_UTILISATION;
 
 @Singleton
 @Startup
@@ -43,6 +39,9 @@ public class PoolMaintenance {
 
     @Inject
     HealthChecks healthChecks;
+
+    public static String LIST_COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
+    public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
 
     private Map<String, Integer> couchDbHostUtilisation;
     private List<String> couchDbHostQueue;

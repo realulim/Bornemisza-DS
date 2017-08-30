@@ -1,4 +1,4 @@
-package de.bornemisza.users;
+package de.bornemisza.couchdb;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,7 +11,7 @@ import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import de.bornemisza.users.da.CouchDbConnection;
+import de.bornemisza.couchdb.entity.CouchDbConnection;
 
 public class HealthChecks {
 

@@ -6,3 +6,5 @@
 nb-configuration.xml
 nbactions.xml
 build.properties
+/java/CouchDB/target/
+/java/CouchDB/nbproject/

@@ -1,4 +1,4 @@
-package de.bornemisza.users;
+package de.bornemisza.couchdb;
 
 import java.util.ArrayList;
 

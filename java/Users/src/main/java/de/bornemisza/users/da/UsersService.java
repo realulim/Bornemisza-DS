@@ -12,9 +12,9 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.Options;
 import org.ektorp.UpdateConflictException;
 
+import de.bornemisza.couchdb.da.ConnectionPool;
+import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 import de.bornemisza.users.boundary.BasicAuthCredentials;
-import de.bornemisza.users.da.couchdb.ConnectionPool;
-import de.bornemisza.users.da.couchdb.MyCouchDbConnector;
 import de.bornemisza.users.entity.User;
 
 public class UsersService {
@@ -65,7 +65,7 @@ public class UsersService {
     }
 
     public User updateUser(User user, BasicAuthCredentials creds) throws UpdateConflictException {
-        MyCouchDbConnector conn = pool.getConnection(creds);
+        MyCouchDbConnector conn = pool.getConnection(creds.getUserName(), creds.getPassword().toCharArray());
         UserRepository repo = new UserRepository(conn);
         repo.update(user);
         Logger.getLogger(conn.getHostname()).info("Updated user: " + user);
@@ -81,7 +81,7 @@ public class UsersService {
     }
 
     private User readUser(String userName, Options options, BasicAuthCredentials creds) throws DocumentNotFoundException {
-        MyCouchDbConnector conn = pool.getConnection(creds);
+        MyCouchDbConnector conn = pool.getConnection(creds.getUserName(), creds.getPassword().toCharArray());
         UserRepository repo = new UserRepository(conn);
         userName = User.USERNAME_PREFIX + userName;
         User user = (options == null ? repo.get(userName) : repo.get(userName, options));
@@ -90,20 +90,20 @@ public class UsersService {
     }
 
     public User changePassword(User user, String ref, BasicAuthCredentials creds) throws UpdateConflictException {
-        MyCouchDbConnector conn = pool.getConnection(creds);
+        MyCouchDbConnector conn = pool.getConnection(creds.getUserName(), creds.getPassword().toCharArray());
         UserRepository repo = new UserRepository(conn);
         repo.update(user);
         Logger.getLogger(conn.getHostname()).info("Changed password for user: " + user);
 
         // change credentials to reflect new password
         creds.changePassword(String.valueOf(user.getPassword()));
-        conn = pool.getConnection(creds);
+        conn = pool.getConnection(creds.getUserName(), creds.getPassword().toCharArray());
         repo = new UserRepository(conn);
         return repo.get(user.getId());
     }
 
     public void deleteUser(String userName, String rev, BasicAuthCredentials creds) throws UpdateConflictException {
-        MyCouchDbConnector conn = pool.getConnection(creds);
+        MyCouchDbConnector conn = pool.getConnection(creds.getUserName(), creds.getPassword().toCharArray());
         UserRepository repo = new UserRepository(conn);
         User user = new User();
         user.setName(userName);

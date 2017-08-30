@@ -1,11 +1,10 @@
-package de.bornemisza.users.da.couchdb;
+package de.bornemisza.couchdb.da;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import com.hazelcast.core.HazelcastInstance;
 
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
@@ -13,13 +12,16 @@ import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import de.bornemisza.users.HealthChecks;
-import de.bornemisza.users.boundary.BasicAuthCredentials;
-import de.bornemisza.users.da.CouchDbConnection;
-import static de.bornemisza.users.JAXRSConfiguration.LIST_COUCHDB_HOSTQUEUE;
-import static de.bornemisza.users.JAXRSConfiguration.MAP_COUCHDB_UTILISATION;
+import com.hazelcast.core.HazelcastInstance;
+
+import de.bornemisza.couchdb.HealthChecks;
+import de.bornemisza.couchdb.entity.CouchDbConnection;
+import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 
 public class ConnectionPool {
+
+    public static String LIST_COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
+    public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
 
     private final Map<String, CouchDbConnection> allConnections;
     private final List<String> couchDbHostQueue;
@@ -45,17 +47,18 @@ public class ConnectionPool {
     }
 
     public MyCouchDbConnector getConnection() {
-        return getConnection(null);
+        return getConnection(null, null);
     }
 
-    public MyCouchDbConnector getConnection(BasicAuthCredentials creds) {
+    public MyCouchDbConnector getConnection(String userName, char[] password) {
         for (String hostname : couchDbHostQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 Integer usageCount = this.couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
-                HttpClient httpClient = createHttpClient(conn, creds);
+                HttpClient httpClient = createHttpClient(conn, userName, password);
+                if (password != null) Arrays.fill(password, '*');
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
                 return new MyCouchDbConnector(hostname, conn.getDatabaseName(), dbInstance);
             }
@@ -67,16 +70,16 @@ public class ConnectionPool {
         throw new DbAccessException("No CouchDB Backend ready!");
     }
 
-    private HttpClient createHttpClient(CouchDbConnection conn, BasicAuthCredentials creds) {
-        if (creds == null) return new StdHttpClient.Builder()
+    private HttpClient createHttpClient(CouchDbConnection conn, String userName, char[] password) {
+        if (userName == null) return new StdHttpClient.Builder()
                     .url(conn.getUrl())
                     .username(conn.getUserName())
                     .password(conn.getPassword())
                     .build();
         else return new StdHttpClient.Builder()
                     .url(conn.getUrl())
-                    .username(creds.getUserName())
-                    .password(creds.getPassword())
+                    .username(userName)
+                    .password(String.valueOf(password))
                     .build();
     }
 

@@ -1,4 +1,4 @@
-package de.bornemisza.users.da.couchdb;
+package de.bornemisza.couchdb.da;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,9 +24,9 @@ import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import de.bornemisza.users.HealthChecks;
-import de.bornemisza.users.da.CouchDbConnection;
-import de.bornemisza.users.entity.SrvRecord;
+import de.bornemisza.couchdb.HealthChecks;
+import de.bornemisza.couchdb.entity.CouchDbConnection;
+import de.bornemisza.couchdb.entity.SrvRecord;
 
 public class ConnectionPoolFactory implements ObjectFactory {
 

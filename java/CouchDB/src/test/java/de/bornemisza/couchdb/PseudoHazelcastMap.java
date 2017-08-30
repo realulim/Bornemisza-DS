@@ -1,4 +1,4 @@
-package de.bornemisza.users;
+package de.bornemisza.couchdb;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -269,7 +269,7 @@ public class PseudoHazelcastMap<K, V> extends HashMap<K, V> implements IMap<K, V
     }
 
     @Override
-    public Set<Entry<K, V>> entrySet(Predicate prdct) {
+    public Set<Map.Entry<K, V>> entrySet(Predicate prdct) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
