@@ -46,6 +46,14 @@ copy-{{ LIB_NAME }}-library:
 
 {% endfor %}
 
+restart-payara-on-new-libs:
+  cmd.run:
+    - name: systemctl restart payara
+    - onchanges:
+      - copy-thirdparty-libs
+      - copy-CouchDB-library
+      - copy-ReST-library
+
 {% for MIC_SRV_NAME in ['Status', 'Users'] %}
 
 checkout-{{ MIC_SRV_NAME }}-microservice:
@@ -67,11 +75,3 @@ deploy-{{ MIC_SRV_NAME }}-microservice:
       - build-{{ MIC_SRV_NAME }}-microservice
 
 {% endfor %}
-
-restart-payara-on-new-libs:
-  cmd.run:
-    - name: systemctl restart payara
-    - onchanges:
-      - copy-thirdparty-libs
-      - copy-CouchDB-library
-      - copy-ReST-library
