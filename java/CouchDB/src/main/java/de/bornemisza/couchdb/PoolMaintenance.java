@@ -25,6 +25,8 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
+import de.bornemisza.couchdb.da.ConnectionPool;
+
 @Singleton
 @Startup
 public class PoolMaintenance {
@@ -40,8 +42,8 @@ public class PoolMaintenance {
     @Inject
     HealthChecks healthChecks;
 
-    public static String LIST_COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
-    public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
+    public static String LIST_COUCHDB_HOSTQUEUE = ConnectionPool.LIST_COUCHDB_HOSTQUEUE;
+    public static String MAP_COUCHDB_UTILISATION = ConnectionPool.MAP_COUCHDB_UTILISATION;
 
     private Map<String, Integer> couchDbHostUtilisation;
     private List<String> couchDbHostQueue;
