@@ -138,6 +138,21 @@ public class UsersTest {
     }
 
     @Test
+    public void userAccountCreationRequest_unknownBusinessException() throws AddressException {
+        User user = new User();
+        user.setName("Ike");
+        user.setEmail(new InternetAddress("foo@bar.de"));
+        doThrow(new BusinessException(Type.UUID_NOT_FOUND, user.getName())).when(facade).addUser(user);
+        try {
+            CUT.userAccountCreationRequest(user);
+            fail();
+        }
+        catch (WebApplicationException e) {
+            assertEquals(500, e.getResponse().getStatus());
+        }
+    }
+
+    @Test
     public void userAccountCreationRequest() throws AddressException {
         User user = new User();
         user.setName("Ike");
