@@ -2,22 +2,23 @@ package de.bornemisza.users.boundary;
 
 import java.util.UUID;
 
+import javax.mail.internet.InternetAddress;
+
+import org.ektorp.DbAccessException;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.UpdateConflictException;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
-
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
+import javax.mail.internet.AddressException;
 
 public class UsersFacadeTest {
 
@@ -48,6 +49,22 @@ public class UsersFacadeTest {
         }
         catch (BusinessException be) {
             assertEquals(BusinessException.Type.USER_ALREADY_EXISTS, be.getType());
+        }
+    }
+
+    @Test
+    public void addUser_emailAlreadyExists() throws AddressException {
+        User user = new User();
+        user.setName("Ike");
+        user.setEmail(new InternetAddress("foo@bar.de"));
+        when(usersService.existsUser(user.getName())).thenReturn(false);
+        when(usersService.existsEmail(user.getEmail())).thenReturn(true);
+        try {
+            CUT.addUser(user);
+            fail();
+        }
+        catch (BusinessException be) {
+            assertEquals(BusinessException.Type.EMAIL_ALREADY_EXISTS, be.getType());
         }
     }
 
