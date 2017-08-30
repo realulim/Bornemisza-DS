@@ -24,6 +24,28 @@ copy-shared-libs:
     - group: root
     - dir_mode: 755
 
+{% for LIB_NAME in ['CouchDB'] %}
+
+checkout-{{ LIB_NAME }}-library:
+  svn.export:
+    - name: {{ pillar['svn'] }}/java/{{ LIB_NAME }}
+    - target: {{ MIC_DIR }}/{{ LIB_NAME }}
+    - unless: ls {{ MIC_DIR }}/{{ LIB_NAME }}
+
+build-{{ LIB_NAME }}-library:
+  cmd.run:
+    - name: mvn package install
+    - cwd: {{ MIC_DIR }}/{{ LIB_NAME }}
+    - creates: {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar
+
+deploy-{{ LIB_NAME }}-library:
+  cmd.run:
+    - name: cp {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar {{ PAYARA_LIBS }}
+    - onchanges:
+      - build-{{ LIB_NAME }}-library
+
+{% endfor %}
+
 {% for MIC_SRV_NAME in ['Status', 'Users'] %}
 
 checkout-{{ MIC_SRV_NAME }}-microservice:
@@ -43,28 +65,6 @@ deploy-{{ MIC_SRV_NAME }}-microservice:
     - name: cp {{ MIC_DIR }}/{{ MIC_SRV_NAME }}/target/{{ MIC_SRV_NAME }}.war {{ DEPLOY_DIR }}
     - onchanges:
       - build-{{ MIC_SRV_NAME }}-microservice
-
-{% endfor %}
-
-{% for LIB_NAME in ['CouchDB'] %}
-
-checkout-{{ LIB_NAME }}-library:
-  svn.export:
-    - name: {{ pillar['svn'] }}/java/{{ LIB_NAME }}
-    - target: {{ MIC_DIR }}/{{ LIB_NAME }}
-    - unless: ls {{ MIC_DIR }}/{{ LIB_NAME }}
-
-build-{{ LIB_NAME }}-library:
-  cmd.run:
-    - name: mvn package
-    - cwd: {{ MIC_DIR }}/{{ LIB_NAME }}
-    - creates: {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar
-
-deploy-{{ LIB_NAME }}-library:
-  cmd.run:
-    - name: cp {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar {{ PAYARA_LIBS }}
-    - onchanges:
-      - build-{{ LIB_NAME }}-library
 
 {% endfor %}
 
