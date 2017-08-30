@@ -1,4 +1,4 @@
-package de.bornemisza.users;
+package de.bornemisza;
 
 import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
