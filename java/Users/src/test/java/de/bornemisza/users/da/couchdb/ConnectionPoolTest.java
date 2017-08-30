@@ -64,7 +64,6 @@ public class ConnectionPoolTest {
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnection();
         assertNotNull(dbConn);
@@ -73,7 +72,6 @@ public class ConnectionPoolTest {
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(false).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnection();
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size() - 1);
@@ -82,7 +80,6 @@ public class ConnectionPoolTest {
 
     @Test
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
         try {
             CUT.getConnection();
@@ -96,7 +93,6 @@ public class ConnectionPoolTest {
 
     @Test
     public void getMember_preExisting_HostQueue_and_Utilisation() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
         allConnections.clear();
@@ -115,7 +111,6 @@ public class ConnectionPoolTest {
 
     @Test
     public void getMember_nullCredentials() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
@@ -135,7 +130,6 @@ public class ConnectionPoolTest {
 
     @Test
     public void getMember_credentialsGiven() {
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
