@@ -6,13 +6,13 @@ maven:
   pkg:
     - installed
 
-download-shared-libs:
+download-thirdparty-libs:
   cmd.run:
     - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.ektorp:org.ektorp:1.4.4:jar
     - unless:
       - ls /root/.m2/repository/org/ektorp/org.ektorp/1.4.4
 
-copy-shared-libs:
+copy-thirdparty-libs:
   cmd.run:
     - name: mvn dependency:copy-dependencies -DoutputDirectory={{ PAYARA_LIBS }}
     - cwd: /srv/salt/files/maven
@@ -24,7 +24,7 @@ copy-shared-libs:
     - group: root
     - dir_mode: 755
 
-{% for LIB_NAME in ['CouchDB'] %}
+{% for LIB_NAME in ['CouchDB', 'ReST'] %}
 
 checkout-{{ LIB_NAME }}-library:
   svn.export:
@@ -38,17 +38,11 @@ build-{{ LIB_NAME }}-library:
     - cwd: {{ MIC_DIR }}/{{ LIB_NAME }}
     - creates: {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar
 
-deploy-{{ LIB_NAME }}-library:
+copy-{{ LIB_NAME }}-library:
   cmd.run:
     - name: cp {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar {{ PAYARA_LIBS }}
     - onchanges:
       - build-{{ LIB_NAME }}-library
-
-restart-payara-on-new-{{ LIB_NAME }}-library:
-  cmd.run:
-    - name: systemctl restart payara
-    - onchanges:
-      - deploy-{{ LIB_NAME }}-library
 
 {% endfor %}
 
@@ -78,4 +72,6 @@ restart-payara-on-new-libs:
   cmd.run:
     - name: systemctl restart payara
     - onchanges:
-      - copy-shared-libs
+      - copy-thirdparty-libs
+      - copy-CouchDB-library
+      - copy-ReST-library
