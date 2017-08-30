@@ -8,3 +8,5 @@ nbactions.xml
 build.properties
 /java/CouchDB/target/
 /java/CouchDB/nbproject/
+/java/Sessions/target/
+/java/Sessions/nbproject/
