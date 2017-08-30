@@ -2,23 +2,26 @@ package de.bornemisza.users.boundary;
 
 import java.util.UUID;
 
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
+import org.ektorp.DbAccessException;
+import org.ektorp.DocumentNotFoundException;
+import org.ektorp.UpdateConflictException;
+
+import de.bornemisza.rest.UnauthorizedException;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
-import javax.mail.internet.AddressException;
 
 public class UsersFacadeTest {
 

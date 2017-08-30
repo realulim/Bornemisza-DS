@@ -14,6 +14,8 @@ import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
+import de.bornemisza.rest.BasicAuthCredentials;
+import de.bornemisza.rest.UnauthorizedException;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;

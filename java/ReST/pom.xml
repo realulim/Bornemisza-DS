@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.bornemisza</groupId>
-    <artifactId>CouchDB</artifactId>
+    <artifactId>ReST</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>CouchDB</name>
+    <name>ReST</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,15 +22,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.ektorp</groupId>
-            <artifactId>org.ektorp</artifactId>
-            <version>1.4.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>3.7.4</version>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.8</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -48,7 +42,7 @@
     </dependencies>
 
     <build>
-        <finalName>CouchDB</finalName>
+        <finalName>ReST</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>

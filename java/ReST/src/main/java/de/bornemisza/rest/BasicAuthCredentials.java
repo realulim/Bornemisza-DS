@@ -1,4 +1,4 @@
-package de.bornemisza.users.boundary;
+package de.bornemisza.rest;
 
 import org.glassfish.jersey.internal.util.Base64;
 

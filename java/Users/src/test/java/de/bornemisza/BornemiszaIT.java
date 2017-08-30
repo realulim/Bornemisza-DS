@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import static org.junit.Assert.*;
 
-import de.bornemisza.users.boundary.BasicAuthCredentials;
+import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.users.entity.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
