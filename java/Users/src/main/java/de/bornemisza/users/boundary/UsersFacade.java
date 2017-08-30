@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.security.auth.login.CredentialNotFoundException;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -15,7 +16,6 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
 import de.bornemisza.rest.BasicAuthCredentials;
-import de.bornemisza.rest.UnauthorizedException;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
@@ -108,7 +108,7 @@ public class UsersFacade {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());
             return null;
         }
-        catch (DbAccessException ex) {
+        catch (DbAccessException | CredentialNotFoundException ex) {
             if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
             else throw new TechnicalException(ex.toString());
         }
@@ -122,7 +122,7 @@ public class UsersFacade {
         catch (DocumentNotFoundException e) {
             return null;
         }
-        catch (DbAccessException ex) {
+        catch (DbAccessException | CredentialNotFoundException ex) {
             if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
             else throw new TechnicalException(ex.toString());
         }
@@ -137,7 +137,7 @@ public class UsersFacade {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user.getName() + "\n" + e.getMessage());
             return null;
         }
-        catch (DbAccessException ex) {
+        catch (DbAccessException | CredentialNotFoundException ex) {
             if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
             else throw new TechnicalException(ex.toString());
         }
@@ -153,7 +153,7 @@ public class UsersFacade {
             Logger.getAnonymousLogger().warning("Update Conflict: " + userName + "\n" + e.getMessage());
             return false;
         }
-        catch (DbAccessException ex) {
+        catch (DbAccessException | CredentialNotFoundException ex) {
             if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
             else throw new TechnicalException(ex.toString());
         }

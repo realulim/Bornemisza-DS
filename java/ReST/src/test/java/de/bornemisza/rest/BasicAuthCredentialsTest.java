@@ -1,5 +1,6 @@
 package de.bornemisza.rest;
 
+import javax.security.auth.login.CredentialNotFoundException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -13,7 +14,7 @@ public class BasicAuthCredentialsTest {
     private final String authHeader = "Basic " + encodedAuthString;
 
     @Test
-    public void decodeAuthString() {
+    public void decodeAuthString() throws CredentialNotFoundException {
         BasicAuthCredentials CUT = new BasicAuthCredentials(authHeader);
         assertEquals(userName, CUT.getUserName());
         assertEquals(password, CUT.getPassword());
@@ -25,27 +26,30 @@ public class BasicAuthCredentialsTest {
             BasicAuthCredentials creds = new BasicAuthCredentials(null);
             fail(creds.getPassword());
         }
-        catch (UnauthorizedException e) {
-            assertTrue(e.getMessage().startsWith("AuthHeader broken"));
+        catch (CredentialNotFoundException e) {
+            assertTrue(e.getMessage().startsWith("401 AuthHeader broken"));
         }
     }
 
     @Test
-    public void illegalAuthString() {
+    public void illegalAuthString() throws CredentialNotFoundException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(encodedAuthString);
             fail(creds.getPassword());
         }
-        catch (UnauthorizedException e) {
-            assertTrue(e.getMessage().startsWith("AuthHeader broken"));
+        catch (CredentialNotFoundException e) {
+            assertTrue(e.getMessage().startsWith("401 AuthHeader broken"));
         }
     }
 
     @Test
-    public void undecodableCredentials() {
-        BasicAuthCredentials CUT = new BasicAuthCredentials("Basic " + Base64.encodeAsString(userName));
-        assertNull(CUT.getUserName());
-        assertNull(CUT.getPassword());
+    public void undecodableCredentials() throws CredentialNotFoundException {
+        try {
+            BasicAuthCredentials creds = new BasicAuthCredentials("Basic " + Base64.encodeAsString(userName));
+        }
+        catch (CredentialNotFoundException e) {
+            assertTrue(e.getMessage().startsWith("401 AuthHeader unparseable"));
+        }
     }
 
 }

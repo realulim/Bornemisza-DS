@@ -1,4 +1,4 @@
-package de.bornemisza.rest;
+package de.bornemisza.users.boundary;
 
 import javax.ejb.ApplicationException;
 

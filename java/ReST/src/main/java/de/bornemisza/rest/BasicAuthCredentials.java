@@ -1,5 +1,7 @@
 package de.bornemisza.rest;
 
+import javax.security.auth.login.CredentialNotFoundException;
+
 import org.glassfish.jersey.internal.util.Base64;
 
 public class BasicAuthCredentials {
@@ -12,9 +14,9 @@ public class BasicAuthCredentials {
         this.password = password;
     }
 
-    public BasicAuthCredentials(String authHeader) {
+    public BasicAuthCredentials(String authHeader) throws CredentialNotFoundException {
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
-            throw new UnauthorizedException("AuthHeader broken: " + authHeader);
+            throw new CredentialNotFoundException("401 AuthHeader broken: " + authHeader);
         }
         else {
             authHeader = authHeader.substring(6);
@@ -25,8 +27,7 @@ public class BasicAuthCredentials {
                 this.password = splitted[1];
             }
             else {
-                this.userName = null;
-                this.password = null;
+                throw new CredentialNotFoundException("401 AuthHeader unparseable: " + authHeader);
             }
         }
     }

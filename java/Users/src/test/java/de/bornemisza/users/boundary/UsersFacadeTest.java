@@ -18,7 +18,6 @@ import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
-import de.bornemisza.rest.UnauthorizedException;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 import de.bornemisza.users.entity.User;
@@ -218,7 +217,7 @@ public class UsersFacadeTest {
     @Test
     public void getUser_noSuchUser() {
         when(usersService.getUser(anyString(), any())).thenThrow(new DocumentNotFoundException("/some/path"));
-        assertNull(CUT.getUser("Ike", "Basic someAuthString"));
+        assertNull(CUT.getUser("Ike", AUTH_HEADER));
     }
 
     @Test
@@ -239,7 +238,7 @@ public class UsersFacadeTest {
         String msg = "java.net.SocketTimeoutException: connect timed out";
         when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.getUser("Silly Willy", "Basic someAuthString");
+            CUT.getUser("Silly Willy", AUTH_HEADER);
             fail();
         }
         catch (TechnicalException ex) {

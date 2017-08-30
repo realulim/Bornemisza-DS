@@ -22,9 +22,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import de.bornemisza.rest.UnauthorizedException;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
+import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.entity.User;
 
