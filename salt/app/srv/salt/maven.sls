@@ -6,11 +6,17 @@ maven:
   pkg:
     - installed
 
-download-thirdparty-libs:
+download-ektorp-lib:
   cmd.run:
     - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.ektorp:org.ektorp:1.4.4:jar
     - unless:
       - ls /root/.m2/repository/org/ektorp/org.ektorp/1.4.4
+
+download-javalite-lib:
+  cmd.run:
+    - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.javalite:javalite-common:1.4.13.jar
+    - unless:
+      - ls /root/.m2/repository/org/javalite/javalite-common/1.4.13
 
 copy-thirdparty-libs:
   cmd.run:
@@ -26,23 +32,23 @@ copy-thirdparty-libs:
 
 {% for LIB_NAME in ['CouchDB', 'ReST'] %}
 
-checkout-{{ LIB_NAME }}-library:
+checkout-{{ LIB_NAME }}-lib:
   svn.export:
     - name: {{ pillar['svn'] }}/java/{{ LIB_NAME }}
     - target: {{ MIC_DIR }}/{{ LIB_NAME }}
     - unless: ls {{ MIC_DIR }}/{{ LIB_NAME }}
 
-build-{{ LIB_NAME }}-library:
+build-{{ LIB_NAME }}-lib:
   cmd.run:
     - name: mvn package install
     - cwd: {{ MIC_DIR }}/{{ LIB_NAME }}
     - creates: {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar
 
-copy-{{ LIB_NAME }}-library:
+copy-{{ LIB_NAME }}-lib:
   cmd.run:
     - name: cp {{ MIC_DIR }}/{{ LIB_NAME }}/target/{{ LIB_NAME }}.jar {{ PAYARA_LIBS }}
     - onchanges:
-      - build-{{ LIB_NAME }}-library
+      - build-{{ LIB_NAME }}-lib
 
 {% endfor %}
 
@@ -51,8 +57,8 @@ restart-payara-on-new-libs:
     - name: systemctl restart payara
     - onchanges:
       - copy-thirdparty-libs
-      - copy-CouchDB-library
-      - copy-ReST-library
+      - copy-CouchDB-lib
+      - copy-ReST-lib
 
 {% for MIC_SRV_NAME in ['Status', 'Users'] %}
 
