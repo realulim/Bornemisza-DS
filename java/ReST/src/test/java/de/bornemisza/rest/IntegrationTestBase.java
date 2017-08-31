@@ -166,4 +166,18 @@ public class IntegrationTestBase {
                 .then().statusCode(200);
     }
 
+    protected Response getNewSession() {
+        requestSpecSessions.accept(ContentType.JSON);
+        return given(requestSpecSessions)
+                .when().get("new")
+                .then().extract().response();
+    }
+
+    protected Response getActiveSession(String cookie) {
+        requestSpecSessions.accept(ContentType.JSON).cookie(cookie);
+        return given(requestSpecSessions)
+                .when().get("active")
+                .then().extract().response();
+    }
+
 }

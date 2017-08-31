@@ -3,17 +3,17 @@ package de.bornemisza.rest;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
-import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import static org.junit.Assert.*;
 
 import de.bornemisza.rest.entity.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {
 
-    private static String revision;
+    private static String revision, cookie;
 
     @Test
     public void t00_userAccountCreationRequest() {
@@ -113,20 +113,36 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t10_removeUser() {
+    public void t10_createSession() {
+        requestSpecSessions.auth().preemptive().basic(userName, userPassword);
+        cookie = getNewSession().header("Set-Cookie");
+        assertNotNull(cookie);
+    }
+
+    @Test
+    public void t11_getSession() {
+        assertNotNull(cookie);
+        Response response = getActiveSession(cookie);
+        JsonPath jsonPath = response.jsonPath();
+        assertEquals(userName, jsonPath.getString("name"));
+        assertEquals(cookie, jsonPath.getString("cookie"));
+    }
+
+    @Test
+    public void t12_removeUser() {
         requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(userName, 401);
     }
 
     @Test
-    public void t11_checkUserRemoved() {
+    public void t13_checkUserRemoved() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(userName, 404);
     }
 
     @Test
-    public void t12_removeNonExistingUser() {
+    public void t14_removeNonExistingUser() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }
