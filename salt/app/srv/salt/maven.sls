@@ -14,7 +14,7 @@ download-ektorp-lib:
 
 download-javalite-lib:
   cmd.run:
-    - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.javalite:javalite-common:1.4.13.jar
+    - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.javalite:javalite-common:1.4.13:jar
     - unless:
       - ls /root/.m2/repository/org/javalite/javalite-common/1.4.13
 
