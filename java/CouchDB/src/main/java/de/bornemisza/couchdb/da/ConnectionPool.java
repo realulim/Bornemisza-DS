@@ -60,7 +60,7 @@ public class ConnectionPool {
                 HttpClient httpClient = createHttpClient(conn, userName, password);
                 if (password != null) Arrays.fill(password, '*');
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-                return new MyCouchDbConnector(hostname, conn.getDatabaseName(), dbInstance);
+                return new MyCouchDbConnector(hostname, conn, dbInstance);
             }
             else {
                 Logger.getAnonymousLogger().info(hostname + " unreachable...");
