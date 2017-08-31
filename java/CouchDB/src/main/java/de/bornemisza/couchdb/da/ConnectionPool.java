@@ -46,7 +46,7 @@ public class ConnectionPool {
         }
     }
 
-    public MyCouchDbConnector getConnection() {
+    public MyCouchDbConnector getConnector() {
         return getConnection(null, null);
     }
 

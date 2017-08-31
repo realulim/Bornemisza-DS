@@ -62,7 +62,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
-        CouchDbConnector dbConn = CUT.getConnection();
+        CouchDbConnector dbConn = CUT.getConnector();
         assertNotNull(dbConn);
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size());
     }
@@ -70,7 +70,7 @@ public class ConnectionPoolTest {
     @Test
     public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
-        CouchDbConnector dbConn = CUT.getConnection();
+        CouchDbConnector dbConn = CUT.getConnector();
         assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size() - 1);
         if (allConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
@@ -79,7 +79,7 @@ public class ConnectionPoolTest {
     public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
         try {
-            CUT.getConnection();
+            CUT.getConnector();
             fail();
         }
         catch (DbAccessException ex) {
@@ -101,7 +101,7 @@ public class ConnectionPoolTest {
         utilisationMap.put(hostname, startUsageCount);
         int additionalUsageCount = wheel.nextInt(10);
         for (int i = 0; i < additionalUsageCount; i++) {
-            assertNotNull(CUT.getConnection());
+            assertNotNull(CUT.getConnector());
         }
         assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname));
     }

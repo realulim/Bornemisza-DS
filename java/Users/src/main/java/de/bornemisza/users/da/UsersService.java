@@ -30,7 +30,7 @@ public class UsersService {
 
     @PostConstruct
     public void init() {
-        MyCouchDbConnector adminConn = adminPool.getConnection();
+        MyCouchDbConnector adminConn = adminPool.getConnector();
         if (adminConn == null) throw new IllegalStateException("No Database reachable at all!");
         DbInfo dbInfo = adminConn.getDbInfo();
         String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
@@ -38,7 +38,7 @@ public class UsersService {
     }
 
     public boolean existsUser(String userName) {
-        MyCouchDbConnector conn = adminPool.getConnection();
+        MyCouchDbConnector conn = adminPool.getConnector();
         UserRepository repo = new UserRepository(conn);
         userName = User.USERNAME_PREFIX + userName;
         try {
@@ -50,13 +50,13 @@ public class UsersService {
     }
 
     public boolean existsEmail(InternetAddress email) {
-        MyCouchDbConnector conn = adminPool.getConnection();
+        MyCouchDbConnector conn = adminPool.getConnector();
         UserRepository repo = new UserRepository(conn);
         return repo.findByEmail(email.getAddress()).size() > 0;
     }
 
     public User createUser(User user) throws UpdateConflictException {
-        MyCouchDbConnector conn = adminPool.getConnection();
+        MyCouchDbConnector conn = adminPool.getConnector();
         UserRepository repo = new UserRepository(conn);
         repo.update(user); // CouchDB uses PUT not POST for user creation
         Arrays.fill(user.getPassword(), '*');
