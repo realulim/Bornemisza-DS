@@ -31,7 +31,7 @@ public class HealthChecks {
     public boolean isCouchDbReady(CouchDbConnection conn) {
         try {
             HttpClient httpClient = new StdHttpClient.Builder()
-                        .url(conn.getUrl())
+                        .url(conn.getBaseUrl())
                         .username(conn.getUserName())
                         .password(conn.getPassword())
                         .build();

@@ -119,7 +119,7 @@ public class ConnectionPoolTest {
         utilisationMap.put(hostname, 1);
  
         CUT.getConnection(null, null);
-        verify(conn).getUrl();
+        verify(conn).getBaseUrl();
         verify(conn).getDatabaseName();
         verify(conn).getUserName();
         verify(conn).getPassword();
@@ -140,7 +140,7 @@ public class ConnectionPoolTest {
         String userName = "Ike";
         char[] password = new char[] {'p', 'w'};
         CUT.getConnection(userName, password);
-        verify(conn).getUrl();
+        verify(conn).getBaseUrl();
         verify(conn).getDatabaseName();
         verifyNoMoreInteractions(conn);
     }
@@ -157,7 +157,7 @@ public class ConnectionPoolTest {
     private CouchDbConnection getConnectionMock() {
         CouchDbConnection conn = mock(CouchDbConnection.class);
         try {
-            when(conn.getUrl()).thenReturn(new URL("https://localhost/"));
+            when(conn.getBaseUrl()).thenReturn(new URL("https://localhost/"));
             when(conn.getUserName()).thenReturn("admin");
             when(conn.getPassword()).thenReturn("secret");
             when(conn.getDatabaseName()).thenReturn("users");

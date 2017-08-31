@@ -72,12 +72,12 @@ public class ConnectionPool {
 
     private HttpClient createHttpClient(CouchDbConnection conn, String userName, char[] password) {
         if (userName == null) return new StdHttpClient.Builder()
-                    .url(conn.getUrl())
+                    .url(conn.getBaseUrl())
                     .username(conn.getUserName())
                     .password(conn.getPassword())
                     .build();
         else return new StdHttpClient.Builder()
-                    .url(conn.getUrl())
+                    .url(conn.getBaseUrl())
                     .username(userName)
                     .password(String.valueOf(password))
                     .build();
