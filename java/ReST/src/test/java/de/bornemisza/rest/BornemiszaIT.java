@@ -3,10 +3,10 @@ package de.bornemisza.rest;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import static org.junit.Assert.*;
 
 import de.bornemisza.rest.entity.User;
 
@@ -64,13 +64,13 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t05_readUser_unauthorized() {
-        requestSpec.auth().preemptive().basic("root", "guessedpassword");
+        requestSpecUsers.auth().preemptive().basic("root", "guessedpassword");
         getUser(userName, 401);
     }
 
     @Test
     public void t06_readUser() {
-        requestSpec.auth().preemptive().basic(userName, userPassword);
+        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         Response response = getUser(userName, 200);
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
@@ -79,7 +79,7 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t07_changePassword() {
-        requestSpec.auth().preemptive().basic(userName, userPassword);
+        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
         String newRevision = jsonPath.getString("_rev");
@@ -89,7 +89,7 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t08_changeEmailRequest() {
-        requestSpec.auth().preemptive().basic(userName, newUserPassword);
+        requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
         deleteMails(newEmail);
         user.setEmail(newEmail);
         Response response = putEmail(user, 202);
@@ -114,20 +114,20 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t10_removeUser() {
-        requestSpec.auth().preemptive().basic(userName, newUserPassword);
+        requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(userName, 401);
     }
 
     @Test
     public void t11_checkUserRemoved() {
-        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
+        requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(userName, 404);
     }
 
     @Test
     public void t12_removeNonExistingUser() {
-        requestSpec.auth().preemptive().basic(adminUserName, adminPassword);
+        requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }
 

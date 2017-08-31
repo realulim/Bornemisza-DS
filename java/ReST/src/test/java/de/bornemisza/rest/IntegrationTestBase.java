@@ -1,5 +1,6 @@
 package de.bornemisza.rest;
 
+import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -10,17 +11,16 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import static io.restassured.RestAssured.given;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import static org.junit.Assert.*;
 
 import de.bornemisza.rest.entity.User;
 
@@ -29,8 +29,7 @@ public class IntegrationTestBase {
     protected static final String BASE_URI_PROP = "BASE.URI";
     protected static final String ADMIN_USERNAME_PROP = "ADMIN.USERNAME";
     protected static final String ADMIN_PASSWORD_PROP = "ADMIN.PASSWORD";
-    protected RequestSpecification requestSpec;
-    protected URI baseUri;
+    protected RequestSpecification requestSpecUsers, requestSpecSessions;
     protected User user;
 
     protected String adminUserName, adminPassword, userName, userPassword, newUserPassword;
@@ -57,9 +56,13 @@ public class IntegrationTestBase {
         newUserPassword = "changed";
         newEmail = new InternetAddress("fazil.changed@restmail.net");
 
-        baseUri = URI.create(configuredUri);
-        requestSpec = new RequestSpecBuilder()
-                .setBaseUri(baseUri)
+        requestSpecUsers = new RequestSpecBuilder()
+                .setBaseUri(URI.create(configuredUri + "users/"))
+                .addFilter(new RequestLoggingFilter())
+                .addFilter(new ResponseLoggingFilter())
+                .build();
+        requestSpecSessions = new RequestSpecBuilder()
+                .setBaseUri(URI.create(configuredUri + "sessions/"))
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();
@@ -71,32 +74,32 @@ public class IntegrationTestBase {
     }
 
     protected Response getUser(String docId, int expectedStatusCode) {
-        requestSpec.accept(ContentType.JSON);
-        return given(requestSpec)
+        requestSpecUsers.accept(ContentType.JSON);
+        return given(requestSpecUsers)
                 .when().get(docId)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
     }
 
     protected Response postUser(User user, int expectedStatusCode) {
-        requestSpec.contentType(ContentType.JSON).body(user);
-        return given(requestSpec)
+        requestSpecUsers.contentType(ContentType.JSON).body(user);
+        return given(requestSpecUsers)
                 .when().post("")
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
     }
 
     protected Response putEmail(User user, int expectedStatusCode) {
-        requestSpec.contentType(ContentType.TEXT).body(user.getEmail().toString());
-        return given(requestSpec)
+        requestSpecUsers.contentType(ContentType.TEXT).body(user.getEmail().toString());
+        return given(requestSpecUsers)
                 .when().put("/" + user.getName() + "/email")
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
     }
 
     protected Response deleteUser(String userName, int expectedStatusCode) {
-        requestSpec.accept(ContentType.ANY);
-        return given(requestSpec)
+        requestSpecUsers.accept(ContentType.ANY);
+        return given(requestSpecUsers)
                 .when().delete(userName)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
@@ -144,8 +147,8 @@ public class IntegrationTestBase {
     }
 
     protected Response changePassword(String userName, String password, int expectedStatusCode) {
-        requestSpec.accept(ContentType.JSON);
-        return given(requestSpec)
+        requestSpecUsers.accept(ContentType.JSON);
+        return given(requestSpecUsers)
                 .when().put(userName + "/password/" + password)
                 .then().statusCode(expectedStatusCode)
                 .extract().response();
