@@ -118,7 +118,7 @@ public class ConnectionPoolTest {
         utilisationMap.clear();
         utilisationMap.put(hostname, 1);
  
-        CUT.getConnection(null, null);
+        CUT.getConnector(null, null);
         verify(conn).getBaseUrl();
         verify(conn).getDatabaseName();
         verify(conn).getUserName();
@@ -139,7 +139,7 @@ public class ConnectionPoolTest {
  
         String userName = "Ike";
         char[] password = new char[] {'p', 'w'};
-        CUT.getConnection(userName, password);
+        CUT.getConnector(userName, password);
         verify(conn).getBaseUrl();
         verify(conn).getDatabaseName();
         verifyNoMoreInteractions(conn);

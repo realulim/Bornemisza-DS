@@ -2,49 +2,48 @@ package de.bornemisza.rest.da;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
+
+import javax.validation.constraints.NotNull;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.HealthChecks;
-
 import de.bornemisza.rest.Http;
 
-public class HttpPool {
-    
-    public static String LIST_COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
-    public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
+public class HttpPool extends Pool {
 
-    private final Map<String, Http> allConnections;
-    private final List<String> couchDbHostQueue;
-    private final Map<String, Integer> couchDbHostUtilisation;
     private final HealthChecks healthChecks;
 
-    public HttpPool(Map<String, Http> connections, 
-                         HazelcastInstance hazelcast,
-                         HealthChecks healthChecks) {
-        this.allConnections = connections;
+    public HttpPool(@NotNull Map<String, Http> allConnections,
+                    @NotNull HazelcastInstance hazelcast,
+                    @NotNull HealthChecks healthChecks) {
+        super(allConnections, hazelcast);
         this.healthChecks = healthChecks;
-        this.couchDbHostQueue = hazelcast.getList(LIST_COUCHDB_HOSTQUEUE);
-        this.couchDbHostUtilisation = hazelcast.getMap(MAP_COUCHDB_UTILISATION);
-        if (couchDbHostQueue.isEmpty()) {
-            Set<String> hostnames = allConnections.keySet();
-            couchDbHostQueue.addAll(hostnames);
-            for (String key : hostnames) {
-                if (! couchDbHostUtilisation.containsKey(key)) {
-                    couchDbHostUtilisation.put(key, 0);
-                }
-            }
-        }
+    }
+
+    @Override
+    protected Map<String, Http> getAllConnections() {
+        return super.allConnections;
+    }
+
+    @Override
+    protected List<String> getCouchDbHostQueue() {
+        return super.couchDbHostQueue;
+    }
+
+    @Override
+    protected Map<String, Integer> getCouchDbHostUtilisation() {
+        return super.couchDbHostUtilisation;
     }
 
     public Http getConnection() {
-        for (String hostname : couchDbHostQueue) {
-            Http conn = allConnections.get(hostname);
+        for (String hostname : getCouchDbHostQueue()) {
+            Http conn = getAllConnections().get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = this.couchDbHostUtilisation.get(hostname);
+                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
                 return conn;
             }
