@@ -57,6 +57,7 @@ restart-payara-on-new-libs:
     - name: systemctl restart payara
     - onchanges:
       - copy-thirdparty-libs
+      - copy-LoadBalancer-lib
       - copy-CouchDB-lib
       - copy-ReST-lib
 
