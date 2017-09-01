@@ -34,22 +34,16 @@ public class ConnectionPool extends Pool {
     }
 
     public MyCouchDbConnector getConnector(String userName, char[] password) {
-        String hostname = determineHostname();
-        CouchDbConnection conn = (CouchDbConnection)allConnections.get(hostname);
-        HttpClient httpClient = createHttpClient(conn, userName, password);
-        if (password != null) Arrays.fill(password, '*');
-        CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-        return new MyCouchDbConnector(hostname, conn, dbInstance);
-    }
-
-    protected String determineHostname() {
         for (String hostname : (List<String>)couchDbHostQueue) {
             CouchDbConnection conn = (CouchDbConnection)allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 Integer usageCount = (Integer)couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
-                return hostname;
+                HttpClient httpClient = createHttpClient(conn, userName, password);
+                if (password != null) Arrays.fill(password, '*');
+                CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
+                return new MyCouchDbConnector(hostname, conn, dbInstance);
             }
             else {
                 Logger.getAnonymousLogger().info(hostname + " unreachable...");
