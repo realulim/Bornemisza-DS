@@ -1,5 +1,6 @@
-package de.bornemisza.couchdb.da;
+package de.bornemisza.loadbalancer.da;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 import javax.naming.NamingEnumeration;
@@ -8,20 +9,40 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
 
-public class ConnectionPoolFactoryTest {
-
+/**
+ *
+ * @author ulim
+ */
+public class PoolFactoryTest {
+    
     private final String service = "_db._tcp.somedomain.com";
+    PoolFactory CUT;
+
+    @Before
+    public void setUp() {
+        CUT = new PoolFactory() {
+            @Override
+            protected Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+            @Override
+            protected Class getExpectedClass() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+    }
 
     @Test
     public void getSrvRecordsSortedByPriority_noServiceFound() throws Exception {
         try {
-            ConnectionPoolFactory CUT = new ConnectionPoolFactory();
             DirContext ctx = mock(DirContext.class);
             NamingEnumeration<?> enumeration = createEnumerationMock(ctx);
 
@@ -36,7 +57,6 @@ public class ConnectionPoolFactoryTest {
 
     @Test
     public void getSrvRecordsSortedByPriority() throws Exception {
-        ConnectionPoolFactory CUT = new ConnectionPoolFactory();
         DirContext ctx = mock(DirContext.class);
         NamingEnumeration<?> enumeration = createEnumerationMock(ctx);
         when(enumeration.hasMore()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
