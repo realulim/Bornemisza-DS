@@ -174,7 +174,8 @@ public class IntegrationTestBase {
     }
 
     protected Response getActiveSession(String cookie) {
-        requestSpecSessions.accept(ContentType.JSON).cookie(cookie);
+        String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
+        requestSpecSessions.accept(ContentType.JSON).cookie("AuthSession", cookieStr);
         return given(requestSpecSessions)
                 .when().get("active")
                 .then().extract().response();

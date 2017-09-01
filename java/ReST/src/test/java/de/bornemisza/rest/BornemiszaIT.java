@@ -3,10 +3,10 @@ package de.bornemisza.rest;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import static org.junit.Assert.*;
 
 import de.bornemisza.rest.entity.User;
 
@@ -78,18 +78,27 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t07_changePassword() {
-        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
-        Response response = changePassword(userName, newUserPassword, 200);
-        JsonPath jsonPath = response.getBody().jsonPath();
-        String newRevision = jsonPath.getString("_rev");
-        assertNotEquals(newRevision, revision);
-        revision = newRevision;
+    public void t07_createSession() {
+        requestSpecSessions.auth().preemptive().basic(userName, userPassword);
+        cookie = getNewSession().header("Set-Cookie");
+        assertTrue(cookie.startsWith("AuthSession="));
+        assertTrue(cookie.length() > "AuthSession=".length());
     }
 
     @Test
-    public void t08_changeEmailRequest() {
-        requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
+    public void t08_getSession() {
+        assertTrue(cookie.startsWith("AuthSession="));
+        Response response = getActiveSession(cookie);
+        JsonPath jsonPath = response.jsonPath();
+        assertEquals(userName, jsonPath.getString("name"));
+        cookie = jsonPath.getString("cookie");
+        assertTrue(cookie.startsWith("AuthSession="));
+        assertTrue(cookie.length() > "AuthSession=".length());
+    }
+
+    @Test
+    public void t09_changeEmailRequest() {
+        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         deleteMails(newEmail);
         user.setEmail(newEmail);
         Response response = putEmail(user, 202);
@@ -97,8 +106,8 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t09_confirmEmail() {
-        BasicAuthCredentials creds = new BasicAuthCredentials(userName, newUserPassword);
+    public void t10_confirmEmail() {
+        BasicAuthCredentials creds = new BasicAuthCredentials(userName, userPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
         assertTrue(confirmationLink.startsWith("https://"));
@@ -113,19 +122,13 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t10_createSession() {
-        requestSpecSessions.auth().preemptive().basic(userName, userPassword);
-        cookie = getNewSession().header("Set-Cookie");
-        assertNotNull(cookie);
-    }
-
-    @Test
-    public void t11_getSession() {
-        assertNotNull(cookie);
-        Response response = getActiveSession(cookie);
-        JsonPath jsonPath = response.jsonPath();
-        assertEquals(userName, jsonPath.getString("name"));
-        assertEquals(cookie, jsonPath.getString("cookie"));
+    public void t11_changePassword() {
+        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
+        Response response = changePassword(userName, newUserPassword, 200);
+        JsonPath jsonPath = response.getBody().jsonPath();
+        String newRevision = jsonPath.getString("_rev");
+        assertNotEquals(newRevision, revision);
+        revision = newRevision;
     }
 
     @Test
