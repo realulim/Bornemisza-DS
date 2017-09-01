@@ -1,4 +1,4 @@
-package de.bornemisza.couchdb.entity;
+package de.bornemisza.loadbalancer.entity;
 
 public class SrvRecord implements Comparable<SrvRecord> {
 

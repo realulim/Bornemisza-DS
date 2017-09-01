@@ -12,3 +12,5 @@ build.properties
 /java/Sessions/nbproject/
 /java/ReST/target/
 /java/ReST/nbproject/
+/java/LoadBalancer/nbproject/
+/java/LoadBalancer/target/

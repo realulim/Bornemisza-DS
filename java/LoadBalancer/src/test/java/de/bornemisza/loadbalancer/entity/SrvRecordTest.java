@@ -1,4 +1,4 @@
-package de.bornemisza.couchdb.entity;
+package de.bornemisza.loadbalancer.entity;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
