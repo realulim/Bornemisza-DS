@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.ws.rs.GET;
@@ -18,27 +19,33 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.javalite.http.Get;
-import org.javalite.http.Http;
 import org.javalite.http.Post;
 
-import de.bornemisza.couchdb.da.ConnectionPool;
-import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.rest.BasicAuthCredentials;
+import de.bornemisza.rest.Http;
+import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
 
 @Path("/")
 public class Sessions {
-    
-    @Resource(name="couchdb/Sessions")
-    ConnectionPool pool;
 
+    @Resource(name="http/Sessions")
+    HttpPool pool;
+
+    private Http http;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public Sessions() { }
 
+    @PostConstruct
+    public void init() {
+        this.http = pool.getConnection();
+    }
+
     // Constructor for Unit Tests
-    public Sessions(ConnectionPool pool) {
-        this.pool = pool;
+    public Sessions(HttpPool httpPool) {
+        this.pool = httpPool;
+        this.http = pool.getConnection();
     }
 
     @GET
@@ -53,8 +60,7 @@ public class Sessions {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         try {
-            CouchDbConnection conn = pool.getConnector().getCouchDbConnection();
-            Post post = Http.post(conn.getBaseUrl().toString() + conn.getDatabaseName())
+            Post post = http.post("")
                 .param("name", creds.getUserName())
                 .param("password", creds.getPassword());
             if (post.responseCode() != 200) {
@@ -79,8 +85,7 @@ public class Sessions {
     @Produces(MediaType.APPLICATION_JSON)
     public Session getActiveSession(@HeaderParam(HttpHeaders.COOKIE) String cookie) throws IOException {
         try {
-            CouchDbConnection conn = pool.getConnector().getCouchDbConnection();
-            Get get = Http.get(conn.getBaseUrl().toString() + conn.getDatabaseName())
+            Get get = http.get("")
                     .header(HttpHeaders.COOKIE, cookie);
             if (get.responseCode() != 200) {
                 throw new WebApplicationException(
