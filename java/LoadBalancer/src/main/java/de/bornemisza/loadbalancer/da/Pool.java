@@ -30,8 +30,4 @@ public abstract class Pool<T> {
         }
     }
 
-    protected abstract Map<String, T> getAllConnections();
-    protected abstract List<String> getCouchDbHostQueue();
-    protected abstract Map<String, Integer> getCouchDbHostUtilisation();
-
 }

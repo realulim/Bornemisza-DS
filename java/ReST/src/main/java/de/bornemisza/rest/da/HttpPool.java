@@ -23,27 +23,12 @@ public class HttpPool extends Pool {
         this.healthChecks = healthChecks;
     }
 
-    @Override
-    protected Map<String, Http> getAllConnections() {
-        return super.allConnections;
-    }
-
-    @Override
-    protected List<String> getCouchDbHostQueue() {
-        return super.couchDbHostQueue;
-    }
-
-    @Override
-    protected Map<String, Integer> getCouchDbHostUtilisation() {
-        return super.couchDbHostUtilisation;
-    }
-
     public Http getConnection() {
-        for (String hostname : getCouchDbHostQueue()) {
-            Http conn = getAllConnections().get(hostname);
+        for (String hostname : (List<String>)couchDbHostQueue) {
+            Http conn = (Http)allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
+                Integer usageCount = (Integer)couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
                 return conn;
             }

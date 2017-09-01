@@ -29,36 +29,27 @@ public class ConnectionPool extends Pool {
         this.healthChecks = healthChecks;
     }
 
-    @Override
-    protected Map<String, CouchDbConnection> getAllConnections() {
-        return super.allConnections;
-    }
-
-    @Override
-    protected List<String> getCouchDbHostQueue() {
-        return super.couchDbHostQueue;
-    }
-
-    @Override
-    protected Map<String, Integer> getCouchDbHostUtilisation() {
-        return super.couchDbHostUtilisation;
-    }
-
     public MyCouchDbConnector getConnector() {
         return getConnector(null, null);
     }
 
     public MyCouchDbConnector getConnector(String userName, char[] password) {
-        for (String hostname : getCouchDbHostQueue()) {
-            CouchDbConnection conn = getAllConnections().get(hostname);
+        String hostname = determineHostname();
+        CouchDbConnection conn = (CouchDbConnection)allConnections.get(hostname);
+        HttpClient httpClient = createHttpClient(conn, userName, password);
+        if (password != null) Arrays.fill(password, '*');
+        CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
+        return new MyCouchDbConnector(hostname, conn, dbInstance);
+    }
+
+    protected String determineHostname() {
+        for (String hostname : (List<String>)couchDbHostQueue) {
+            CouchDbConnection conn = (CouchDbConnection)allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
+                Integer usageCount = (Integer)couchDbHostUtilisation.get(hostname);
                 couchDbHostUtilisation.put(hostname, ++usageCount);
-                HttpClient httpClient = createHttpClient(conn, userName, password);
-                if (password != null) Arrays.fill(password, '*');
-                CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-                return new MyCouchDbConnector(hostname, conn, dbInstance);
+                return hostname;
             }
             else {
                 Logger.getAnonymousLogger().info(hostname + " unreachable...");
