@@ -57,6 +57,9 @@ public class Sessions {
             Post post = Http.post(conn.getBaseUrl().toString() + conn.getDatabaseName())
                 .param("name", creds.getUserName())
                 .param("password", creds.getPassword());
+            if (post.responseCode() != 200) {
+                return Response.status(post.responseCode()).entity(post.responseMessage()).build();
+            }
             Map<String, List<String>> headers = post.headers();
             List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
             if (cookies == null || cookies.isEmpty()) {
@@ -79,6 +82,10 @@ public class Sessions {
             CouchDbConnection conn = pool.getConnector().getCouchDbConnection();
             Get get = Http.get(conn.getBaseUrl().toString() + conn.getDatabaseName())
                     .header(HttpHeaders.COOKIE, cookie);
+            if (get.responseCode() != 200) {
+                throw new WebApplicationException(
+                        Response.status(get.responseCode()).entity(get.responseMessage()).build());
+            }
             Session session = new Session();
             JsonNode root = mapper.readTree(get.text());
             session.setPrincipal(root.path("userCtx").path("name").asText());

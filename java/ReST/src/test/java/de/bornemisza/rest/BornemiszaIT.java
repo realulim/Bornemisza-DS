@@ -82,7 +82,7 @@ public class BornemiszaIT extends IntegrationTestBase {
         requestSpecSessions.auth().preemptive().basic(userName, userPassword);
         cookie = getNewSession().header("Set-Cookie");
         assertTrue(cookie.startsWith("AuthSession="));
-        assertTrue(cookie.length() > "AuthSession=".length());
+        assertFalse(cookie.startsWith("AuthSession=;"));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class BornemiszaIT extends IntegrationTestBase {
         assertEquals(userName, jsonPath.getString("name"));
         cookie = jsonPath.getString("cookie");
         assertTrue(cookie.startsWith("AuthSession="));
-        assertTrue(cookie.length() > "AuthSession=".length());
+        assertFalse(cookie.startsWith("AuthSession=;"));
     }
 
     @Test
