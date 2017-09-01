@@ -26,7 +26,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.entity.CouchDbConnection;
-import de.bornemisza.couchdb.entity.SrvRecord;
+import de.bornemisza.loadbalancer.entity.SrvRecord;
 
 public class ConnectionPoolFactory implements ObjectFactory {
 

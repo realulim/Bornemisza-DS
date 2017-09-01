@@ -22,6 +22,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>de.bornemisza</groupId>
+            <artifactId>LoadBalancer</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
             <version>1.4.4</version>

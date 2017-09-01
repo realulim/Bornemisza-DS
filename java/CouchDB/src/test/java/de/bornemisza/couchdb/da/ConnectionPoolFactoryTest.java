@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import de.bornemisza.couchdb.entity.SrvRecord;
+import de.bornemisza.loadbalancer.entity.SrvRecord;
 
 public class ConnectionPoolFactoryTest {
 
