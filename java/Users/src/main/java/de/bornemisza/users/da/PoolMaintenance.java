@@ -78,7 +78,6 @@ public class PoolMaintenance {
             @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
         });
         rebuildTimer();
-        Logger.getAnonymousLogger().info("Installed Timer for PoolMaintenance");
     }
 
     void rebuildTimer() {
@@ -94,6 +93,7 @@ public class PoolMaintenance {
         timerConfig.setPersistent(false);
         timerConfig.setInfo(TIMER_NAME);
         timerService.createCalendarTimer(expression, timerConfig);
+        Logger.getAnonymousLogger().info("Installed Timer with " + expression.toString());
     }
 
     String calculateMinuteExpression() {
