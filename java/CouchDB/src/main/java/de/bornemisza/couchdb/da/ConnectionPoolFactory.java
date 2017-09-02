@@ -17,6 +17,7 @@ public class ConnectionPoolFactory extends PoolFactory {
     @Override
     public Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException {
         Map<String, CouchDbConnection> connections = new HashMap<>();
+        db = (db == null ? "" : db.replaceFirst ("^/*", ""));
         for (String hostname : hostnames) {
             CouchDbConnection conn = new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
             connections.put(hostname, conn);
