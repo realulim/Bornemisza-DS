@@ -16,6 +16,8 @@
 {{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp.$3.:db=_users --restype de.bornemisza.couchdb.da.ConnectionPool --factoryclass de.bornemisza.couchdb.da.ConnectionPoolFactory couchdb/Users
 {{ ASADMIN_CMD }} delete-custom-resource couchdb/admin
 {{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp.$3.:db=_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype de.bornemisza.couchdb.da.ConnectionPool --factoryclass de.bornemisza.couchdb.da.ConnectionPoolFactory couchdb/admin
+{{ ASADMIN_CMD }} delete-custom-resource http/Base
+{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp.$3.:db= --restype de.bornemisza.rest.da.HttpPool --factoryclass de.bornemisza.rest.da.HttpPoolFactory http/Base
 {{ ASADMIN_CMD }} delete-custom-resource http/Sessions
 {{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp.$3.:db=_session --restype de.bornemisza.rest.da.HttpPool --factoryclass de.bornemisza.rest.da.HttpPoolFactory http/Sessions
 
