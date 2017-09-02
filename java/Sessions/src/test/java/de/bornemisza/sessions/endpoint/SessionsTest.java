@@ -21,7 +21,6 @@ import org.javalite.http.Post;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
-import java.io.IOException;
 
 public class SessionsTest {
 

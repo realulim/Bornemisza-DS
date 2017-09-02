@@ -3,6 +3,7 @@ package de.bornemisza.sessions.endpoint;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -15,6 +16,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -25,9 +27,6 @@ import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.core.Response.Status;
 
 @Path("/")
 public class Sessions {
