@@ -9,10 +9,12 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -33,22 +35,28 @@ import de.bornemisza.rest.entity.Session;
 public class Sessions {
 
     @Resource(name="http/Sessions")
-    HttpPool pool;
+    HttpPool sessionsPool;
 
-    private Http http;
+    @Resource(name="http/Base")
+    HttpPool basePool;
+
+    private Http httpSessions, httpBase;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public Sessions() { }
 
     @PostConstruct
     public void init() {
-        this.http = pool.getConnection();
+        this.httpSessions = sessionsPool.getConnection();
+        this.httpBase = basePool.getConnection();
     }
 
     // Constructor for Unit Tests
-    public Sessions(HttpPool httpPool) {
-        this.pool = httpPool;
-        this.http = pool.getConnection();
+    public Sessions(HttpPool sessionsPool, HttpPool basePool) {
+        this.sessionsPool = sessionsPool;
+        this.httpSessions = sessionsPool.getConnection();
+        this.basePool = basePool;
+        this.httpBase = basePool.getConnection();
     }
 
     @GET
@@ -63,7 +71,7 @@ public class Sessions {
             Logger.getAnonymousLogger().info(ex.toString());
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
-        Post post = http.post("")
+        Post post = httpSessions.post("")
             .param("name", creds.getUserName())
             .param("password", creds.getPassword());
         if (post.responseCode() != 200) {
@@ -85,7 +93,7 @@ public class Sessions {
     public Session getActiveSession(@HeaderParam(HttpHeaders.COOKIE) String cookie) {
         if (isVoid(cookie)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
-        Get get = http.get("")
+        Get get = httpSessions.get("")
                 .header(HttpHeaders.COOKIE, cookie);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
@@ -118,7 +126,22 @@ public class Sessions {
                 .header("Set-Cookie", "AuthSession=; Version=1; Path=/; HttpOnly")
                 .build();
     }
-    
+
+    @GET
+    @Path("uuid")
+    public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
+                             @DefaultValue("1")@QueryParam("count") int count) {
+        if (isVoid(cookie)) throw new WebApplicationException(
+                Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
+        Get get = httpBase.get("_uuids?count=" + count)
+                .header(HttpHeaders.COOKIE, cookie);
+        if (get.responseCode() != 200) {
+            throw new WebApplicationException(
+                    Response.status(get.responseCode()).entity(get.responseMessage()).build());
+        }
+        return Response.ok().entity(get.text()).build();
+    }
+
     private boolean isVoid(String value) {
         if (value == null) return true;
         else if (value.length() == 0) return true;

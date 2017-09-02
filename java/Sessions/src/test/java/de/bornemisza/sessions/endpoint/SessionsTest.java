@@ -9,14 +9,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+import org.javalite.http.Get;
+import org.javalite.http.Post;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
-
-import org.javalite.http.Get;
-import org.javalite.http.Post;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
@@ -46,7 +44,7 @@ public class SessionsTest {
 
         HttpPool pool = mock(HttpPool.class);
         when(pool.getConnection()).thenReturn(http);
-        CUT = new Sessions(pool);
+        CUT = new Sessions(pool, pool);
     }
 
     @Test

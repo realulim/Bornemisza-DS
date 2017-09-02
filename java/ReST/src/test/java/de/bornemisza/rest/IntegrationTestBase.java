@@ -181,4 +181,14 @@ public class IntegrationTestBase {
                 .then().extract().response();
     }
 
+    protected Response getUuids(String cookie, int count) {
+        String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
+        requestSpecSessions.accept(ContentType.JSON)
+                .cookie("AuthSession", cookieStr)
+                .queryParam("count", count);
+        return given(requestSpecSessions)
+                .when().get("uuid")
+                .then().extract().response();
+    }
+
 }

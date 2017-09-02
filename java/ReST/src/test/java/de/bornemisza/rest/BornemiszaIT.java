@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import de.bornemisza.rest.entity.User;
+import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {
@@ -86,14 +87,13 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t08_getSession() {
+    public void t08_getUuids() {
         assertTrue(cookie.startsWith("AuthSession="));
-        Response response = getActiveSession(cookie);
+        int count = 3;
+        Response response = getUuids(cookie, count);
         JsonPath jsonPath = response.jsonPath();
-        assertEquals(userName, jsonPath.getString("name"));
-        cookie = jsonPath.getString("cookie");
-        assertTrue(cookie.startsWith("AuthSession="));
-        assertFalse(cookie.startsWith("AuthSession=;"));
+        List<String> uuids = jsonPath.getList("uuids");
+        assertEquals(count, uuids.size());
     }
 
     @Test
