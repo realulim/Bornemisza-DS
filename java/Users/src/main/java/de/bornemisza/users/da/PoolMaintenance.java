@@ -1,4 +1,4 @@
-package de.bornemisza.loadbalancer.da;
+package de.bornemisza.users.da;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -25,7 +25,8 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import de.bornemisza.loadbalancer.HealthChecks;
+import de.bornemisza.users.HealthChecks;
+import de.bornemisza.loadbalancer.da.Pool;
 
 @Singleton
 @Startup

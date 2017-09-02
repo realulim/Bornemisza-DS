@@ -1,4 +1,4 @@
-package de.bornemisza.loadbalancer;
+package de.bornemisza.users;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

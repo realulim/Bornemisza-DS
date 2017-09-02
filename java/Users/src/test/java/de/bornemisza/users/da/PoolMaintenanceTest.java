@@ -1,4 +1,4 @@
-package de.bornemisza.loadbalancer.da;
+package de.bornemisza.users.da;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
-import de.bornemisza.loadbalancer.HealthChecks;
+import de.bornemisza.users.HealthChecks;
 
 public class PoolMaintenanceTest {
 
