@@ -1,4 +1,4 @@
-package de.bornemisza.couchdb;
+package de.bornemisza.loadbalancer.da;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -9,14 +9,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+
+import de.bornemisza.loadbalancer.HealthChecks;
 
 public class PoolMaintenanceTest {
 

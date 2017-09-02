@@ -106,6 +106,7 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     @PreDestroy
     private void dispose() {
         requestTopic.removeMessageListener(registrationId);
+        Logger.getAnonymousLogger().info("Message Listener " + registrationId + " removed.");
     }
 
     private String createContent(User user, String uuid, String template, String fallbackTemplate) {
