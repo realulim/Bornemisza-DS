@@ -136,7 +136,6 @@ restart-payara-on-config-changes:
     - name: systemctl restart payara
     - onchanges:
       - set-admin-password
-      - payara-configured
       - file: {{ DOMAIN_DIR }}/config/domain.xml
       - file: {{ DOMAIN_DIR }}/config/hazelcast.xml
     - require:
