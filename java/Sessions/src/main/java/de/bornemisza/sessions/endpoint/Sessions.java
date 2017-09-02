@@ -25,6 +25,9 @@ import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.ws.rs.core.Response.Status;
 
 @Path("/")
 public class Sessions {
@@ -57,55 +60,60 @@ public class Sessions {
             creds = new BasicAuthCredentials(authHeader);
         }
         catch (CredentialNotFoundException ex) {
+            Logger.getAnonymousLogger().info(ex.toString());
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
-        try {
-            Post post = http.post("")
-                .param("name", creds.getUserName())
-                .param("password", creds.getPassword());
-            if (post.responseCode() != 200) {
-                return Response.status(post.responseCode()).entity(post.responseMessage()).build();
-            }
-            Map<String, List<String>> headers = post.headers();
-            List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
-            if (cookies == null || cookies.isEmpty()) {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No Cookie!").build();
-            }
-            else {
-                return Response.ok().header(HttpHeaders.SET_COOKIE, cookies.get(0)).build();
-            }
+        Post post = http.post("")
+            .param("name", creds.getUserName())
+            .param("password", creds.getPassword());
+        if (post.responseCode() != 200) {
+            return Response.status(post.responseCode()).entity(post.responseMessage()).build();
         }
-        catch (RuntimeException ex) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        Map<String, List<String>> headers = post.headers();
+        List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
+        if (cookies == null || cookies.isEmpty()) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No Cookie!").build();
+        }
+        else {
+            return Response.ok().header(HttpHeaders.SET_COOKIE, cookies.get(0)).build();
         }
     }
 
     @GET
     @Path("active")
     @Produces(MediaType.APPLICATION_JSON)
-    public Session getActiveSession(@HeaderParam(HttpHeaders.COOKIE) String cookie) throws IOException {
-        try {
-            Get get = http.get("")
-                    .header(HttpHeaders.COOKIE, cookie);
-            if (get.responseCode() != 200) {
-                throw new WebApplicationException(
-                        Response.status(get.responseCode()).entity(get.responseMessage()).build());
-            }
-            Session session = new Session();
-            JsonNode root = mapper.readTree(get.text());
-            session.setPrincipal(root.path("userCtx").path("name").asText());
-            for (JsonNode node : root.path("userCtx").path("roles")) {
-                session.addRole(node.asText());
-            }
-            List<String> cookies = get.headers().get(HttpHeaders.SET_COOKIE);
-            if (! (cookies == null || cookies.isEmpty())) session.setCookie(cookies.iterator().next());
-            else session.setCookie(cookie);
-            return session;
-        }
-        catch (RuntimeException ex) {
+    public Session getActiveSession(@HeaderParam(HttpHeaders.COOKIE) String cookie) {
+        if (isVoid(cookie)) throw new WebApplicationException(
+                Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
+        Get get = http.get("")
+                .header(HttpHeaders.COOKIE, cookie);
+        if (get.responseCode() != 200) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+                    Response.status(get.responseCode()).entity(get.responseMessage()).build());
         }
+        Session session = new Session();
+        JsonNode root;
+        try {
+            root = mapper.readTree(get.text());
+        }
+        catch (IOException ioe) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioe.toString()).build());
+        }
+        session.setPrincipal(root.path("userCtx").path("name").asText());
+        for (JsonNode node : root.path("userCtx").path("roles")) {
+            session.addRole(node.asText());
+        }
+        List<String> cookies = get.headers().get(HttpHeaders.SET_COOKIE);
+        if (! (cookies == null || cookies.isEmpty())) session.setCookie(cookies.iterator().next());
+        else session.setCookie(cookie);
+        return session;
+    }
+
+    private boolean isVoid(String value) {
+        if (value == null) return true;
+        else if (value.length() == 0) return true;
+        else return value.equals("null");
     }
 
 }
