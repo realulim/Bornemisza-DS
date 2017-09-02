@@ -3,7 +3,6 @@ package de.bornemisza.sessions.endpoint;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -68,7 +67,6 @@ public class Sessions {
             creds = new BasicAuthCredentials(authHeader);
         }
         catch (CredentialNotFoundException ex) {
-            Logger.getAnonymousLogger().info(ex.toString());
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         Post post = httpSessions.post("")
@@ -129,6 +127,7 @@ public class Sessions {
 
     @GET
     @Path("uuid")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie)) throw new WebApplicationException(

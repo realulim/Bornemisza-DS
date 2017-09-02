@@ -148,4 +148,49 @@ public class SessionsTest {
         assertEquals(200, response.getStatus());
     }
 
+    @Test
+    public void getUuids_noCookie() {
+        try {
+            CUT.getUuids("", 3);
+            fail();
+        }
+        catch (WebApplicationException e) {
+            assertEquals(401, e.getResponse().getStatus());
+            assertEquals("No Cookie!", e.getResponse().getEntity());
+        }
+    }
+
+    @Test
+    public void getUuids_getFailed() {
+        int errorCode = 509;
+        String msg = "Bandwidth Limit Exceeded";
+        when(get.responseCode()).thenReturn(errorCode);
+        when(get.responseMessage()).thenReturn(msg);
+        try {
+            CUT.getUuids("MyCookie", 3);
+            fail();
+        }
+        catch (WebApplicationException e) {
+            assertEquals(errorCode, e.getResponse().getStatus());
+            assertEquals(msg, e.getResponse().getEntity());
+        }
+    }
+
+    @Test
+    public void getUuids() {
+        String json = "{\n" +
+                      "    \"uuids\": [\n" +
+                      "        \"6f4f195712bd76a67b2cba6737007f44\",\n" +
+                      "        \"6f4f195712bd76a67b2cba6737008c8a\",\n" +
+                      "        \"6f4f195712bd76a67b2cba6737009adb\"\n" +
+                      "    ]\n" +
+                      "}";
+        String cookie = "MyCookie";
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(json);
+        Response response = CUT.getUuids(cookie, 3);
+        assertEquals(200, response.getStatus());
+        assertEquals(json, response.getEntity());
+    }
+
 }
