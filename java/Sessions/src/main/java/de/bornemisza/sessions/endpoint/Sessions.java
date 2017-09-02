@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.security.auth.login.CredentialNotFoundException;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
@@ -109,6 +110,15 @@ public class Sessions {
         return session;
     }
 
+    @DELETE
+    @Path("/")
+    public Response deleteCookieInBrowser(@HeaderParam(HttpHeaders.COOKIE) String cookie) {
+        return Response.ok()
+                .header("Cache-Control", "must-revalidate")
+                .header("Set-Cookie", "AuthSession=; Version=1; Path=/; HttpOnly")
+                .build();
+    }
+    
     private boolean isVoid(String value) {
         if (value == null) return true;
         else if (value.length() == 0) return true;

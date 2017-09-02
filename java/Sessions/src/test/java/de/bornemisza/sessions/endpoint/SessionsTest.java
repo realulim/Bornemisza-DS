@@ -144,4 +144,10 @@ public class SessionsTest {
         assertEquals(cookie, session.getCookie());
     }
 
+    @Test
+    public void deleteCookieInBrowser() {
+        Response response = CUT.deleteCookieInBrowser("MyCookie");
+        assertEquals(200, response.getStatus());
+    }
+
 }
