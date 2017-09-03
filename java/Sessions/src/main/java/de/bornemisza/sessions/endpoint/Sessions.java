@@ -1,12 +1,17 @@
 package de.bornemisza.sessions.endpoint;
 
-import com.hazelcast.core.InitialMembershipEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -21,14 +26,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.Member;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.javalite.http.Get;
 import org.javalite.http.Post;
-
-import com.hazelcast.core.InitialMembershipListener;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
 
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
@@ -37,7 +41,7 @@ import de.bornemisza.rest.entity.Session;
 import de.bornemisza.sessions.JAXRSConfiguration;
 
 @Path("/")
-public class Sessions implements InitialMembershipListener {
+public class Sessions {
 
     @Resource(name="http/Sessions")
     HttpPool sessionsPool;
@@ -45,23 +49,36 @@ public class Sessions implements InitialMembershipListener {
     @Resource(name="http/Base")
     HttpPool basePool;
 
-    private Http httpSessions, httpBase;
+    @Inject
+    HazelcastInstance hazelcast;
+
     private final ObjectMapper mapper = new ObjectMapper();
+    private List<String> allHostnames;
 
     public Sessions() { }
 
-    @PostConstruct
-    public void init() {
-        this.httpSessions = sessionsPool.getConnection();
-        this.httpBase = basePool.getConnection();
+    // Constructor for Unit Tests
+    public Sessions(HttpPool sessionsPool, HttpPool basePool, HazelcastInstance hazelcast) {
+        this.sessionsPool = sessionsPool;
+        this.basePool = basePool;
+        this.hazelcast = hazelcast;
+        init();
     }
 
-    // Constructor for Unit Tests
-    public Sessions(HttpPool sessionsPool, HttpPool basePool) {
-        this.sessionsPool = sessionsPool;
-        this.httpSessions = sessionsPool.getConnection();
-        this.basePool = basePool;
-        this.httpBase = basePool.getConnection();
+    @PostConstruct
+    private void init() {
+        Set<Member> members = hazelcast.getCluster().getMembers();
+        if (members.size() <= JAXRSConfiguration.COLORS.size()) {
+            List<String> sortedUuids = members.stream()
+                    .map(member -> member.getUuid())
+                    .sorted(Comparator.<String>naturalOrder())
+                    .collect(Collectors.toList());
+            String myself = hazelcast.getCluster().getLocalMember().getUuid();
+            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(sortedUuids.indexOf(myself));
+        }
+        Map<String, Http> allConnections = basePool.getAllConnections();
+        allHostnames = new ArrayList<>(allConnections.keySet());
+        Collections.sort(allHostnames);
     }
 
     @GET
@@ -75,7 +92,7 @@ public class Sessions implements InitialMembershipListener {
         catch (CredentialNotFoundException ex) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
-        Post post = httpSessions.post("")
+        Post post = sessionsPool.getConnection().post("")
             .param("name", creds.getUserName())
             .param("password", creds.getPassword());
         if (post.responseCode() != 200) {
@@ -97,7 +114,7 @@ public class Sessions implements InitialMembershipListener {
     public Session getActiveSession(@HeaderParam(HttpHeaders.COOKIE) String cookie) {
         if (isVoid(cookie)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
-        Get get = httpSessions.get("")
+        Get get = sessionsPool.getConnection().get("")
                 .header(HttpHeaders.COOKIE, cookie);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
@@ -138,13 +155,17 @@ public class Sessions implements InitialMembershipListener {
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
+        Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cookie);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
         }
-        return Response.ok().entity(get.text()).build();
+        return Response.ok()
+                .header("AppServer", JAXRSConfiguration.MY_COLOR)
+                .header("DbServer", getDbServerColor(httpBase))
+                .entity(get.text()).build();
     }
 
     private boolean isVoid(String value) {
@@ -153,28 +174,17 @@ public class Sessions implements InitialMembershipListener {
         else return value.equals("null");
     }
 
-    @Override
-    public void init(InitialMembershipEvent ime) {
-        // upon joining the cluster I'll assign myself the next available color
-        int clusterSize = ime.getMembers().size();
-        if (clusterSize <= JAXRSConfiguration.COLORS.size()) {
-            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(clusterSize - 1);
+    private String getDbServerColor(Http http) {
+        String urlWithoutScheme = http.getBaseUrl().split("://")[1];
+        String hostname = urlWithoutScheme.substring(0, urlWithoutScheme.indexOf("/"));
+        int index = allHostnames.indexOf(hostname);
+        if (index == -1) {
+            throw new WebApplicationException(
+                    Response.serverError()
+                    .entity("Hostname " + hostname + " not found in " + String.join(", ", allHostnames))
+                    .build());
         }
-    }
-
-    @Override
-    public void memberAdded(MembershipEvent me) {
-        // nothing
-    }
-
-    @Override
-    public void memberRemoved(MembershipEvent me) {
-        // nothing
-    }
-
-    @Override
-    public void memberAttributeChanged(MemberAttributeEvent mae) {
-        // nothing
+        return JAXRSConfiguration.COLORS.get(index);
     }
 
 }

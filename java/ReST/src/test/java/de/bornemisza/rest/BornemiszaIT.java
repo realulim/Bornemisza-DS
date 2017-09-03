@@ -2,14 +2,14 @@ package de.bornemisza.rest;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.util.List;
 
-import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import static org.junit.Assert.*;
 
 import de.bornemisza.rest.entity.User;
-import java.util.List;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {
@@ -94,6 +94,8 @@ public class BornemiszaIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         List<String> uuids = jsonPath.getList("uuids");
         assertEquals(count, uuids.size());
+        assertEquals("LightSeaGreen", response.getHeader("AppServer"));
+        assertEquals("LightSeaGreen", response.getHeader("DbServer"));
     }
 
     @Test
