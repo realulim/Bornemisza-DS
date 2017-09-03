@@ -1,6 +1,8 @@
 package de.bornemisza.sessions;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
@@ -28,5 +30,9 @@ public class JAXRSConfiguration extends Application {
 
         return classes;
     }
+
+    public static final List<String> COLORS = Arrays.asList(new String[] { "LightSeaGreen", "Crimson", "Gold", "RoyalBlue", "LightSalmon"});
+    public static final String DEFAULT_COLOR = "Black";
+    public static String MY_COLOR = DEFAULT_COLOR;
 
 }

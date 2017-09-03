@@ -1,5 +1,6 @@
 package de.bornemisza.sessions.endpoint;
 
+import com.hazelcast.core.InitialMembershipEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +26,18 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.javalite.http.Get;
 import org.javalite.http.Post;
 
+import com.hazelcast.core.InitialMembershipListener;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.sessions.JAXRSConfiguration;
 
 @Path("/")
-public class Sessions {
+public class Sessions implements InitialMembershipListener {
 
     @Resource(name="http/Sessions")
     HttpPool sessionsPool;
@@ -145,6 +151,30 @@ public class Sessions {
         if (value == null) return true;
         else if (value.length() == 0) return true;
         else return value.equals("null");
+    }
+
+    @Override
+    public void init(InitialMembershipEvent ime) {
+        // upon joining the cluster I'll assign myself the next available color
+        int clusterSize = ime.getMembers().size();
+        if (clusterSize <= JAXRSConfiguration.COLORS.size()) {
+            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(clusterSize - 1);
+        }
+    }
+
+    @Override
+    public void memberAdded(MembershipEvent me) {
+        // nothing
+    }
+
+    @Override
+    public void memberRemoved(MembershipEvent me) {
+        // nothing
+    }
+
+    @Override
+    public void memberAttributeChanged(MemberAttributeEvent mae) {
+        // nothing
     }
 
 }
