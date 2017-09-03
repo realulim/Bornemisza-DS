@@ -38,7 +38,7 @@ public class Http {
      */
     public static final int READ_TIMEOUT = 5000;
 
-    private final String baseUrl;
+    public final String baseUrl;
 
     public Http(@NotNull URL baseUrl) {
         String url = baseUrl.toString();

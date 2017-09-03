@@ -40,4 +40,8 @@ public class HttpPool extends Pool {
         throw new RuntimeException("No CouchDB Backend ready!");
     }
 
+    public Map<String, Http> getAllConnections() {
+        return allConnections;
+    }
+
 }
