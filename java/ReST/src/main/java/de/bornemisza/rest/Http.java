@@ -2,9 +2,9 @@ package de.bornemisza.rest;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import static java.net.URLEncoder.encode;
 import java.util.Map;
 import java.util.Set;
+import static java.net.URLEncoder.encode;
 
 import javax.validation.constraints.NotNull;
 
@@ -38,7 +38,7 @@ public class Http {
      */
     public static final int READ_TIMEOUT = 5000;
 
-    public final String baseUrl;
+    private final String baseUrl;
 
     public Http(@NotNull URL baseUrl) {
         String url = baseUrl.toString();
@@ -46,6 +46,10 @@ public class Http {
             url = url + "/";
         }
         this.baseUrl = url;
+    }
+
+    public String getBaseUrl() {
+        return this.baseUrl;
     }
 
     /**
