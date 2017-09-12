@@ -1,20 +1,29 @@
 {
   "name": "bornemisza",
   "version": "1.0.0",
-  "description": "",
+  "description": "TBD",
   "main": "index.js",
   "scripts": {
-    "start": "webpack src/index.js bin/app.js -d --watch",
-    "build": "webpack src/index.js bin/app.js -p",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "riot --type es6 --ext html app bin/tags.js",
+    "watch": "riot --type es6 --ext html -w app bin/tags.js",
+    "browsersync": "browser-sync start --server --files 'bin/tags.js, *.html' --startPath .",
+    "serve": "parallelshell 'npm run watch' 'npm run browsersync'"
   },
   "keywords": [],
   "author": "Ulrich Mayring",
-  "license": "ALv2",
+  "license": "Apache-2.0",
   "dependencies": {
-    "mithril": "^1.1.3"
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015-riot": "^1.1.0",
+    "riot": "^3.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/realulim/Bornemisza.git"
   },
   "devDependencies": {
-    "webpack": "^3.5.6"
+    "babel-plugin-external-helpers": "^6.22.0",
+    "browser-sync": "^2.18.13",
+    "parallelshell": "^3.0.1"
   }
 }

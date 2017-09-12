@@ -106,6 +106,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 1.5rem;
 }
 .cards { 
     perspective: 800px;
@@ -126,8 +127,8 @@ button:hover {
     backface-visibility: hidden;
 }
 #card .back {
-  transform: rotateY( 180deg );
+    transform: rotateY( 180deg );
 }
 #card.flipped {
-  transform: rotateY( 180deg );
+    transform: rotateY( 180deg );
 }
