@@ -2,36 +2,36 @@ html {
     background: #557585;
 }
 .login {
-  margin: 52px auto;
-  width: 434px;
-  padding: 10px;
-  border-radius: 10px;
-  border: 7px solid rgba(255,255,255,0.4);
+    margin: 52px auto;
+    width: 434px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 7px solid rgba(255,255,255,0.4);
 }
 .login h1 {
-  margin: -10px -10px 0 -10px;
-  line-height: 50px;
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center;
-  text-shadow: 0 1px white;
-  background: #e6e6e6;
-  border-bottom: 1px solid #cfcfcf;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
-  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
+    margin: -10px -10px 0 -10px;
+    line-height: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 1px white;
+    background: #e6e6e6;
+    border-bottom: 1px solid #cfcfcf;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
+    -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
+    -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
 }
 .login form {
-  padding: 15px 10px 10px 10px;
-  margin: 0 -10px -10px -10px;
-  border-bottom-right-radius:3px;
-  border-bottom-left-radius: 3px;
-  background-color: #f9f9f9;
-  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
-  -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
-   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
+    padding: 15px 10px 10px 10px;
+    margin: 0 -10px -10px -10px;
+    border-bottom-right-radius:3px;
+    border-bottom-left-radius: 3px;
+    background-color: #f9f9f9;
+    -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
+    -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
 }
 input[type="text"],
 input[type="email"],
@@ -46,11 +46,11 @@ input[type="password"] {
     padding-left: 2.25em;
     max-width: 100%;
     width: 100%;
-	transition: all 0.8s ease;
-	-moz-transition: all 0.8s ease;
-	-webkit-transition: all 0.8s ease;
-	-o-transition: all 0.8s ease;
-	-ms-transition: all 0.8s ease;    
+    transition: all 0.8s ease;
+    -moz-transition: all 0.8s ease;
+    -webkit-transition: all 0.8s ease;
+    -o-transition: all 0.8s ease;
+    -ms-transition: all 0.8s ease;    
 }
 input[type="text"]:hover,
 input[type="email"]:hover,
@@ -96,16 +96,17 @@ button:hover {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dee9ec', endColorstr='#bde2ec',GradientType=0 ); /* IE6-9 */    
     border: 1px solid #555;
     color: black;
-	transition: all 0.2s ease;
-	-moz-transition: all 0.2s ease;
-	-webkit-transition: all 0.2s ease;
-	-o-transition: all 0.2s ease;
-	-ms-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+    -moz-transition: all 0.2s ease;
+    -webkit-transition: all 0.2s ease;
+    -o-transition: all 0.2s ease;
+    -ms-transition: all 0.2s ease;
 }
 .is-justified-left-and-right {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 1.5rem;
 }
 .cards { 
     perspective: 800px;
@@ -126,8 +127,8 @@ button:hover {
     backface-visibility: hidden;
 }
 #card .back {
-  transform: rotateY( 180deg );
+    transform: rotateY( 180deg );
 }
 #card.flipped {
-  transform: rotateY( 180deg );
+    transform: rotateY( 180deg );
 }
