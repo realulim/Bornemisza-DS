@@ -1,4 +1,5 @@
 <cards>
+
     <div class="cards">
         <div id="card">
             <figure class="front">
@@ -9,4 +10,169 @@
             </figure>
         </div>
     </div>
+
+    <style>
+        .login {
+            margin: 52px auto;
+            width: 434px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 7px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .login h1 {
+            margin: -10px -10px 0 -10px;
+            line-height: 50px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 1px white;
+            background: #e6e6e6;
+            border-bottom: 1px solid #cfcfcf;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
+            -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
+            -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.05) inset;
+        }
+
+        .login form {
+            padding: 15px 10px 10px 10px;
+            margin: 0 -10px -10px -10px;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            background-color: #f9f9f9;
+            -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
+            -moz-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.15) inset;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            font-size: 16px;
+            color: #222;
+            display: block;
+            margin-top: 5px;
+            border: 1px solid #bbb;
+            height: 35px;
+            border-radius: 3px;
+            padding-left: 2.25em;
+            max-width: 100%;
+            width: 100%;
+            transition: all 0.8s ease;
+            -moz-transition: all 0.8s ease;
+            -webkit-transition: all 0.8s ease;
+            -o-transition: all 0.8s ease;
+            -ms-transition: all 0.8s ease;
+        }
+
+        input[type="text"]:hover,
+        input[type="email"]:hover,
+        input[type="password"]:hover {
+            background-color: #d1e6ec;
+            border: 1px solid #888
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            background-color: #d1e6ec;
+            border: 1px solid black;
+        }
+
+        span[class="icon is-left"] {
+            color: #999 !important;
+        }
+
+        button {
+            display: inline;
+            border: 1px solid #888;
+            font-size: 14px;
+            line-height: 35px;
+            padding: 0px 20px 0px 20px;
+            color: black;
+            border-radius: 3px;
+            background: #f0f0f0;
+            /* Old browsers */
+            background: -moz-linear-gradient(top, #f0f0f0 0%, #e7e7e7 47%, #dfdfdf 100%);
+            /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f0f0f0), color-stop(47%, #e7e7e7), color-stop(100%, #dfdfdf));
+            /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(top, #f0f0f0 0%, #e7e7e7 47%, #dfdfdf 100%);
+            /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(top, #f0f0f0 0%, #e7e7e7 47%, #dfdfdf 100%);
+            /* Opera 11.10+ */
+            background: -ms-linear-gradient(top, #f0f0f0 0%, #e7e7e7 47%, #dfdfdf 100%);
+            /* IE10+ */
+            background: linear-gradient(to bottom, #f0f0f0 0%, #e7e7e7 47%, #dfdfdf 100%);
+            /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f0f0f0', endColorstr='#dfdfdf', GradientType=0);
+            /* IE6-9 */
+        }
+
+        button:hover {
+            background: #d1e6ec;
+            background: #bde2ec;
+            /* Old browsers */
+            background: -moz-linear-gradient(top, #dee9ec 0%, #bde2ec 100%);
+            /* FF3.6+ */
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dee9ec), color-stop(100%, #bde2ec));
+            /* Chrome,Safari4+ */
+            background: -webkit-linear-gradient(top, #dee9ec 0%, #bde2ec 100%);
+            /* Chrome10+,Safari5.1+ */
+            background: -o-linear-gradient(top, #dee9ec 0%, #bde2ec 100%);
+            /* Opera 11.10+ */
+            background: -ms-linear-gradient(top, #dee9ec 0%, #bde2ec 100%);
+            /* IE10+ */
+            background: linear-gradient(to bottom, #dee9ec 0%, #bde2ec 100%);
+            /* W3C */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#dee9ec', endColorstr='#bde2ec', GradientType=0);
+            /* IE6-9 */
+            border: 1px solid #555;
+            color: black;
+            transition: all 0.2s ease;
+            -moz-transition: all 0.2s ease;
+            -webkit-transition: all 0.2s ease;
+            -o-transition: all 0.2s ease;
+            -ms-transition: all 0.2s ease;
+        }
+
+        .is-justified-left-and-right {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .cards {
+            perspective: 800px;
+        }
+
+        #card {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+        }
+
+        #card figure {
+            margin: 0;
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+
+        #card .back {
+            transform: rotateY( 180deg);
+        }
+
+        #card.flipped {
+            transform: rotateY( 180deg);
+        }
+    </style>
+
 </cards>
