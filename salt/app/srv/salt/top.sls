@@ -9,3 +9,4 @@ base:
     - payara
     - maven
     - exim
+    - frontend
