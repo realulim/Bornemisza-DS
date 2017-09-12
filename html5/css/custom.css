@@ -1,0 +1,9 @@
+html {
+    background: #557585;
+}
+a {
+    color: #8c19b3;
+}
+a:hover {
+    text-decoration: underline;
+}
