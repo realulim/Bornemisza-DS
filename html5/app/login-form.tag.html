@@ -1,7 +1,7 @@
 <login-form>
     <div class="login">
         <h1>Member Authentication</h1>
-        <form method="post" action="">
+        <form onsubmit="{handleLogin}">
             <div class="field">
                 <p class="control has-icons-left">
                     <input type="text" value="" placeholder="Username or Email" required>
@@ -22,4 +22,10 @@
             </div>
         </form>
     </div>
+    <script>
+        this.handleLogin = function (event) {
+            event.preventDefault()
+            console.log('Event: ' + event)
+        }.bind(this)
+    </script>
 </login-form>
