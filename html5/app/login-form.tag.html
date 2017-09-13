@@ -25,7 +25,7 @@
     <script>
         this.handleLogin = function (event) {
             event.preventDefault()
-            console.log('Event: ' + event)
+            Path.history.pushState({id: 'HELLOWORLD'}, '', "/hello");
         }.bind(this)
     </script>
 </login-form>
