@@ -13,16 +13,16 @@
   "author": "Ulrich Mayring",
   "license": "Apache-2.0",
   "dependencies": {
+    "riot": "^3.7.0",
     "babel-core": "^6.26.0",
-    "riot": "^3.7.0"
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-es2015-riot": "^1.1.0"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/realulim/Bornemisza.git"
   },
   "devDependencies": {
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-preset-es2015-riot": "^1.1.0",
     "browser-sync": "^2.18.13"
   }
 }
