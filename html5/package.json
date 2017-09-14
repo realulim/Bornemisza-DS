@@ -6,8 +6,8 @@
   "scripts": {
     "compile": "riot --type es6 --ext html app bin/tags.js",
     "watch": "riot --type es6 --ext html -w app bin/tags.js",
-    "browsersync": "browser-sync start --server --files 'bin/tags.js, *.html, css/*.css' --startPath .",
-    "serve": "parallelshell 'npm run watch' 'npm run browsersync'"
+    "browser-sync": "browser-sync start --server --files 'bin/tags.js, *.html, css/*.css' --startPath .",
+    "serve": "npm run watch & npm run browser-sync"
   },
   "keywords": [],
   "author": "Ulrich Mayring",
@@ -24,7 +24,6 @@
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
-    "browser-sync": "^2.18.13",
-    "parallelshell": "^3.0.1"
+    "browser-sync": "^2.18.13"
   }
 }
