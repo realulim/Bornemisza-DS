@@ -40,7 +40,7 @@
         var router = new Grapnel({ pushState : true });
         router.get('/hello', function(req){
             alert(req.params)
-            router.navigate('/')
+            window.history.back()
         });
         console.log("Router running...")
     </script>
