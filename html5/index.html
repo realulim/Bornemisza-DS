@@ -31,15 +31,17 @@
     </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.0/riot.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/path.js/0.8.4/path.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js"></script>
+    <script src="node_modules/grapnel/dist/grapnel.min.js"></script>
     <script src="bin/tags.js"></script>
     <script>
         riot.mount('*')
-        Path.map("/hello").to(function () {
-            alert("Hello, World!");
+        console.log("Riot mounted...")
+        var router = new Grapnel({ pushState : true });
+        router.get('/hello', function(req){
+            alert(req.params)
+            router.navigate('/')
         });
-        Path.history.listen(true);
         console.log("Router running...")
     </script>
 
