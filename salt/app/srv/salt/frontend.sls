@@ -11,7 +11,8 @@ install_nodejs_pkgs:
 
 install_riot_pkgs:
   npm.installed:
-    - riot
-    - babel-core
-    - babel-preset-es2015-riot
-    - babel-plugin-external-helpers
+    - pkgs:
+      - riot
+      - babel-core
+      - babel-preset-es2015-riot
+      - babel-plugin-external-helpers
