@@ -4,13 +4,13 @@
         <form onsubmit="{handleLogin}">
             <div class="field">
                 <p class="control has-icons-left">
-                    <input type="text" value="" placeholder="Username or Email" required>
+                    <input name="user" type="text" value="" placeholder="Username or Email" required>
                     <span class="icon is-left"><i class="fa fa-user fa-fw"></i></span>
                 </p>
             </div>
             <div class="field">
                 <p class="control has-icons-left">
-                    <input type="password" value="" placeholder="Password" required>
+                    <input name="password" type="password" value="" placeholder="Password" required>
                     <span class="icon is-left"><i class="fa fa-lock fa-fw"></i></span>
                 </p>
             </div>
@@ -23,8 +23,13 @@
         </form>
     </div>
     <script>
-        this.handleLogin = function(event) {
+        this.handleLogin = (event) => {
             event.preventDefault()
+            for (let i = 0; i < event.target.length; i++) {
+                if (event.target[i].name == 'user') var user = event.target[i].value
+                else if (event.target[i].name == 'password') var password = event.target[i].value
+            }
+            console.log("Username: " + user + ", Password: " + password)
             router.navigate('/hello');
         }
     </script>
