@@ -30,9 +30,20 @@
                 else if (event.target[i].name == 'password') var password = event.target[i].value
             }
             console.log("Username: " + user + ", Password: " + password)
-            qwest.get(config.urlNewSession)
+            var authHeader = createAuthorizationHeader(user, password)
+            console.log("Header: " + authHeader)
+            qwest.get(config.urlNewSession, null, {
+                headers: {
+                    "Authorization": authHeader
+                }
+            })
                 .then(function (xhr, response) {
-                    alert(response);
+                    console.log("Authenticated...")
+                    qwest.get(config.urlActiveSession)
+                    .then(function (xhr, response) {
+                        console.log("Session: " + xhr.responseText)
+                    })
+                    console.log("Sent AJAX request to " + config.urlActiveSession)
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
