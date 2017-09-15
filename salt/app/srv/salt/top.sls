@@ -6,6 +6,7 @@ base:
     - network
     - ufw
     - haproxy
+    - lighttpd
     - payara
     - maven
     - exim
