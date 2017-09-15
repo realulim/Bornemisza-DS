@@ -15,5 +15,5 @@ build.properties
 /java/LoadBalancer/nbproject/
 /java/LoadBalancer/target/
 node_modules
-html5/bin
-js/config.js
+/html5/bin
+/html5/js/config.js
