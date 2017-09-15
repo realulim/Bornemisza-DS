@@ -30,10 +30,11 @@
                 else if (event.target[i].name == 'password') var password = event.target[i].value
             }
             console.log("Username: " + user + ", Password: " + password)
-            qwest.get('https://app1.fra.bornemisza.de/sessions/new')
+            qwest.get(config.urlNewSession)
                 .then(function (xhr, response) {
                     alert(response);
                 })
+            console.log("Sent AJAX request to " + config.urlNewSession)
         }
     </script>
 </login-form>

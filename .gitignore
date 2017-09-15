@@ -16,3 +16,4 @@ build.properties
 /java/LoadBalancer/target/
 node_modules
 html5/bin
+js/config.js
