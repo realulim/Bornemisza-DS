@@ -19,7 +19,7 @@ yum clean all
 
 # download and install salt
 curl -o bootstrap-salt.sh -L https://bootstrap.saltstack.com
-sudo sh bootstrap-salt.sh git develop
+sudo sh bootstrap-salt.sh git 2017.7
 
 # configure salt to run masterless
 sed -i.bak 's/\#file_client: remote/file_client: local/g' /etc/salt/minion
