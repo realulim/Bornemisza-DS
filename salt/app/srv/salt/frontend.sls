@@ -17,3 +17,9 @@ install_riot_pkgs:
       - babel-core
       - babel-preset-es2015-riot
       - babel-plugin-external-helpers
+
+/var/www/{{ pillar['ssldomain'] }}:
+  file.directory:
+    - user: lighttpd
+    - group: lighttpd
+    - dir_mode: 755
