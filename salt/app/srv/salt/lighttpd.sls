@@ -7,3 +7,10 @@ install_lighttpd_pkgs:
   file.replace:
     - pattern: "server.port = 80"
     - repl: server.port = 4331
+
+lighttpd-running:
+  service.running:
+    - name: lighttpd
+    - enable: true
+    - listen:
+      - file: /etc/lighttpd/lighttpd.conf
