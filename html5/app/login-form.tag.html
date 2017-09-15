@@ -30,7 +30,10 @@
                 else if (event.target[i].name == 'password') var password = event.target[i].value
             }
             console.log("Username: " + user + ", Password: " + password)
-            router.navigate('/hello');
+            qwest.get('https://app1.fra.bornemisza.de/sessions/new')
+                .then(function (xhr, response) {
+                    alert(response);
+                })
         }
     </script>
 </login-form>
