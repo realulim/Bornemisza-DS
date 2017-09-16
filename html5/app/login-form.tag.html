@@ -38,12 +38,11 @@
                 }
             })
                 .then(function (xhr, response) {
-                    self.observable.trigger('Authenticated', {user: user})
-                    qwest.get(config.urlActiveSession)
-                        .then(function (xhr, response) {
-                            console.log("Session: " + xhr.responseText)
-                        })
-                    console.log("Sent AJAX request to " + config.urlActiveSession)
+                    self.observable.trigger(AUTH_SUCCESS, { user: user })
+                })
+                .catch(function (e, xhr, response) {
+                    if (xhr.status == 401) self.observable.trigger(AUTH_FAILED, { user: user })
+                    else self.observable.trigger(ERROR, e)
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }

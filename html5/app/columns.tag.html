@@ -12,8 +12,11 @@
     </div>
     <script>
         this.mixin(ObservableMixin);
-        this.observable.on("Authenticated", function (opts) {
-            console.log("Authenticated: " + opts.user)
+        this.observable.on(AUTH_SUCCESS, function (opts) {
+            console.log(AUTH_SUCCESS + ": " + opts.user)
+        })
+        this.observable.on(AUTH_FAILED, function (opts) {
+            console.log(AUTH_FAILED + ": " + opts.user)
         })
     </script>
 </columns>
