@@ -10,4 +10,10 @@
 
         </div>
     </div>
+    <script>
+        this.mixin(ObservableMixin);
+        this.observable.on("Authenticated", function (opts) {
+            console.log("Authenticated: " + opts.user)
+        })
+    </script>
 </columns>

@@ -37,7 +37,10 @@
     </script>
     <script src="bin/tags.js"></script>
     <script>
-        riot.mount('*')
+        var ObservableMixin = {
+            observable: riot.observable()
+        }
+        riot.mount("columns")
         console.log("Riot mounted...")
         var router = new Grapnel({ pushState: true });
         router.get('/hello', function (req) {
@@ -45,7 +48,6 @@
             window.history.back()
         })
         console.log("Router running...")
-        console.log("XHR ready...")
     </script>
 
     <script src="js/plugins.js"></script>

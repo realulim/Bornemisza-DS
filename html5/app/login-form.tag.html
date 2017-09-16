@@ -23,26 +23,26 @@
         </form>
     </div>
     <script>
+        this.mixin(ObservableMixin);
+        var self = this
         this.handleLogin = (event) => {
             event.preventDefault()
             for (let i = 0; i < event.target.length; i++) {
                 if (event.target[i].name == 'user') var user = event.target[i].value
                 else if (event.target[i].name == 'password') var password = event.target[i].value
             }
-            console.log("Username: " + user + ", Password: " + password)
             var authHeader = createAuthorizationHeader(user, password)
-            console.log("Header: " + authHeader)
             qwest.get(config.urlNewSession, null, {
                 headers: {
                     "Authorization": authHeader
                 }
             })
                 .then(function (xhr, response) {
-                    console.log("Authenticated...")
+                    self.observable.trigger('Authenticated', {user: user})
                     qwest.get(config.urlActiveSession)
-                    .then(function (xhr, response) {
-                        console.log("Session: " + xhr.responseText)
-                    })
+                        .then(function (xhr, response) {
+                            console.log("Session: " + xhr.responseText)
+                        })
                     console.log("Sent AJAX request to " + config.urlActiveSession)
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
