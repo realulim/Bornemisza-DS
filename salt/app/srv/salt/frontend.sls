@@ -28,6 +28,7 @@ compile-frontend:
   cmd.run:
     - name: npm run-script compile
     - cwd: {{ FRONTEND_DIR }}
+    - creates: {{ FRONTEND_DIR }}/bin/tags.js
 
 /var/www/{{ DOCROOT }}/config.js:
   file.managed:
