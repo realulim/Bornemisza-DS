@@ -16,5 +16,8 @@
             console.log(AUTH_SUCCESS + ": " + opts.user)
             displayMessage(false, 'loginfailed')
         })
+        this.observable.on(ERROR, function (opts) {
+            alert('Unexpected Error ' + opts.status + ' - please try again later')
+        })
     </script>
 </columns>

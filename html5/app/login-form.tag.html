@@ -44,12 +44,12 @@
                     self.observable.trigger(AUTH_SUCCESS, { user: user })
                 })
                 .catch(function (e, xhr, response) {
-                    if (xhr.status == 401) self.observable.trigger(AUTH_FAILED, { user: user })
-                    else self.observable.trigger(ERROR, e)
+                    if (xhr.status == 401) self.observable.trigger(AUTH_FAILED)
+                    else self.observable.trigger(ERROR, { status: xhr.status })
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
-        this.observable.on(AUTH_FAILED, function (opts) {
+        this.observable.on(AUTH_FAILED, function () {
             shakeElement('card')
             displayMessage(true, 'loginfailed')
         })
