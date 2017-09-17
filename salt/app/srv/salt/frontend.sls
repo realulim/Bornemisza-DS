@@ -16,9 +16,11 @@ install_riot_pkgs:
   npm.installed:
     - pkgs:
       - riot
-      - babel-core
-      - babel-preset-es2015-riot
-      - babel-plugin-external-helpers
+
+install_babel_pkgs:
+  cmd.run:
+    - name: npm install babel-core babel-preset-es2015-riot babel-plugin-external-helpers
+    - cwd: /opt/frontend
 
 /var/www/{{ DOCROOT }}/config.js:
   file.managed:
