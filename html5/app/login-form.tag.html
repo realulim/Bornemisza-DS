@@ -22,6 +22,9 @@
             </div>
         </form>
     </div>
+    <div id="loginfailed" class="has-text-danger is-size-4 has-text-centered errormessage hidden">
+        Authentication failed
+    </div>
     <script>
         this.mixin(ObservableMixin);
         var self = this
@@ -46,5 +49,9 @@
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
+        this.observable.on(AUTH_FAILED, function (opts) {
+            shakeElement('card')
+            displayMessage(true, 'loginfailed')
+        })
     </script>
 </login-form>
