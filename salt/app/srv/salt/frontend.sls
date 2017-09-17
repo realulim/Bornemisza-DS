@@ -1,3 +1,4 @@
+{%- set FRONTEND_DIR=/opt/frontend %}
 {%- set DOCROOT=''.join(pillar['ssldomain']) %}
 
 workaround-till-centos-7.4-fixes-deps:
@@ -20,7 +21,12 @@ install_riot_pkgs:
 install_babel_pkgs:
   cmd.run:
     - name: npm install babel-core babel-preset-es2015-riot babel-plugin-external-helpers
-    - cwd: /opt/frontend
+    - cwd: {{ FRONTEND_DIR }}
+
+compile-frontend:
+  cmd.run:
+    - name: npm run-script compile
+    - cwd: {{ FRONTEND_DIR }}
 
 /var/www/{{ DOCROOT }}/config.js:
   file.managed:
