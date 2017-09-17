@@ -5,9 +5,7 @@ source ./config.sh app
 sh bootstrap-common.sh app
 
 # create app state tree
-if [ ! -e $SaltLocal/top.sls ]; then
-	svn export --force $SvnTrunk/salt/app/srv/salt /srv/salt
-fi
+svn export --force $SvnTrunk/salt/app/srv/salt /srv/salt
 if [ ! -e $PillarLocal/top.sls ]; then
 	svn export --force $SvnTrunk/salt/app/srv/pillar/top.sls /srv/pillar
 fi
