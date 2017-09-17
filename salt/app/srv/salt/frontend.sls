@@ -34,3 +34,8 @@ compile-frontend:
   file.managed:
     - source: salt://files/frontend/config.js
     - template: jinja
+
+copy-frontend-files:
+  cmd.run:
+    - name: cp -r *.html *.ico *.png *.txt *.xml bin css img js /var/www/{{ DOCROOT }}
+    - cwd: {{ FRONTEND_DIR }}
