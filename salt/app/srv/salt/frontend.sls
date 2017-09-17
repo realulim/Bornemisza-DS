@@ -34,7 +34,8 @@ copy-frontend-files:
   cmd.run:
     - name: bash -c 'cp -r *.html *.ico *.png *.txt *.xml bin css img js /var/www/{{ DOCROOT }} && chown -R lighttpd:lighttpd /var/www/{{ DOCROOT }}'
     - cwd: {{ FRONTEND_DIR }}
-    - unless: ls /var/www/{{ DOCROOT }}/index.html
+    - onchanges:
+      - compile-frontend
 
 /var/www/{{ DOCROOT }}/js/config.js:
   file.managed:
