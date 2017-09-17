@@ -30,13 +30,13 @@ compile-frontend:
     - cwd: {{ FRONTEND_DIR }}
     - creates: {{ FRONTEND_DIR }}/bin/tags.js
 
-/var/www/{{ DOCROOT }}/config.js:
-  file.managed:
-    - source: salt://files/frontend/config.js
-    - template: jinja
-
 copy-frontend-files:
   cmd.run:
     - name: bash -c 'cp -r *.html *.ico *.png *.txt *.xml bin css img js /var/www/{{ DOCROOT }} && chown -R lighttpd:lighttpd /var/www/{{ DOCROOT }}'
     - cwd: {{ FRONTEND_DIR }}
     - unless: ls /var/www/{{ DOCROOT }}/index.html
+
+/var/www/{{ DOCROOT }}/js/config.js:
+  file.managed:
+    - source: salt://files/frontend/config.js
+    - template: jinja
