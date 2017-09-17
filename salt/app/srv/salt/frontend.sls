@@ -24,11 +24,12 @@ install_babel_pkgs:
     - cwd: {{ FRONTEND_DIR }}
     - unless: npm list babel-core
 
+# skip compilation if tags.js is the newest file in the directory tree
 compile-frontend:
   cmd.run:
     - name: npm run-script compile
     - cwd: {{ FRONTEND_DIR }}
-    - creates: {{ FRONTEND_DIR }}/bin/tags.js
+    - unless: find . -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" " | grep tags.js
 
 copy-frontend-files:
   cmd.run:
