@@ -1,4 +1,4 @@
 var config = {
-	urlNewSession: 'https://{{ pillar['hostname'] }}/sessions/new',
-	urlActiveSession: 'https://{{ pillar['hostname'] }}/sessions/active'
+	urlNewSession: 'https://{{ pillar['sslhost'] }}/sessions/new',
+	urlActiveSession: 'https://{{ pillar['sslhost'] }}/sessions/active'
 }
