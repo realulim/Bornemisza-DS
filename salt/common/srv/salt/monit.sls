@@ -15,3 +15,4 @@ monit-running:
   service.running:
     - name: monit
     - enable: true
+    - listen: /etc/monitrc
