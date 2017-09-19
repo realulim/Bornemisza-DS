@@ -7,3 +7,4 @@ base:
     - couchdb
     - haproxy
     - ufw
+    - monit
