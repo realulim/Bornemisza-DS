@@ -1,11 +1,6 @@
 {%- set FRONTEND_DIR='/opt/frontend' %}
 {%- set DOCROOT=''.join(pillar['ssldomain']) %}
 
-workaround-till-centos-7.4-fixes-deps:
-  cmd.run:
-    - name: rpm -ivh https://kojipkgs.fedoraproject.org/packages/http-parser/2.7.1/3.el7/x86_64/http-parser-2.7.1-3.el7.x86_64.rpm
-    - unless: rpm -q http-parser
-
 install_nodejs_pkgs:
   pkg.installed:
     - pkgs:
