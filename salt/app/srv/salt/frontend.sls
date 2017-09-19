@@ -1,11 +1,6 @@
 {%- set FRONTEND_DIR='/opt/frontend' %}
 {%- set DOCROOT=''.join(pillar['ssldomain']) %}
 
-workaround-till-centos-7.4-fixes-deps:
-  cmd.run:
-    - name: rpm -ivh https://kojipkgs.fedoraproject.org/packages/http-parser/2.7.1/3.el7/x86_64/http-parser-2.7.1-3.el7.x86_64.rpm
-    - unless: rpm -q http-parser
-
 install_nodejs_pkgs:
   pkg.installed:
     - pkgs:
@@ -17,12 +12,13 @@ install_riot_pkgs:
   npm.installed:
     - pkgs:
       - riot
+      - babel-core
 
 install_babel_pkgs:
   cmd.run:
-    - name: npm install babel-core babel-preset-es2015-riot babel-plugin-external-helpers
+    - name: npm install babel-preset-es2015-riot babel-plugin-external-helpers
     - cwd: {{ FRONTEND_DIR }}
-    - unless: npm list babel-core
+    - unless: npm list babel-preset-es2015-riot
 
 # skip compilation if tags.js is the newest file in the directory tree
 compile-frontend:
