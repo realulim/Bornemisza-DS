@@ -63,7 +63,7 @@ set-permissions-couchdb:
     - onchanges:
       - install-couchdb
 
-install-systemctl-unitfile:
+install-couchdb-systemd-unitfile:
    file.managed:
     - name: /usr/lib/systemd/system/couchdb.service
     - source: salt://files/couchdb/couchdb.service
