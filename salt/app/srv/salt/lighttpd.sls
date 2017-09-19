@@ -8,6 +8,10 @@ install_lighttpd_pkgs:
     - source: salt://files/lighttpd/lighttpd.conf
     - template: jinja
 
+/etc/lighttpd/conf.d/access_log.conf:
+  file.managed:
+    - source: salt://files/lighttpd/access_log.conf
+
 /var/www/{{ pillar['ssldomain'] }}:
   file.directory:
     - user: lighttpd
