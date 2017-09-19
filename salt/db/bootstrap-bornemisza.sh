@@ -17,13 +17,13 @@ fi
 
 # dynamic pillar: couchdb
 if [ ! -e $PillarLocal/couchdb.sls ]; then
-	read -p -s 'CouchDB Admin Password [leave empty to generate random string]: ' COUCH_PW
+	read -s -p 'CouchDB Admin Password [leave empty to generate random string]: ' COUCH_PW
 	if [ -z $COUCH_PW ]; then
 		COUCH_PW=`generatepw`
 	fi
 	printf "couchdb-admin-password: $COUCH_PW\n" > $PillarLocal/couchdb.sls
 
-	read -p -s 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
+	read -s -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
 	if [ -z $COOKIE ]; then
 		COOKIE=`generatepw`
 	fi

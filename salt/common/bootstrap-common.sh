@@ -39,13 +39,13 @@ fi
 
 # ask for Cloudflare API key
 if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
-	read -p 'Cloudflare API Key: ' CFKEY
+	read -s -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
 if ! grep -q CFEMAIL: /srv/pillar/basics.sls ; then
-	read -p 'Cloudflare Email: ' CFEMAIL
+	read -s -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 fi
 
