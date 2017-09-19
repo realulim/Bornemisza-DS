@@ -2,8 +2,8 @@ install_basics_pkgs:
   pkg.installed:
     - pkgs:
       - nano
-      - nc
       - net-tools
+      - nmap-ncat
       - ntp
       - telnet
       - ufw
