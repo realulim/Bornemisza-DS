@@ -244,9 +244,9 @@ set httpd port 2812 and
 
 check host localhost with address 127.0.0.1
     if failed port 80 protocol http
-        then exec "ip link set dummy1 down"
+        then exec "/bin/bash -c 'ip link set dummy1 down'"
     else if succeeded
-        then exec "ip link set dummy1 up"
+        then exec "/bin/bash -c 'ip link set dummy1 up'"
 #
 #
 ## Check a network link status (up/down), link capacity changes, saturation
