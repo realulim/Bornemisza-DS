@@ -2,6 +2,7 @@ install_basics_pkgs:
   pkg.installed:
     - pkgs:
       - nano
+      - nc
       - net-tools
       - ntp
       - telnet
