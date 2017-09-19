@@ -24,7 +24,7 @@ fi
 
 # if we have already setup payara, but not told it the couchdb admin password yet, then we ask for it here
 if grep -s changeit /root/.payara ; then
-	read -p 'CouchDB Admin Password [leave empty to specify it at a later time]: ' COUCH_PW
+	read -p -s 'CouchDB Admin Password [leave empty to specify it at a later time]: ' COUCH_PW
 	if [ ! -z $COUCH_PW ]; then
 		sed -i.bak "s/changeit/$COUCH_PW/g" /root/.payara
 		printf " " >> /opt/payara/bin/domain-config.sh
@@ -55,13 +55,13 @@ fi
 
 # ask for autonomous system number
 if ! grep -q ASN: /srv/pillar/basics.sls ; then
-	read -p 'ASN: ' ASN
+	read -p -s 'ASN: ' ASN
 	printf "ASN: $ASN\n" >> $PillarLocal/basics.sls
 fi
 
 # ask for BGP password
 if ! grep -q BGP: /srv/pillar/basics.sls ; then
-	read -p 'BGP: ' BGP
+	read -p -s 'BGP: ' BGP
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
 fi
 
