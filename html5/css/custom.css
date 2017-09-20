@@ -56,5 +56,6 @@ a:hover {
   animation: shake 1s infinite;
 }
 .msg {
-    margin: -45px;
+    vertical-align: top;
+    margin-top: 7px;
 }

@@ -16,6 +16,7 @@
         this.observable.on(AUTH_SUCCESS, function (opts) {
             console.log(AUTH_SUCCESS + ": " + opts.user)
             hideAllMessages()
+            router.navigate("/authenticated");
         })
         this.observable.on(AUTH_ERROR, function (opts) {
             console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
