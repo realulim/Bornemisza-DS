@@ -86,3 +86,7 @@ a:hover {
   vertical-align: top;
   margin-top: 7px;
 }
+
+.has-text-friendly {
+  color: khaki;
+}
