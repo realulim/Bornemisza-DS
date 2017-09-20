@@ -167,12 +167,19 @@
             -webkit-backface-visibility: hidden;
         }
 
+        #card .front {
+            transform: rotateY(0deg);
+            -webkit-transform: rotateY(0deg);
+        }
+
         #card .back {
-            transform: rotateY( 180deg);
+            transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
         }
 
         #card.flipped {
-            transform: rotateY( 180deg);
+            transform: rotateY(180deg);
+            -webkit-transform: rotateY(180deg);
         }
     </style>
 
