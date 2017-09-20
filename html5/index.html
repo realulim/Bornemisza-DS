@@ -46,10 +46,7 @@
         console.log("Riot mounted...")
         var router = new Grapnel({ pushState: true });
         router.get("/authenticated", function (req) {
-            displayMessage(AUTH_SUCCESS)
-            window.setTimeout(function () {
-                hideAllMessages()
-            }, 2000);
+            displayMessage(AUTH_SUCCESS, true)
             window.history.back()
         })
         console.log("Router running...")

@@ -20,7 +20,7 @@
         })
         this.observable.on(AUTH_ERROR, function (opts) {
             console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
-            displayMessage(AUTH_ERROR)
+            displayMessage(AUTH_ERROR, true)
         })
     </script>
 </columns>

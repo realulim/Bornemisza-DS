@@ -1,13 +1,16 @@
 html {
-    background: #557585;
+  background: #557585;
 }
+
 a {
-    color: #8c19b3;
+  color: #8c19b3;
 }
+
 a:hover {
-    color: #8c19b3;
-    text-decoration: underline;
+  color: #8c19b3;
+  text-decoration: underline;
 }
+
 @-webkit-keyframes shake {
   10%, 90% {
     -webkit-transform: translate3d(-5px, 0, 0);
@@ -22,6 +25,7 @@ a:hover {
     -webkit-transform: translate3d(20px, 0, 0);
   }
 }
+
 @-moz-keyframes shake {
   10%, 90% {
     -moz-transform: translate3d(-5px, 0, 0);
@@ -36,26 +40,49 @@ a:hover {
     -moz-transform: translate3d(20px, 0, 0);
   }
 }
+
 @keyframes shake {
-    10%, 90% {
-      transform: translate3d(-5px, 0, 0);
-    }
-    20%, 80% {
-      transform: translate3d(10px, 0, 0);
-    }
-    30%, 50%, 70% {
-      transform: translate3d(-20px, 0, 0);
-    }
-    40%, 60% {
-      transform: translate3d(20px, 0, 0);
-    }
+  10%, 90% {
+    transform: translate3d(-5px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(10px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-20px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(20px, 0, 0);
+  }
 }
+
 .shake {
   -webkit-animation: shake 1s infinite;
   -moz-animation: shake 1s infinite;
   animation: shake 1s infinite;
 }
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fade-in-out {
+  opacity: 0;
+  animation: fadeInOut 5s 1;
+}
+
 .msg {
-    vertical-align: top;
-    margin-top: 7px;
+  vertical-align: top;
+  margin-top: 7px;
 }
