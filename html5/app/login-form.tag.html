@@ -52,6 +52,7 @@
         this.observable.on(AUTH_FAILED, function () {
             shakeElement('card')
             displayMessage(true, 'loginfailed')
+            displayMessage(false, 'genericerror')
         })
     </script>
 </login-form>
