@@ -59,10 +59,12 @@ done
 # haproxy needs to know the appserver source ips that are whitelisted for database access
 for COUNTER in `seq -s' ' 1 $app_HostCount`
 do
-	if ! grep -q ipapp$COUNTER /srv/pillar/haproxy.sls ; then
-		HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
-		printf "ipapp$COUNTER: `getip $HOSTNAME`\n" | tee -a $PillarLocal/haproxy.sls
-	fi
+        HOSTNAME=$app_HostPrefix$COUNTER.$app_Domain
+        sed -i /ipapp$COUNTER/d /srv/pillar/haproxy.sls
+        IPADDRESS=`getip $HOSTNAME`
+        if [ ! -z $IPADDRESS ]; then
+                printf "ipapp$COUNTER: $IPADDRESS\n" | tee -a $PillarLocal/haproxy.sls
+        fi
 done
 
 chmod -R 400 $PillarLocal
