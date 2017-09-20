@@ -1,16 +1,22 @@
 // Custom Events
 var AUTH_SUCCESS = "Authentication successful"
 var AUTH_FAILED = "Authentication failed"
-var ERROR = "Error"
+var AUTH_ERROR = "Error while authenticating"
 
 // Functions
 function flipDialog() {
     document.getElementById('card').classList.toggle("flipped");
 }
-function displayMessage(show, elemId) {
+function displayMessage(elemId) {
     var elem = document.getElementById(elemId)
-    if (show) elem.classList.remove("hidden")
-    else elem.classList.add("hidden")
+    hideAllMessages()
+    elem.classList.remove("hidden")
+}
+function hideAllMessages() {
+    var elems = document.getElementsByClassName("msg");
+    for (let i = 0; i < elems.length; i++) {
+        elems[i].classList.add("hidden")
+    }
 }
 function shakeElement(elemId) {
     document.getElementById(elemId).classList.add("shake");

@@ -1,7 +1,7 @@
 <columns>
     <div class="columns">
         <div class="column is-3">
-            <div id="genericerror" class="has-text-danger is-size-4 has-text-centered errormessage hidden">
+            <div id="{AUTH_ERROR}" class="has-text-danger is-size-4 has-text-centered msg hidden">
                 Unexpected Error - please try again later.
             </div>
         </div>
@@ -15,13 +15,11 @@
         this.mixin(ObservableMixin);
         this.observable.on(AUTH_SUCCESS, function (opts) {
             console.log(AUTH_SUCCESS + ": " + opts.user)
-            displayMessage(false, 'loginfailed')
-            displayMessage(false, 'genericerror')
+            hideAllMessages()
         })
-        this.observable.on(ERROR, function (opts) {
-            console.log("Generic Error: " + opts.status + " " + opts.response)
-            displayMessage(true, 'genericerror')
-            displayMessage(false, 'loginfailed')
+        this.observable.on(AUTH_ERROR, function (opts) {
+            console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
+            displayMessage(AUTH_ERROR)
         })
     </script>
 </columns>

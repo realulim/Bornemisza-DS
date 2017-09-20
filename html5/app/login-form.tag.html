@@ -22,7 +22,7 @@
             </div>
         </form>
     </div>
-    <div id="loginfailed" class="has-text-danger is-size-4 has-text-centered errormessage hidden">
+    <div id="{AUTH_FAILED}" class="has-text-danger is-size-4 has-text-centered msg hidden">
         Authentication failed
     </div>
     <script>
@@ -45,14 +45,13 @@
                 })
                 .catch(function (e, xhr, response) {
                     if (xhr.status == 401) self.observable.trigger(AUTH_FAILED)
-                    else self.observable.trigger(ERROR, { status: xhr.status, response: xhr.responseText })
+                    else self.observable.trigger(AUTH_ERROR, { status: xhr.status, response: xhr.responseText })
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
         this.observable.on(AUTH_FAILED, function () {
-            shakeElement('card')
-            displayMessage(true, 'loginfailed')
-            displayMessage(false, 'genericerror')
+            shakeElement("card")
+            displayMessage(AUTH_FAILED)
         })
     </script>
 </login-form>
