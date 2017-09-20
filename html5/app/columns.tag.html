@@ -1,13 +1,14 @@
 <columns>
     <div class="columns">
         <div class="column is-3">
-
+            <div id="genericerror" class="has-text-danger is-size-4 has-text-centered errormessage hidden">
+                Unexpected Error - please try again later.
+            </div>
         </div>
         <div class="column is-6">
             <cards></cards>
         </div>
         <div class="column is-3">
-
         </div>
     </div>
     <script>
@@ -17,7 +18,8 @@
             displayMessage(false, 'loginfailed')
         })
         this.observable.on(ERROR, function (opts) {
-            alert('Unexpected Error ' + opts.status + ' - please try again later')
+            console.log("Generic Error: " + opts.status + " " + opts.response)
+            displayMessage(true, 'genericerror')
         })
     </script>
 </columns>

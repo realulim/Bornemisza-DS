@@ -45,7 +45,7 @@
                 })
                 .catch(function (e, xhr, response) {
                     if (xhr.status == 401) self.observable.trigger(AUTH_FAILED)
-                    else self.observable.trigger(ERROR, { status: xhr.status })
+                    else self.observable.trigger(ERROR, { status: xhr.status, response: xhr.responseText })
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
