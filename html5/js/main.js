@@ -20,9 +20,10 @@ function hideAllMessages() {
     }
 }
 function shakeElement(elemId) {
-    document.getElementById(elemId).classList.add("shake");
+    var elem = document.getElementById(elemId)
+    elem.classList.add("shake");
     window.setTimeout(function () {
-        document.getElementById(elemId).classList.remove("shake");
+        elem.classList.remove("shake");
     }, 1000);
 }
 function createAuthorizationHeader(user, password) {
