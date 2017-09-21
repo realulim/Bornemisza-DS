@@ -44,6 +44,7 @@
         }
         riot.mount("columns")
         console.log("Riot mounted...")
+
         var router = new Grapnel({ pushState: true });
         router.get("/authenticated", function (req) {
             displayMessage(AUTH_SUCCESS, true)
