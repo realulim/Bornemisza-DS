@@ -42,16 +42,21 @@
         var ObservableMixin = {
             observable: riot.observable()
         }
-        riot.mount("columns")
-        console.log("Riot mounted...")
+        var columnsTag = riot.mount("columns")[0]
+        console.log("Columns mounted...")
 
         var router = new Grapnel({ pushState: true });
         router.get("/authenticated", function (req) {
+            // cardsTag.unmount()
+            // mount new tags and display success message into it
             displayMessage(AUTH_SUCCESS, true)
-            window.history.back()
         })
         console.log("Router running...")
-    </script>
+
+        var cardsTag = riot.mount(document.getElementById("middleColumn"), "cards")[0]
+        console.log("Cards mounted...")
+
+</script>
 
     <script src="js/plugins.js"></script>
 </body>
