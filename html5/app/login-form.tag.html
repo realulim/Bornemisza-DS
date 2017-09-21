@@ -22,11 +22,17 @@
             </div>
         </form>
     </div>
-    <div id="{AUTH_FAILED}" class="has-text-danger is-size-4 has-text-centered msg hidden">
+    <div id="{AUTH_FAILED}" class="is-size-6 msg msg-bad hidden">
         Authentication failed
+        <a href="javascript:hideAllMessages();" class="delete is-small msg-bad-close"></a>
     </div>
-    <div id="{AUTH_SUCCESS}" class="has-text-friendly is-size-4 has-text-centered msg hidden">
+    <div id="{AUTH_SUCCESS}" class="is-size-6 msg msg-good hidden">
         Authenticated
+        <a href="javascript:hideAllMessages();" class="delete is-small msg-good-close"></a>
+    </div>
+    <div id="{AUTH_ERROR}" class="is-size-6 msg msg-bad hidden">
+        Unexpected Error - please try again later.
+        <a href="javascript:hideAllMessages();" class="delete is-small msg-bad-close"></a>
     </div>
     <script>
         this.mixin(ObservableMixin);

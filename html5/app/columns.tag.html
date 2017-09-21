@@ -1,9 +1,6 @@
 <columns>
     <div class="columns">
         <div class="column is-3">
-            <div id="{AUTH_ERROR}" class="has-text-danger is-size-4 has-text-centered msg hidden">
-                Unexpected Error - please try again later.
-            </div>
         </div>
         <div class="column is-6">
             <cards></cards>
@@ -20,7 +17,7 @@
         })
         this.observable.on(AUTH_ERROR, function (opts) {
             console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
-            displayMessage(AUTH_ERROR, true)
+            displayMessage(AUTH_ERROR, false)
         })
     </script>
 </columns>

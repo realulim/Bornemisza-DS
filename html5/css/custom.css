@@ -3,7 +3,7 @@ html {
 }
 
 a {
-  color: #8c19b3;
+  color: #8C19B3;
 }
 
 a:hover {
@@ -83,10 +83,40 @@ a:hover {
 }
 
 .msg {
+  background-color: none;
+  width: 99%;
   vertical-align: top;
-  margin-top: 7px;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 7px;
+  line-height: 1rem;
 }
 
-.has-text-friendly {
+.msg-bad {
+  border-color: #FD8181;
+  color: #FD8181
+}
+
+.msg-bad-close {
+  float: right;
+  background-color: #FD8181;
+}
+
+.msg-good {
+  border-color: #02CA2D;
+  color: #02CA2D;
+}
+
+.msg-good-close {
+  float: right;
+  background-color: #02CA2D;
+}
+
+.msg-friendly {
+  border-color: khaki;
   color: khaki;
 }
