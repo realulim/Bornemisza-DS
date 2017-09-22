@@ -16,7 +16,7 @@
             </div>
             <div class="field">
                 <p class="is-justified-left-and-right">
-                    <span>Not a member yet? <a href="javascript:flipDialog();" class="fliplink">Join us!</a></span>
+                    <span>Not a member yet? <a onclick="{flipDialog}" class="fliplink">Join us!</a></span>
                     <span><button type="submit">Sign in</button></span>
                 </p>
             </div>
@@ -24,15 +24,15 @@
     </div>
     <div id="{AUTH_FAILED}" class="is-size-6 msg msg-bad hidden">
         Authentication failed
-        <a href="javascript:hideAllMessages();" class="delete is-small msg-bad-close"></a>
+        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
     <div id="{AUTH_SUCCESS}" class="is-size-6 msg msg-good hidden">
         Authenticated
-        <a href="javascript:hideAllMessages();" class="delete is-small msg-good-close"></a>
+        <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
     </div>
     <div id="{AUTH_ERROR}" class="is-size-6 msg msg-bad hidden">
         Unexpected Error - please try again later.
-        <a href="javascript:hideAllMessages();" class="delete is-small msg-bad-close"></a>
+        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
     <script>
         this.mixin(ObservableMixin);
