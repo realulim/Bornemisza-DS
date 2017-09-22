@@ -49,7 +49,7 @@
         var router = new Grapnel({ pushState: true });
         router.get("/authenticated", function (req) {
             // cardsTag.unmount()
-            // mount new tags and display success message into it
+            // mount <main> tag and display success message into it
             displayMessage(AUTH_SUCCESS, true)
         })
         console.log("Router running...")
