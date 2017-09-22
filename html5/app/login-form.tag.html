@@ -58,6 +58,11 @@
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
+        this.observable.on(AUTH_SUCCESS, function (opts) {
+            console.log(AUTH_SUCCESS + ": " + opts.user)
+            hideAllMessages()
+            router.navigate("/authenticated");
+        })
         this.observable.on(AUTH_FAILED, function () {
             shakeElement("card")
             displayMessage(AUTH_FAILED, false)
