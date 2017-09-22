@@ -7,18 +7,6 @@ var AUTH_ERROR = "Error while authenticating"
 function flipDialog() {
     document.getElementById('card').classList.toggle("flipped");
 }
-function displayMessage(elemId, fadeInOut) {
-    var elem = document.getElementById(elemId)
-    hideAllMessages()
-    elem.classList.remove("hidden")
-    if (fadeInOut) elem.classList.add("fade-in-out")
-}
-function hideAllMessages() {
-    var elems = document.getElementsByClassName("msg");
-    for (let i = 0; i < elems.length; i++) {
-        elems[i].classList.add("hidden")
-    }
-}
 function shakeElement(elemId) {
     var elem = document.getElementById(elemId)
     elem.classList.add("shake");

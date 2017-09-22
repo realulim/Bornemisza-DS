@@ -47,9 +47,10 @@
         console.log("Columns mounted...")
 
         var router = new Grapnel({ pushState: true });
-        router.get("/authenticated", function (req) {
+        router.get("/main.html", function (req) {
             // cardsTag.unmount()
             // mount <main> tag and display success message in it
+            console.log("Routed to main.html...")
         })
         console.log("Router running...")
 

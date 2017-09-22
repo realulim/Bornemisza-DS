@@ -22,21 +22,52 @@
             </div>
         </form>
     </div>
-    <div id="{AUTH_FAILED}" class="is-size-6 msg msg-bad hidden">
+    <div if="{authFailed}" id="{AUTH_FAILED}" class="is-size-6 msg msg-bad">
         Authentication failed
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
-    <div id="{AUTH_SUCCESS}" class="is-size-6 msg msg-good hidden">
+    <div if="{authSuccess}" id="{AUTH_SUCCESS}" class="is-size-6 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
     </div>
-    <div id="{AUTH_ERROR}" class="is-size-6 msg msg-bad hidden">
+    <div if="{authError}" id="{AUTH_ERROR}" class="is-size-6 msg msg-bad">
         Unexpected Error - please try again later.
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
     <script>
-        this.mixin(ObservableMixin);
+        this.mixin(ObservableMixin)
         var self = this
+        this.authFailed = false
+        this.authSuccess = false
+        this.authError = false
+
+        this.hideAllMessages = () => {
+            this.authFailed = false
+            this.authSuccess = false
+            this.authError = false
+            this.update()
+        }
+
+        this.observable.on(AUTH_SUCCESS, function (opts) {
+            console.log(AUTH_SUCCESS + ": " + opts.user)
+            self.hideAllMessages()
+            self.authSuccess = true
+            self.update()
+            router.navigate("/main.html");
+        })
+        this.observable.on(AUTH_FAILED, function () {
+            self.hideAllMessages();
+            shakeElement("card")
+            self.authFailed = true
+            self.update()
+        })
+        this.observable.on(AUTH_ERROR, function (opts) {
+            console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
+            self.hideAllMessages();
+            self.authError = true
+            self.update()
+        })
+
         this.handleLogin = (event) => {
             event.preventDefault()
             for (let i = 0; i < event.target.length; i++) {
@@ -58,18 +89,5 @@
                 })
             console.log("Sent AJAX request to " + config.urlNewSession)
         }
-        this.observable.on(AUTH_SUCCESS, function (opts) {
-            console.log(AUTH_SUCCESS + ": " + opts.user)
-            displayMessage(AUTH_SUCCESS, true)
-            router.navigate("/authenticated");
-        })
-        this.observable.on(AUTH_FAILED, function () {
-            shakeElement("card")
-            displayMessage(AUTH_FAILED, false)
-        })
-        this.observable.on(AUTH_ERROR, function (opts) {
-            console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
-            displayMessage(AUTH_ERROR, false)
-        })
     </script>
 </login-form>
