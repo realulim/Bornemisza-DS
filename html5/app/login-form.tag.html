@@ -4,13 +4,13 @@
         <form onsubmit="{handleLogin}">
             <div class="field">
                 <p class="control has-icons-left">
-                    <input name="user" type="text" value="" placeholder="Username or Email" required>
+                    <input name="user" ref="user" type="text" value="" placeholder="Username or Email" required>
                     <span class="icon is-left"><i class="fa fa-user fa-fw"></i></span>
                 </p>
             </div>
             <div class="field">
                 <p class="control has-icons-left">
-                    <input name="password" type="password" value="" placeholder="Password" required>
+                    <input ref="password" type="password" value="" placeholder="Password" required>
                     <span class="icon is-left"><i class="fa fa-lock fa-fw"></i></span>
                 </p>
             </div>
@@ -69,11 +69,8 @@
 
         this.handleLogin = (event) => {
             event.preventDefault()
-            for (let i = 0; i < event.target.length; i++) {
-                if (event.target[i].name == 'user') var user = event.target[i].value
-                else if (event.target[i].name == 'password') var password = event.target[i].value
-            }
-            var authHeader = createAuthorizationHeader(user, password)
+            var user = this.refs.user.value
+            var authHeader = createAuthorizationHeader(user, this.refs.password.value)
             qwest.get(config.urlNewSession, null, {
                 headers: {
                     "Authorization": authHeader
