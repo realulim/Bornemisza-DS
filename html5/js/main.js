@@ -4,7 +4,7 @@ var AUTH_FAILED = "Authentication failed"
 var AUTH_ERROR = "Error while authenticating"
 
 // Functions
-function flipDialog() {
+function flipCard() {
     document.getElementById('card').classList.toggle("flipped");
 }
 function shakeElement(elemId) {
@@ -13,9 +13,4 @@ function shakeElement(elemId) {
     window.setTimeout(function () {
         elem.classList.remove("shake");
     }, 1000);
-}
-function createAuthorizationHeader(user, password) {
-    var tok = user + ':' + password;
-    var hash = btoa(tok);
-    return "Basic " + hash;
 }
