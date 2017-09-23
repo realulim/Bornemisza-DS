@@ -43,7 +43,7 @@
         var ObservableMixin = {
             observable: riot.observable()
         }
-        var columnsTag = riot.mount("columns")[0]
+        var columnsTag = riot.mount("columns")
         console.log("Columns mounted...")
 
         var router = new Grapnel({ pushState: true });
@@ -54,7 +54,7 @@
         })
         console.log("Router running...")
 
-        var cardsTag = riot.mount(document.getElementById("middleColumn"), "cards")[0]
+        var cardsTag = riot.mount(document.getElementById("middleColumn"), "cards")
         console.log("Cards mounted...")
 
     </script>
