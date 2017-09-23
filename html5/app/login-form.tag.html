@@ -22,15 +22,15 @@
             </div>
         </form>
     </div>
-    <div if="{authFailed}" id="{AUTH_FAILED}" class="is-size-6 msg msg-bad">
+    <div if="{authFailed}" class="is-size-6 msg msg-bad">
         Authentication failed
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
-    <div if="{authSuccess}" id="{AUTH_SUCCESS}" class="is-size-6 msg msg-good fade-in-out">
+    <div if="{authSuccess}" class="is-size-6 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
     </div>
-    <div if="{authError}" id="{AUTH_ERROR}" class="is-size-6 msg msg-bad">
+    <div if="{authError}" class="is-size-6 msg msg-bad">
         Unexpected Error - please try again later.
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
