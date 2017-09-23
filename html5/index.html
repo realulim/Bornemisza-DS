@@ -26,8 +26,7 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <section class="section">
-        <columns></columns>
+    <section id="root" class="section">
     </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.0/riot.min.js"></script>
@@ -43,7 +42,7 @@
         var ObservableMixin = {
             observable: riot.observable()
         }
-        var columnsTag = riot.mount("columns")
+        var columnsTag = riot.mount(document.getElementById("root"), "columns")
         console.log("Columns mounted...")
 
         var router = new Grapnel({ pushState: true });

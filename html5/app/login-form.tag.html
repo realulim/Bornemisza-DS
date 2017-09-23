@@ -52,6 +52,9 @@
             self.hideAllMessages()
             self.authSuccess = true
             self.update()
+            setTimeout(function() {
+                self.authSuccess = false
+            }, 5000)
             router.navigate("/main.html");
         })
         this.observable.on(AUTH_FAILED, function () {
