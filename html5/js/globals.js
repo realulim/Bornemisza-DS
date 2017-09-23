@@ -4,8 +4,7 @@ var AUTH_FAILED = "Authentication failed"
 var AUTH_ERROR = "Error while authenticating"
 
 // Functions
-function shakeElement(elemId) {
-    var elem = document.getElementById(elemId)
+function shakeElement(elem) {
     elem.classList.add("shake");
     window.setTimeout(function () {
         elem.classList.remove("shake");

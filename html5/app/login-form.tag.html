@@ -59,7 +59,7 @@
         })
         this.observable.on(AUTH_FAILED, function () {
             self.hideAllMessages();
-            shakeElement("card")
+            shakeElement(self.opts.shake)
             self.authFailed = true
             self.update()
         })
