@@ -5,8 +5,8 @@ var AUTH_ERROR = "Error while authenticating"
 
 // Functions
 function shakeElement(elem) {
-    elem.classList.add("shake");
+    elem.classList.add("shake")
     window.setTimeout(function () {
-        elem.classList.remove("shake");
+        elem.classList.remove("shake")
     }, 1000);
 }
