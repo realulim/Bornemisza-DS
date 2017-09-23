@@ -34,12 +34,15 @@
         Unexpected Error - please try again later.
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
+    <div ref="spinner" if="{isLoading}" class="large-loader hidden"></div>
+
     <script>
         this.mixin(ObservableMixin)
         var self = this
         this.authFailed = false
         this.authSuccess = false
         this.authError = false
+        this.isLoading = false
 
         this.hideAllMessages = () => {
             this.authFailed = false
@@ -52,7 +55,7 @@
         })
         this.observable.on(AUTH_SUCCESS, function (opts) {
             console.log(AUTH_SUCCESS + ": " + opts.user)
-            self.hideAllMessages()
+            self.isLoading = false
             self.authSuccess = true
             self.update()
             setTimeout(function() {
@@ -61,14 +64,14 @@
             router.navigate("/main.html");
         })
         this.observable.on(AUTH_FAILED, function () {
-            self.hideAllMessages();
+            self.isLoading = false
             shakeElement(self.opts.shake)
             self.authFailed = true
             self.update()
         })
         this.observable.on(AUTH_ERROR, function (opts) {
             console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
-            self.hideAllMessages();
+            self.isLoading = false
             self.authError = true
             self.update()
         })
@@ -81,6 +84,12 @@
 
         this.handleLogin = (event) => {
             event.preventDefault()
+            this.hideAllMessages()
+            self.isLoading = true
+            this.update()
+            setTimeout(function() {
+                if (self.isLoading) self.refs.spinner.classList.remove("hidden")
+            }, 2000)
             var user = this.refs.user.value
             var authHeader = createAuthorizationHeader(user, this.refs.password.value)
             qwest.get(config.urlNewSession, null, {

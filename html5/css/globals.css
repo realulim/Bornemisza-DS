@@ -7,7 +7,7 @@ a {
 }
 
 a:hover {
-  color: #8c19b3;
+  color: #8C19B3;
   text-decoration: underline;
 }
 
@@ -119,4 +119,21 @@ a:hover {
 .msg-friendly {
   border-color: khaki;
   color: khaki;
+}
+
+.large-loader {
+  -moz-animation: spinAround 500ms infinite linear;
+  -webkit-animation: spinAround 500ms infinite linear;
+  animation: spinAround 500ms infinite linear;
+  border: 2px solid rgba(255, 255, 255, 0.4);;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 4em;
+  width: 4em;
 }
