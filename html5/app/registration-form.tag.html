@@ -1,7 +1,7 @@
 <registration-form>
     <div class="login">
         <h1>Member Registration</h1>
-        <form method="post" action="">
+        <form onsubmit="{handleRegistration}">
             <div class="field">
                 <p class="control has-icons-left">
                     <input type="text" value="" placeholder="Your Username" required>
@@ -34,4 +34,11 @@
             </div>
         </form>
     </div>
+
+    <script>
+        this.handleRegistration = (event) => {
+            event.preventDefault()
+            console.log("Registration TBD")
+        }
+    </script>
 </registration-form>
