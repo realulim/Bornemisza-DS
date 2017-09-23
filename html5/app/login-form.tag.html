@@ -4,7 +4,7 @@
         <form onsubmit="{handleLogin}">
             <div class="field">
                 <p class="control has-icons-left">
-                    <input name="user" ref="user" type="text" value="" placeholder="Username or Email" required>
+                    <input ref="user" type="text" value="" placeholder="Username or Email" required>
                     <span class="icon is-left"><i class="fa fa-user fa-fw"></i></span>
                 </p>
             </div>
@@ -47,6 +47,9 @@
             this.authError = false
         }
 
+        this.on('mount', () => {
+            this.refs.user.focus()
+        })
         this.observable.on(AUTH_SUCCESS, function (opts) {
             console.log(AUTH_SUCCESS + ": " + opts.user)
             self.hideAllMessages()
