@@ -5,40 +5,80 @@
 
 	<style>
 		.spinner {
-			-moz-animation: spinAround 500ms infinite linear;
-			-webkit-animation: spinAround 500ms infinite linear;
-			animation: spinAround 500ms infinite linear;
-			border: 2px solid rgba(255, 255, 255, 0.4);
-			border-radius: 290486px;
-			border-right-color: transparent;
-			border-top-color: transparent;
-			content: "";
-			display: block;
-			margin-top: 20px;
-			margin-left: auto;
-			margin-right: auto;
-			height: 4em;
-			width: 4em;
+			position: absolute;
+			top: -500%;
+			left: -500%;
+			right: -500%;
+			bottom: -500%;
+			z-index: 9999;
+			height: 36px;
+			width: 36px;
+			margin: 100px auto;
+			-webkit-animation: rotation .4s infinite linear;
+			-moz-animation: rotation .4s infinite linear;
+			-o-animation: rotation .4s infinite linear;
+			animation: rotation .4s infinite linear;
+			border-left: 2px solid rgba(140, 25, 179, .15);
+			border-right: 2px solid rgba(140, 25, 179, .15);
+			border-bottom: 2px solid rgba(140, 25, 179, .15);
+			border-top: 2px solid rgba(140, 25, 179, .45);
+			border-radius: 100%;
+		}
+
+		@-webkit-keyframes rotation {
+			from {
+				-webkit-transform: rotate(0deg);
+			}
+			to {
+				-webkit-transform: rotate(359deg);
+			}
+		}
+
+		@-moz-keyframes rotation {
+			from {
+				-moz-transform: rotate(0deg);
+			}
+			to {
+				-moz-transform: rotate(359deg);
+			}
+		}
+
+		@-o-keyframes rotation {
+			from {
+				-o-transform: rotate(0deg);
+			}
+			to {
+				-o-transform: rotate(359deg);
+			}
+		}
+
+		@keyframes rotation {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(359deg);
+			}
 		}
 	</style>
 
 	<script>
-        this.mixin(ObservableMixin)
-        var self = this
+		this.mixin(ObservableMixin)
+		var self = this
 		this.delay = this.opts.delay ? this.opts.delay : 0
 		this.isLoading = false
 
 		this.observable.on(LOADING_IN_PROGRESS, function (opts) {
-            self.isLoading = true
-            self.update()
-            setTimeout(function() {
-                if (self.isLoading) self.refs.spinner.classList.remove("hidden")
-            }, 1000)
-        })
-        this.observable.on(LOADING_DONE, function () {
-            self.isLoading = false
-            self.update()
-        })
+			self.isLoading = true
+			self.update()
+			setTimeout(function () {
+				if (self.isLoading) self.refs.spinner.classList.remove("hidden")
+			}, 1000)
+		})
+		this.observable.on(LOADING_DONE, function () {
+			self.isLoading = false
+			self.update()
+		})
 	</script>
 
 </spinner>
