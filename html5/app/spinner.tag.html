@@ -1,19 +1,13 @@
-<spinner>
+<spinner style="display: flex; align-items: center; justify-content: center;">
 	<div ref="spinner" if="{isLoading}" class="spinner hidden">
 
 	</div>
 
 	<style>
 		.spinner {
-			position: absolute;
-			top: -500%;
-			left: -500%;
-			right: -500%;
-			bottom: -500%;
-			z-index: 9999;
+  			z-index: 99;
 			height: 36px;
 			width: 36px;
-			margin: 100px auto;
 			-webkit-animation: rotation .4s infinite linear;
 			-moz-animation: rotation .4s infinite linear;
 			-o-animation: rotation .4s infinite linear;

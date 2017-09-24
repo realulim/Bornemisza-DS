@@ -29,7 +29,10 @@
 
     <section id="root" class="section">
     </section>
-
+    <div style="margin-top: 53px">
+        <spinner delay="1000"></spinner>
+    </div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.0/riot.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js"></script>
     <script type="text/javascript" title="Grapnel Router">
@@ -44,7 +47,8 @@
             observable: riot.observable()
         }
         var columnsTag = riot.mount(document.getElementById("root"), "columns")
-        console.log("Columns mounted...")
+        riot.mount("spinner")
+        console.log("Columns and Spinner mounted...")
 
         var router = new Grapnel({ pushState: true });
         router.get("/main.html", function (req) {
