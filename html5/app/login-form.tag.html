@@ -89,10 +89,10 @@
             this.update()
             setTimeout(function() {
                 if (self.isLoading) self.refs.spinner.classList.remove("hidden")
-            }, 2000)
+            }, 1000)
             var user = this.refs.user.value
             var authHeader = createAuthorizationHeader(user, this.refs.password.value)
-            qwest.get(config.urlNewSession, null, {
+            qwest.get(config.urlNewSession, {timeout: 2000}, {
                 headers: {
                     "Authorization": authHeader
                 }
@@ -100,7 +100,8 @@
                 .then(function (xhr, response) {
                     self.observable.trigger(AUTH_SUCCESS, { user: user })
                 })
-                .catch(function (e, xhr, response) {
+                .catch(function (error, xhr, response) {
+                    console.log(error)
                     if (xhr.status === 401) self.observable.trigger(AUTH_FAILED)
                     else self.observable.trigger(AUTH_ERROR, { status: xhr.status, response: xhr.responseText })
                 })
