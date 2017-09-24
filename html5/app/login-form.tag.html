@@ -34,7 +34,7 @@
         Unexpected Error - please try again later.
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
-    <div ref="spinner" if="{isLoading}" class="large-loader hidden"></div>
+    <spinner delay="1000"></spinner>
 
     <script>
         this.mixin(ObservableMixin)
@@ -42,7 +42,6 @@
         this.authFailed = false
         this.authSuccess = false
         this.authError = false
-        this.isLoading = false
 
         this.hideAllMessages = () => {
             this.authFailed = false
@@ -55,7 +54,6 @@
         })
         this.observable.on(AUTH_SUCCESS, function (opts) {
             console.log(AUTH_SUCCESS + ": " + opts.user)
-            self.isLoading = false
             self.authSuccess = true
             self.update()
             setTimeout(function() {
@@ -64,14 +62,12 @@
             router.navigate("/main.html");
         })
         this.observable.on(AUTH_FAILED, function () {
-            self.isLoading = false
             shakeElement(self.opts.shake)
             self.authFailed = true
             self.update()
         })
         this.observable.on(AUTH_ERROR, function (opts) {
             console.log(AUTH_ERROR + ": " + opts.status + " " + opts.response)
-            self.isLoading = false
             self.authError = true
             self.update()
         })
@@ -85,11 +81,7 @@
         this.handleLogin = (event) => {
             event.preventDefault()
             this.hideAllMessages()
-            self.isLoading = true
-            this.update()
-            setTimeout(function() {
-                if (self.isLoading) self.refs.spinner.classList.remove("hidden")
-            }, 1000)
+            self.observable.trigger(LOADING_IN_PROGRESS)
             var user = this.refs.user.value
             var authHeader = createAuthorizationHeader(user, this.refs.password.value)
             qwest.get(config.urlNewSession, {timeout: 2000}, {
@@ -98,10 +90,11 @@
                 }
             })
                 .then(function (xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
                     self.observable.trigger(AUTH_SUCCESS, { user: user })
                 })
                 .catch(function (error, xhr, response) {
-                    console.log(error)
+                    self.observable.trigger(LOADING_DONE)
                     if (xhr.status === 401) self.observable.trigger(AUTH_FAILED)
                     else self.observable.trigger(AUTH_ERROR, { status: xhr.status, response: xhr.responseText })
                 })

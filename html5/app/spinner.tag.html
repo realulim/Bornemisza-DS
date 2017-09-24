@@ -1,0 +1,44 @@
+<spinner>
+	<div ref="spinner" if="{isLoading}" class="spinner hidden">
+
+	</div>
+
+	<style>
+		.spinner {
+			-moz-animation: spinAround 500ms infinite linear;
+			-webkit-animation: spinAround 500ms infinite linear;
+			animation: spinAround 500ms infinite linear;
+			border: 2px solid rgba(255, 255, 255, 0.4);
+			border-radius: 290486px;
+			border-right-color: transparent;
+			border-top-color: transparent;
+			content: "";
+			display: block;
+			margin-top: 20px;
+			margin-left: auto;
+			margin-right: auto;
+			height: 4em;
+			width: 4em;
+		}
+	</style>
+
+	<script>
+        this.mixin(ObservableMixin)
+        var self = this
+		this.delay = this.opts.delay ? this.opts.delay : 0
+		this.isLoading = false
+
+		this.observable.on(LOADING_IN_PROGRESS, function (opts) {
+            self.isLoading = true
+            self.update()
+            setTimeout(function() {
+                if (self.isLoading) self.refs.spinner.classList.remove("hidden")
+            }, 1000)
+        })
+        this.observable.on(LOADING_DONE, function () {
+            self.isLoading = false
+            self.update()
+        })
+	</script>
+
+</spinner>
