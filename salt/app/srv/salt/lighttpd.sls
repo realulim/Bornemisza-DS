@@ -29,3 +29,4 @@ lighttpd-running:
     - enable: true
     - listen:
       - file: /etc/lighttpd/lighttpd.conf
+      - file: /etc/lighttpd/modules.conf
