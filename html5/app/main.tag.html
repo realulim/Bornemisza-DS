@@ -15,9 +15,9 @@
             setTimeout(function () {
                 self.authSuccess = false
             }, 5000)
-            this.update()
         }
         else this.authSuccess = false;
+        this.update()
 
         this.on('mount', function () {
             console.log('Loading User Data...')
