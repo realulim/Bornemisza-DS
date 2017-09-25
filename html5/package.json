@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "riot --type es6 --ext html app bin/tags.js",
     "watch": "riot --type es6 --ext html -w app bin/tags.js",
-    "browser-sync": "browser-sync start --server --files 'bin/tags.js, *.html, css/*.css' --startPath .",
+    "browser-sync": "browser-sync start --server --config bs-config.js",
     "serve": "npm run watch & npm run browser-sync"
   },
   "keywords": [],
