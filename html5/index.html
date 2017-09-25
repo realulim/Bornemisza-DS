@@ -42,23 +42,31 @@
     <script src="js/globals.js"></script>
     <script src="bin/tags.js"></script>
     <script>
+        var self = this
+        this.observable = riot.observable()
         var ObservableMixin = {
-            observable: riot.observable()
+            observable: this.observable
         }
         var root = document.getElementById("root")
-        var columnsTag = riot.mount(root, "columns")
+        riot.mount(root, "columns")
         var middleColumn = document.getElementById("middleColumn")
         riot.mount("spinner")
-        console.log("Columns and Spinner mounted...")
-
-        var cardsTag = riot.mount(middleColumn, "cards")
-        console.log("Cards mounted...")
 
         var router = new Grapnel({ pushState: true });
+        router.get("/index.html", function (req) {
+            riot.mount(middleColumn, "cards")
+            console.log("Cards mounted...")
+        })
         router.get("/main.html", function (req) {
-            var mainTag = riot.mount(middleColumn, "main", {displayAuthSuccessMessage: true})
+            riot.mount(middleColumn, "main", { user: self.user })
         })
         console.log("Router running...")
+
+        this.observable.on(AUTH_SUCCESS, function (opts) {
+            self.user = opts.user
+            router.navigate("/main.html");
+            self.observable.trigger(JUST_MARRIED, { displayAuthSuccessMessage: true })
+        })
     </script>
 </body>
 
