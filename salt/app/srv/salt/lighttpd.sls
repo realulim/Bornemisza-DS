@@ -15,7 +15,7 @@ install_lighttpd_pkgs:
 /etc/lighttpd/modules.conf:
   file.replace:
     - pattern: "#  \"mod_rewrite\","
-    - repl: "mod_rewrite",
+    - repl: "\"mod_rewrite\","
 
 /var/www/{{ pillar['ssldomain'] }}:
   file.directory:
