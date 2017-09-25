@@ -53,6 +53,9 @@
         riot.mount("spinner")
 
         var router = new Grapnel({ pushState: true });
+        router.get("/", function(req) {
+            router.navigate("/index.html")
+        })
         router.get("/index.html", function (req) {
             riot.mount(middleColumn, "cards")
             console.log("Cards mounted...")
