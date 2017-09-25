@@ -12,6 +12,11 @@ install_lighttpd_pkgs:
   file.managed:
     - source: salt://files/lighttpd/access_log.conf
 
+/etc/lighttpd/modules.conf:
+  file.replace:
+    - pattern: "#  \"mod_rewrite\","
+    - repl: mod_rewrite,
+
 /var/www/{{ pillar['ssldomain'] }}:
   file.directory:
     - user: lighttpd
