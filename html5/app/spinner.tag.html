@@ -5,17 +5,17 @@
 
 	<style>
 		.spinner {
-  			z-index: 99;
-			height: 36px;
-			width: 36px;
+			z-index: 99;
+			height: 188px;
+			width: 188px;
 			-webkit-animation: rotation .4s infinite linear;
 			-moz-animation: rotation .4s infinite linear;
 			-o-animation: rotation .4s infinite linear;
 			animation: rotation .4s infinite linear;
-			border-left: 2px solid rgba(140, 25, 179, .15);
-			border-right: 2px solid rgba(140, 25, 179, .15);
-			border-bottom: 2px solid rgba(140, 25, 179, .15);
-			border-top: 2px solid rgba(140, 25, 179, .45);
+			border-left: 32px solid rgba(140, 25, 179, .25);
+			border-right: 32px solid rgba(140, 25, 179, .25);
+			border-bottom: 32px solid rgba(140, 25, 179, .25);
+			border-top: 32px solid rgba(140, 25, 179, .75);
 			border-radius: 100%;
 		}
 
@@ -61,16 +61,21 @@
 		var self = this
 		this.delay = this.opts.delay ? this.opts.delay : 0
 		this.isLoading = false
+		let root = document.getElementById("root")
 
 		this.observable.on(LOADING_IN_PROGRESS, function (opts) {
 			self.isLoading = true
 			self.update()
 			setTimeout(function () {
-				if (self.isLoading) self.refs.spinner.classList.remove("hidden")
+				if (self.isLoading) {
+					root.style.opacity = "0.3"
+					self.refs.spinner.classList.remove("hidden")
+				}
 			}, 1000)
 		})
 		this.observable.on(LOADING_DONE, function () {
 			self.isLoading = false
+			root.style.opacity = "1"
 			self.update()
 		})
 	</script>
