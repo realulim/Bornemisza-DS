@@ -45,20 +45,20 @@
         var ObservableMixin = {
             observable: riot.observable()
         }
-        var columnsTag = riot.mount(document.getElementById("root"), "columns")
+        var root = document.getElementById("root")
+        var columnsTag = riot.mount(root, "columns")
+        var middleColumn = document.getElementById("middleColumn")
         riot.mount("spinner")
         console.log("Columns and Spinner mounted...")
 
+        var cardsTag = riot.mount(middleColumn, "cards")
+        console.log("Cards mounted...")
+
         var router = new Grapnel({ pushState: true });
         router.get("/main.html", function (req) {
-            // cardsTag.unmount()
-            // mount <main> tag and display success message in it
-            console.log("Routed to main.html...")
+            var mainTag = riot.mount(middleColumn, "main", {displayAuthSuccessMessage: true})
         })
         console.log("Router running...")
-
-        var cardsTag = riot.mount(document.getElementById("middleColumn"), "cards")
-        console.log("Cards mounted...")
     </script>
 </body>
 

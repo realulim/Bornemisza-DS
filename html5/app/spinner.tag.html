@@ -71,7 +71,6 @@
 		var self = this
 		this.delay = this.opts.delay ? this.opts.delay : 0
 		this.isLoading = false
-		let root = document.getElementById("root")
 
 		this.observable.on(LOADING_IN_PROGRESS, function (opts) {
 			self.isLoading = true

@@ -26,10 +26,6 @@
         Authentication failed
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
-    <div if="{authSuccess}" class="is-size-6 msg msg-good fade-in-out">
-        Authenticated
-        <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
-    </div>
     <div if="{authError}" class="is-size-6 msg msg-bad">
         Unexpected Error - please try again later.
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
@@ -39,12 +35,10 @@
         this.mixin(ObservableMixin)
         var self = this
         this.authFailed = false
-        this.authSuccess = false
         this.authError = false
 
         this.hideAllMessages = () => {
             this.authFailed = false
-            this.authSuccess = false
             this.authError = false
         }
 
@@ -52,12 +46,6 @@
             this.refs.user.focus()
         })
         this.observable.on(AUTH_SUCCESS, function (opts) {
-            console.log(AUTH_SUCCESS + ": " + opts.user)
-            self.authSuccess = true
-            self.update()
-            setTimeout(function() {
-                self.authSuccess = false
-            }, 5000)
             router.navigate("/main.html");
         })
         this.observable.on(AUTH_FAILED, function () {

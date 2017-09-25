@@ -1,8 +1,30 @@
 <main>
     <h1>Main Page</h1>
+    <div if="{authSuccess}" class="is-size-6 msg msg-good fade-in-out">
+        Authenticated
+        <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
+    </div>
+
     <script>
+        this.mixin(ObservableMixin)
+        var self = this
+        if (opts.displayAuthSuccessMessage) {
+            console.log(AUTH_SUCCESS)
+            this.authSuccess = opts.displayAuthSuccessMessage
+            this.update()
+            setTimeout(function () {
+                self.authSuccess = false
+            }, 5000)
+            this.update()
+        }
+        else this.authSuccess = false;
+
         this.on('mount', function () {
             console.log('Loading User Data...')
         })
+
+        this.hideAllMessages = () => {
+            this.authSuccess = false
+        }
     </script>
 </main>
