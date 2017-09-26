@@ -14,7 +14,7 @@
 
     <div if="{appServerColor}" class="tags">
         <span class="tag is-large is-bold bg-{appServerColor}">Application Server</span>
-        <span class="tag is-small"></span>
+        <span class="tag is-medium is-bold is-uuid">{uuidCount}</span>
         <span class="tag is-large is-bold bg-{dbServerColor}">Database Server</span>
     </div>
 
@@ -79,6 +79,7 @@
         this.ctoken = sessionStorage.getItem("ctoken")
         this.justMarried = false
         this.uuid = ""
+        this.uuidCount = 0
         this.appServerColor = false
         this.dbServerColor = false
 
@@ -126,6 +127,7 @@
                     self.uuid = JSON.parse(xhr.responseText).uuids[0]
                     self.appServerColor = xhr.getResponseHeader("AppServer")
                     self.dbServerColor = xhr.getResponseHeader("DbServer")
+                    self.uuidCount++
                     self.update()
                 })
                 .catch(function (error, xhr, response) {
