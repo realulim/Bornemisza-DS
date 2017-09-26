@@ -3,18 +3,32 @@
     <div class="subtitle">Hello {user}</div>
 
     <div class="tags has-addons">
-        <span class="tag is-dark is-large">UUID</span>
-        <span class="tag is-large">{uuid}</span>
+        <span class="tag is-large is-dark">UUID</span>
+        <span class="tag is-large" style="width:400px">{uuid}</span>
+        <span class="tag is-large control">
+            <a onclick="{getUuid}">
+                <span class="icon is-medium">
+                    <i class="fa fa-refresh"></i>
+                </span>
+            </a>
+        </span>
     </div>
-    <form onsubmit="{getUuid}">
-        <button type="submit">Get UUID</button>
-    </form>
 
     <div if="{justMarried}" class="is-size-6 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
     </div>
 
+    <style>
+        a {
+            color: #363636;
+        }
+        a:hover {
+            color: #8C19B3;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
     <script>
         var self = this
         this.mixin(ObservableMixin)
@@ -44,7 +58,7 @@
             event.preventDefault()
             qwest.delete(config.urlEndSession, {
             })
-                .then(function(xhr, response) {
+                .then(function (xhr, response) {
                     console.log("Logged out.")
                 })
                 .catch(function (error, xhr, response) {
