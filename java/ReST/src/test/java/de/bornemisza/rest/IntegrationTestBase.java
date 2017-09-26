@@ -173,6 +173,14 @@ public class IntegrationTestBase {
                 .then().extract().response();
     }
 
+    protected Response getUuidsWithoutCookie(int count, int expectedStatusCode) {
+        requestSpecSessions.accept(ContentType.JSON)
+                .queryParam("count", count);
+        return given(requestSpecSessions)
+                .when().get("uuid")
+                .then().statusCode(expectedStatusCode).extract().response();
+    }
+
     protected Response getUuids(String cookie, int count, int expectedStatusCode) {
         String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
         requestSpecSessions.accept(ContentType.JSON)

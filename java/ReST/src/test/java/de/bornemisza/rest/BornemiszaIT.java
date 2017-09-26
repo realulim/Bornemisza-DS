@@ -16,68 +16,68 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     private static String revision, cookie;
 
-    @Test
-    public void t00_userAccountCreationRequest() {
-        deleteMails(user.getEmail());
-        user.setPassword(userPassword.toCharArray());
-        Response response = postUser(user, 202);
-        assertEquals(0, response.getBody().prettyPrint().length());
-    }
-
-    @Test
-    public void t01_confirmUser() {
-        long start = System.currentTimeMillis();
-        String confirmationLink = retrieveConfirmationLink(user.getEmail());
-        assertTrue(confirmationLink.startsWith("https://"));
-        System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
-        Response response = clickConfirmationLink(confirmationLink, 200);
-        JsonPath jsonPath = response.jsonPath();
-        assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
-        assertNull(jsonPath.getString("password"));
-
-        /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
-        response = clickConfirmationLink(confirmationLink, 404);
-        assertEquals("User Account Creation Request does not exist - maybe expired?", response.print());
-    }
-
-    @Test
-    public void t02_userAccountCreationRequest_userAlreadyExists() {
-        user.setPassword(userPassword.toCharArray());
-        Response response = postUser(user, 409);
-        assertEquals(user.getName() + " already exists!", response.getBody().print());
-    }
-
-    @Test
-    public void t03_userAccountCreationRequest_emailAlreadyExists() {
-        User userWithExistingEmail = new User();
-        userWithExistingEmail.setEmail(user.getEmail());
-        userWithExistingEmail.setName("Not " + user.getName());
-        userWithExistingEmail.setPassword(new char[] {'p', 'w'});
-        userWithExistingEmail.setRoles(user.getRoles());
-        Response response = postUser(userWithExistingEmail, 409);
-        assertEquals(user.getEmail().getAddress() + " already exists!", response.getBody().print());
-    }
-
-    @Test
-    public void t04_readUser_notAuthorized() {
-        getUser(userName, 401);
-    }
-
-    @Test
-    public void t05_readUser_unauthorized() {
-        requestSpecUsers.auth().preemptive().basic("root", "guessedpassword");
-        getUser(userName, 401);
-    }
-
-    @Test
-    public void t06_readUser() {
-        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
-        Response response = getUser(userName, 200);
-        JsonPath jsonPath = response.jsonPath();
-        revision = jsonPath.getString("_rev");
-        assertTrue(revision.length() > 10);
-    }
-
+//    @Test
+//    public void t00_userAccountCreationRequest() {
+//        deleteMails(user.getEmail());
+//        user.setPassword(userPassword.toCharArray());
+//        Response response = postUser(user, 202);
+//        assertEquals(0, response.getBody().prettyPrint().length());
+//    }
+//
+//    @Test
+//    public void t01_confirmUser() {
+//        long start = System.currentTimeMillis();
+//        String confirmationLink = retrieveConfirmationLink(user.getEmail());
+//        assertTrue(confirmationLink.startsWith("https://"));
+//        System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
+//        Response response = clickConfirmationLink(confirmationLink, 200);
+//        JsonPath jsonPath = response.jsonPath();
+//        assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
+//        assertNull(jsonPath.getString("password"));
+//
+//        /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
+//        response = clickConfirmationLink(confirmationLink, 404);
+//        assertEquals("User Account Creation Request does not exist - maybe expired?", response.print());
+//    }
+//
+//    @Test
+//    public void t02_userAccountCreationRequest_userAlreadyExists() {
+//        user.setPassword(userPassword.toCharArray());
+//        Response response = postUser(user, 409);
+//        assertEquals(user.getName() + " already exists!", response.getBody().print());
+//    }
+//
+//    @Test
+//    public void t03_userAccountCreationRequest_emailAlreadyExists() {
+//        User userWithExistingEmail = new User();
+//        userWithExistingEmail.setEmail(user.getEmail());
+//        userWithExistingEmail.setName("Not " + user.getName());
+//        userWithExistingEmail.setPassword(new char[] {'p', 'w'});
+//        userWithExistingEmail.setRoles(user.getRoles());
+//        Response response = postUser(userWithExistingEmail, 409);
+//        assertEquals(user.getEmail().getAddress() + " already exists!", response.getBody().print());
+//    }
+//
+//    @Test
+//    public void t04_readUser_notAuthorized() {
+//        getUser(userName, 401);
+//    }
+//
+//    @Test
+//    public void t05_readUser_unauthorized() {
+//        requestSpecUsers.auth().preemptive().basic("root", "guessedpassword");
+//        getUser(userName, 401);
+//    }
+//
+//    @Test
+//    public void t06_readUser() {
+//        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
+//        Response response = getUser(userName, 200);
+//        JsonPath jsonPath = response.jsonPath();
+//        revision = jsonPath.getString("_rev");
+//        assertTrue(revision.length() > 10);
+//    }
+//
     @Test
     public void t07_createSession() {
         requestSpecSessions.auth().preemptive().basic(userName, userPassword);
@@ -103,6 +103,12 @@ public class BornemiszaIT extends IntegrationTestBase {
         Response response = endSession(cookie, 200);
         assertEquals("AuthSession=; Version=1; Path=/; HttpOnly", response.getHeader("Set-Cookie"));
         assertEquals(0, response.getBody().prettyPrint().length());
+    }
+
+    @Test
+    public void t10_getUuidsWithoutCookie() {
+        Response response = getUuidsWithoutCookie(1, 401);
+        assertEquals("No Cookie!", response.getBody().prettyPrint());
     }
 
     @Test
