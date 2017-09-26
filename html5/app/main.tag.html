@@ -4,12 +4,10 @@
 
     <div class="tags has-addons">
         <span class="tag is-large is-dark">UUID</span>
-        <span class="tag is-large" style="width:400px">{uuid}</span>
+        <span class="tag is-large is-uuid">{uuid}</span>
         <span class="tag is-large control">
-            <a onclick="{getUuid}">
-                <span class="icon is-medium">
-                    <i class="fa fa-refresh"></i>
-                </span>
+            <a onclick="{getUuid}" class="icon is-medium has-quarter-spin">
+                <i class="fa fa-refresh"></i>
             </a>
         </span>
     </div>
@@ -23,12 +21,27 @@
         a {
             color: #363636;
         }
+
         a:hover {
             color: #8C19B3;
             font-weight: bold;
             text-decoration: none;
         }
+
+        .is-uuid {
+            font-family: monospace;
+            text-transform: uppercase;
+        }
+
+        .has-quarter-spin {
+            transition: transform 0.2s;
+        }
+
+        .has-quarter-spin:hover {
+            transform: rotate(45deg);
+        }
     </style>
+
     <script>
         var self = this
         this.mixin(ObservableMixin)
