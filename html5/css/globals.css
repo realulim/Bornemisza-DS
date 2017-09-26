@@ -127,3 +127,7 @@ a:hover {
   justify-content: space-between;
   margin-top: 1.5rem;
 }
+
+.is-bold {
+  font-weight: bold;
+}

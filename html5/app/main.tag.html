@@ -12,6 +12,12 @@
         </span>
     </div>
 
+    <div if="{appServerColor}" class="tags">
+        <span class="tag is-large is-bold bg-{appServerColor}">Application Server</span>
+        <span class="tag is-small"></span>
+        <span class="tag is-large is-bold bg-{dbServerColor}">Database Server</span>
+    </div>
+
     <div if="{justMarried}" class="is-size-6 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
@@ -24,12 +30,12 @@
 
         a:hover {
             color: #8C19B3;
-            font-weight: bold;
             text-decoration: none;
         }
 
         .is-uuid {
             font-family: monospace;
+            font-weight: bold;
             text-transform: uppercase;
         }
 
@@ -40,6 +46,30 @@
         .has-quarter-spin:hover {
             transform: rotate(45deg);
         }
+
+        .bg-LightSeaGreen {
+            background: lightseagreen;
+        }
+
+        .bg-Crimson {
+            background: crimson;
+        }
+
+        .bg-Gold {
+            background: gold;
+        }
+
+        .bg-RoyalBlue {
+            background: royalblue;
+        }
+
+        .bg-LightSalmon {
+            background: lightsalmon;
+        }
+
+        .bg-Black {
+            background: black;
+        }
     </style>
 
     <script>
@@ -49,6 +79,8 @@
         this.ctoken = sessionStorage.getItem("ctoken")
         this.justMarried = false
         this.uuid = ""
+        this.appServerColor = false
+        this.dbServerColor = false
 
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
@@ -92,6 +124,8 @@
                 .then(function (xhr, response) {
                     self.observable.trigger(LOADING_DONE)
                     self.uuid = JSON.parse(xhr.responseText).uuids[0]
+                    self.appServerColor = xhr.getResponseHeader("AppServer")
+                    self.dbServerColor = xhr.getResponseHeader("DbServer")
                     self.update()
                 })
                 .catch(function (error, xhr, response) {
