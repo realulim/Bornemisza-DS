@@ -156,7 +156,6 @@ public class Sessions {
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
-Logger.getAnonymousLogger().info("Cookie: " + cookie);
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cookie);
