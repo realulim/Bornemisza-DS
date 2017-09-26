@@ -1,6 +1,15 @@
 <main>
     <h1 class="title">Main Page</h1>
     <div class="subtitle">Hello {user}</div>
+
+    <div class="tags has-addons">
+        <span class="tag is-dark is-large">UUID</span>
+        <span class="tag is-large">{uuid}</span>
+    </div>
+    <form onsubmit="{getUuid}">
+        <button type="submit">Get UUID</button>
+    </form>
+
     <div if="{justMarried}" class="is-size-6 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
@@ -11,6 +20,7 @@
         this.mixin(ObservableMixin)
         this.user = (typeof opts.user === "undefined" ? "Nobody" : opts.user)
         this.justMarried = false
+        this.uuid = ""
 
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
@@ -28,6 +38,24 @@
         this.hideAllMessages = () => {
             this.justMarried = false
             this.update()
+        }
+
+        this.getUuid = (event) => {
+            event.preventDefault()
+            self.observable.trigger(LOADING_IN_PROGRESS)
+            qwest.get(config.urlUuid, { timeout: 2000 }, {
+            })
+                .then(function (xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
+                    self.uuid = JSON.parse(xhr.responseText).uuids[0]
+                    self.update()
+                })
+                .catch(function (error, xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
+                    if (xhr.status === 401) self.observable.trigger(AUTH_FAILED)
+                    else self.observable.trigger(AUTH_ERROR, { status: xhr.status, response: xhr.responseText })
+                })
+            console.log("Sent AJAX request to " + config.urlUuid)
         }
     </script>
 </main>
