@@ -7,6 +7,10 @@ var LOADING_DONE = "Loading Data completed";
 var JUST_MARRIED = "User just logged in successfully"
 
 // Functions
+function setBackground(color) {
+    document.documentElement.setAttribute("style", "background-color: " + color)
+}
+
 function shakeElement(elem) {
     elem.classList.add("shake");
     window.setTimeout(function () {

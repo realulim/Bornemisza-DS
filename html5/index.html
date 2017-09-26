@@ -57,10 +57,12 @@
             router.navigate("/index.html")
         })
         router.get("/index.html", function (req) {
+            setBackground("slategrey")
             riot.mount(middleColumn, "cards")
             console.log("Cards mounted...")
         })
         router.get("/main.html", function (req) {
+            setBackground("#99AABB")
             riot.mount(middleColumn, "main")
         })
         console.log("Router running...")
