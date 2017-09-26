@@ -1,6 +1,5 @@
 <main>
-    <h1 class="title">Main Page</h1>
-    <div class="subtitle">Hello {user}</div>
+    <h1 class="title">Dashboard</h1>
 
     <div class="tags has-addons">
         <span class="tag is-large is-dark">UUID</span>
@@ -75,7 +74,6 @@
     <script>
         var self = this
         this.mixin(ObservableMixin)
-        this.user = sessionStorage.getItem("user")
         this.ctoken = sessionStorage.getItem("ctoken")
         this.justMarried = false
         this.uuid = ""
@@ -93,7 +91,7 @@
         })
 
         this.on('mount', function () {
-            console.log("Loading User Data for " + self.user)
+            console.log("Loading User Data...")
         })
 
         this.hideAllMessages = () => {

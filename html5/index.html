@@ -49,7 +49,9 @@
         }
         var root = document.getElementById("root")
         riot.mount(root, "columns")
+        var leftColumn = document.getElementById("leftColumn")
         var middleColumn = document.getElementById("middleColumn")
+        var rightColumn = document.getElementById("rightColumn")
         riot.mount("spinner")
 
         var router = new Grapnel({ pushState: true });
@@ -64,6 +66,7 @@
         router.get("/main.html", function (req) {
             setBackground("#99AABB")
             riot.mount(middleColumn, "main")
+            riot.mount(rightColumn, "user-menu")
         })
         console.log("Router running...")
 
