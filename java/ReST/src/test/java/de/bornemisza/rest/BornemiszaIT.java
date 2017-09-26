@@ -101,7 +101,7 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t09_endSession() {
-        Response response = endSession(cToken, 200);
+        Response response = endSession(200);
         assertEquals("AuthSession=; Version=1; Path=/; HttpOnly", response.getHeader("Set-Cookie"));
         assertNull(response.getHeader("C-Token"));
         assertEquals(0, response.getBody().prettyPrint().length());

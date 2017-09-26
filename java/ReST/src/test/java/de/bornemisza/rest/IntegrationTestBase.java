@@ -181,20 +181,17 @@ public class IntegrationTestBase {
                 .then().statusCode(expectedStatusCode).extract().response();
     }
 
-    protected Response getUuids(String cookie, int count, int expectedStatusCode) {
-        String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
+    protected Response getUuids(String cToken, int count, int expectedStatusCode) {
         requestSpecSessions.accept(ContentType.JSON)
-                .cookie("AuthSession", cookieStr)
+                .header("C-Token", cToken)
                 .queryParam("count", count);
         return given(requestSpecSessions)
                 .when().get("uuid")
                 .then().statusCode(expectedStatusCode).extract().response();
     }
 
-    protected Response endSession(String cookie, int expectedStatusCode) {
-        String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
-        requestSpecSessions.accept(ContentType.JSON)
-                .cookie("AuthSession", cookieStr);
+    protected Response endSession(int expectedStatusCode) {
+        requestSpecSessions.accept(ContentType.JSON);
         return given(requestSpecSessions)
                 .when().delete("/")
                 .then().statusCode(expectedStatusCode).extract().response();

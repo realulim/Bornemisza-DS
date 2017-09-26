@@ -174,7 +174,7 @@ public class SessionsTest {
 
     @Test
     public void deleteCookieInBrowser() {
-        Response response = CUT.deleteCookieInBrowser("MyCookie");
+        Response response = CUT.deleteCookieInBrowser();
         assertEquals(200, response.getStatus());
     }
 

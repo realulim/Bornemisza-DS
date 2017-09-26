@@ -143,7 +143,7 @@ public class Sessions {
 
     @DELETE
     @Path("/")
-    public Response deleteCookieInBrowser(@HeaderParam(HttpHeaders.COOKIE) String cookie) {
+    public Response deleteCookieInBrowser() {
         return Response.ok()
                 .header("Cache-Control", "must-revalidate")
                 .header("Set-Cookie", "AuthSession=; Version=1; Path=/; HttpOnly")
