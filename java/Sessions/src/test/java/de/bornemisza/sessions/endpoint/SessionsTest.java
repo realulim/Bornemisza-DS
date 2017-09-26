@@ -117,7 +117,7 @@ public class SessionsTest {
         headers.put(HttpHeaders.SET_COOKIE, cookies);
         Response response = CUT.getNewSession(AUTH_HEADER);
         assertEquals(200, response.getStatus());
-        assertEquals(cookie, response.getHeaderString("Set-Cookie"));
+        assertEquals(cookie, response.getHeaderString("C-Token"));
     }
 
     @Test
@@ -169,7 +169,7 @@ public class SessionsTest {
         when(get.text()).thenReturn(json);
         Session session = CUT.getActiveSession(cookie);
         assertEquals("Fazil Ongudar", session.getPrincipal());
-        assertEquals(cookie, session.getCookie());
+        assertEquals(cookie, session.getCToken());
     }
 
     @Test

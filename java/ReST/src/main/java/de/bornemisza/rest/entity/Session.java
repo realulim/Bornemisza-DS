@@ -21,8 +21,8 @@ public class Session {
     @JsonProperty(value = "type")
     private String type = "session";
 
-    @JsonProperty(value = "cookie")
-    private String cookie;
+    @JsonProperty(value = "ctoken")
+    private String ctoken;
 
     @JsonProperty(value = "name")
     private String principal;
@@ -38,12 +38,12 @@ public class Session {
         this.type = type;
     }
 
-    public String getCookie() {
-        return cookie;
+    public String getCToken() {
+        return ctoken;
     }
 
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
+    public void setCToken(String cToken) {
+        this.ctoken = cToken;
     }
 
     public String getPrincipal() {

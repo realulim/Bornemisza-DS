@@ -39,7 +39,6 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import java.util.logging.Logger;
 
 @Path("/")
 public class Sessions {
@@ -55,6 +54,8 @@ public class Sessions {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private List<String> allHostnames;
+
+    private static final String CTOKEN_HEADER = "C-Token";
 
     public Sessions() { }
 
@@ -105,18 +106,18 @@ public class Sessions {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No Cookie!").build();
         }
         else {
-            return Response.ok().header(HttpHeaders.SET_COOKIE, cookies.get(0)).build();
+            return Response.ok().header(CTOKEN_HEADER, cookies.get(0)).build();
         }
     }
 
     @GET
     @Path("active")
     @Produces(MediaType.APPLICATION_JSON)
-    public Session getActiveSession(@HeaderParam(HttpHeaders.COOKIE) String cookie) {
-        if (isVoid(cookie)) throw new WebApplicationException(
+    public Session getActiveSession(@HeaderParam(CTOKEN_HEADER) String cToken) {
+        if (isVoid(cToken)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
         Get get = sessionsPool.getConnection().get("")
-                .header(HttpHeaders.COOKIE, cookie);
+                .header(HttpHeaders.COOKIE, cToken);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
@@ -135,8 +136,8 @@ public class Sessions {
             session.addRole(node.asText());
         }
         List<String> cookies = get.headers().get(HttpHeaders.SET_COOKIE);
-        if (! (cookies == null || cookies.isEmpty())) session.setCookie(cookies.iterator().next());
-        else session.setCookie(cookie);
+        if (! (cookies == null || cookies.isEmpty())) session.setCToken(cookies.iterator().next());
+        else session.setCToken(cToken);
         return session;
     }
 
@@ -152,13 +153,13 @@ public class Sessions {
     @GET
     @Path("uuid")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
+    public Response getUuids(@HeaderParam(CTOKEN_HEADER) String cToken,
                              @DefaultValue("1")@QueryParam("count") int count) {
-        if (isVoid(cookie)) throw new WebApplicationException(
+        if (isVoid(cToken)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
-                .header(HttpHeaders.COOKIE, cookie);
+                .header(HttpHeaders.COOKIE, cToken);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
