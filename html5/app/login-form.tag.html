@@ -68,14 +68,15 @@
             self.observable.trigger(LOADING_IN_PROGRESS)
             var user = this.refs.user.value
             var authHeader = createAuthorizationHeader(user, this.refs.password.value)
-            qwest.get(config.urlNewSession, {timeout: 2000}, {
+            qwest.get(config.urlNewSession, {}, {
+                timeout: 5000,
                 headers: {
                     "Authorization": authHeader
                 }
             })
                 .then(function (xhr, response) {
                     self.observable.trigger(LOADING_DONE)
-                    self.observable.trigger(AUTH_SUCCESS, { user: user })
+                    self.observable.trigger(AUTH_SUCCESS, { user: user, ctoken: xhr.getResponseHeader("C-Token") })
                 })
                 .catch(function (error, xhr, response) {
                     self.observable.trigger(LOADING_DONE)

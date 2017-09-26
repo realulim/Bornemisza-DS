@@ -33,6 +33,7 @@
         var self = this
         this.mixin(ObservableMixin)
         this.user = sessionStorage.getItem("user")
+        this.ctoken = sessionStorage.getItem("ctoken")
         this.justMarried = false
         this.uuid = ""
 
@@ -69,7 +70,11 @@
         this.getUuid = (event) => {
             event.preventDefault()
             self.observable.trigger(LOADING_IN_PROGRESS)
-            qwest.get(config.urlUuid, { timeout: 2000 }, {
+            qwest.get(config.urlUuid, {}, {
+                timeout: 5000,
+                headers: {
+                    "C-Token": self.ctoken
+                }
             })
                 .then(function (xhr, response) {
                     self.observable.trigger(LOADING_DONE)

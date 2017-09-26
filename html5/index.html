@@ -68,6 +68,7 @@
         this.observable.on(AUTH_SUCCESS, function (opts) {
             sessionStorage.clear()
             sessionStorage.setItem("user", opts.user)
+            sessionStorage.setItem("ctoken", opts.ctoken)
             router.navigate("/main.html");
             self.observable.trigger(JUST_MARRIED, { displayAuthSuccessMessage: true })
         })
