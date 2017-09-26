@@ -39,6 +39,7 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.sessions.JAXRSConfiguration;
+import java.util.logging.Logger;
 
 @Path("/")
 public class Sessions {
@@ -155,6 +156,7 @@ public class Sessions {
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
+Logger.getAnonymousLogger().info("Cookie: " + cookie);
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cookie);
