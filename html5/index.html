@@ -61,12 +61,13 @@
             console.log("Cards mounted...")
         })
         router.get("/main.html", function (req) {
-            riot.mount(middleColumn, "main", { user: self.user })
+            riot.mount(middleColumn, "main")
         })
         console.log("Router running...")
 
         this.observable.on(AUTH_SUCCESS, function (opts) {
-            self.user = opts.user
+            sessionStorage.clear()
+            sessionStorage.setItem("user", opts.user)
             router.navigate("/main.html");
             self.observable.trigger(JUST_MARRIED, { displayAuthSuccessMessage: true })
         })
