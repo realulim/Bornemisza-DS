@@ -90,7 +90,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     public void t08_getUuids() {
         assertTrue(cookie.startsWith("AuthSession="));
         int count = 3;
-        Response response = getUuids(cookie, count);
+        Response response = getUuids(cookie, count, 200);
         JsonPath jsonPath = response.jsonPath();
         List<String> uuids = jsonPath.getList("uuids");
         assertEquals(count, uuids.size());
@@ -99,7 +99,14 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t09_changeEmailRequest() {
+    public void t09_endSession() {
+        Response response = endSession(cookie, 200);
+        assertEquals("AuthSession=; Version=1; Path=/; HttpOnly", response.getHeader("Set-Cookie"));
+        assertEquals(0, response.getBody().prettyPrint().length());
+    }
+
+    @Test
+    public void t10_changeEmailRequest() {
         requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         deleteMails(newEmail);
         user.setEmail(newEmail);
@@ -108,7 +115,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t10_confirmEmail() {
+    public void t11_confirmEmail() {
         BasicAuthCredentials creds = new BasicAuthCredentials(userName, userPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
@@ -124,7 +131,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t11_changePassword() {
+    public void t12_changePassword() {
         requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
@@ -134,20 +141,20 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t12_removeUser() {
+    public void t13_removeUser() {
         requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(userName, 401);
     }
 
     @Test
-    public void t13_checkUserRemoved() {
+    public void t14_checkUserRemoved() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(userName, 404);
     }
 
     @Test
-    public void t14_removeNonExistingUser() {
+    public void t15_removeNonExistingUser() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }

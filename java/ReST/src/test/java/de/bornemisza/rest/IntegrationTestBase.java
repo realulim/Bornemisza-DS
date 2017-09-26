@@ -173,22 +173,23 @@ public class IntegrationTestBase {
                 .then().extract().response();
     }
 
-    protected Response getActiveSession(String cookie) {
-        String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
-        requestSpecSessions.accept(ContentType.JSON).cookie("AuthSession", cookieStr);
-        return given(requestSpecSessions)
-                .when().get("active")
-                .then().extract().response();
-    }
-
-    protected Response getUuids(String cookie, int count) {
+    protected Response getUuids(String cookie, int count, int expectedStatusCode) {
         String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
         requestSpecSessions.accept(ContentType.JSON)
                 .cookie("AuthSession", cookieStr)
                 .queryParam("count", count);
         return given(requestSpecSessions)
                 .when().get("uuid")
-                .then().extract().response();
+                .then().statusCode(expectedStatusCode).extract().response();
+    }
+
+    protected Response endSession(String cookie, int expectedStatusCode) {
+        String cookieStr = cookie.substring(cookie.indexOf("=") + 1);
+        requestSpecSessions.accept(ContentType.JSON)
+                .cookie("AuthSession", cookieStr);
+        return given(requestSpecSessions)
+                .when().delete("/")
+                .then().statusCode(expectedStatusCode).extract().response();
     }
 
 }
