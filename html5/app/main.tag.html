@@ -40,6 +40,18 @@
             this.update()
         }
 
+        this.logout = (event) => {
+            event.preventDefault()
+            qwest.delete(config.urlEndSession, {
+            })
+                .then(function(xhr, response) {
+                    console.log("Logged out.")
+                })
+                .catch(function (error, xhr, response) {
+                    console.log("Error logging out: " + error)
+                })
+        }
+
         this.getUuid = (event) => {
             event.preventDefault()
             self.observable.trigger(LOADING_IN_PROGRESS)
