@@ -1,0 +1,56 @@
+<aside>
+    <div class="main">
+
+        <div class="title">Aside</div>
+
+        <a href="#" class="item active">
+            <span class="icon"><i class="fa fa-home"></i></span><span class="name">Link1</span>
+        </a>
+
+        <a href="#" class="item">
+            <span class="icon"><i class="fa fa-map-marker"></i></span><span class="name">Link2</span>
+        </a>
+    </div>
+
+    <style>
+        .main {
+            padding: 40px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .item {
+            display: block;
+            padding: 10px 0;
+        }
+
+        .item .active {
+            color: whitesmoke;
+        }
+
+        .icon {
+            font-size: 19px;
+            padding-right: 30px;
+        }
+
+        .name {
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+
+    <script>
+        var self = this
+        this.mixin(ObservableMixin)
+        this.user = sessionStorage.getItem("user")
+
+        this.logout = () => {
+            console.log("Logout requested...")
+        }
+    </script>
+
+</aside>

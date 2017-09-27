@@ -1,0 +1,99 @@
+<layout>
+
+    <div class="columns">
+
+        <div class="column is-2 aside hero is-fullheight is-hidden-mobile">
+            <div id="aside-content"></div>
+        </div>
+
+        <div class="column is-10">
+
+            <div class="nav">
+                <div class="container">
+
+                    <div class="container">
+                        <div id="top-content" class="has-text-centered is-size-4">
+                        </div>
+                    </div>
+
+                    <!-- Hamburger menu on mobile -->
+                    <label class="nav-toggle" for="nav-toggle-state">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </label>
+                    <input type="checkbox" id="nav-toggle-state" class="checkbox-hidden" />
+                    <div class="nav-right nav-menu is-hidden-tablet">
+                        <a href="#" class="nav-item">Link1 Mobile</a>
+                        <a href="#" class="nav-item">Link2 Mobile</a>
+                        <a href="#" class="nav-item">Logout</a>
+                    </div>
+
+                </div>
+            </div>
+
+            <section class="hero is-small">
+                <div class="hero-body">
+                    <div id="hero-content" class="container">
+                        <h1 class="title">
+                            Hero
+                        </h1>
+                        <h2 class="subtitle">
+                            Hero content
+                        </h2>
+                    </div>
+                </div>
+
+                <div id="hero-footer" class="hero-foot">
+                    <div class="level">
+                        <div class="level-item has-text-centered">
+                            <div>
+                                <p class="heading">Hero Footer</p>
+                                <p class="subtitle">Content</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="columns is-mobile is-multiline">
+                    <div class="container">
+                        <div id="main-content">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <footer id="footer" class="footer">
+        <div class="container">
+            <div id="footer-content" class="has-text-centered">
+                Footer
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .aside {
+            background-color: #99AABB;
+            margin-right: -10px;
+        }
+
+        .checkbox-hidden {
+            display: none;
+        }
+
+        #nav-toggle-state:checked~.nav-menu {
+            display: block;
+        }
+
+        .nav {
+            background: #99AABB;
+        }
+    </style>
+
+</layout>

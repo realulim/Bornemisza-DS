@@ -28,8 +28,7 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <section id="root" class="section">
-    </section>
+    <div id="root"></div>
     <spinner delay="1000"></spinner>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.0/riot.min.js"></script>
@@ -47,26 +46,24 @@
         var ObservableMixin = {
             observable: this.observable
         }
-        var root = document.getElementById("root")
-        riot.mount(root, "columns")
-        var leftColumn = document.getElementById("leftColumn")
-        var middleColumn = document.getElementById("middleColumn")
-        var rightColumn = document.getElementById("rightColumn")
         riot.mount("spinner")
-
+        var root = document.getElementById("root")
+        
         var router = new Grapnel({ pushState: true });
         router.get("/", function (req) {
             router.navigate("/index.html")
         })
         router.get("/index.html", function (req) {
             setBackground("slategrey")
-            riot.mount(middleColumn, "cards")
+            riot.mount(root, "cards")
             console.log("Cards mounted...")
         })
         router.get("/main.html", function (req) {
             setBackground("#99AABB")
-            riot.mount(middleColumn, "main")
-            riot.mount(rightColumn, "user-menu")
+            riot.mount(root, "layout")
+            riot.mount(document.getElementById("aside-content"), "aside")
+            riot.mount(document.getElementById("top-content"), "user-menu")
+            riot.mount(document.getElementById("main-content"), "main")
         })
         console.log("Router running...")
 

@@ -7,6 +7,20 @@ a:hover {
   text-decoration: underline;
 }
 
+.is-justified-left-and-right {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.is-bold {
+  font-weight: bold;
+}
+
+
+/* Shake Animation */
+
 @-webkit-keyframes shake {
   10%, 90% {
     -webkit-transform: translate3d(-5px, 0, 0);
@@ -58,6 +72,9 @@ a:hover {
   animation: shake 1s infinite;
 }
 
+
+/* Fade in and out Animation */
+
 @keyframes fadeInOut {
   0% {
     opacity: 0;
@@ -77,6 +94,9 @@ a:hover {
   opacity: 0;
   animation: fadeInOut 5s 1;
 }
+
+
+/* Popup Notifications */
 
 .msg {
   background-color: none;
@@ -115,15 +135,4 @@ a:hover {
 .msg-friendly {
   border-color: khaki;
   color: khaki;
-}
-
-.is-justified-left-and-right {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-}
-
-.is-bold {
-  font-weight: bold;
 }
