@@ -31,7 +31,7 @@
     <section id="root" class="section">
     </section>
     <spinner delay="1000"></spinner>
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.0/riot.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js"></script>
     <script type="text/javascript" title="Grapnel Router">
@@ -55,7 +55,7 @@
         riot.mount("spinner")
 
         var router = new Grapnel({ pushState: true });
-        router.get("/", function(req) {
+        router.get("/", function (req) {
             router.navigate("/index.html")
         })
         router.get("/index.html", function (req) {
