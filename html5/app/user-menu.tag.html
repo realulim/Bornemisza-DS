@@ -31,7 +31,9 @@
         this.user = sessionStorage.getItem("user")
 
         this.logout = () => {
-            console.log("Logout requested...")
+            sessionStorage.clear()
+            console.log("Session ended.")
+            router.navigate("/index.html")
         }
     </script>
 

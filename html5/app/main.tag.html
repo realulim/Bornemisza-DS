@@ -71,9 +71,11 @@
     </style>
 
     <script>
+        this.ctoken = sessionStorage.getItem("ctoken")
+        if (this.ctoken == null) router.navigate("/index.html");
+
         var self = this
         this.mixin(ObservableMixin)
-        this.ctoken = sessionStorage.getItem("ctoken")
         this.justMarried = false
         this.uuid = ""
         this.uuidCount = 0

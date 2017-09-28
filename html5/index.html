@@ -56,7 +56,6 @@
         router.get("/index.html", function (req) {
             setBackground("slategrey")
             riot.mount(root, "cards")
-            console.log("Cards mounted...")
         })
         router.get("/main.html", function (req) {
             riot.mount(root, "layout")
