@@ -1,9 +1,31 @@
+:root {
+  --lightslate: #BCC6CC;
+  --mediumslate: #99AABB;
+  --darkslate: slategrey;
+  --purple: #8C19B3;
+  --msgbad: #AA0000;
+  --msggood: #02FF35;
+  --friendly: khaki;
+}
+
+.has-background-light {
+  background-color: var(--lightslate);
+}
+
+.has-background-medium {
+  background-color: var(--mediumslate);
+}
+
+.has-background-dark {
+  background-color: var(--darkslate);;
+}
+
 a {
-  color: #8C19B3;
+  color: var(--purple);
 }
 
 a:hover {
-  color: #8C19B3;
+  color: var(--purple);
   text-decoration: underline;
 }
 
@@ -16,18 +38,6 @@ a:hover {
 
 .is-bold {
   font-weight: bold;
-}
-
-.has-background-light {
-  background-color: wheat;
-}
-
-.has-background-medium {
-  background-color: #99AABB;
-}
-
-.has-background-dark {
-  background-color: slategrey;
 }
 
 
@@ -127,24 +137,19 @@ a:hover {
 }
 
 .msg-bad {
-  border-color: #AA0000;
-  color: #AA0000
+  border-color: var(--msgbad);
+  color: var(--msgbad);
 }
 
 .msg-bad-close {
-  background-color: #AA0000;
+  background-color: var(--msgbad);
 }
 
 .msg-good {
-  border-color: #02FF35;
-  color: #02FF35;
+  border-color: var(--msggood);
+  color: var(--msggood);
 }
 
 .msg-good-close {
-  background-color: #02FF35;
-}
-
-.msg-friendly {
-  border-color: khaki;
-  color: khaki;
+  background-color: var(--msggood);
 }
