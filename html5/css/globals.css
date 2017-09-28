@@ -9,7 +9,7 @@ a:hover {
 
 .is-justified-left-and-right {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   margin-top: 1.5rem;
 }
