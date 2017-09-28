@@ -13,10 +13,10 @@
 			self.update()
 			setTimeout(function () {
 				if (self.isLoading) {
-					root.style.opacity = "0.2"
 					self.refs.spinner.classList.remove("hidden")
+					root.style.opacity = "0.2"
 				}
-			}, 1000)
+			}, self.delay)
 		})
 		this.observable.on(LOADING_DONE, function () {
 			self.isLoading = false
