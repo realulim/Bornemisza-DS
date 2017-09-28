@@ -5,7 +5,9 @@
   --purple: #8C19B3;
   --msgbad: #9C0A0A;
   --msggood: #36B50C;
-  --friendly: khaki;
+  --dark: #363636;
+  --friendlycolor: khaki;
+  --selectcolor: #CEE7EE;
 }
 
 .has-background-light {
