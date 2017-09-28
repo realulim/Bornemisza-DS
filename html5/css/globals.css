@@ -3,8 +3,8 @@
   --mediumslate: #99AABB;
   --darkslate: slategrey;
   --purple: #8C19B3;
-  --msgbad: #AA0000;
-  --msggood: #02FF35;
+  --msgbad: #9C0A0A;
+  --msggood: #36B50C;
   --friendly: khaki;
 }
 
@@ -123,8 +123,8 @@ a:hover {
 .msg {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   background-color: none;
-  width: 99%;
   vertical-align: top;
   margin-top: 20px;
   margin-left: auto;
