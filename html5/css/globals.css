@@ -99,6 +99,8 @@ a:hover {
 /* Popup Notifications */
 
 .msg {
+  display: flex;
+  justify-content: space-between;
   background-color: none;
   width: 99%;
   vertical-align: top;
@@ -118,7 +120,6 @@ a:hover {
 }
 
 .msg-bad-close {
-  float: right;
   background-color: #AA0000;
 }
 
@@ -128,7 +129,6 @@ a:hover {
 }
 
 .msg-good-close {
-  float: right;
   background-color: #02FF35;
 }
 
