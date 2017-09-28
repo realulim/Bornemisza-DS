@@ -18,6 +18,18 @@ a:hover {
   font-weight: bold;
 }
 
+.has-background-light {
+  background-color: wheat;
+}
+
+.has-background-medium {
+  background-color: #99AABB;
+}
+
+.has-background-dark {
+  background-color: slategrey;
+}
+
 
 /* Shake Animation */
 
