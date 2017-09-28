@@ -1,7 +1,7 @@
 <aside>
     <div class="main">
 
-        <div class="title">Aside</div>
+        <div class="title">Aside Menu</div>
 
         <a href="#" class="item active">
             <span class="icon"><i class="fa fa-home"></i></span><span class="name">Link1</span>
@@ -10,11 +10,31 @@
         <a href="#" class="item">
             <span class="icon"><i class="fa fa-map-marker"></i></span><span class="name">Link2</span>
         </a>
-    </div>
 
+        <a href="#" class="item">
+                <span class="icon"><i class="fa fa-bus"></i></span><span class="name">Link3</span>
+            </a>
+        </div>
     <style>
+        a:hover {
+            text-decoration: none;
+            background-color: var(--selectcolor);
+            font-weight: bold;
+        }
+
+        .item {
+            color: var(--dark);
+            display: block;
+            padding: 10px 0;
+        }
+
+        .active {
+            color: var(--purple);
+            font-weight: bold;
+        }
+
         .main {
-            padding: 40px;
+            padding: 20px;
         }
 
         .title {
@@ -23,23 +43,14 @@
             text-transform: uppercase;
         }
 
-        .item {
-            display: block;
-            padding: 10px 0;
-        }
-
-        .active {
-            color: whitesmoke;
-        }
-
         .icon {
             font-size: 19px;
-            padding-right: 30px;
+            padding-left: 20px;
+            padding-right: 20px;
         }
 
         .name {
             font-size: 16px;
-            font-weight: bold;
         }
     </style>
 
