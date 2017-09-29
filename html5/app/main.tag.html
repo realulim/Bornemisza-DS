@@ -20,7 +20,11 @@
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
     </div>
-            
+    <div if="{loadingError}" class="is-size-5 msg msg-bad">
+        Unexpected Error - please try again later.
+        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
+    </div>
+
     <style>
         a {
             color: var(--dark);
@@ -76,12 +80,16 @@
 
         var self = this
         this.mixin(ObservableMixin)
+        this.loadingError = false
         this.justMarried = false
         this.uuid = ""
         this.uuidCount = 0
         this.appServerColor = false
         this.dbServerColor = false
 
+        this.on('mount', function () {
+            console.log("Loading User Data...")
+        })
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
             self.update()
@@ -90,13 +98,15 @@
                 self.update()
             }, 5000)
         })
-
-        this.on('mount', function () {
-            console.log("Loading User Data...")
+        this.observable.on(LOADING_ERROR, function (opts) {
+            console.log(LOADING_ERROR + ": " + opts.status + " " + opts.response)
+            self.loadingError = true
+            self.update()
         })
 
         this.hideAllMessages = () => {
             this.justMarried = false
+            this.loadingError = false
             this.update()
         }
 
@@ -131,8 +141,7 @@
                 })
                 .catch(function (error, xhr, response) {
                     self.observable.trigger(LOADING_DONE)
-                    if (xhr.status === 401) self.observable.trigger(AUTH_FAILED)
-                    else self.observable.trigger(AUTH_ERROR, { status: xhr.status, response: xhr.responseText })
+                    self.observable.trigger(LOADING_ERROR, { status: xhr.status, response: xhr.responseText })
                 })
             console.log("Sent AJAX request to " + config.urlUuid)
         }
