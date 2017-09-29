@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -25,8 +26,8 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import de.bornemisza.users.HealthChecks;
 import de.bornemisza.loadbalancer.da.Pool;
+import de.bornemisza.users.HealthChecks;
 
 @Singleton
 @Startup
@@ -83,11 +84,15 @@ public class PoolMaintenance {
     void rebuildTimer() {
         Collection<Timer> timers = timerService.getAllTimers();
         for (Timer timer: timers) {
-            if (timer.getInfo().equals(TIMER_NAME)) {
-                timer.cancel();
+            try {
+                if (timer.getInfo().equals(TIMER_NAME)) {
+                    timer.cancel();
+                }
             }
-        }
-        ScheduleExpression expression = new ScheduleExpression();
+            catch (IllegalStateException | NoSuchObjectLocalException e) {
+                Logger.getAnonymousLogger().warning("Timer inaccessible: " + timer);
+            }
+        }        ScheduleExpression expression = new ScheduleExpression();
         expression.hour("*").minute(calculateMinuteExpression());
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
