@@ -24,11 +24,12 @@ fi
 
 # if we have already setup payara, but not told it the couchdb admin password yet, then we ask for it here
 if grep -s changeit /root/.payara ; then
-	IFS= read -s -p -r 'CouchDB Admin Password [leave empty to specify it at a later time]: ' COUCH_PW
+	read -s -p 'CouchDB Admin Password [leave empty to specify it at a later time]: ' COUCH_PW
 	if [ ! -z $COUCH_PW ]; then
 		sed -i.bak "s/changeit/$COUCH_PW/g" /root/.payara
 		printf " " >> /opt/payara/bin/domain-config.sh
 	fi
+	printf "\n"
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
@@ -55,14 +56,16 @@ fi
 
 # ask for autonomous system number
 if ! grep -q ASN: /srv/pillar/basics.sls ; then
-	IFS= read -s -p -r 'ASN: ' ASN
+	read -s -p 'ASN: ' ASN
 	printf "ASN: $ASN\n" >> $PillarLocal/basics.sls
+	printf "\n"
 fi
 
 # ask for BGP password
 if ! grep -q BGP: /srv/pillar/basics.sls ; then
-	IFS= read -s -p -r 'BGP: ' BGP
+	read -s -p 'BGP: ' BGP
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
+	printf "\n"
 fi
 
 chmod -R 400 $PillarLocal

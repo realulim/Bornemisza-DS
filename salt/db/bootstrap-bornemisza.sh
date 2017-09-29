@@ -22,18 +22,21 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 		COUCH_PW=`generatepw`
 	fi
 	printf "couchdb-admin-password: $COUCH_PW\n" > $PillarLocal/couchdb.sls
+	printf "\n"
 
 	read -s -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
 	if [ -z $COOKIE ]; then
 		COOKIE=`generatepw`
 	fi
 	printf "cookie: $COOKIE\n" >> $PillarLocal/couchdb.sls
+	printf "\n"
 
 	read -p 'IP Address of Node already in Cluster [leave empty if this is the first node]: ' CLUSTERIP
 	if [ -z $CLUSTERIP ]; then
 		CLUSTERIP=`getprivip db`
 	fi
 	printf "clusterip: $CLUSTERIP\n" >> $PillarLocal/couchdb.sls
+	printf "\n"
 
 	CLUSTERSIZE=${#db_HostLocation[@]}
 	printf "clustersize: $CLUSTERSIZE\n" >> $PillarLocal/couchdb.sls

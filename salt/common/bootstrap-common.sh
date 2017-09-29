@@ -39,12 +39,14 @@ fi
 if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
 	read -s -p 'Cloudflare API Key: ' CFKEY
 	printf "CFKEY: $CFKEY\n" >> $PillarLocal/basics.sls
+	printf "\n"
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
 if ! grep -q CFEMAIL: /srv/pillar/basics.sls ; then
 	read -s -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
+	printf "\n"
 fi
 
 # determine zone id of domain
