@@ -7,21 +7,35 @@
 		var self = this
 		this.delay = this.opts.delay ? this.opts.delay : 0
 		this.isLoading = false
+		this.disabled = false
 
 		this.observable.on(LOADING_IN_PROGRESS, function (opts) {
-			self.isLoading = true
-			self.update()
-			setTimeout(function () {
-				if (self.isLoading) {
-					self.refs.spinner.classList.remove("hidden")
-					root.style.opacity = "0.2"
-				}
-			}, self.delay)
+			if (!self.disabled) {
+				self.isLoading = true
+				self.update()
+				setTimeout(function () {
+					if (self.isLoading) {
+						self.refs.spinner.classList.remove("hidden")
+						root.style.opacity = "0.2"
+					}
+				}, self.delay)
+			}
 		})
+
 		this.observable.on(LOADING_DONE, function () {
-			self.isLoading = false
-			root.style.opacity = "1"
-			self.update()
+			if (!self.disabled) {
+				self.isLoading = false
+				root.style.opacity = "1"
+				self.update()
+			}
+		})
+
+		this.observable.on(DISABLE_SPINNER, function () {
+			self.disabled = true;
+		})
+
+		this.observable.on(ENABLE_SPINNER, function () {
+			self.disabled = false;
 		})
 	</script>
 

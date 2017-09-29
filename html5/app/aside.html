@@ -13,6 +13,11 @@
         <a href="#" class="item">
             <span class="icon"><i class="fa fa-bus"></i></span><span class="name">Link3</span>
         </a>
+
+        <a onclick="{toggleSpinner}" class="item remove-whitespace is-unselectable">
+            <span class="icon"><i ref="spinnerCheckbox" class="fa fa-check-square-o"></i></span>
+            <span class="name">Spinner</span>
+        </a>
     </div>
 
     <style>
@@ -26,6 +31,10 @@
             color: var(--dark);
             display: block;
             padding: 10px 0;
+        }
+
+        .remove-whitespace {
+            font-size: 0;
         }
 
         .active {
@@ -45,8 +54,9 @@
 
         .icon {
             font-size: 19px;
-            padding-left: 20px;
-            padding-right: 20px;
+            padding-left: 10px;
+            padding-right: 30px;
+            justify-content: flex-start;
         }
 
         .name {
@@ -54,4 +64,17 @@
         }
     </style>
 
+    <script>
+        this.mixin(ObservableMixin)
+        var self = this;
+
+        this.toggleSpinner = () => {
+            let spinnerClasses = self.refs.spinnerCheckbox.classList;
+            spinnerClasses.toggle("fa-check-square-o")
+            spinnerClasses.toggle("fa-square-o")
+            self.update()
+            if (spinnerClasses.contains("fa-check-square-o")) self.observable.trigger(ENABLE_SPINNER)
+            else self.observable.trigger(DISABLE_SPINNER)
+        }
+    </script>
 </aside>
