@@ -14,6 +14,7 @@ source config.sh $1
 
 # update system
 yum -y update
+yum install -y epel-release
 yum install -y bind-utils jq svn
 yum clean all
 
