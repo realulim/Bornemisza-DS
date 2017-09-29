@@ -4,7 +4,6 @@
 install_nodejs_pkgs:
   pkg.installed:
     - pkgs:
-      - epel-release
       - nodejs
       - npm
 
