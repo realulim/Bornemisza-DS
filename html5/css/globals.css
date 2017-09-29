@@ -3,11 +3,11 @@
   --mediumslate: #99AABB;
   --darkslate: slategrey;
   --purple: #8C19B3;
-  --msgbad: #9C0A0A;
-  --msggood: forestgreen;
+  --msgbad: orange;
+  --msggood: dodgerblue;
   --dark: #363636;
   --friendlycolor: khaki;
-  --selectcolor: #CEE7EE;
+  --selectcolor: #CADFEB;
 }
 
 .has-background-light {
