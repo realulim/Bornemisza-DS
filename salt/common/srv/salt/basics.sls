@@ -41,6 +41,12 @@ rsyslog:
         $UDPServerRun 514
         $UDPServerAddress 127.0.0.1
 
+/etc/resolv.conf:
+  file.line:
+    - content: "nameserver 8.8.8.8"
+    - mode: ensure
+    - before: "nameserver"
+
 firewalld:
   service:
     - dead
