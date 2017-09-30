@@ -13,7 +13,15 @@ public class HealthChecks {
             Post post = http.post("");
             Map<String, List<String>> headers = post.headers();
             List<String> header = headers.get("Server");
-            return header != null && !header.isEmpty() && header.get(0).startsWith("CouchDB");
+            if (header == null || header.isEmpty()) {
+                Logger.getAnonymousLogger().warning("Health Check failed: No Header");
+                return false;
+            }
+            else if (header.get(0).startsWith("CouchDB")) return true;
+            else {
+                Logger.getAnonymousLogger("Health Check failed: " + header.get(0));
+                return false;
+            }
         }
         catch (Exception e) {
             Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
