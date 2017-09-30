@@ -93,3 +93,9 @@ mount-swapfile:
   cmd.run:
     - name: swapon -a
     - unless: swapon -s | grep /swap
+
+/opt/logs:
+  file.directory:
+    - user: root
+    - group: root
+    - dir_mode: 755
