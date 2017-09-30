@@ -42,10 +42,15 @@ payara-installed:
     - name: /opt/payara-{{ PAYARA_VERSION }}
     - onlyif: ls /opt/payara41
 
-create-symlink:
+create-payara-symlink:
   file.symlink:
     - name: {{ PAYARA_DIR }}
     - target: payara-{{ PAYARA_VERSION }}
+
+create-payara-server.log-symlink:
+  file.symlink:
+    - name: /opt/logs/server.log
+    - target: /opt/payara/glassfish/domains/domain1/log/server.log
 
 payara-running:
   service.running:
