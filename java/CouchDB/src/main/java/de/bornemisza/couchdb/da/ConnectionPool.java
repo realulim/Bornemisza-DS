@@ -34,12 +34,12 @@ public class ConnectionPool extends Pool {
     }
 
     public MyCouchDbConnector getConnector(String userName, char[] password) {
-        for (String hostname : (List<String>)couchDbHostQueue) {
+        for (String hostname : (List<String>)getCouchDbHostQueue()) {
             CouchDbConnection conn = (CouchDbConnection)allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = (Integer)couchDbHostUtilisation.get(hostname);
-                couchDbHostUtilisation.put(hostname, ++usageCount);
+                Integer usageCount = (Integer)getCouchDbHostUtilisation().get(hostname);
+                getCouchDbHostUtilisation().put(hostname, ++usageCount);
                 HttpClient httpClient = createHttpClient(conn, userName, password);
                 if (password != null) Arrays.fill(password, '*');
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);

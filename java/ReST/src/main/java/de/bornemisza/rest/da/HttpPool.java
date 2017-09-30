@@ -24,12 +24,12 @@ public class HttpPool extends Pool {
     }
 
     public Http getConnection() {
-        for (String hostname : (List<String>)couchDbHostQueue) {
+        for (String hostname : (List<String>)getCouchDbHostQueue()) {
             Http conn = (Http)allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = (Integer)couchDbHostUtilisation.get(hostname);
-                couchDbHostUtilisation.put(hostname, ++usageCount);
+                Integer usageCount = (Integer)getCouchDbHostUtilisation().get(hostname);
+                getCouchDbHostUtilisation().put(hostname, ++usageCount);
                 return conn;
             }
             else {
