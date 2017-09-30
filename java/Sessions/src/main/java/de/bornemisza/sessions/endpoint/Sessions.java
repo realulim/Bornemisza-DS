@@ -142,7 +142,6 @@ public class Sessions {
     }
 
     @DELETE
-    @Path("/")
     public Response deleteCookieInBrowser() {
         return Response.ok()
                 .header("Cache-Control", "must-revalidate")
