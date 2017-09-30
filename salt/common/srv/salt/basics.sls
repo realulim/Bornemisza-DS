@@ -42,10 +42,8 @@ rsyslog:
         $UDPServerAddress 127.0.0.1
 
 /etc/resolv.conf:
-  file.line:
-    - content: "nameserver 8.8.8.8"
-    - mode: ensure
-    - before: "nameserver"
+  file.prepend:
+    - text: "nameserver 8.8.8.8"
 
 firewalld:
   service:
