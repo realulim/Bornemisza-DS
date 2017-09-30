@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.hazelcast.core.HazelcastInstance;
-
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
+
+import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.entity.CouchDbConnection;
