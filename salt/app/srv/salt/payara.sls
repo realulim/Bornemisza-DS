@@ -50,7 +50,7 @@ create-payara-symlink:
 create-payara-server.log-symlink:
   file.symlink:
     - name: /opt/logs/server.log
-    - target: /opt/payara/glassfish/domains/domain1/log/server.log
+    - target: /opt/payara/glassfish/domains/domain1/logs/server.log
 
 payara-running:
   service.running:
