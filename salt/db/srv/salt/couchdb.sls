@@ -110,6 +110,11 @@ configure-couchdb:
   file.managed:
     - source: salt://files/couchdb/couchdb.logrotate.conf
 
+create-couchdb-log-symlink:
+  file.symlink:
+    - name: /opt/logs/couchdb.log
+    - target: /home/couchpotato/couchdb.log
+
 run-couchdb:
   service.running:
     - name: couchdb
