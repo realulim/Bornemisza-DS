@@ -1,6 +1,14 @@
 <spinner style="display: flex; justify-content: center;">
 
-	<img ref="spinner" if="{isLoading}" class="hidden" src="/img/progressbar.gif" />
+	<img ref="spinner" if="{isLoading}" class="spinner hidden" src="/img/progressbar.gif" />
+
+	<style>
+		.spinner {
+			position: absolute;
+			left: 45vw;
+			top: 40vh;
+		}
+	</style>
 
 	<script>
 		this.mixin(ObservableMixin)
