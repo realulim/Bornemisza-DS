@@ -18,6 +18,11 @@
             <span class="icon"><i ref="spinnerCheckbox" class="fa fa-check-square-o"></i></span>
             <span class="name">Spinner</span>
         </a>
+
+        <a onclick="{toggleContinuous}" class="item remove-whitespace is-unselectable">
+            <span class="icon"><i ref="continuousCheckbox" class="fa fa-square-o"></i></span>
+            <span class="name">Continuous</span>
+        </a>
     </div>
 
     <style>
@@ -75,6 +80,15 @@
             self.update()
             if (spinnerClasses.contains("fa-check-square-o")) self.observable.trigger(ENABLE_SPINNER)
             else self.observable.trigger(DISABLE_SPINNER)
+        }
+
+        this.toggleContinuous = () => {
+            let continuousClasses = self.refs.continuousCheckbox.classList;
+            continuousClasses.toggle("fa-check-square-o")
+            continuousClasses.toggle("fa-square-o")
+            self.update()
+            if (continuousClasses.contains("fa-check-square-o")) self.observable.trigger(START_CONTINUOUS)
+            else self.observable.trigger(STOP_CONTINUOUS)
         }
     </script>
 </aside>
