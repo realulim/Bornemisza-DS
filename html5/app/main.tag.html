@@ -132,29 +132,46 @@
         this.getUuid = (event) => {
             event.preventDefault()
             if (self.continuousMode) {
-                console.log("Continuous Mode")
+                startContinuousRequests()
             }
             else {
-                self.observable.trigger(LOADING_IN_PROGRESS)
-                qwest.get(config.urlUuid, {}, {
-                    timeout: 5000,
-                    headers: {
-                        "C-Token": self.ctoken
-                    }
+                makeSingleRequest()
+            }
+        }
+
+        function makeSingleRequest() {
+            self.observable.trigger(LOADING_IN_PROGRESS)
+            qwest.get(config.urlUuid, {}, {
+                timeout: 5000,
+                headers: {
+                    "C-Token": self.ctoken
+                }
+            })
+                .then(function (xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
+                    self.uuid = JSON.parse(xhr.responseText).uuids[0]
+                    self.appServerColor = xhr.getResponseHeader("AppServer")
+                    self.dbServerColor = xhr.getResponseHeader("DbServer")
+                    self.uuidCount++
+                    self.update()
                 })
-                    .then(function (xhr, response) {
-                        self.observable.trigger(LOADING_DONE)
-                        self.uuid = JSON.parse(xhr.responseText).uuids[0]
-                        self.appServerColor = xhr.getResponseHeader("AppServer")
-                        self.dbServerColor = xhr.getResponseHeader("DbServer")
-                        self.uuidCount++
-                        self.update()
-                    })
-                    .catch(function (error, xhr, response) {
-                        self.observable.trigger(LOADING_DONE)
-                        self.observable.trigger(LOADING_ERROR, { status: xhr.status, response: xhr.responseText })
-                    })
-                console.log("Sent AJAX request to " + config.urlUuid)
+                .catch(function (error, xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
+                    self.observable.trigger(LOADING_ERROR, { status: xhr.status, response: xhr.responseText })
+                })
+            console.log("Sent AJAX request to " + config.urlUuid)
+        }
+
+        function startContinuousRequests() {
+            var worker = new Worker("/js/getUuidWorker.js")
+            worker.postMessage(self.ctoken)
+            worker.onmessage = function (event) {
+                self.uuid = event.data.uuid
+                self.appServerColor = event.data.appServerColor
+                self.dbServerColor = event.data.dbServerColor
+                self.uuidCount++
+                self.update()
+                worker.terminate()
             }
         }
     </script>
