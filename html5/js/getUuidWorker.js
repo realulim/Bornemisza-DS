@@ -2,14 +2,13 @@ importScripts("https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js")
 importScripts("/js/config.js");
 
 onmessage = function (event) {
-	for (i = 0; i < 999; i++) {
+	for (i = 0; i < 1000; i++) {
 		makeAjaxRequest(event.data);
 	}
 };
 
 function makeAjaxRequest(ctoken) {
 	qwest.get(config.urlUuid, {}, {
-		timeout: 5000,
 		headers: {
 			"C-Token": ctoken
 		}
