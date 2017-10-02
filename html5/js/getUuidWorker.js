@@ -2,7 +2,9 @@ importScripts("https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js")
 importScripts("/js/config.js");
 
 onmessage = function (event) {
-	makeAjaxRequest(event.data);
+	for (i = 0; i < 999; i++) {
+		makeAjaxRequest(event.data);
+	}
 };
 
 function makeAjaxRequest(ctoken) {

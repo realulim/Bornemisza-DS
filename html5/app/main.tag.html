@@ -87,6 +87,7 @@
         this.appServerColor = false
         this.dbServerColor = false
         this.continuousMode = false
+        this.worker = null
 
         this.on('mount', function () {
             console.log("Loading User Data...")
@@ -105,10 +106,14 @@
             self.update()
         })
         this.observable.on(START_CONTINUOUS, function () {
+            self.worker = new Worker("/js/getUuidWorker.js")
+            console.log("Worker created.")
             self.continuousMode = true
         })
         this.observable.on(STOP_CONTINUOUS, function () {
             self.continuousMode = false
+            self.worker.terminate()
+            console.log("Worker terminated.")
         })
 
         this.hideAllMessages = () => {
@@ -163,15 +168,18 @@
         }
 
         function startContinuousRequests() {
-            var worker = new Worker("/js/getUuidWorker.js")
-            worker.postMessage(self.ctoken)
-            worker.onmessage = function (event) {
-                self.uuid = event.data.uuid
-                self.appServerColor = event.data.appServerColor
-                self.dbServerColor = event.data.dbServerColor
-                self.uuidCount++
-                self.update()
-                worker.terminate()
+            self.worker.postMessage(self.ctoken)
+            self.worker.onmessage = function (event) {
+                if (event.data.error) {
+                    Console.log("Error: " + event.data.error)
+                }
+                else {
+                    self.uuid = event.data.uuid
+                    self.appServerColor = event.data.appServerColor
+                    self.dbServerColor = event.data.dbServerColor
+                    self.uuidCount++
+                    self.update()
+                }
             }
         }
     </script>
