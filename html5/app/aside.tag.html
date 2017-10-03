@@ -14,25 +14,9 @@
             <span class="icon"><i class="fa fa-bus"></i></span><span class="name">Link3</span>
         </a>
 
-        <a onclick="{toggleSpinner}" class="item remove-whitespace is-unselectable">
-            <span class="icon"><i ref="spinnerCheckbox" class="fa fa-check-square-o"></i></span>
-            <span class="name">Spinner</span>
-        </a>
+        <spinner-toggle></spinner-toggle>
 
-        <div class="box">
-            <div onclick="{modeSingle}" class="item remove-whitespace is-unselectable">
-                <span class="icon"><i ref="singleRadio" class="fa fa-dot-circle-o"></i></span>
-                <span class="name">Single</span>
-            </div>
-            <div onclick="{modeLoop}" class="item remove-whitespace is-unselectable">
-                <span class="icon"><i ref="loopRadio" class="fa fa-circle-o"></i></span>
-                <span class="name">Loop</span>
-            </div>
-            <div onclick="{modeBatch}" class="item remove-whitespace is-unselectable">
-                <span class="icon"><i ref="batchRadio" class="fa fa-circle-o"></i></span>
-                <span class="name">Batch</span>
-            </div>
-        </div>
+        <mode-box></mode-box>
 
     <style>
         a:hover {
@@ -76,67 +60,6 @@
         .name {
             font-size: 16px;
         }
-
-        .box {
-            padding: 10px 0px 10px 0px;
-            background-color: var(--lightslate);
-            margin-top: 10px;
-        }
-
-        .box > .item {
-            padding: 5px;
-        }
     </style>
 
-    <script>
-        this.mixin(ObservableMixin)
-        var self = this;
-
-        this.toggleSpinner = () => {
-            let spinnerClasses = self.refs.spinnerCheckbox.classList;
-            spinnerClasses.toggle("fa-check-square-o")
-            spinnerClasses.toggle("fa-square-o")
-            self.update()
-            if (spinnerClasses.contains("fa-check-square-o")) self.observable.trigger(ENABLE_SPINNER)
-            else self.observable.trigger(DISABLE_SPINNER)
-        }
-
-        this.modeSingle = () => {
-            self.refs.singleRadio.classList.remove("fa-circle-o")
-            self.refs.singleRadio.classList.add("fa-dot-circle-o")
-            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
-            self.refs.loopRadio.classList.add("fa-circle-o")
-            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
-            self.refs.batchRadio.classList.add("fa-circle-o")
-            self.update()
-            self.observable.trigger(STOP_LOOP)
-            self.observable.trigger(STOP_BATCH)
-            self.observable.trigger(START_SINGLE)
-        }
-        this.modeLoop = () => {
-            let loopClasses = self.refs.loopRadio.classList;
-            loopClasses.remove("fa-circle-o")
-            loopClasses.add("fa-dot-circle-o")
-            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
-            self.refs.singleRadio.classList.add("fa-circle-o")
-            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
-            self.refs.batchRadio.classList.add("fa-circle-o")
-            self.update()
-            self.observable.trigger(STOP_SINGLE)
-            self.observable.trigger(STOP_BATCH)
-            self.observable.trigger(START_LOOP)
-        }
-        this.modeBatch = () => {
-            self.refs.batchRadio.classList.remove("fa-circle-o")
-            self.refs.batchRadio.classList.add("fa-dot-circle-o")
-            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
-            self.refs.singleRadio.classList.add("fa-circle-o")
-            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
-            self.refs.loopRadio.classList.add("fa-circle-o")
-            self.update()
-            self.observable.trigger(STOP_SINGLE)
-            self.observable.trigger(STOP_LOOP)
-            self.observable.trigger(START_BATCH)
-        }
-    </script>
 </aside>

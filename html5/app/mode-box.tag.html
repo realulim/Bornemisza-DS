@@ -1,0 +1,74 @@
+<mode-box>
+
+    <div class="box">
+        <div onclick="{modeSingle}" class="item is-unselectable">
+            <span class="icon"><i ref="singleRadio" class="fa fa-dot-circle-o"></i></span>
+            <span class="name">Single</span>
+        </div>
+        <div onclick="{modeLoop}" class="item is-unselectable">
+            <span class="icon"><i ref="loopRadio" class="fa fa-circle-o"></i></span>
+            <span class="name">Loop</span>
+        </div>
+        <div onclick="{modeBatch}" class="item is-unselectable">
+            <span class="icon"><i ref="batchRadio" class="fa fa-circle-o"></i></span>
+            <span class="name">Batch</span>
+        </div>
+    </div>
+
+    <style>
+        .box {
+            padding: 10px 0px 10px 0px;
+            background-color: var(--lightslate);
+            margin-top: 10px;
+        }
+
+        .box>.item {
+            padding: 5px;
+        }
+    </style>
+
+    <script>
+        this.mixin(ObservableMixin)
+        var self = this;
+
+        this.modeSingle = () => {
+            self.refs.singleRadio.classList.remove("fa-circle-o")
+            self.refs.singleRadio.classList.add("fa-dot-circle-o")
+            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
+            self.refs.loopRadio.classList.add("fa-circle-o")
+            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
+            self.refs.batchRadio.classList.add("fa-circle-o")
+            self.update()
+            self.observable.trigger(STOP_LOOP)
+            self.observable.trigger(STOP_BATCH)
+            self.observable.trigger(START_SINGLE)
+        }
+        this.modeLoop = () => {
+            let loopClasses = self.refs.loopRadio.classList;
+            loopClasses.remove("fa-circle-o")
+            loopClasses.add("fa-dot-circle-o")
+            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
+            self.refs.singleRadio.classList.add("fa-circle-o")
+            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
+            self.refs.batchRadio.classList.add("fa-circle-o")
+            self.update()
+            self.observable.trigger(STOP_SINGLE)
+            self.observable.trigger(STOP_BATCH)
+            self.observable.trigger(START_LOOP)
+        }
+        this.modeBatch = () => {
+            self.refs.batchRadio.classList.remove("fa-circle-o")
+            self.refs.batchRadio.classList.add("fa-dot-circle-o")
+            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
+            self.refs.singleRadio.classList.add("fa-circle-o")
+            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
+            self.refs.loopRadio.classList.add("fa-circle-o")
+            self.update()
+            self.observable.trigger(STOP_SINGLE)
+            self.observable.trigger(STOP_LOOP)
+            self.observable.trigger(START_BATCH)
+        }
+
+    </script>
+
+</mode-box>

@@ -30,6 +30,10 @@
         this.mixin(ObservableMixin)
         this.user = sessionStorage.getItem("user")
 
+        this.observable.on(LOGOUT_REQUESTED, function (opts) {
+            self.logout()
+        })
+
         this.logout = () => {
             sessionStorage.clear()
             console.log("Session ended.")

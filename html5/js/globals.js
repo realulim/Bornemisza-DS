@@ -2,6 +2,7 @@
 var AUTH_SUCCESS = "Authentication successful";
 var AUTH_FAILED = "Authentication failed";
 var AUTH_ERROR = "Error while authenticating";
+var LOGOUT_REQUESTED = "Logout requested by User"
 var LOADING_IN_PROGRESS = "Loading Data in Progress";
 var LOADING_DONE = "Loading Data completed";
 var LOADING_ERROR = "Error while loading Data";

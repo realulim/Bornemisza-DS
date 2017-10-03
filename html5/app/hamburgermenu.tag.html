@@ -1,22 +1,28 @@
 <hamburgermenu>
 
     <label class="nav-toggle" for="nav-toggle-state">
-                <span></span>
-                <span></span>
-                <span></span>
-            </label>
+        <span></span>
+        <span></span>
+        <span></span>
+    </label>
     <input type="checkbox" id="nav-toggle-state" class="checkbox-hidden" />
     <div class="nav-right nav-menu is-hidden-tablet">
         <a href="#" class="nav-item">Link1 Mobile</a>
+
         <a href="#" class="nav-item">Link2 Mobile</a>
+
         <a onclick="{logout}" class="nav-item">Logout</a>
+
+        <spinner-toggle></spinner-toggle>
+
+        <mode-box></mode-box>
     </div>
 
     <script>
+        this.mixin(ObservableMixin)
+
         this.logout = () => {
-            sessionStorage.clear()
-            console.log("Session ended.")
-            router.navigate("/index.html")
+            self.observable.trigger(LOGOUT_REQUESTED)
         }
     </script>
 
