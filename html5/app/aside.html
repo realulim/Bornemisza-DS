@@ -23,6 +23,11 @@
             <span class="icon"><i ref="continuousCheckbox" class="fa fa-square-o"></i></span>
             <span class="name">Continuous</span>
         </a>
+
+        <a onclick="{toggleBatch}" class="item remove-whitespace is-unselectable">
+            <span class="icon"><i ref="batchCheckbox" class="fa fa-square-o"></i></span>
+            <span class="name">Batch</span>
+        </a>
     </div>
 
     <style>
@@ -89,6 +94,15 @@
             self.update()
             if (continuousClasses.contains("fa-check-square-o")) self.observable.trigger(START_CONTINUOUS)
             else self.observable.trigger(STOP_CONTINUOUS)
+        }
+
+        this.toggleBatch = () => {
+            let batchClasses = self.refs.batchCheckbox.classList;
+            batchClasses.toggle("fa-check-square-o")
+            batchClasses.toggle("fa-square-o")
+            self.update()
+            if (batchClasses.contains("fa-check-square-o")) self.observable.trigger(START_BATCH)
+            else self.observable.trigger(STOP_BATCH)
         }
     </script>
 </aside>

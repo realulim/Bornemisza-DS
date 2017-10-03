@@ -10,6 +10,8 @@ var ENABLE_SPINNER = "Enable Loading Indicator";
 var DISABLE_SPINNER = "Disable Loading Indicator";
 var START_CONTINUOUS = "Start Continuous Mode";
 var STOP_CONTINUOUS = "Stop Continuous Mode";
+var START_BATCH = "Start Batch Mode";
+var STOP_BATCH = "Stop Batch Mode";
 
 // Functions
 function setBackground(color) {

@@ -87,6 +87,7 @@
         this.appServerColor = false
         this.dbServerColor = false
         this.continuousMode = false
+        this.batchMode = false
         this.worker = null
 
         this.on('mount', function () {
@@ -107,13 +108,19 @@
         })
         this.observable.on(START_CONTINUOUS, function () {
             self.worker = new Worker("/js/getUuidWorker.js")
-            console.log("Worker created.")
             self.continuousMode = true
         })
         this.observable.on(STOP_CONTINUOUS, function () {
             self.continuousMode = false
             self.worker.terminate()
-            console.log("Worker terminated.")
+        })
+        this.observable.on(START_BATCH, function () {
+            self.worker = new Worker("/js/getUuidWorker.js")
+            self.batchMode = true
+        })
+        this.observable.on(STOP_BATCH, function () {
+            self.batchMode = false
+            self.worker.terminate()
         })
 
         this.hideAllMessages = () => {
@@ -138,6 +145,9 @@
             event.preventDefault()
             if (self.continuousMode) {
                 startContinuousRequests()
+            }
+            else if (self.batchMode) {
+                startBatchRequests()
             }
             else {
                 makeSingleRequest()
@@ -186,5 +196,29 @@
                 }
             }
         }
+
+        function startBatchRequests() {
+            var uuidStart = self.uuidCount
+            var batchSize = 1000
+            for (var i = 0; i < batchSize; i++) {
+                self.worker.postMessage(self.ctoken)
+            }
+            self.worker.onmessage = function (event) {
+                if (event.data.error) {
+                    console.log("Error: " + event.data.error)
+                    batchSize--
+                }
+                else {
+                    self.uuid = event.data.uuid
+                    self.appServerColor = event.data.appServerColor
+                    self.dbServerColor = event.data.dbServerColor
+                    self.uuidCount++
+                }
+                if ((self.uuidCount - uuidStart) >= batchSize) {
+                    self.update()
+                }
+            }
+        }
+
     </script>
 </main>
