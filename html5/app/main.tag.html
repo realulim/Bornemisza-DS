@@ -86,6 +86,7 @@
         this.uuidCount = 0
         this.appServerColor = false
         this.dbServerColor = false
+        this.singleMode = true
         this.continuousMode = false
         this.batchMode = false
         this.worker = null
@@ -106,21 +107,24 @@
             self.loadingError = true
             self.update()
         })
+
+        this.observable.on(START_SINGLE, function () {
+            self.singleMode = true
+        })
+        this.observable.on(STOP_SINGLE, function () {
+            self.singleMode = false
+        })
         this.observable.on(START_CONTINUOUS, function () {
-            self.worker = new Worker("/js/getUuidWorker.js")
             self.continuousMode = true
         })
         this.observable.on(STOP_CONTINUOUS, function () {
             self.continuousMode = false
-            self.worker.terminate()
         })
         this.observable.on(START_BATCH, function () {
-            self.worker = new Worker("/js/getUuidWorker.js")
             self.batchMode = true
         })
         this.observable.on(STOP_BATCH, function () {
             self.batchMode = false
-            self.worker.terminate()
         })
 
         this.hideAllMessages = () => {
@@ -143,14 +147,24 @@
 
         this.getUuid = (event) => {
             event.preventDefault()
-            if (self.continuousMode) {
-                startContinuousRequests()
+            if (self.singleMode) {
+                makeSingleRequest()
             }
             else if (self.batchMode) {
                 startBatchRequests()
             }
+            else if (self.continuousMode) {
+                if (self.worker == null) {
+                    self.worker = new Worker("/js/getUuidWorker.js")
+                    startContinuousRequests()
+                }
+                else {
+                    self.worker.terminate()
+                    self.worker = null
+                }
+            }
             else {
-                makeSingleRequest()
+                console.log("Unknown Mode...")
             }
         }
 
@@ -166,8 +180,9 @@
                 else {
                     gatherResults(event)
                     self.update()
-                    self.worker.terminate()
                 }
+                self.worker.terminate()
+                self.worker = null
             }
         }
 
@@ -191,6 +206,7 @@
         function startBatchRequests() {
             var uuidStart = self.uuidCount
             var batchSize = 1000
+            self.worker = new Worker("/js/getUuidWorker.js")
             for (var i = 0; i < batchSize; i++) {
                 self.worker.postMessage(self.ctoken)
             }
@@ -205,6 +221,8 @@
                 if ((self.uuidCount - uuidStart) >= batchSize) {
                     // Only update the screen after the batch is complete
                     self.update()
+                    self.worker.terminate()
+                    self.worker = null
                 }
             }
         }
