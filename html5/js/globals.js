@@ -10,8 +10,8 @@ var ENABLE_SPINNER = "Enable Loading Indicator";
 var DISABLE_SPINNER = "Disable Loading Indicator";
 var START_SINGLE = "Start Single Request Mode"
 var STOP_SINGLE = "Stop Single Request Mode"
-var START_CONTINUOUS = "Start Continuous Requests Mode";
-var STOP_CONTINUOUS = "Stop Continuous Requests Mode";
+var START_LOOP = "Start Loop Requests Mode";
+var STOP_LOOP = "Stop Loop Requests Mode";
 var START_BATCH = "Start Batch Requests Mode";
 var STOP_BATCH = "Stop Batch Requests Mode";
 

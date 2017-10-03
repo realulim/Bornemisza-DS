@@ -24,9 +24,9 @@
                 <span class="icon"><i ref="singleRadio" class="fa fa-dot-circle-o"></i></span>
                 <span class="name">Single</span>
             </div>
-            <div onclick="{modeContinuous}" class="item remove-whitespace is-unselectable">
-                <span class="icon"><i ref="continuousRadio" class="fa fa-circle-o"></i></span>
-                <span class="name">Continuous</span>
+            <div onclick="{modeLoop}" class="item remove-whitespace is-unselectable">
+                <span class="icon"><i ref="loopRadio" class="fa fa-circle-o"></i></span>
+                <span class="name">Loop</span>
             </div>
             <div onclick="{modeBatch}" class="item remove-whitespace is-unselectable">
                 <span class="icon"><i ref="batchRadio" class="fa fa-circle-o"></i></span>
@@ -76,6 +76,11 @@
         .name {
             font-size: 16px;
         }
+
+        .box {
+            padding: 0px;
+            background-color: var(--lightslate);
+        }
     </style>
 
     <script>
@@ -94,19 +99,19 @@
         this.modeSingle = () => {
             self.refs.singleRadio.classList.remove("fa-circle-o")
             self.refs.singleRadio.classList.add("fa-dot-circle-o")
-            self.refs.continuousRadio.classList.remove("fa-dot-circle-o")
-            self.refs.continuousRadio.classList.add("fa-circle-o")
+            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
+            self.refs.loopRadio.classList.add("fa-circle-o")
             self.refs.batchRadio.classList.remove("fa-dot-circle-o")
             self.refs.batchRadio.classList.add("fa-circle-o")
             self.update()
-            self.observable.trigger(STOP_CONTINUOUS)
+            self.observable.trigger(STOP_LOOP)
             self.observable.trigger(STOP_BATCH)
             self.observable.trigger(START_SINGLE)
         }
-        this.modeContinuous = () => {
-            let continuousClasses = self.refs.continuousRadio.classList;
-            continuousClasses.remove("fa-circle-o")
-            continuousClasses.add("fa-dot-circle-o")
+        this.modeLoop = () => {
+            let loopClasses = self.refs.loopRadio.classList;
+            loopClasses.remove("fa-circle-o")
+            loopClasses.add("fa-dot-circle-o")
             self.refs.singleRadio.classList.remove("fa-dot-circle-o")
             self.refs.singleRadio.classList.add("fa-circle-o")
             self.refs.batchRadio.classList.remove("fa-dot-circle-o")
@@ -114,18 +119,18 @@
             self.update()
             self.observable.trigger(STOP_SINGLE)
             self.observable.trigger(STOP_BATCH)
-            self.observable.trigger(START_CONTINUOUS)
+            self.observable.trigger(START_LOOP)
         }
         this.modeBatch = () => {
             self.refs.batchRadio.classList.remove("fa-circle-o")
             self.refs.batchRadio.classList.add("fa-dot-circle-o")
             self.refs.singleRadio.classList.remove("fa-dot-circle-o")
             self.refs.singleRadio.classList.add("fa-circle-o")
-            self.refs.continuousRadio.classList.remove("fa-dot-circle-o")
-            self.refs.continuousRadio.classList.add("fa-circle-o")
+            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
+            self.refs.loopRadio.classList.add("fa-circle-o")
             self.update()
             self.observable.trigger(STOP_SINGLE)
-            self.observable.trigger(STOP_CONTINUOUS)
+            self.observable.trigger(STOP_LOOP)
             self.observable.trigger(START_BATCH)
         }
     </script>

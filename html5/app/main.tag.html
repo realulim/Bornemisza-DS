@@ -87,7 +87,7 @@
         this.appServerColor = false
         this.dbServerColor = false
         this.singleMode = true
-        this.continuousMode = false
+        this.loopMode = false
         this.batchMode = false
         this.worker = null
 
@@ -114,11 +114,11 @@
         this.observable.on(STOP_SINGLE, function () {
             self.singleMode = false
         })
-        this.observable.on(START_CONTINUOUS, function () {
-            self.continuousMode = true
+        this.observable.on(START_LOOP, function () {
+            self.loopMode = true
         })
-        this.observable.on(STOP_CONTINUOUS, function () {
-            self.continuousMode = false
+        this.observable.on(STOP_LOOP, function () {
+            self.loopMode = false
         })
         this.observable.on(START_BATCH, function () {
             self.batchMode = true
@@ -153,10 +153,10 @@
             else if (self.batchMode) {
                 startBatchRequests()
             }
-            else if (self.continuousMode) {
+            else if (self.loopMode) {
                 if (self.worker == null) {
                     self.worker = new Worker("/js/getUuidWorker.js")
-                    startContinuousRequests()
+                    startLoopRequests()
                 }
                 else {
                     self.worker.terminate()
@@ -186,7 +186,7 @@
             }
         }
 
-        function startContinuousRequests() {
+        function startLoopRequests() {
             self.worker.postMessage(self.ctoken)
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
@@ -196,8 +196,8 @@
                     gatherResults(event)
                     self.update()
                 }
-                if (self.continuousMode) {
-                    // Still in continuous mode? Get another UUID.
+                if (self.loopMode) {
+                    // Still in loop mode? Get another UUID.
                     self.worker.postMessage(self.ctoken)
                 }
             }
