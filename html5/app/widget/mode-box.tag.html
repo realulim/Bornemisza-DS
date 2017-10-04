@@ -52,7 +52,7 @@
         this.mixin(ObservableMixin)
         var self = this;
 
-        this.modeSingle = () => {
+        this.observable.on(START_SINGLE, function (opts) {
             self.refs.singleRadio.classList.remove("fa-circle-o")
             self.refs.singleRadio.classList.add("fa-dot-circle-o")
             self.refs.loopRadio.classList.remove("fa-dot-circle-o")
@@ -60,11 +60,9 @@
             self.refs.batchRadio.classList.remove("fa-dot-circle-o")
             self.refs.batchRadio.classList.add("fa-circle-o")
             self.update()
-            self.observable.trigger(STOP_LOOP)
-            self.observable.trigger(STOP_BATCH)
-            self.observable.trigger(START_SINGLE)
-        }
-        this.modeLoop = () => {
+        })
+
+        this.observable.on(START_LOOP, function (opts) {
             let loopClasses = self.refs.loopRadio.classList;
             loopClasses.remove("fa-circle-o")
             loopClasses.add("fa-dot-circle-o")
@@ -73,11 +71,9 @@
             self.refs.batchRadio.classList.remove("fa-dot-circle-o")
             self.refs.batchRadio.classList.add("fa-circle-o")
             self.update()
-            self.observable.trigger(STOP_SINGLE)
-            self.observable.trigger(STOP_BATCH)
-            self.observable.trigger(START_LOOP)
-        }
-        this.modeBatch = () => {
+        })
+
+        this.observable.on(START_BATCH, function (opts) {
             self.refs.batchRadio.classList.remove("fa-circle-o")
             self.refs.batchRadio.classList.add("fa-dot-circle-o")
             self.refs.singleRadio.classList.remove("fa-dot-circle-o")
@@ -85,6 +81,21 @@
             self.refs.loopRadio.classList.remove("fa-dot-circle-o")
             self.refs.loopRadio.classList.add("fa-circle-o")
             self.update()
+        })
+
+        this.modeSingle = () => {
+            self.observable.trigger(STOP_LOOP)
+            self.observable.trigger(STOP_BATCH)
+            self.observable.trigger(START_SINGLE)
+        }
+
+        this.modeLoop = () => {
+            self.observable.trigger(STOP_SINGLE)
+            self.observable.trigger(STOP_BATCH)
+            self.observable.trigger(START_LOOP)
+        }
+
+        this.modeBatch = () => {
             self.observable.trigger(STOP_SINGLE)
             self.observable.trigger(STOP_LOOP)
             self.observable.trigger(START_BATCH)

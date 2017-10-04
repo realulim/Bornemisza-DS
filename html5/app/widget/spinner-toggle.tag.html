@@ -39,13 +39,17 @@
         var self = this;
 
         this.toggleSpinner = () => {
+            self.observable.trigger(TOGGLE_SPINNER)
+        }
+
+        this.observable.on(TOGGLE_SPINNER, function (opts) {
             let spinnerClasses = self.refs.spinnerCheckbox.classList;
             spinnerClasses.toggle("fa-check-square-o")
             spinnerClasses.toggle("fa-square-o")
             self.update()
             if (spinnerClasses.contains("fa-check-square-o")) self.observable.trigger(ENABLE_SPINNER)
             else self.observable.trigger(DISABLE_SPINNER)
-        }
+        })
     </script>
 
 </spinner-toggle>
