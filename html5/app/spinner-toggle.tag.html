@@ -5,6 +5,35 @@
         <span class="name">Spinner</span>
     </a>
 
+    <style>
+        a:hover {
+            text-decoration: none;
+            background-color: var(--selectcolor);
+            font-weight: bold;
+        }
+
+        .item {
+            color: var(--dark);
+            display: flex;
+            padding: 10px 0;
+        }
+
+        .remove-whitespace {
+            font-size: 0;
+        }
+
+        .icon {
+            font-size: 19px;
+            padding-left: 10px;
+            padding-right: 30px;
+            justify-content: flex-start;
+        }
+
+        .name {
+            font-size: 16px;
+        }
+    </style>
+
     <script>
         this.mixin(ObservableMixin)
         var self = this;

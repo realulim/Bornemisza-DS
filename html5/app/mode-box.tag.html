@@ -16,6 +16,27 @@
     </div>
 
     <style>
+        .item {
+            color: var(--dark);
+            display: flex;
+            padding: 10px 0;
+        }
+
+        .remove-whitespace {
+            font-size: 0;
+        }
+
+        .icon {
+            font-size: 19px;
+            padding-left: 10px;
+            padding-right: 30px;
+            justify-content: flex-start;
+        }
+
+        .name {
+            font-size: 16px;
+        }
+
         .box {
             padding: 10px 0px 10px 0px;
             background-color: var(--lightslate);
@@ -68,7 +89,6 @@
             self.observable.trigger(STOP_LOOP)
             self.observable.trigger(START_BATCH)
         }
-
     </script>
 
 </mode-box>
