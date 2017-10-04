@@ -28,6 +28,9 @@ import javax.ws.rs.core.Response.Status;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+import com.hazelcast.core.MemberAttributeEvent;
+import com.hazelcast.core.MembershipEvent;
+import com.hazelcast.core.MembershipListener;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -69,6 +72,28 @@ public class Sessions {
 
     @PostConstruct
     private void init() {
+        updateColorsForCluster();
+        hazelcast.getCluster().addMembershipListener(new MembershipListener() {
+            @Override public void memberAdded(MembershipEvent me) { updateColorsForCluster(); }
+            @Override public void memberRemoved(MembershipEvent me) { updateColorsForCluster(); }
+            @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
+        });
+    }
+
+    /**
+     * Manage colors within the Hazelcast and CouchDB clusters consistently.
+     */
+    private void updateColorsForCluster() {
+        updateMyColor();
+        updateHostnamesInCluster();
+    }
+
+    /**
+     * Make sure that an AppServer cluster node always selects the same (and unused) color,
+     * no matter how many other AppServer nodes are in the Hazelcast cluster.
+     * This is achieved by ordering the nodes according to their Hazelcast UUIDs.
+     */
+    private void updateMyColor() {
         Set<Member> members = hazelcast.getCluster().getMembers();
         if (members.size() <= JAXRSConfiguration.COLORS.size()) {
             List<String> sortedUuids = members.stream()
@@ -78,6 +103,13 @@ public class Sessions {
             String myself = hazelcast.getCluster().getLocalMember().getUuid();
             JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(sortedUuids.indexOf(myself));
         }
+    }
+
+    /**
+     * Sorts all DB server hostnames lexicographically, so that a predictable and unique color
+     * can be assigned to each.
+     */
+    private void updateHostnamesInCluster() {
         Map<String, Http> allConnections = basePool.getAllConnections();
         allHostnames = new ArrayList<>(allConnections.keySet());
         Collections.sort(allHostnames);
