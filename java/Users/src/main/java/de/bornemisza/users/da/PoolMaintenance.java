@@ -25,8 +25,9 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-import de.bornemisza.loadbalancer.da.HealthChecks;
+
 import de.bornemisza.loadbalancer.da.Pool;
+import de.bornemisza.users.HealthChecks;
 
 @Singleton
 @Startup
