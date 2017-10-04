@@ -95,13 +95,19 @@ public class Sessions {
      */
     private void updateMyColor() {
         Set<Member> members = hazelcast.getCluster().getMembers();
-        if (members.size() <= JAXRSConfiguration.COLORS.size()) {
-            List<String> sortedUuids = members.stream()
-                    .map(member -> member.getUuid())
-                    .sorted(Comparator.<String>naturalOrder())
-                    .collect(Collectors.toList());
-            String myself = hazelcast.getCluster().getLocalMember().getUuid();
-            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(sortedUuids.indexOf(myself));
+        List<String> sortedUuids = members.stream()
+                .map(member -> member.getUuid())
+                .sorted(Comparator.<String>naturalOrder())
+                .collect(Collectors.toList());
+        String myself = hazelcast.getCluster().getLocalMember().getUuid();
+        int myIndex = sortedUuids.indexOf(myself);
+        if (myIndex >= JAXRSConfiguration.COLORS.size()) {
+            // use default color for any overflow nodes
+            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.DEFAULT_COLOR;
+        }
+        else {
+            // use one of the predefined colors
+            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(myIndex);
         }
     }
 
