@@ -1,4 +1,4 @@
-package de.bornemisza.loadbalancer.da;
+package de.bornemisza.users.da;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -18,6 +18,7 @@ import static org.mockito.Mockito.*;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+import de.bornemisza.loadbalancer.da.HealthChecks;
 
 public class PoolMaintenanceTest {
 
