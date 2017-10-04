@@ -1,4 +1,4 @@
-package de.bornemisza.users.da;
+package de.bornemisza.loadbalancer.da;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,9 +26,6 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import de.bornemisza.loadbalancer.da.Pool;
-import de.bornemisza.users.HealthChecks;
-
 @Singleton
 @Startup
 public class PoolMaintenance {
@@ -43,9 +40,6 @@ public class PoolMaintenance {
 
     @Inject
     HealthChecks healthChecks;
-
-    public static String LIST_COUCHDB_HOSTQUEUE = Pool.LIST_COUCHDB_HOSTQUEUE;
-    public static String MAP_COUCHDB_UTILISATION = Pool.MAP_COUCHDB_UTILISATION;
 
     private Map<String, Integer> couchDbHostUtilisation;
     private List<String> couchDbHostQueue;
@@ -71,8 +65,8 @@ public class PoolMaintenance {
 
     @PostConstruct
     public void init() {
-        couchDbHostUtilisation = hazelcast.getMap(MAP_COUCHDB_UTILISATION);
-        couchDbHostQueue = hazelcast.getList(LIST_COUCHDB_HOSTQUEUE);
+        couchDbHostUtilisation = hazelcast.getMap(Pool.MAP_COUCHDB_UTILISATION);
+        couchDbHostQueue = hazelcast.getList(Pool.LIST_COUCHDB_HOSTQUEUE);
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
             @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
