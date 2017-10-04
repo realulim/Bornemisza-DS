@@ -1,0 +1,20 @@
+<server-chart>
+
+    <script>
+        this.on('mount', function () {
+            var script = document.createElement("script");
+            script.onload = function () {
+                var link = document.createElement("link")
+                link.rel = "stylesheet"
+                link.onload = function () {
+                    console.log("Everything loaded.")
+                }
+                link.href = "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css"
+                document.head.appendChild(link)
+            }
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"
+            document.body.appendChild(script)
+        })
+    </script>
+
+</server-chart>

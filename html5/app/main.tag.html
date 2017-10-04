@@ -91,9 +91,6 @@
         this.batchMode = false
         this.worker = null
 
-        this.on('mount', function () {
-            console.log("Loading User Data...")
-        })
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
             self.update()
