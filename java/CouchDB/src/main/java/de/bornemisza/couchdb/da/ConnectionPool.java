@@ -1,7 +1,6 @@
 package de.bornemisza.couchdb.da;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -40,8 +39,7 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
             CouchDbConnection conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
-                getCouchDbHostUtilisation().put(hostname, ++usageCount);
+                incrementRequestsFor(hostname);
                 HttpClient httpClient = createHttpClient(conn, userName, password);
                 if (password != null) Arrays.fill(password, '*');
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);

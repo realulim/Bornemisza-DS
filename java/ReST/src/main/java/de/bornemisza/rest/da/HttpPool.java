@@ -1,6 +1,5 @@
 package de.bornemisza.rest.da;
 
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -28,8 +27,7 @@ public class HttpPool extends Pool<Http> {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
-                getCouchDbHostUtilisation().put(hostname, ++usageCount);
+                incrementRequestsFor(hostname);
                 return conn;
             }
             else {
@@ -38,10 +36,6 @@ public class HttpPool extends Pool<Http> {
         }
         Logger.getAnonymousLogger().warning("No CouchDB Hosts available at all!");
         throw new RuntimeException("No CouchDB Backend ready!");
-    }
-
-    public Map<String, Http> getAllConnections() {
-        return allConnections;
     }
 
 }

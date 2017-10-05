@@ -1,18 +1,22 @@
 package de.bornemisza.loadbalancer.da;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.OperationTimeoutException;
-import java.util.List;
+
+import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
 
 public class PoolTest {
 
@@ -21,9 +25,11 @@ public class PoolTest {
     private IList hazelcastList;
     private IMap hazelcastMap;
 
+    private SecureRandom wheel = new SecureRandom();
+
     public PoolTest() {
     }
-    
+
     @Before
     public void setUp() {
         this.allConnections = new HashMap<>();
@@ -60,6 +66,24 @@ public class PoolTest {
         verifyNoMoreInteractions(couchDbHostQueue);
         assertEquals(couchDbHostUtilisation, CUT.getCouchDbHostUtilisation());
         verifyNoMoreInteractions(couchDbHostUtilisation);
+    }
+
+    @Test
+    public void verifyRequestCounting() {
+        when(hazelcast.getList(anyString())).thenReturn(mock(IList.class));
+        when(hazelcast.getMap(anyString())).thenReturn(new PseudoHazelcastMap<>());
+        Pool CUT = new PoolImpl(allConnections, hazelcast);
+        Set<String> allHostnames = CUT.getAllHostnames();
+        int requestCount = wheel.nextInt(15) + 1;
+        for (String hostname : allHostnames) {
+            for (int i = 0; i < requestCount; i++) {
+                CUT.incrementRequestsFor(hostname);
+            }
+        }
+        for (String hostname : allHostnames) {
+            assertEquals(requestCount, CUT.getCouchDbHostUtilisation().get(hostname));
+        }
+        
     }
 
     @Test

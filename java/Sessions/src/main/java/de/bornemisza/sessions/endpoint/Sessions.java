@@ -26,16 +26,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.javalite.http.Get;
+import org.javalite.http.Post;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.javalite.http.Get;
-import org.javalite.http.Post;
 
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
@@ -116,8 +116,7 @@ public class Sessions {
      * can be assigned to each.
      */
     private void updateHostnamesInCluster() {
-        Map<String, Http> allConnections = basePool.getAllConnections();
-        allHostnames = new ArrayList<>(allConnections.keySet());
+        allHostnames = new ArrayList<>(basePool.getAllHostnames());
         Collections.sort(allHostnames);
     }
 

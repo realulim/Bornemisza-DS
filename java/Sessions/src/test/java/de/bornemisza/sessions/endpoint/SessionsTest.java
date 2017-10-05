@@ -11,18 +11,16 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+import org.javalite.http.Get;
+import org.javalite.http.Post;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
-
-import org.javalite.http.Get;
-import org.javalite.http.Post;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
@@ -58,7 +56,7 @@ public class SessionsTest {
         allConnections.put("db1.domain.ms", http);
         allConnections.put("db2.domain.de", http);
         allConnections.put("db3.domain.com", http);
-        when(pool.getAllConnections()).thenReturn(allConnections);
+        when(pool.getAllHostnames()).thenReturn(allConnections.keySet());
 
         hazelcast = mock(HazelcastInstance.class);
         Cluster cluster = mock(Cluster.class);

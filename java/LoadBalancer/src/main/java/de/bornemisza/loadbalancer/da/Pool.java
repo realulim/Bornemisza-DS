@@ -56,6 +56,10 @@ public abstract class Pool<T> {
         return this.couchDbHostQueue;
     }
 
+    public Set<String> getAllHostnames() {
+        return allConnections.keySet();
+    }
+
     private void fillCouchDbHostQueue() {
         if (couchDbHostQueue.isEmpty()) {
             Set<String> hostnames = allConnections.keySet();
@@ -80,6 +84,11 @@ public abstract class Pool<T> {
         }
         fillCouchDbHostUtilisation();
         return this.couchDbHostUtilisation;
+    }
+
+    public void incrementRequestsFor(String hostname) {
+        if (this.couchDbHostUtilisation == null) this.couchDbHostUtilisation = getCouchDbHostUtilisation();
+        this.couchDbHostUtilisation.compute(hostname, (k, v) -> v+1);
     }
 
     private void fillCouchDbHostUtilisation() {
