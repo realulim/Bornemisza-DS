@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.validation.constraints.NotNull;
+
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
@@ -18,22 +20,14 @@ public abstract class Pool<T> {
     public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
 
     protected final Map<String, T> allConnections;
+    private final HazelcastInstance hazelcast;
     private List<String> couchDbHostQueue = null;
     private Map<String, Integer> couchDbHostUtilisation = null;
-    private final HazelcastInstance hazelcast;
 
-    public Pool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
+    public Pool(@NotNull Map<String, T> allConnections, @NotNull HazelcastInstance hazelcast) {
         this.allConnections = allConnections;
         this.hazelcast = hazelcast;
-        createCouchDbHostQueue();
-        createCouchDbHostUtilisation();
-    }
-
-    private void createCouchDbHostQueue() {
         this.couchDbHostQueue = getCouchDbHostQueue();
-    }
-
-    private void createCouchDbHostUtilisation() {
         this.couchDbHostUtilisation = getCouchDbHostUtilisation();
     }
 
