@@ -2,15 +2,18 @@ package de.bornemisza.loadbalancer.da;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
+import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
@@ -25,7 +28,7 @@ public class PoolTest {
     private IList hazelcastList;
     private IMap hazelcastMap;
 
-    private SecureRandom wheel = new SecureRandom();
+    private final SecureRandom wheel = new SecureRandom();
 
     public PoolTest() {
     }
@@ -38,6 +41,9 @@ public class PoolTest {
         allConnections.put("host-3.domain.de", new Object());
 
         this.hazelcast = mock(HazelcastInstance.class);
+        Cluster cluster = mock(Cluster.class);
+        when(cluster.getMembers()).thenReturn(new HashSet<>());
+        when(hazelcast.getCluster()).thenReturn(cluster);
         this.hazelcastList = mock(IList.class);
         this.hazelcastMap = mock(IMap.class);
     }

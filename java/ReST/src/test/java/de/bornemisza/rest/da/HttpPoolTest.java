@@ -1,6 +1,7 @@
 package de.bornemisza.rest.da;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.junit.Before;
@@ -9,6 +10,7 @@ import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.*;
 
+import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
@@ -36,6 +38,10 @@ public class HttpPoolTest {
         allConnections.put("host1", mock(Http.class));
         allConnections.put("host2", mock(Http.class));
         allConnections.put("host3", mock(Http.class));
+
+        Cluster cluster = mock(Cluster.class);
+        when(cluster.getMembers()).thenReturn(new HashSet<>());
+        when(hazelcast.getCluster()).thenReturn(cluster);
         when(hazelcast.getList(LIST_COUCHDB_HOSTQUEUE)).thenReturn(new PseudoHazelcastList());
         couchDbHostUtilisationMap = new PseudoHazelcastMap();
         when(hazelcast.getMap(MAP_COUCHDB_UTILISATION)).thenReturn(couchDbHostUtilisationMap);

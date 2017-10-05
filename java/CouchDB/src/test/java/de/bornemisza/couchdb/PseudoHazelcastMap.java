@@ -1,5 +1,6 @@
 package de.bornemisza.couchdb;
 
+import com.hazelcast.aggregation.Aggregator;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,12 +14,14 @@ import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.MapInterceptor;
+import com.hazelcast.map.QueryCache;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.map.listener.MapPartitionLostListener;
 import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.aggregation.Aggregation;
 import com.hazelcast.mapreduce.aggregation.Supplier;
 import com.hazelcast.monitor.LocalMapStats;
+import com.hazelcast.projection.Projection;
 import com.hazelcast.query.Predicate;
 
 public class PseudoHazelcastMap<K, V> extends HashMap<K, V> implements IMap<K, V> {
@@ -355,6 +358,46 @@ public class PseudoHazelcastMap<K, V> extends HashMap<K, V> implements IMap<K, V
 
     @Override
     public void destroy() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void removeAll(Predicate<K, V> prdct) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <R> R aggregate(Aggregator<Entry<K, V>, R> agrgtr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <R> R aggregate(Aggregator<Entry<K, V>, R> agrgtr, Predicate<K, V> prdct) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <R> Collection<R> project(Projection<Entry<K, V>, R> prjctn) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public <R> Collection<R> project(Projection<Entry<K, V>, R> prjctn, Predicate<K, V> prdct) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public QueryCache<K, V> getQueryCache(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public QueryCache<K, V> getQueryCache(String string, Predicate<K, V> prdct, boolean bln) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public QueryCache<K, V> getQueryCache(String string, MapListener ml, Predicate<K, V> prdct, boolean bln) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
