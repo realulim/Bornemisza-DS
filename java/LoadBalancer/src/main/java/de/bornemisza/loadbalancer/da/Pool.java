@@ -49,7 +49,8 @@ public abstract class Pool<T> {
         catch (HazelcastException e) {
             // still no Hazelcast, so let's make it a plain list and try again next time
             Logger.getAnonymousLogger().warning("Hazelcast malfunctioning: " + e.toString());
-            this.couchDbHostQueue = new ArrayList<>(); // fallback, so clients can still work
+            if (this.couchDbHostQueue != null) return this.couchDbHostQueue;
+            else this.couchDbHostQueue = new ArrayList<>(); // fallback, so clients can still work
         }
         fillCouchDbHostQueue();
         return this.couchDbHostQueue;
@@ -74,7 +75,8 @@ public abstract class Pool<T> {
         catch (HazelcastException e) {
             // still no Hazelcast, so let's make it a plain map and try again next time
             Logger.getAnonymousLogger().warning("Hazelcast malfunctioning: " + e.toString());
-            this.couchDbHostUtilisation = new HashMap<>(); // fallback, so clients can still work
+            if (this.couchDbHostUtilisation != null) return this.couchDbHostUtilisation;
+            else this.couchDbHostUtilisation = new HashMap<>(); // fallback, so clients can still work
         }
         fillCouchDbHostUtilisation();
         return this.couchDbHostUtilisation;
