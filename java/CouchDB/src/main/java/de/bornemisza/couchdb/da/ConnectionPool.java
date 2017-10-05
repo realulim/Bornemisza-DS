@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.validation.constraints.NotNull;
+
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
@@ -18,13 +20,13 @@ import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 import de.bornemisza.loadbalancer.da.Pool;
 
-public class ConnectionPool extends Pool {
+public class ConnectionPool extends Pool<CouchDbConnection> {
 
     private final HealthChecks healthChecks;
 
-    public ConnectionPool(Map<String, CouchDbConnection> connections, 
-                         HazelcastInstance hazelcast,
-                         HealthChecks healthChecks) {
+    public ConnectionPool(@NotNull Map<String, CouchDbConnection> connections, 
+                         @NotNull HazelcastInstance hazelcast,
+                         @NotNull HealthChecks healthChecks) {
         super(connections, hazelcast);
         this.healthChecks = healthChecks;
     }
@@ -34,11 +36,11 @@ public class ConnectionPool extends Pool {
     }
 
     public MyCouchDbConnector getConnector(String userName, char[] password) {
-        for (String hostname : (List<String>)getCouchDbHostQueue()) {
-            CouchDbConnection conn = (CouchDbConnection)allConnections.get(hostname);
+        for (String hostname : getCouchDbHostQueue()) {
+            CouchDbConnection conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = (Integer)getCouchDbHostUtilisation().get(hostname);
+                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
                 getCouchDbHostUtilisation().put(hostname, ++usageCount);
                 HttpClient httpClient = createHttpClient(conn, userName, password);
                 if (password != null) Arrays.fill(password, '*');

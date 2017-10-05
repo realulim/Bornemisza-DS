@@ -12,7 +12,7 @@ import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
 
-public class HttpPool extends Pool {
+public class HttpPool extends Pool<Http> {
 
     private final HealthChecks healthChecks;
 
@@ -24,11 +24,11 @@ public class HttpPool extends Pool {
     }
 
     public Http getConnection() {
-        for (String hostname : (List<String>)getCouchDbHostQueue()) {
-            Http conn = (Http)allConnections.get(hostname);
+        for (String hostname : getCouchDbHostQueue()) {
+            Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                Integer usageCount = (Integer)getCouchDbHostUtilisation().get(hostname);
+                Integer usageCount = getCouchDbHostUtilisation().get(hostname);
                 getCouchDbHostUtilisation().put(hostname, ++usageCount);
                 return conn;
             }
