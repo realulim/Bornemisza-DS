@@ -27,8 +27,16 @@ public abstract class Pool<T> {
     public Pool(@NotNull Map<String, T> allConnections, @NotNull HazelcastInstance hazelcast) {
         this.allConnections = allConnections;
         this.hazelcast = hazelcast;
-        this.couchDbHostQueue = getCouchDbHostQueue();
-        this.couchDbHostUtilisation = getCouchDbHostUtilisation();
+        this.couchDbHostQueue = createCouchDbHostQueue();
+        this.couchDbHostUtilisation = createCouchDbHostUtilisation();
+    }
+
+    private List<String> createCouchDbHostQueue() {
+        return getCouchDbHostQueue();
+    }
+
+    private Map<String, Integer> createCouchDbHostUtilisation() {
+        return getCouchDbHostUtilisation();
     }
 
     public List<String> getCouchDbHostQueue() {
