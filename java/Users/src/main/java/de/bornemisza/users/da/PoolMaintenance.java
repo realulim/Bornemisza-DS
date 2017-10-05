@@ -89,7 +89,8 @@ public class PoolMaintenance {
             catch (IllegalStateException | NoSuchObjectLocalException e) {
                 Logger.getAnonymousLogger().warning("Timer inaccessible: " + timer);
             }
-        }        ScheduleExpression expression = new ScheduleExpression();
+        }
+        ScheduleExpression expression = new ScheduleExpression();
         expression.hour("*").minute(calculateMinuteExpression());
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
