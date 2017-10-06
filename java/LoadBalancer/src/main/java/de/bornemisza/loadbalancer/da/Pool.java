@@ -13,7 +13,6 @@ import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
-import com.hazelcast.scheduledexecutor.IScheduledExecutorService;
 
 public abstract class Pool<T> {
 
@@ -34,8 +33,6 @@ public abstract class Pool<T> {
     private void initCluster() {
         this.couchDbHostQueue = getCouchDbHostQueue();
         this.couchDbHostUtilisation = getCouchDbHostUtilisation();
-        int clusterSize = this.hazelcast.getCluster().getMembers().size();
-        IScheduledExecutorService scheduler = hazelcast.getScheduledExecutorService("scheduler");
     }
 
     public List<String> getCouchDbHostQueue() {
