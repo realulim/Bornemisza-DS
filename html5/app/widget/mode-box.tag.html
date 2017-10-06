@@ -63,9 +63,8 @@
         })
 
         this.observable.on(START_LOOP, function (opts) {
-            let loopClasses = self.refs.loopRadio.classList;
-            loopClasses.remove("fa-circle-o")
-            loopClasses.add("fa-dot-circle-o")
+            self.refs.loopRadio.classList.remove("fa-circle-o")
+            self.refs.loopRadio.classList.add("fa-dot-circle-o")
             self.refs.singleRadio.classList.remove("fa-dot-circle-o")
             self.refs.singleRadio.classList.add("fa-circle-o")
             self.refs.batchRadio.classList.remove("fa-dot-circle-o")
