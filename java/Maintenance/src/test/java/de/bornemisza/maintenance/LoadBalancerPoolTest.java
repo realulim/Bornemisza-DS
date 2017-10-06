@@ -1,4 +1,4 @@
-package de.bornemisza.users.da;
+package de.bornemisza.maintenance;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -9,23 +9,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
-import de.bornemisza.users.HealthChecks;
 
-public class PoolMaintenanceTest {
+public class LoadBalancerPoolTest {
 
     private SecureRandom wheel;
     private HealthChecks healthChecks;
 
-    public PoolMaintenanceTest() {
+    public LoadBalancerPoolTest() {
     }
 
     @Before
@@ -48,7 +46,7 @@ public class PoolMaintenanceTest {
         }
         when(cluster.getLocalMember()).thenReturn(member);
         when(cluster.getMembers()).thenReturn(members);
-        PoolMaintenance CUT = new PoolMaintenance(hazelcast);
+        LoadBalancerPool CUT = new LoadBalancerPool(hazelcast);
         String expr = CUT.calculateMinuteExpression();
         assertTrue(Character.getNumericValue(expr.charAt(0)) < members.size());
         assertEquals("/", String.valueOf(expr.charAt(1)));
@@ -62,7 +60,7 @@ public class PoolMaintenanceTest {
             String randomKey = UUID.randomUUID().toString();
             utilisationMap.put(randomKey, wheel.nextInt(100));
         }
-        PoolMaintenance CUT = new PoolMaintenance(utilisationMap);
+        LoadBalancerPool CUT = new LoadBalancerPool(utilisationMap);
         List<String> sortedKeys = CUT.sortHostnamesByUtilisation();
         int lastUtilisation = 0;
         for (String key : sortedKeys) {
@@ -78,7 +76,7 @@ public class PoolMaintenanceTest {
         couchDbHostQueue.add("hostname3");
         couchDbHostQueue.add("hostname1");
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        PoolMaintenance CUT = new PoolMaintenance(couchDbHostQueue, healthChecks);
+        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue, healthChecks);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
@@ -91,7 +89,7 @@ public class PoolMaintenanceTest {
     public void updateQueue_emptyQueue() {
         List<String> couchDbHostQueue = new ArrayList<>();
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        PoolMaintenance CUT = new PoolMaintenance(couchDbHostQueue, healthChecks);
+        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue, healthChecks);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
@@ -108,7 +106,7 @@ public class PoolMaintenanceTest {
         couchDbHostQueue.add("hostname1");
         couchDbHostQueue.add("hostname3");
         when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true).thenReturn(false).thenReturn(false).thenReturn(true);
-        PoolMaintenance CUT = new PoolMaintenance(couchDbHostQueue, healthChecks);
+        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue, healthChecks);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");

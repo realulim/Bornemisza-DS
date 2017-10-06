@@ -17,3 +17,5 @@ build.properties
 node_modules
 /html5/bin
 /html5/js/config.js
+/java/Maintenance/nbproject/
+/java/Maintenance/target/
