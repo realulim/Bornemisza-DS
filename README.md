@@ -13,7 +13,7 @@ It provides a template for starting a web-based business on the cheap and seamle
 
 #### 2. Composability
 - create the system from small and well-understood tools
-- avoid being ruled by a God Framework
+- avoid being owned by a God Platform
 - use standards where available
 
 #### 3. Affordability
