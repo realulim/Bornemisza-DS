@@ -45,6 +45,9 @@ It provides a template for starting a web-based business on the cheap and seamle
 - terminates SSL in front of the private networks
 - load balancing of Frontend and Payara cluster
 
+#### High Availability: Bird, Monit
+- nodes are monitored and taken in and out of service on the routing layer
+
 ## Provisioning
 - Infrastructure Setup via masterless Salt
 - download bootstrap script from Github
@@ -55,11 +58,8 @@ It provides a template for starting a web-based business on the cheap and seamle
 ## Requirements
 - Cloud Provider must support CentOS and private networks (e. g. Vultr, UpCloud)
 - DNS Provider (e. g. free Cloudflare account)
+- a domain as an anchor for the SSL certificates
 
 ```
 more detailed documentation to follow
 ```
-
-    
-    
-    
