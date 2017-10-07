@@ -35,12 +35,14 @@ function getprivip {
 }
 
 function getsecrets {
+	arr=("$@")
+
 	EXCL_STR="'"
 
-	for PILLAR in $1
+	for PILLAR in "${arr[@]}";
 	do
-	  	VALUE=`/usr/bin/salt-call pillar.get $PILLAR | grep -v local | awk '{$1=$1;print}'`
-	        EXCL_STR+=$VALUE'|'
+		VALUE=`/usr/bin/salt-call pillar.get $PILLAR | grep -v local | awk '{$1=$1;print}'`
+		EXCL_STR+=$VALUE'|'
 	done
 
 	EXCL_STR=${EXCL_STR%?}
