@@ -84,7 +84,7 @@ set-admin-password:
 
 create-admin-password-file:
   cmd.run:
-    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}\nAS_ADMIN_ALIASPASSWORD=changeit\n' > {{ PWD_FILE }}
+    - name: printf 'AS_ADMIN_PASSWORD={{ pillar['asadmin-password'] }}\nAS_ADMIN_ALIASPASSWORD={{ pillar['couchdb-admin-password'] }}\n' > {{ PWD_FILE }}
     - onchanges:
       - set-admin-password
 

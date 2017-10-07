@@ -22,13 +22,10 @@ if [ ! -e $PillarLocal/payara.sls ]; then
 	printf "asadmin-master-password: `generatepw`\n" >> $PillarLocal/payara.sls
 fi
 
-# if we have already setup payara, but not told it the couchdb admin password yet, then we ask for it here
-if grep -s changeit /root/.payara ; then
-	read -s -p 'CouchDB Admin Password [leave empty to specify it at a later time]: ' COUCH_PW
-	if [ ! -z $COUCH_PW ]; then
-		sed -i.bak "s/changeit/$COUCH_PW/g" /root/.payara
-		printf " " >> /opt/payara/bin/domain-config.sh
-	fi
+# ask for CouchDB admin password
+if [ ! -e $PillarLocal/couchdb.sls ]; then
+	read -s -p 'CouchDB Admin Password: ' COUCH_PW
+	printf "couchdb-admin-password: $COUCH_PW\n" > $PillarLocal/couchdb.sls
 	printf "\n"
 fi
 
