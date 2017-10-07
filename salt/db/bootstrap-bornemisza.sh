@@ -72,5 +72,9 @@ done
 
 chmod -R 400 $PillarLocal
 
+# collect all pillar secrets in order to exclude them from Salt's output
+SECRET_KEYS=(CFEMAIL CFKEY couchdb-admin-password cookie stats-password)
+EXCL_STR=`getsecrets ${SECRET_KEYS[@]}`
+
 # create server
-salt-call -l info state.highstate
+salt-call -l info state.highstate --force-color |& egrep -v $EXCL_STR
