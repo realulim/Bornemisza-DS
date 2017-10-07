@@ -75,4 +75,4 @@ SECRET_KEYS=(CFEMAIL CFKEY BGP ASN stats-password asadmin-password asadmin-maste
 EXCL_STR=`getsecrets ${SECRET_KEYS[@]}`
 
 # create server
-salt-call -l info state.highstate |& egrep -v $EXCL_STR
+salt-call -l info state.highstate --force-color |& egrep -v $EXCL_STR
