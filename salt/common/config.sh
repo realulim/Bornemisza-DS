@@ -33,3 +33,17 @@ function getprivip {
 	VARNAME=$1_privateIpInterface
 	ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6
 }
+
+function getsecrets {
+	EXCL_STR="'"
+
+	for PILLAR in $1
+	do
+	  	VALUE=`/usr/bin/salt-call pillar.get $PILLAR | grep -v local | awk '{$1=$1;print}'`
+	        EXCL_STR+=$VALUE'|'
+	done
+
+	EXCL_STR=${EXCL_STR%?}
+	EXCL_STR+="'"
+	echo $EXCL_STR
+}

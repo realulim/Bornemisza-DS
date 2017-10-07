@@ -70,5 +70,8 @@ fi
 
 chmod -R 400 $PillarLocal
 
+# collect all pillar secrets in order to exclude them from Salt's output
+EXCL_STR=getsecrets 'CFEMAIL CFKEY BGP ASN stats-password asadmin-password asadmin-master-password'
+
 # create server
-salt-call -l info state.highstate
+salt-call -l info state.highstate | egrep -v $EXCL_STR
