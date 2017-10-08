@@ -63,7 +63,7 @@ public abstract class Pool<T> {
             Set<String> hostnames = allConnections.keySet();
             for (String hostname : hostnames) {
                 couchDbHostQueue.add(hostname);
-                Logger.getAnonymousLogger().info("Filled Queue with " + hostname);
+                Logger.getAnonymousLogger().info("Initial Queue Fill: " + hostname);
             }
             couchDbHostQueue.addAll(hostnames);
         }
