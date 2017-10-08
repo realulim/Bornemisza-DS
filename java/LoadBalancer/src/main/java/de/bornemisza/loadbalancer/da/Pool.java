@@ -59,12 +59,9 @@ public abstract class Pool<T> {
     }
 
     private void fillCouchDbHostQueue() {
+        Set<String> hostnames = allConnections.keySet();
         if (couchDbHostQueue.isEmpty()) {
-            Set<String> hostnames = allConnections.keySet();
-            for (String hostname : hostnames) {
-                couchDbHostQueue.add(hostname);
-                Logger.getAnonymousLogger().info("Initial Queue Fill: " + hostname);
-            }
+            couchDbHostQueue.addAll(hostnames);
         }
     }
 

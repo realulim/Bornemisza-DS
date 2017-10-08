@@ -58,7 +58,7 @@ public class PoolTest {
         List<String> couchDbHostQueue = CUT.getCouchDbHostQueue();
         assertEquals(hazelcastList, couchDbHostQueue);
         verify(couchDbHostQueue).isEmpty();
-        verify(couchDbHostQueue, times(allConnections.size())).add(anyString());
+        verify(couchDbHostQueue).addAll(anySet());
         Map<String, Object> couchDbHostUtilisation = CUT.getCouchDbHostUtilisation();
         assertEquals(hazelcastMap, couchDbHostUtilisation);
         for (String hostname : allConnections.keySet()) {
