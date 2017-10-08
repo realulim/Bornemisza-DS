@@ -126,18 +126,9 @@ public class LoadBalancerPool {
 
     void updateQueue(List<String> sortedHostnames) {
         for (String hostname : sortedHostnames) {
+            couchDbHostQueue.remove(hostname); // remove from old position in list, if present
             if (healthChecks.isHostAvailable(hostname, 443)) {
-                if (couchDbHostQueue.contains(hostname)) {
-                    couchDbHostQueue.add(hostname);
-                    couchDbHostQueue.remove(hostname); // first occurrence, i. e. previous position in list
-                }
-                else {
-                    couchDbHostQueue.add(hostname);
-                }
-            }
-            else {
-                couchDbHostQueue.remove(hostname); // stale
-                
+                couchDbHostQueue.add(hostname); // add at end of queue
             }
         }
     }
