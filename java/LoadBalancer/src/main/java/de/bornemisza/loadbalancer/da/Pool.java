@@ -65,7 +65,6 @@ public abstract class Pool<T> {
                 couchDbHostQueue.add(hostname);
                 Logger.getAnonymousLogger().info("Initial Queue Fill: " + hostname);
             }
-            couchDbHostQueue.addAll(hostnames);
         }
     }
 
