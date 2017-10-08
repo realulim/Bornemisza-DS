@@ -90,8 +90,8 @@ public abstract class Pool<T> {
     }
 
     private void fillCouchDbHostUtilisation() {
+        Set<String> hostnames = allConnections.keySet();
         if (couchDbHostUtilisation.isEmpty()) {
-            Set<String> hostnames = allConnections.keySet();
             for (String key : hostnames) {
                 if (! couchDbHostUtilisation.containsKey(key)) {
                     couchDbHostUtilisation.put(key, 0);
