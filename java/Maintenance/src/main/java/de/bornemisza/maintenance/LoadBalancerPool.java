@@ -127,8 +127,10 @@ public class LoadBalancerPool {
     void updateQueue(List<String> sortedHostnames) {
         for (String hostname : sortedHostnames) {
             couchDbHostQueue.remove(hostname); // remove from old position in list, if present
+            Logger.getAnonymousLogger().info("Removed Host " + hostname + " from Queue");
             if (healthChecks.isHostAvailable(hostname, 443)) {
                 couchDbHostQueue.add(hostname); // add at end of queue
+                Logger.getAnonymousLogger().info("Added host " + hostname + " to Queue");
             }
         }
     }
