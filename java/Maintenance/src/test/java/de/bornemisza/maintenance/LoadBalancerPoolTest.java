@@ -9,9 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
@@ -21,7 +22,6 @@ import com.hazelcast.core.Member;
 public class LoadBalancerPoolTest {
 
     private SecureRandom wheel;
-    private HealthChecks healthChecks;
 
     public LoadBalancerPoolTest() {
     }
@@ -29,7 +29,6 @@ public class LoadBalancerPoolTest {
     @Before
     public void setUp() {
         this.wheel = new SecureRandom();
-        this.healthChecks = mock(HealthChecks.class);
     }
 
     @Test
@@ -70,26 +69,9 @@ public class LoadBalancerPoolTest {
     }
 
     @Test
-    public void updateQueue_allHostsAvailable_filledQueue() {
-        List<String> couchDbHostQueue = new ArrayList<>();
-        couchDbHostQueue.add("hostname2");
-        couchDbHostQueue.add("hostname3");
-        couchDbHostQueue.add("hostname1");
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue, healthChecks);
-        List<String> sortedHostnames = new ArrayList<>();
-        sortedHostnames.add("hostname1");
-        sortedHostnames.add("hostname2");
-        sortedHostnames.add("hostname3");
-        CUT.updateQueue(sortedHostnames);
-        assertEquals(sortedHostnames, couchDbHostQueue);
-    }
-
-    @Test
     public void updateQueue_emptyQueue() {
         List<String> couchDbHostQueue = new ArrayList<>();
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true);
-        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue, healthChecks);
+        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
@@ -99,23 +81,18 @@ public class LoadBalancerPoolTest {
     }
 
     @Test
-    public void updateQueue_someHostsNotAvailable() {
+    public void updateQueue_filledQueue() {
         List<String> couchDbHostQueue = new ArrayList<>();
         couchDbHostQueue.add("hostname2");
-        couchDbHostQueue.add("hostname4");
-        couchDbHostQueue.add("hostname1");
         couchDbHostQueue.add("hostname3");
-        when(healthChecks.isHostAvailable(anyString(), anyInt())).thenReturn(true).thenReturn(false).thenReturn(false).thenReturn(true);
-        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue, healthChecks);
+        couchDbHostQueue.add("hostname1");
+        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
         sortedHostnames.add("hostname3");
-        sortedHostnames.add("hostname4");
         CUT.updateQueue(sortedHostnames);
-        assertEquals("hostname1", couchDbHostQueue.get(0));
-        assertEquals("hostname4", couchDbHostQueue.get(1));
-        assertEquals(2, couchDbHostQueue.size());
+        assertEquals(sortedHostnames, couchDbHostQueue);
     }
 
 }

@@ -40,9 +40,6 @@ public class LoadBalancerPool {
     @Inject
     HazelcastInstance hazelcast;
 
-    @Inject
-    HealthChecks healthChecks;
-
     private Map<String, Integer> couchDbHostUtilisation;
     private List<String> couchDbHostQueue;
 
@@ -60,9 +57,8 @@ public class LoadBalancerPool {
     }
 
     // Constructor for Unit Tests
-    LoadBalancerPool(List<String> hostQueue, HealthChecks checks) {
+    LoadBalancerPool(List<String> hostQueue) {
         this.couchDbHostQueue = hostQueue;
-        this.healthChecks = checks;
     }
 
     @PostConstruct
@@ -125,13 +121,10 @@ public class LoadBalancerPool {
     }
 
     void updateQueue(List<String> sortedHostnames) {
-        for (String hostname : sortedHostnames) {
-            couchDbHostQueue.remove(hostname); // remove from old position in list, if present
-            Logger.getAnonymousLogger().info("Removed Host " + hostname + " from Queue");
-            if (healthChecks.isHostAvailable(hostname, 443)) {
-                couchDbHostQueue.add(hostname); // add at end of queue
-                Logger.getAnonymousLogger().info("Added host " + hostname + " to Queue");
-            }
+        couchDbHostQueue.addAll(0, sortedHostnames); // add at start of queue
+        if (couchDbHostQueue.size() > sortedHostnames.size()) {
+            // remove extraneous elements from end of queue
+            couchDbHostQueue.subList(sortedHostnames.size(), couchDbHostQueue.size()).clear();
         }
     }
 
