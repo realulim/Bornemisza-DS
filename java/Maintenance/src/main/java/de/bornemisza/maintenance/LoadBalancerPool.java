@@ -122,9 +122,9 @@ public class LoadBalancerPool {
 
     void updateQueue(List<String> sortedHostnames) {
         dbServers.addAll(0, sortedHostnames); // add at start of queue
-        if (dbServers.size() > sortedHostnames.size()) {
+        while (dbServers.size() > sortedHostnames.size()) {
             // remove extraneous elements from end of queue
-            dbServers.subList(sortedHostnames.size(), dbServers.size()).clear();
+            dbServers.remove(dbServers.size() - 1);
         }
     }
 
