@@ -27,7 +27,6 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 import de.bornemisza.loadbalancer.Config;
 
-
 @Singleton
 @Startup
 public class LoadBalancerPool {

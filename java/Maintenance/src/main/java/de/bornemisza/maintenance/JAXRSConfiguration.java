@@ -1,4 +1,4 @@
-package de.bornemisza;
+package de.bornemisza.maintenance;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
