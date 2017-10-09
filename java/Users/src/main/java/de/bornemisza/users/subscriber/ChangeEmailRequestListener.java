@@ -18,6 +18,7 @@ public class ChangeEmailRequestListener extends AbstractConfirmationMailListener
         super();
     }
 
+    // Constructor for Unit Tests
     public ChangeEmailRequestListener(ITopic<User> aTopic, IMap<String, User> aMap, MailSender mailSender) {
         super(aTopic, aMap, mailSender);
     }

@@ -83,7 +83,8 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
             if (!mailSent) {
                 this.requestMap.remove(uuid);
             }
-        } else {
+        } 
+        else {
             Logger.getAnonymousLogger().warning("UUID clash: " + uuid);
         }
         Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + requestMap.size());

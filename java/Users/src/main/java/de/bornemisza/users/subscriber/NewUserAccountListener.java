@@ -18,6 +18,7 @@ public class NewUserAccountListener extends AbstractConfirmationMailListener {
         super();
     }
 
+    // Constructor for Unit Tests
     public NewUserAccountListener(ITopic<User> aTopic, IMap<String, User> aMap, MailSender mailSender) {
         super(aTopic, aMap, mailSender);
     }
