@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
@@ -30,13 +31,14 @@ public abstract class AbstractConfirmationMailListenerTestbase {
     
     private User user;
     private Message<User> msg;
-    private ITopic<User> requestTopic;
-    private IMap<String, User> requestMap;
+    private ITopic requestTopic;
+    private IMap requestMap;
     private MailSender mailSender;
+    private HazelcastInstance hazelcast;
 
     AbstractConfirmationMailListener CUT;
 
-    abstract AbstractConfirmationMailListener getRequestListener(ITopic topic, IMap map, MailSender mailSender);
+    abstract AbstractConfirmationMailListener getRequestListener(MailSender mailSender, HazelcastInstance hz);
     abstract String getConfirmationLinkPrefix();
 
     @Before
@@ -53,7 +55,10 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         requestTopic = mock(ITopic.class);
         requestMap = mock(IMap.class);
         mailSender = mock(MailSender.class);
-        CUT = getRequestListener(requestTopic, requestMap, mailSender);
+        hazelcast = mock(HazelcastInstance.class);
+        when(hazelcast.getMap(anyString())).thenReturn(requestMap);
+        when(hazelcast.getTopic(anyString())).thenReturn(requestTopic);
+        CUT = getRequestListener(mailSender, hazelcast);
     }
 
     protected void onMessage_mailSent_styledTemplate_Base() throws AddressException, NoSuchProviderException, IOException {

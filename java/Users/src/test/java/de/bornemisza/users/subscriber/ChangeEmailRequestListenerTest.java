@@ -7,16 +7,15 @@ import javax.mail.internet.AddressException;
 
 import org.junit.Test;
 
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
+import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.users.MailSender;
 
 public class ChangeEmailRequestListenerTest extends AbstractConfirmationMailListenerTestbase {
 
     @Override
-    AbstractConfirmationMailListener getRequestListener(ITopic topic, IMap map, MailSender mailSender) {
-        return new ChangeEmailRequestListener(topic, map, mailSender);
+    AbstractConfirmationMailListener getRequestListener(MailSender mailSender, HazelcastInstance hz) {
+        return new ChangeEmailRequestListener(mailSender, hz);
     }
 
     @Override

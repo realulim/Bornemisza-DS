@@ -3,10 +3,8 @@ package de.bornemisza.users.subscriber;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.ITopic;
+import com.hazelcast.core.HazelcastInstance;
 
-import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
 
@@ -19,8 +17,8 @@ public class NewUserAccountListener extends AbstractConfirmationMailListener {
     }
 
     // Constructor for Unit Tests
-    public NewUserAccountListener(ITopic<User> aTopic, IMap<String, User> aMap, MailSender mailSender) {
-        super(aTopic, aMap, mailSender);
+    public NewUserAccountListener(MailSender mailSender, HazelcastInstance hz) {
+        super(mailSender, hz);
     }
 
     @Override

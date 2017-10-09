@@ -50,14 +50,14 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     }
 
     // Constructor for Unit Tests
-    public AbstractConfirmationMailListener(ITopic<User> aTopic, IMap<String, User> aMap, MailSender mailSender) {
-        this.requestTopic = aTopic;
-        this.requestMap = aMap;
+    public AbstractConfirmationMailListener(MailSender mailSender, HazelcastInstance hazelcast) {
         this.mailSender = mailSender;
+        this.hazelcast = hazelcast;
+        init();
     }
 
     @PostConstruct
-    public void init() {
+    public final void init() {
         this.requestTopic = hazelcast.getTopic(getRequestTopicName());
         this.registrationId = requestTopic.addMessageListener(this);
         this.requestMap = hazelcast.getMap(getRequestMapName());
