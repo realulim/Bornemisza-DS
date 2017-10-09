@@ -35,7 +35,7 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
     }
 
     public MyCouchDbConnector getConnector(String userName, char[] password) {
-        for (String hostname : getCouchDbHostQueue()) {
+        for (String hostname : getDbServerQueue()) {
             CouchDbConnection conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");

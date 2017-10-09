@@ -23,7 +23,7 @@ public class HttpPool extends Pool<Http> {
     }
 
     public Http getConnection() {
-        for (String hostname : getCouchDbHostQueue()) {
+        for (String hostname : getDbServerQueue()) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");

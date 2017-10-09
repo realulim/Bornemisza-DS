@@ -70,29 +70,29 @@ public class LoadBalancerPoolTest {
 
     @Test
     public void updateQueue_emptyQueue() {
-        List<String> couchDbHostQueue = new ArrayList<>();
-        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue);
+        List<String> dbServers = new ArrayList<>();
+        LoadBalancerPool CUT = new LoadBalancerPool(dbServers);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
         sortedHostnames.add("hostname3");
         CUT.updateQueue(sortedHostnames);
-        assertEquals(sortedHostnames, couchDbHostQueue);
+        assertEquals(sortedHostnames, dbServers);
     }
 
     @Test
     public void updateQueue_filledQueue() {
-        List<String> couchDbHostQueue = new ArrayList<>();
-        couchDbHostQueue.add("hostname2");
-        couchDbHostQueue.add("hostname3");
-        couchDbHostQueue.add("hostname1");
-        LoadBalancerPool CUT = new LoadBalancerPool(couchDbHostQueue);
+        List<String> dbServers = new ArrayList<>();
+        dbServers.add("hostname2");
+        dbServers.add("hostname3");
+        dbServers.add("hostname1");
+        LoadBalancerPool CUT = new LoadBalancerPool(dbServers);
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
         sortedHostnames.add("hostname3");
         CUT.updateQueue(sortedHostnames);
-        assertEquals(sortedHostnames, couchDbHostQueue);
+        assertEquals(sortedHostnames, dbServers);
     }
 
 }

@@ -19,8 +19,8 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.rest.PseudoHazelcastList;
 import de.bornemisza.rest.PseudoHazelcastMap;
 
-import static de.bornemisza.loadbalancer.da.Pool.LIST_COUCHDB_HOSTQUEUE;
-import static de.bornemisza.loadbalancer.da.Pool.MAP_COUCHDB_UTILISATION;
+import static de.bornemisza.loadbalancer.Config.SERVERS;
+import static de.bornemisza.loadbalancer.Config.UTILISATION;
 
 public class HttpPoolTest {
 
@@ -28,7 +28,7 @@ public class HttpPoolTest {
     private HazelcastInstance hazelcast;
     private HealthChecks healthChecks;
     private Map<String, Http> allConnections;
-    private IMap couchDbHostUtilisationMap;
+    private IMap dbServerUtilisation;
 
     @Before
     public void setUp() {
@@ -42,9 +42,9 @@ public class HttpPoolTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
-        when(hazelcast.getList(LIST_COUCHDB_HOSTQUEUE)).thenReturn(new PseudoHazelcastList());
-        couchDbHostUtilisationMap = new PseudoHazelcastMap();
-        when(hazelcast.getMap(MAP_COUCHDB_UTILISATION)).thenReturn(couchDbHostUtilisationMap);
+        when(hazelcast.getList(SERVERS)).thenReturn(new PseudoHazelcastList());
+        dbServerUtilisation = new PseudoHazelcastMap();
+        when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
         CUT = new HttpPool(allConnections, hazelcast, healthChecks);
     }
 
@@ -65,9 +65,9 @@ public class HttpPoolTest {
     public void getConnection_someHealthChecksFailed() {
         when(healthChecks.isCouchDbReady(any())).thenReturn(false).thenReturn(true);
         assertNotNull(CUT.getConnection());
-        Integer usageCount = (Integer) couchDbHostUtilisationMap.get("host1");
-        usageCount += (Integer) couchDbHostUtilisationMap.get("host2");
-        usageCount += (Integer) couchDbHostUtilisationMap.get("host3");
+        Integer usageCount = (Integer) dbServerUtilisation.get("host1");
+        usageCount += (Integer) dbServerUtilisation.get("host2");
+        usageCount += (Integer) dbServerUtilisation.get("host3");
         assertEquals(1, usageCount.intValue());
         verify(healthChecks, times(allConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
     }
@@ -79,9 +79,9 @@ public class HttpPoolTest {
         for (int i = 0; i < expectedUsageCount; i++) {
             assertNotNull(CUT.getConnection());
         }
-        Integer usageCount = (Integer) couchDbHostUtilisationMap.get("host1");
-        usageCount += (Integer) couchDbHostUtilisationMap.get("host2");
-        usageCount += (Integer) couchDbHostUtilisationMap.get("host3");
+        Integer usageCount = (Integer) dbServerUtilisation.get("host1");
+        usageCount += (Integer) dbServerUtilisation.get("host2");
+        usageCount += (Integer) dbServerUtilisation.get("host3");
         assertEquals(expectedUsageCount, usageCount.intValue());
     }
 

@@ -14,15 +14,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 
-public abstract class Pool<T> {
+import de.bornemisza.loadbalancer.Config;
 
-    public static String LIST_COUCHDB_HOSTQUEUE = "CouchDBHostQueue";
-    public static String MAP_COUCHDB_UTILISATION = "CouchDBUtilisation";
+public abstract class Pool<T> {
 
     protected final Map<String, T> allConnections;
     private final HazelcastInstance hazelcast;
-    private List<String> couchDbHostQueue = null;
-    private Map<String, Integer> couchDbHostUtilisation = null;
+    private List<String> dbServerQueue = null;
+    private Map<String, Integer> dbServerUtilisation = null;
 
     public Pool(@NotNull Map<String, T> allConnections, @NotNull HazelcastInstance hazelcast) {
         this.allConnections = allConnections;
@@ -31,70 +30,70 @@ public abstract class Pool<T> {
     }
 
     private void initCluster() {
-        this.couchDbHostQueue = getCouchDbHostQueue();
-        this.couchDbHostUtilisation = getCouchDbHostUtilisation();
+        this.dbServerQueue = getDbServerQueue();
+        this.dbServerUtilisation = getDbServerUtilisation();
     }
 
-    public List<String> getCouchDbHostQueue() {
-        if (this.couchDbHostQueue != null && this.couchDbHostQueue instanceof IList) {
+    public List<String> getDbServerQueue() {
+        if (this.dbServerQueue != null && this.dbServerQueue instanceof IList) {
             // It's a Hazelcast list, so all is good
-            return this.couchDbHostQueue;
+            return this.dbServerQueue;
         }
         // Not a Hazelcast list, so let's try to make it one
         try {
-            this.couchDbHostQueue = hazelcast.getList(LIST_COUCHDB_HOSTQUEUE);
+            this.dbServerQueue = hazelcast.getList(Config.SERVERS);
         }
         catch (HazelcastException e) {
             // still no Hazelcast, so let's make it a plain list and try again next time
             Logger.getAnonymousLogger().warning("Hazelcast malfunctioning: " + e.toString());
-            if (this.couchDbHostQueue != null) return this.couchDbHostQueue;
-            else this.couchDbHostQueue = new ArrayList<>(); // fallback, so clients can still work
+            if (this.dbServerQueue != null) return this.dbServerQueue;
+            else this.dbServerQueue = new ArrayList<>(); // fallback, so clients can still work
         }
-        fillCouchDbHostQueue();
-        return this.couchDbHostQueue;
+        populateDbServerQueue();
+        return this.dbServerQueue;
     }
 
     public Set<String> getAllHostnames() {
         return allConnections.keySet();
     }
 
-    private void fillCouchDbHostQueue() {
+    private void populateDbServerQueue() {
         Set<String> hostnames = allConnections.keySet();
-        if (couchDbHostQueue.isEmpty()) {
-            couchDbHostQueue.addAll(hostnames);
+        if (dbServerQueue.isEmpty()) {
+            dbServerQueue.addAll(hostnames);
         }
     }
 
-    public Map<String, Integer> getCouchDbHostUtilisation() {
-        if (this.couchDbHostUtilisation != null && this.couchDbHostUtilisation instanceof IMap) {
+    public Map<String, Integer> getDbServerUtilisation() {
+        if (this.dbServerUtilisation != null && this.dbServerUtilisation instanceof IMap) {
             // It's a Hazelcast map, so all is good
-            return this.couchDbHostUtilisation;
+            return this.dbServerUtilisation;
         }
         // Not a Hazelcast map, so let's try to make it one
         try {
-            this.couchDbHostUtilisation = hazelcast.getMap(MAP_COUCHDB_UTILISATION);
+            this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         }
         catch (HazelcastException e) {
             // still no Hazelcast, so let's make it a plain map and try again next time
             Logger.getAnonymousLogger().warning("Hazelcast malfunctioning: " + e.toString());
-            if (this.couchDbHostUtilisation != null) return this.couchDbHostUtilisation;
-            else this.couchDbHostUtilisation = new HashMap<>(); // fallback, so clients can still work
+            if (this.dbServerUtilisation != null) return this.dbServerUtilisation;
+            else this.dbServerUtilisation = new HashMap<>(); // fallback, so clients can still work
         }
-        fillCouchDbHostUtilisation();
-        return this.couchDbHostUtilisation;
+        populateDbServerUtilisation();
+        return this.dbServerUtilisation;
     }
 
     public void incrementRequestsFor(String hostname) {
-        if (this.couchDbHostUtilisation == null) this.couchDbHostUtilisation = getCouchDbHostUtilisation();
-        this.couchDbHostUtilisation.compute(hostname, (k, v) -> v+1);
+        if (this.dbServerUtilisation == null) this.dbServerUtilisation = getDbServerUtilisation();
+        this.dbServerUtilisation.compute(hostname, (k, v) -> v+1);
     }
 
-    private void fillCouchDbHostUtilisation() {
+    private void populateDbServerUtilisation() {
         Set<String> hostnames = allConnections.keySet();
-        if (couchDbHostUtilisation.isEmpty()) {
+        if (dbServerUtilisation.isEmpty()) {
             for (String key : hostnames) {
-                if (! couchDbHostUtilisation.containsKey(key)) {
-                    couchDbHostUtilisation.put(key, 0);
+                if (! dbServerUtilisation.containsKey(key)) {
+                    dbServerUtilisation.put(key, 0);
                 }
             }
         }

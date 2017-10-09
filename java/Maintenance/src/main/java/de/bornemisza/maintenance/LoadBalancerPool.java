@@ -25,8 +25,8 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+import de.bornemisza.loadbalancer.Config;
 
-import de.bornemisza.loadbalancer.da.Pool;
 
 @Singleton
 @Startup
@@ -40,8 +40,8 @@ public class LoadBalancerPool {
     @Inject
     HazelcastInstance hazelcast;
 
-    private Map<String, Integer> couchDbHostUtilisation;
-    private List<String> couchDbHostQueue;
+    private Map<String, Integer> dbServerUtilisation;
+    private List<String> dbServers;
 
     public LoadBalancerPool() {
     }
@@ -53,18 +53,18 @@ public class LoadBalancerPool {
 
     // Constructor for Unit Tests
     LoadBalancerPool(Map<String, Integer> utilisationMap) {
-        this.couchDbHostUtilisation = utilisationMap;
+        this.dbServerUtilisation = utilisationMap;
     }
 
     // Constructor for Unit Tests
-    LoadBalancerPool(List<String> hostQueue) {
-        this.couchDbHostQueue = hostQueue;
+    LoadBalancerPool(List<String> dbServers) {
+        this.dbServers = dbServers;
     }
 
     @PostConstruct
     public void init() {
-        couchDbHostUtilisation = hazelcast.getMap(Pool.MAP_COUCHDB_UTILISATION);
-        couchDbHostQueue = hazelcast.getList(Pool.LIST_COUCHDB_HOSTQUEUE);
+        dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
+        dbServers = hazelcast.getList(Config.SERVERS);
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
             @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
@@ -114,24 +114,24 @@ public class LoadBalancerPool {
     }
 
     List<String> sortHostnamesByUtilisation() {
-        return this.couchDbHostUtilisation.entrySet().stream()
+        return this.dbServerUtilisation.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue())
                 .map(entry -> entry.getKey())
                 .collect(Collectors.toList());
     }
 
     void updateQueue(List<String> sortedHostnames) {
-        couchDbHostQueue.addAll(0, sortedHostnames); // add at start of queue
-        if (couchDbHostQueue.size() > sortedHostnames.size()) {
+        dbServers.addAll(0, sortedHostnames); // add at start of queue
+        if (dbServers.size() > sortedHostnames.size()) {
             // remove extraneous elements from end of queue
-            couchDbHostQueue.subList(sortedHostnames.size(), couchDbHostQueue.size()).clear();
+            dbServers.subList(sortedHostnames.size(), dbServers.size()).clear();
         }
     }
 
     private void logNewQueueState() {
-        StringBuilder sb = new StringBuilder("CouchDbHostQueue");
-        for (String hostname : couchDbHostQueue) {
-            sb.append(" | ").append(hostname).append(":").append(couchDbHostUtilisation.get(hostname));
+        StringBuilder sb = new StringBuilder("DbServerQueue");
+        for (String hostname : dbServers) {
+            sb.append(" | ").append(hostname).append(":").append(dbServerUtilisation.get(hostname));
         }
         Logger.getAnonymousLogger().info(sb.toString());
     }

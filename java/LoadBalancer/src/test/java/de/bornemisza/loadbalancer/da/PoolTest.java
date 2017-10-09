@@ -55,23 +55,23 @@ public class PoolTest {
         when(hazelcast.getList(anyString())).thenReturn(hazelcastList);
         when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
         Pool CUT = new PoolImpl(allConnections, hazelcast);
-        List<String> couchDbHostQueue = CUT.getCouchDbHostQueue();
-        assertEquals(hazelcastList, couchDbHostQueue);
-        verify(couchDbHostQueue).isEmpty();
-        verify(couchDbHostQueue).addAll(anySet());
-        Map<String, Object> couchDbHostUtilisation = CUT.getCouchDbHostUtilisation();
-        assertEquals(hazelcastMap, couchDbHostUtilisation);
+        List<String> dbServers = CUT.getDbServerQueue();
+        assertEquals(hazelcastList, dbServers);
+        verify(dbServers).isEmpty();
+        verify(dbServers).addAll(anySet());
+        Map<String, Object> dbServerUtilisation = CUT.getDbServerUtilisation();
+        assertEquals(hazelcastMap, dbServerUtilisation);
         for (String hostname : allConnections.keySet()) {
-            verify(couchDbHostUtilisation).isEmpty();
-            verify(couchDbHostUtilisation).containsKey(hostname);
-            verify(couchDbHostUtilisation).put(hostname, 0);
+            verify(dbServerUtilisation).isEmpty();
+            verify(dbServerUtilisation).containsKey(hostname);
+            verify(dbServerUtilisation).put(hostname, 0);
         }
 
         // subsequent invocations should just return the created data structures
-        assertEquals(couchDbHostQueue, CUT.getCouchDbHostQueue());
-        verifyNoMoreInteractions(couchDbHostQueue);
-        assertEquals(couchDbHostUtilisation, CUT.getCouchDbHostUtilisation());
-        verifyNoMoreInteractions(couchDbHostUtilisation);
+        assertEquals(dbServers, CUT.getDbServerQueue());
+        verifyNoMoreInteractions(dbServers);
+        assertEquals(dbServerUtilisation, CUT.getDbServerUtilisation());
+        verifyNoMoreInteractions(dbServerUtilisation);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PoolTest {
             }
         }
         for (String hostname : allHostnames) {
-            assertEquals(requestCount, CUT.getCouchDbHostUtilisation().get(hostname));
+            assertEquals(requestCount, CUT.getDbServerUtilisation().get(hostname));
         }
         
     }
@@ -104,14 +104,14 @@ public class PoolTest {
                 .thenThrow(new OperationTimeoutException(errMsg))
                 .thenReturn(hazelcastMap);
         Pool CUT = new PoolImpl(allConnections, hazelcast);
-        List<String> couchDbHostQueue = CUT.getCouchDbHostQueue();
-        assertNotEquals(hazelcastList, couchDbHostQueue);
-        Map<String, Object> couchDbHostUtilisation = CUT.getCouchDbHostUtilisation();
-        assertNotEquals(hazelcastMap, couchDbHostUtilisation);
+        List<String> dbServers = CUT.getDbServerQueue();
+        assertNotEquals(hazelcastList, dbServers);
+        Map<String, Object> dbServerUtilisation = CUT.getDbServerUtilisation();
+        assertNotEquals(hazelcastMap, dbServerUtilisation);
 
         // subsequent invocation should return the Hazelcast data structure
-        assertEquals(hazelcastList.hashCode(), CUT.getCouchDbHostQueue().hashCode());
-        assertEquals(hazelcastMap.hashCode(), CUT.getCouchDbHostUtilisation().hashCode());
+        assertEquals(hazelcastList.hashCode(), CUT.getDbServerQueue().hashCode());
+        assertEquals(hazelcastMap.hashCode(), CUT.getDbServerUtilisation().hashCode());
     }
 
     public class PoolImpl extends Pool {
