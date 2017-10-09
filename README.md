@@ -1,8 +1,11 @@
 # Bornemisza
 This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5-$10 variety.
-It provides a template for starting a web-based business on the cheap and seamlessly progressing to web scale later on.
+It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on.
 
-## Architectural Goals
+## Architectural Overview
+The system consists of two clusters, a database cluster (CouchDB) and an application server cluster (Payara), whereas the frontend is an HTML5 single page application. This client-side UI sends requests for data or business logic processing to a REST API running on the application server cluster, using a static interface name. That interface is serviced by a HA setup on the network layer that makes sure requests are routed to one of the application server nodes. If this backend wants to manage persistent data, it uses a client-side load balancing scheme to select one of the database server nodes.
+
+## Design Goals
 
 #### 1. True horizontal scalability
 - new nodes join the (application server or database) cluster automatically
