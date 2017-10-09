@@ -1,5 +1,6 @@
-package de.bornemisza.rest;
+package de.bornemisza.maintenance;
 
+import de.bornemisza.rest.BasicAuthCredentials;
 import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -22,7 +23,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.couchdb.entity.User;
 
 public class IntegrationTestBase {
 

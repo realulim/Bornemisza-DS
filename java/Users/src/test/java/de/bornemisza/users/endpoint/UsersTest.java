@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.topic.TopicOverloadException;
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.couchdb.entity.User;
 
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;

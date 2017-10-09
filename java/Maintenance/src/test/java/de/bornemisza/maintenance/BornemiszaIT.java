@@ -1,15 +1,16 @@
-package de.bornemisza.rest;
+package de.bornemisza.maintenance;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.List;
 
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import static org.junit.Assert.*;
 
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.BasicAuthCredentials;
+import de.bornemisza.couchdb.entity.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {

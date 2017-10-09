@@ -1,4 +1,4 @@
-package de.bornemisza.rest.entity;
+package de.bornemisza.couchdb.entity;
 
 import java.util.List;
 

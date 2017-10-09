@@ -18,7 +18,7 @@ import org.ektorp.DbAccessException;
 import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 

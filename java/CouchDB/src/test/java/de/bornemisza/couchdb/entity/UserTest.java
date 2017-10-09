@@ -1,5 +1,6 @@
-package de.bornemisza.rest.entity;
+package de.bornemisza.couchdb.entity;
 
+import de.bornemisza.couchdb.entity.User;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

@@ -5,7 +5,7 @@ import java.util.List;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.support.CouchDbRepositorySupport;
 
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.couchdb.entity.User;
 
 public class UserRepository extends CouchDbRepositorySupport<User> {
 

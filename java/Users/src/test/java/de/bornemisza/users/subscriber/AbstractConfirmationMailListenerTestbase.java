@@ -23,7 +23,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.MailSender;
 
 public abstract class AbstractConfirmationMailListenerTestbase {

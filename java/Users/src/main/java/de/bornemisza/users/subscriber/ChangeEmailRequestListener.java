@@ -6,7 +6,7 @@ import javax.ejb.Startup;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import de.bornemisza.rest.entity.User;
+import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
 
