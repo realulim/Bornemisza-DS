@@ -22,7 +22,9 @@ import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
 import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractConfirmationMailListener implements MessageListener<User> {
 
@@ -41,7 +43,8 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     abstract String getFallbackTextTemplate();
 
     private ITopic<User> requestTopic;
-    private IMap<String, User> requestMap;
+    private IMap<String, String> userIdMap;
+    private IMap<String, User> uuidMap;
     private String registrationId;
 
     protected final String FQDN = System.getProperty("FQDN");
@@ -60,7 +63,8 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     public final void init() {
         this.requestTopic = hazelcast.getTopic(getRequestTopicName());
         this.registrationId = requestTopic.addMessageListener(this);
-        this.requestMap = hazelcast.getMap(getRequestMapName());
+        this.userIdMap = hazelcast.getMap(getRequestMapName() + JAXRSConfiguration.MAP_USERID_SUFFIX);
+        this.uuidMap = hazelcast.getMap(getRequestMapName() + JAXRSConfiguration.MAP_UUID_SUFFIX);
     }
 
     private InternetAddress createRecipient(User user) {
@@ -75,19 +79,22 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     @Override
     public void onMessage(Message<User> msg) {
         User user = msg.getMessageObject();
-        Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString());
         String uuid = UUID.randomUUID().toString();
-        User previousValue = this.requestMap.putIfAbsent(uuid, user);
+        Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString() + " with " + uuid);
+        String previousValue = this.userIdMap.putIfAbsent(user.getId(), uuid, 24, TimeUnit.HOURS);
         if (previousValue == null) {
+            // first map entry for this user
+            this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
             boolean mailSent = sendConfirmationMail(user, uuid);
             if (!mailSent) {
-                this.requestMap.remove(uuid);
+                this.userIdMap.remove(user.getId());
+                this.uuidMap.remove(uuid);
             }
         } 
         else {
-            Logger.getAnonymousLogger().warning("UUID clash: " + uuid);
+            Logger.getAnonymousLogger().info("Skipping Request Handling, it is already being worked on.");
         }
-        Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + requestMap.size());
+        Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + userIdMap.size());
     }
 
     private boolean sendConfirmationMail(User user, String uuid) {

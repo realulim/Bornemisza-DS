@@ -31,25 +31,25 @@ public class UsersFacade {
     HazelcastInstance hazelcast;
 
     private ITopic<User> newUserAccountTopic, changeEmailRequestTopic;
-    private IMap<String, User> newUserAccountMap, changeEmailRequestMap;
+    private IMap<String, User> newUserAccountMap_userId, newUserAccountMap_uuid, changeEmailRequestMap_userId, changeEmailRequestMap_uuid;
 
     public UsersFacade() { }
 
     // Constructor for Unit Tests
-    public UsersFacade(UsersService usersService, ITopic<User> newUserAccountTopic, ITopic<User> changeEmailRequestTopic, IMap<String, User> newUserAccountMap, IMap<String, User> changeEmailRequestMap) {
+    public UsersFacade(UsersService usersService, HazelcastInstance hz) {
         this.usersService = usersService;
-        this.newUserAccountTopic = newUserAccountTopic;
-        this.changeEmailRequestTopic = changeEmailRequestTopic;
-        this.newUserAccountMap = newUserAccountMap;
-        this.changeEmailRequestMap = changeEmailRequestMap;
+        this.hazelcast = hz;
+        init();
     }
 
     @PostConstruct
-    public void init() {
+    public final void init() {
         this.newUserAccountTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT);
-        this.newUserAccountMap = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT);
+        this.newUserAccountMap_userId = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT + JAXRSConfiguration.MAP_USERID_SUFFIX);
+        this.newUserAccountMap_uuid = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT + JAXRSConfiguration.MAP_UUID_SUFFIX);
         this.changeEmailRequestTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_CHANGE_EMAIL_REQUEST);
-        this.changeEmailRequestMap = hazelcast.getMap(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST);
+        this.changeEmailRequestMap_userId = hazelcast.getMap(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST + JAXRSConfiguration.MAP_USERID_SUFFIX);
+        this.changeEmailRequestMap_uuid = hazelcast.getMap(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST + JAXRSConfiguration.MAP_UUID_SUFFIX);
     }
 
     public void addUser(User user) {
@@ -65,10 +65,11 @@ public class UsersFacade {
     }
 
     public User confirmUser(String uuid) throws BusinessException, TechnicalException {
-        User user = newUserAccountMap.remove(uuid);
+        User user = newUserAccountMap_uuid.remove(uuid);
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
         }
+        newUserAccountMap_userId.remove(user.getId());
         try {
             return usersService.createUser(user);
         }
@@ -87,10 +88,11 @@ public class UsersFacade {
     }
 
     public User confirmEmail(String uuid, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
-        User user = changeEmailRequestMap.remove(uuid);
+        User user = changeEmailRequestMap_uuid.remove(uuid);
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
         }
+        changeEmailRequestMap_userId.remove(user.getId());
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             User newUser = usersService.getUser(user.getName(), creds);

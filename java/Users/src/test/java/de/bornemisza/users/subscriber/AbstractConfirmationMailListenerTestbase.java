@@ -1,6 +1,7 @@
 package de.bornemisza.users.subscriber;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.NoSuchProviderException;
 import javax.mail.internet.AddressException;
@@ -10,14 +11,8 @@ import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 
 import org.mockito.ArgumentCaptor;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.contains;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -25,14 +20,16 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 
 import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
+import java.util.UUID;
 
 public abstract class AbstractConfirmationMailListenerTestbase {
     
     private User user;
     private Message<User> msg;
     private ITopic requestTopic;
-    private IMap requestMap;
+    private IMap userIdMap, uuidMap;
     private MailSender mailSender;
     private HazelcastInstance hazelcast;
 
@@ -53,17 +50,19 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         when(msg.getMessageObject()).thenReturn(user);
 
         requestTopic = mock(ITopic.class);
-        requestMap = mock(IMap.class);
+        userIdMap = mock(IMap.class);
+        uuidMap = mock(IMap.class);
         mailSender = mock(MailSender.class);
         hazelcast = mock(HazelcastInstance.class);
-        when(hazelcast.getMap(anyString())).thenReturn(requestMap);
+        when(hazelcast.getMap(endsWith(JAXRSConfiguration.MAP_USERID_SUFFIX))).thenReturn(userIdMap);
+        when(hazelcast.getMap(endsWith(JAXRSConfiguration.MAP_UUID_SUFFIX))).thenReturn(uuidMap);
         when(hazelcast.getTopic(anyString())).thenReturn(requestTopic);
         CUT = getRequestListener(mailSender, hazelcast);
     }
 
     protected void onMessage_mailSent_styledTemplate_Base() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
-        when(requestMap.putIfAbsent(uuidCaptor.capture(), eq(user))).thenReturn(null);
+        when(userIdMap.putIfAbsent(eq(user.getId()), uuidCaptor.capture(), anyLong(), any(TimeUnit.class))).thenReturn(null);
 
         ArgumentCaptor<String> textContentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> htmlContentCaptor = ArgumentCaptor.forClass(String.class);
@@ -85,16 +84,17 @@ public abstract class AbstractConfirmationMailListenerTestbase {
     
     protected void onMessage_mailNotSent_Base() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
-        when(requestMap.putIfAbsent(uuidCaptor.capture(), eq(user))).thenReturn(null);
+        when(userIdMap.putIfAbsent(eq(user.getId()), uuidCaptor.capture(), anyLong(), any(TimeUnit.class))).thenReturn(null);
 
         when(mailSender.sendMail(eq(user.getEmail()), contains("Confirmation"), anyString(), anyString())).thenReturn(false);
         CUT.onMessage(msg);
 
-        verify(requestMap).remove(uuidCaptor.getValue());
+        verify(uuidMap).remove(uuidCaptor.getValue());
     }
 
     protected void onMessage_uuidClash_doNotSendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
-        when(requestMap.putIfAbsent(anyString(), eq(user))).thenReturn(user);
+        String previousValue = UUID.randomUUID().toString();
+        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
 
         CUT.onMessage(msg);
 

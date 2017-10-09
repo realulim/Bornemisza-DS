@@ -9,8 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
@@ -19,25 +21,36 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.UpdateConflictException;
 
 import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 
 public class UsersFacadeTest {
 
     private UsersService usersService;
-    private ITopic<User> newUserAccountTopic, changeEmailRequestTopic;
-    private IMap<String, User> newUserAccountMap, changeEmailRequestMap;
+    private ITopic newUserAccountTopic, changeEmailRequestTopic;
+    private IMap newUserAccountMap_userId, newUserAccountMap_uuid, changeEmailRequestMap_userId, changeEmailRequestMap_uuid;
+    private HazelcastInstance hazelcast;
     private UsersFacade CUT;
     private final String AUTH_HEADER = "Basic RmF6aWwgT25ndWRhcjpjaGFuZ2Vk";
-    
+
     @Before
     public void setUp() {
         usersService = mock(UsersService.class);
         newUserAccountTopic = mock(ITopic.class);
-        newUserAccountMap = mock(IMap.class);
+        newUserAccountMap_userId = mock(IMap.class);
+        newUserAccountMap_uuid = mock(IMap.class);
         changeEmailRequestTopic = mock(ITopic.class);
-        changeEmailRequestMap = mock(IMap.class);
-        CUT = new UsersFacade(usersService, newUserAccountTopic, changeEmailRequestTopic, newUserAccountMap, changeEmailRequestMap);
+        changeEmailRequestMap_userId = mock(IMap.class);
+        changeEmailRequestMap_uuid = mock(IMap.class);
+        hazelcast = mock(HazelcastInstance.class);
+        when(hazelcast.getMap(eq(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT + JAXRSConfiguration.MAP_USERID_SUFFIX))).thenReturn(newUserAccountMap_userId);
+        when(hazelcast.getMap(eq(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT + JAXRSConfiguration.MAP_UUID_SUFFIX))).thenReturn(newUserAccountMap_uuid);
+        when(hazelcast.getMap(eq(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST + JAXRSConfiguration.MAP_USERID_SUFFIX))).thenReturn(changeEmailRequestMap_userId);
+        when(hazelcast.getMap(eq(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST + JAXRSConfiguration.MAP_UUID_SUFFIX))).thenReturn(changeEmailRequestMap_uuid);
+        when(hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT)).thenReturn(newUserAccountTopic);
+        when(hazelcast.getTopic(JAXRSConfiguration.TOPIC_CHANGE_EMAIL_REQUEST)).thenReturn(changeEmailRequestTopic);
+        CUT = new UsersFacade(usersService, hazelcast);
     }
 
     @Test
@@ -88,7 +101,7 @@ public class UsersFacadeTest {
 
     @Test
     public void confirmUser_uuidNotFound() {
-        when(newUserAccountMap.remove(any(String.class))).thenReturn(null);
+        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(null);
         try {
             CUT.confirmUser(UUID.randomUUID().toString());
             fail();
@@ -100,7 +113,7 @@ public class UsersFacadeTest {
 
     @Test
     public void confirmUser_userExists() {
-        when(newUserAccountMap.remove(any(String.class))).thenReturn(new User());
+        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException());
         assertNull(CUT.confirmUser(UUID.randomUUID().toString()));
     }
@@ -108,7 +121,7 @@ public class UsersFacadeTest {
     @Test
     public void confirmUser_unauthorized() {
         String msg = "401 - Unauthorized";
-        when(newUserAccountMap.remove(any(String.class))).thenReturn(new User());
+        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
         try {
             CUT.confirmUser(UUID.randomUUID().toString());
@@ -122,7 +135,7 @@ public class UsersFacadeTest {
     @Test
     public void confirmUser_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        when(newUserAccountMap.remove(any(String.class))).thenReturn(new User());
+        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(new User());
         when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
         try {
             CUT.confirmUser(UUID.randomUUID().toString());
@@ -135,7 +148,7 @@ public class UsersFacadeTest {
 
     @Test
     public void confirmEmail_uuidNotFound() {
-        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(null);
+        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(null);
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), null);
             fail();
@@ -147,7 +160,7 @@ public class UsersFacadeTest {
 
     @Test
     public void confirmEmail_nonExistingUser() {
-        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(new User());
+        when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(new User());
         when(usersService.getUser(anyString(), any())).thenReturn(null);
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
@@ -163,7 +176,7 @@ public class UsersFacadeTest {
         String msg = "401 - Unauthorized";
         User user = new User();
         user.setName("Ike");
-        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
@@ -179,7 +192,7 @@ public class UsersFacadeTest {
         String msg = "java.net.SocketTimeoutException: connect timed out";
         User user = new User();
         user.setName("Ike");
-        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
         when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
@@ -197,7 +210,7 @@ public class UsersFacadeTest {
         User user = new User();
         user.setName("Ike");
         user.setEmail(new InternetAddress("foo@bar.de"));
-        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(true);
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
@@ -207,7 +220,7 @@ public class UsersFacadeTest {
     public void confirmEmail_updateConflict_newerRevisionExists() {
         User user = new User();
         user.setName("Ike");
-        when(changeEmailRequestMap.remove(any(String.class))).thenReturn(user);
+        when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());

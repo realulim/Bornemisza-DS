@@ -33,6 +33,7 @@ public class JAXRSConfiguration extends Application {
     public static String MAP_NEW_USER_ACCOUNT = "NewUserAccount";
     public static String TOPIC_CHANGE_EMAIL_REQUEST = "ChangeEmailRequest";
     public static String MAP_CHANGE_EMAIL_REQUEST = "ChangeEmailRequest";
+    public static String MAP_USERID_SUFFIX = "_userId";
+    public static String MAP_UUID_SUFFIX = "_uuid";
 
 }
-
