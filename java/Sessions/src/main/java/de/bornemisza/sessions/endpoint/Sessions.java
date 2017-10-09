@@ -40,7 +40,7 @@ import com.hazelcast.core.MembershipListener;
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
-import de.bornemisza.rest.entity.Session;
+import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.sessions.JAXRSConfiguration;
 
 @Path("/")

@@ -24,7 +24,7 @@ import com.hazelcast.core.Member;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
-import de.bornemisza.rest.entity.Session;
+import de.bornemisza.couchdb.entity.Session;
 
 public class SessionsTest {
 
