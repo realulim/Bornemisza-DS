@@ -69,6 +69,7 @@ public class UsersFacade {
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
         }
+Logger.getAnonymousLogger().info("Removed " + uuid + " from NewUserAccount");
         try {
             return usersService.createUser(user);
         }
@@ -91,6 +92,7 @@ public class UsersFacade {
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
         }
+Logger.getAnonymousLogger().info("Removed " + uuid + " from ChangeEmailRequest");
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             User newUser = usersService.getUser(user.getName(), creds);

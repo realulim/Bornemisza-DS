@@ -78,10 +78,12 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
         Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString());
         String uuid = UUID.randomUUID().toString();
         User previousValue = this.requestMap.putIfAbsent(uuid, user);
+Logger.getAnonymousLogger().info("Added " + uuid + " to " + getRequestTopicName());
         if (previousValue == null) {
             boolean mailSent = sendConfirmationMail(user, uuid);
             if (!mailSent) {
                 this.requestMap.remove(uuid);
+Logger.getAnonymousLogger().info("Removed!!!! " + uuid + " from " + getRequestTopicName());
             }
         } 
         else {
