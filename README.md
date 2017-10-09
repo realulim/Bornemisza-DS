@@ -3,7 +3,7 @@ This is a cloud-based distributed system that self-installs onto standard CentOS
 It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on.
 
 ## Architectural Overview
-The system consists of two clusters, a database cluster and an application server cluster, whereas the frontend is an HTML5 single page application. This client-side UI sends requests for data or other backend processing to a REST API running on the application server cluster, which hides behind a static interface name (e. g. www.myservice.de). That interface is serviced by a HA setup on the network layer that makes sure requests are routed to one of the application server nodes. Whenever the business logic wants to access persistent data, it uses a client-side load balancing scheme to select one of the database nodes.
+The system consists of two clusters, a database cluster and an application server cluster, whereas the frontend is an HTML5 single page application. This client-side UI sends requests for data or other backend processing to a REST API running on the application server cluster, which hides behind a static interface name (e. g. ```www.myservice.de```). That interface is serviced by a HA setup on the network layer that makes sure requests are routed to one of the application server nodes. Whenever the business logic wants to access persistent data, it uses a client-side load balancing scheme to select one of the database nodes.
 
 ## Design Goals
 
