@@ -75,25 +75,19 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     @Override
     public void onMessage(Message<User> msg) {
         User user = msg.getMessageObject();
-        this.requestMap.lock(user.getId());
-        try {
-            Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString());
-            String uuid = UUID.randomUUID().toString();
-            User previousValue = this.requestMap.putIfAbsent(uuid, user);
-            if (previousValue == null) {
-                boolean mailSent = sendConfirmationMail(user, uuid);
-                if (!mailSent) {
-                    this.requestMap.remove(uuid);
-                }
-            } 
-            else {
-                Logger.getAnonymousLogger().warning("UUID clash: " + uuid);
+        Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString());
+        String uuid = UUID.randomUUID().toString();
+        User previousValue = this.requestMap.putIfAbsent(uuid, user);
+        if (previousValue == null) {
+            boolean mailSent = sendConfirmationMail(user, uuid);
+            if (!mailSent) {
+                this.requestMap.remove(uuid);
             }
-            Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + requestMap.size());
+        } 
+        else {
+            Logger.getAnonymousLogger().warning("UUID clash: " + uuid);
         }
-        finally {
-            this.requestMap.unlock(user.getId());
-        }
+        Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + requestMap.size());
     }
 
     private boolean sendConfirmationMail(User user, String uuid) {
