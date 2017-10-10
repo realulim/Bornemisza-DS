@@ -11,11 +11,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import org.javalite.http.Get;
-import org.javalite.http.Post;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
@@ -23,9 +22,12 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.nio.Address;
 
+import org.javalite.http.Get;
+import org.javalite.http.Post;
+
+import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
-import de.bornemisza.couchdb.entity.Session;
 
 public class SessionsTest {
 
@@ -37,6 +39,7 @@ public class SessionsTest {
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
     private HazelcastInstance hazelcast;
+    private HttpPool pool;
 
     @Before
     public void setUp() {
@@ -51,14 +54,21 @@ public class SessionsTest {
         when(http.get(anyString())).thenReturn(get);
         when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
 
-        HttpPool pool = mock(HttpPool.class);
+        pool = mock(HttpPool.class);
         when(pool.getConnection()).thenReturn(http);
-        Map<String, Http> allConnections = new HashMap<>();
 
         hazelcast = mock(HazelcastInstance.class);
-        Cluster cluster = mock(Cluster.class);
+        Set<Member> members = createMembers(5);
+        Cluster cluster = createCluster(members, "2"); // third AppServer
+        when(hazelcast.getCluster()).thenReturn(cluster);
+
+        CUT = new Sessions(pool, pool, hazelcast);
+    }
+
+    private Set<Member> createMembers(int count) {
+        Map<String, Http> allConnections = new HashMap<>();
         Set<Member> members = new HashSet<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < count; i++) {
             String hostname = "db" + i + ".domain.de";
             allConnections.put(hostname, http);
             Member member = mock(Member.class);
@@ -68,13 +78,16 @@ public class SessionsTest {
             when(member.getAddress()).thenReturn(address);
             members.add(member);
         }
+        return members;
+    }
+
+    private Cluster createCluster(Set<Member> members, String myUuid) {
+        Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(members);
         Member myself = mock(Member.class);
         when(cluster.getLocalMember()).thenReturn(myself);
-        when(myself.getUuid()).thenReturn("2"); // third AppServer
-        when(hazelcast.getCluster()).thenReturn(cluster);
-
-        CUT = new Sessions(pool, pool, hazelcast);
+        when(myself.getUuid()).thenReturn(myUuid);
+        return cluster;
     }
 
     @Test
@@ -236,6 +249,36 @@ public class SessionsTest {
         assertEquals(json, response.getEntity());
         assertEquals("Gold", response.getHeaderString("AppServer")); // third color
         assertEquals("Crimson", response.getHeaderString("DbServer")); // second color
+    }
+
+    @Test
+    public void getUuids_moreMembersThanColors() {
+        String json = "{\n" +
+                      "    \"uuids\": [\n" +
+                      "        \"6f4f195712bd76a67b2cba6737007f44\",\n" +
+                      "        \"6f4f195712bd76a67b2cba6737008c8a\",\n" +
+                      "        \"6f4f195712bd76a67b2cba6737009adb\",\n" +
+                      "        \"6f4f195712bd76a67b2cba6737010334\",\n" +
+                      "        \"6f4f195712bd76a67b2cba6737aa037b\",\n" +
+                      "        \"6f4f195712bd76a67b2cba67478df2ac\"\n" +
+                      "    ]\n" +
+                      "}";
+        String cookie = "MyCookie";
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(json);
+
+        Set<Member> members = createMembers(6);
+        Cluster cluster = createCluster(members, "5"); // sixth AppServer
+        when(hazelcast.getCluster()).thenReturn(cluster);
+        CUT = new Sessions(pool, pool, hazelcast);
+
+        when(http.getBaseUrl()).thenReturn("http://db4.domain.de/foo"); // fifth DbServer
+
+        Response response = CUT.getUuids(cookie, 6);
+        assertEquals(200, response.getStatus());
+        assertEquals(json, response.getEntity());
+        assertEquals("Black", response.getHeaderString("AppServer")); // default color
+        assertEquals("LightSalmon", response.getHeaderString("DbServer")); // last color
     }
 
 }

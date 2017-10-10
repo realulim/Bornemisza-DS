@@ -86,8 +86,8 @@ public class Sessions {
      * This is achieved by ordering the nodes according to their Hazelcast UUIDs.
      */
     private void updateColorsForCluster() {
-        Set<Member> members = hazelcast.getCluster().getMembers();
-        Collections.sort(new ArrayList(members), new MemberComparator());
+        List<Member> members = new ArrayList(hazelcast.getCluster().getMembers());
+        Collections.sort(members, new MemberComparator());
         String myUuid = hazelcast.getCluster().getLocalMember().getUuid();
         int myIndex = 0;
         for (Member member : members) {
