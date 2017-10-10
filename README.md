@@ -2,8 +2,10 @@
 This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5-$10 variety.
 It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on.
 
+The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. Deployable units are simply application servers and database servers (shorthand notation: app nodes and db nodes).
+
 ## Architectural Overview
-The system consists of two clusters, a database cluster and an application server cluster, whereas the frontend is an HTML5 single page application. This client-side UI sends requests for data or other backend processing to a REST API running on the application server cluster, which hides behind a static interface name (e. g. www&#8203;.myservice.de). That interface is serviced by a HA setup on the network layer that makes sure requests are routed to one of the application server nodes. Whenever the business logic wants to access persistent data, it uses a client-side load balancing scheme to select one of the database nodes.
+The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client sends requests to a REST API running on the app cluster. It connects by using a static interface name (e. g. www&#8203;.myservice.de), which is serviced by a HA setup on the network layer that makes sure requests are routed to one of the app nodes. Whenever the business logic wants to access persistent data, it uses a client-side load balancing scheme to select one of the db nodes.
 
 ## Design Goals
 
