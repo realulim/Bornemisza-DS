@@ -5,7 +5,7 @@ It provides a generic template for starting a web-based business on the cheap an
 The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. Deployable units are simply application servers and database servers (shorthand notation: app nodes and db nodes).
 
 ## Architectural Overview
-The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client uses a static interface name (e. g. `www.myservice.de`) to connect to a REST API running on the app cluster. The interface name is made highly available by a mechanism on the network layer that routes packets to a working app node. Whenever an app node wants to access persistent data, it uses a client-side load balancing scheme to connect to one of the db nodes.
+The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client uses a static interface name (such as `www.myservice.de`) to connect to a REST API running on the app cluster. The interface name is made highly available by a mechanism on the network layer that routes packets to a working app node. Whenever an app node wants to access persistent data, it uses a client-side load balancing scheme to connect to one of the db nodes.
 
 ## Design Goals
 
