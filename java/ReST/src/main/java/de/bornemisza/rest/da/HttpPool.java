@@ -1,5 +1,6 @@
 package de.bornemisza.rest.da;
 
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -21,11 +22,16 @@ public class HttpPool extends Pool<Http> {
     }
 
     public Http getConnection() {
-        for (String hostname : getDbServerQueue()) {
+        List<String> dbServerQueue = getDbServerQueue();
+        for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 incrementRequestsFor(hostname);
+                if (! dbServerQueue.get(0).equals(hostname)) {
+                    // copy healthy host to head of queue
+                    dbServerQueue.add(0, hostname);
+                }
                 return conn;
             }
             else {

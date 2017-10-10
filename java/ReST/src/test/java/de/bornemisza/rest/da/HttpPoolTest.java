@@ -12,6 +12,7 @@ import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 
 import de.bornemisza.rest.HealthChecks;
@@ -29,6 +30,7 @@ public class HttpPoolTest {
     private HealthChecks healthChecks;
     private Map<String, Http> allConnections;
     private IMap dbServerUtilisation;
+    private IList dbServerQueue;
 
     @Before
     public void setUp() {
@@ -42,7 +44,8 @@ public class HttpPoolTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
-        when(hazelcast.getList(SERVERS)).thenReturn(new PseudoHazelcastList());
+        dbServerQueue = new PseudoHazelcastList();
+        when(hazelcast.getList(SERVERS)).thenReturn(dbServerQueue);
         dbServerUtilisation = new PseudoHazelcastMap();
         when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
         CUT = new HttpPool(allConnections, hazelcast, healthChecks);
@@ -70,6 +73,8 @@ public class HttpPoolTest {
         usageCount += (Integer) dbServerUtilisation.get("host3");
         assertEquals(1, usageCount.intValue());
         verify(healthChecks, times(allConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
+        assertEquals(dbServerQueue.get(0), dbServerQueue.get(2));
+        assertEquals(4, dbServerQueue.size());
     }
 
     @Test

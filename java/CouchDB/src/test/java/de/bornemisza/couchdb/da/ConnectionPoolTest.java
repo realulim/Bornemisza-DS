@@ -8,14 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ektorp.CouchDbConnector;
-import org.ektorp.DbAccessException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
+
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DbAccessException;
 
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.PseudoHazelcastList;
@@ -29,7 +31,7 @@ public class ConnectionPoolTest {
     private List<String> hostnames;
     private Map<String, CouchDbConnection> allConnections;
     private HazelcastInstance hazelcast;
-    private PseudoHazelcastList hostQueue;
+    private PseudoHazelcastList dbServerQueue;
     private PseudoHazelcastMap utilisationMap;
     private HealthChecks healthChecks;
 
@@ -49,8 +51,8 @@ public class ConnectionPoolTest {
         }
         
         hazelcast = mock(HazelcastInstance.class);
-        hostQueue = new PseudoHazelcastList();
-        when(hazelcast.getList(anyString())).thenReturn(hostQueue);
+        dbServerQueue = new PseudoHazelcastList();
+        when(hazelcast.getList(anyString())).thenReturn(dbServerQueue);
         utilisationMap = new PseudoHazelcastMap();
         when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         
@@ -60,23 +62,23 @@ public class ConnectionPoolTest {
     }
 
     @Test
-    public void getMember_emptyHostQueue_noUtilisation_allAvailable() {
+    public void getConnector_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
         assertNotNull(dbConn);
-        assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size());
+        assertEquals(allConnections.size(), dbServerQueue.size(), utilisationMap.size());
     }
 
     @Test
-    public void getMember_emptyHostQueue_noUtilisation_notAllAvailable() {
+    public void getConnector_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
-        assertEquals(allConnections.size(), hostQueue.size(), utilisationMap.size() - 1);
+        assertEquals(allConnections.size(), dbServerQueue.size(), utilisationMap.size() - 1);
         if (allConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
 
     @Test
-    public void getMember_emptyHostQueue_noUtilisation_noneAvailable() {
+    public void getConnector_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
         try {
             CUT.getConnector();
@@ -84,18 +86,18 @@ public class ConnectionPoolTest {
         }
         catch (DbAccessException ex) {
             // expected
-            assertEquals(0, hostQueue.size(), utilisationMap.size());
+            assertEquals(0, dbServerQueue.size(), utilisationMap.size());
         }
     }
 
     @Test
-    public void getMember_preExisting_HostQueue_and_Utilisation() {
+    public void getConnector_preExisting_HostQueue_and_Utilisation() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
         allConnections.clear();
         allConnections.put(hostname, getConnection());
-        hostQueue.clear();
-        hostQueue.add(hostname);
+        dbServerQueue.clear();
+        dbServerQueue.add(hostname);
         utilisationMap.clear();
         int startUsageCount = wheel.nextInt(1000);
         utilisationMap.put(hostname, startUsageCount);
@@ -107,14 +109,38 @@ public class ConnectionPoolTest {
     }
 
     @Test
-    public void getMember_nullCredentials() {
+    public void getConnector_hostQueueWithUnhealthyServers() {
+        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false).thenReturn(true);
+        String hostname1 = "hostname1.domain.de";
+        String hostname2 = "hostname2.domain.de";
+        allConnections.clear();
+        allConnections.put(hostname1, getConnection());
+        allConnections.put(hostname2, getConnection());
+        dbServerQueue.clear();
+        dbServerQueue.add(hostname1);
+        dbServerQueue.add(hostname2);
+        utilisationMap.clear();
+        int startUsageCount = wheel.nextInt(1000);
+        utilisationMap.put(hostname1, 0);
+        utilisationMap.put(hostname2, startUsageCount);
+        int additionalUsageCount = wheel.nextInt(10);
+        for (int i = 0; i < additionalUsageCount; i++) {
+            assertNotNull(CUT.getConnector());
+        }
+        assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname2));
+        assertEquals(dbServerQueue.get(0), dbServerQueue.get(2));
+        assertEquals(3, dbServerQueue.size());
+    }
+
+    @Test
+    public void getConnector_nullCredentials() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
         allConnections.clear();
         allConnections.put(hostname, conn);
-        hostQueue.clear();
-        hostQueue.add(hostname);
+        dbServerQueue.clear();
+        dbServerQueue.add(hostname);
         utilisationMap.clear();
         utilisationMap.put(hostname, 1);
  
@@ -126,14 +152,14 @@ public class ConnectionPoolTest {
     }
 
     @Test
-    public void getMember_credentialsGiven() {
+    public void getConnector_credentialsGiven() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
         allConnections.clear();
         allConnections.put(hostname, conn);
-        hostQueue.clear();
-        hostQueue.add(hostname);
+        dbServerQueue.clear();
+        dbServerQueue.add(hostname);
         utilisationMap.clear();
         utilisationMap.put(hostname, 1);
  

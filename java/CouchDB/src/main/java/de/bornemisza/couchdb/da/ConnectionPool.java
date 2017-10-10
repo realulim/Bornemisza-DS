@@ -1,16 +1,17 @@
 package de.bornemisza.couchdb.da;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import com.hazelcast.core.HazelcastInstance;
 
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
-
-import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.entity.CouchDbConnection;
@@ -33,7 +34,8 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
     }
 
     public MyCouchDbConnector getConnector(String userName, char[] password) {
-        for (String hostname : getDbServerQueue()) {
+        List<String> dbServerQueue = getDbServerQueue();
+        for (String hostname : dbServerQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
@@ -41,6 +43,10 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
                 HttpClient httpClient = createHttpClient(conn, userName, password);
                 if (password != null) Arrays.fill(password, '*');
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
+                if (! dbServerQueue.get(0).equals(hostname)) {
+                    // copy healthy host to head of queue
+                    dbServerQueue.add(0, hostname);
+                }
                 return new MyCouchDbConnector(hostname, conn, dbInstance);
             }
             else {
