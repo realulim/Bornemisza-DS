@@ -34,6 +34,10 @@ public abstract class Pool<T> {
         this.dbServerUtilisation = getDbServerUtilisation();
     }
 
+    public Set<String> getAllHostnames() {
+        return this.allConnections.keySet();
+    }
+
     protected List<String> getDbServerQueue() {
         if (this.dbServerQueue != null && this.dbServerQueue instanceof IList) {
             // It's a Hazelcast list, so all is good

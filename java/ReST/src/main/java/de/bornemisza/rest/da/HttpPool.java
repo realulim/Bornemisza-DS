@@ -3,8 +3,6 @@ package de.bornemisza.rest.da;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.validation.constraints.NotNull;
-
 import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.loadbalancer.da.Pool;
@@ -15,9 +13,9 @@ public class HttpPool extends Pool<Http> {
 
     private final HealthChecks healthChecks;
 
-    public HttpPool(@NotNull Map<String, Http> allConnections,
-                    @NotNull HazelcastInstance hazelcast,
-                    @NotNull HealthChecks healthChecks) {
+    public HttpPool(Map<String, Http> allConnections,
+                    HazelcastInstance hazelcast,
+                    HealthChecks healthChecks) {
         super(allConnections, hazelcast);
         this.healthChecks = healthChecks;
     }

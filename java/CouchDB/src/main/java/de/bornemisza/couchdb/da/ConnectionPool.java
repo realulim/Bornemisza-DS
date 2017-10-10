@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.validation.constraints.NotNull;
-
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
@@ -23,9 +21,9 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
 
     private final HealthChecks healthChecks;
 
-    public ConnectionPool(@NotNull Map<String, CouchDbConnection> connections, 
-                         @NotNull HazelcastInstance hazelcast,
-                         @NotNull HealthChecks healthChecks) {
+    public ConnectionPool(Map<String, CouchDbConnection> connections, 
+                          HazelcastInstance hazelcast,
+                          HealthChecks healthChecks) {
         super(connections, hazelcast);
         this.healthChecks = healthChecks;
     }

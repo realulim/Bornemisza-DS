@@ -78,6 +78,7 @@ public class SessionsTest {
             when(member.getAddress()).thenReturn(address);
             members.add(member);
         }
+        when(pool.getAllHostnames()).thenReturn(allConnections.keySet());
         return members;
     }
 

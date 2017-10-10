@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -25,16 +24,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.javalite.http.Get;
-import org.javalite.http.Post;
-
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.javalite.http.Get;
+import org.javalite.http.Post;
 
 import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.BasicAuthCredentials;
@@ -55,7 +54,7 @@ public class Sessions {
     HazelcastInstance hazelcast;
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private final List<String> allHostnames = new ArrayList<>();
+    private List<String> allHostnames = new ArrayList<>();
 
     private static final String CTOKEN_HEADER = "C-Token";
 
@@ -90,8 +89,9 @@ public class Sessions {
         Collections.sort(members, new MemberComparator());
         String myUuid = hazelcast.getCluster().getLocalMember().getUuid();
         int myIndex = 0;
+        allHostnames = new ArrayList(basePool.getAllHostnames());
+        Collections.sort(allHostnames);
         for (Member member : members) {
-            allHostnames.add(member.getAddress().getHost());
             if (member.getUuid().equals(myUuid)) {
                 if (myIndex >= JAXRSConfiguration.COLORS.size()) {
                     // use default color for any overflow nodes
