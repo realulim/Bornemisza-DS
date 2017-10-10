@@ -5,12 +5,12 @@ It provides a generic template for starting a web-based business on the cheap an
 The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. Deployable units are simply application servers and database servers (shorthand notation: app nodes and db nodes).
 
 ## Architectural Overview
-The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client sends requests to a REST API running on the app cluster. It connects by using a static interface name (e. g. www&#8203;.myservice.de), which is serviced by a HA setup on the network layer that makes sure requests are routed to one of the app nodes. Whenever the business logic wants to access persistent data, it uses a client-side load balancing scheme to select one of the db nodes.
+The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client uses a static interface name (e. g. www&#8203;.myservice.de) to connect to a REST API running on the app cluster. The interface is serviced by an HA setup on the network layer that makes sure requests are routed to one of the app nodes. Whenever the business logic wants to access persistent data, it uses a client-side load balancing scheme to select one of the db nodes.
 
 ## Design Goals
 
 #### 1. True horizontal scalability
-- new nodes join the (application server or database) cluster automatically
+- new nodes join the (app or db) cluster automatically
 - load distribution is adjusted when cluster membership changes
 - no single point of failure
 - all nodes are self-sufficient, no central service needed at runtime
@@ -22,7 +22,7 @@ The backend is comprised of the two clusters (app and db), whereas the frontend 
 - use standards where available
 
 #### 3. Affordability
-- the minimal production system consists of three application servers and three databases, thus keeping the monthly cost well below $50
+- the minimal production system consists of three app nodes and three db nodes, thus keeping the monthly cost well below $50
 - for learning or development purposes it is, of course, also possible to work with one node each
 - don't be afraid to skimp here
 
@@ -34,7 +34,7 @@ The backend is comprised of the two clusters (app and db), whereas the frontend 
 #### Application Server: Payara
 - runs Java-based microservices
 - is clustered via Hazelcast over a private network
-- client-side load balancing of Database cluster
+- client-side load balancing of db cluster
 
 #### Database: CouchDB
 - runs one database per user
@@ -48,13 +48,13 @@ The backend is comprised of the two clusters (app and db), whereas the frontend 
     
 #### Edge Server: HAProxy
 - terminates SSL in front of the private networks
-- load balancing of Frontend and Payara cluster
+- load balancing of frontend and Payara cluster
 
 #### High Availability: Bird, Monit
 - nodes are monitored and taken in and out of service on the routing layer
 
 ## Provisioning
-- Infrastructure Setup via masterless Salt
+- Infrastructure setup via masterless Salt
 - download bootstrap script from Github
 - run bootstrap script locally, manually type in secrets during installation
 - SaltStack does the rest
