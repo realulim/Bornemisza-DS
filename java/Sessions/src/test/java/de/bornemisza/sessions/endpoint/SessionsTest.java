@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
+import com.hazelcast.nio.Address;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
@@ -48,22 +49,23 @@ public class SessionsTest {
         get = mock(Get.class);
         when(get.header(anyString(), any())).thenReturn(get);
         when(http.get(anyString())).thenReturn(get);
-        when(http.getBaseUrl()).thenReturn("http://db2.domain.de/foo"); // second DbServer
+        when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
 
         HttpPool pool = mock(HttpPool.class);
         when(pool.getConnection()).thenReturn(http);
         Map<String, Http> allConnections = new HashMap<>();
-        allConnections.put("db1.domain.ms", http);
-        allConnections.put("db2.domain.de", http);
-        allConnections.put("db3.domain.com", http);
-        when(pool.getAllHostnames()).thenReturn(allConnections.keySet());
 
         hazelcast = mock(HazelcastInstance.class);
         Cluster cluster = mock(Cluster.class);
         Set<Member> members = new HashSet<>();
         for (int i = 0; i < 5; i++) {
+            String hostname = "db" + i + ".domain.de";
+            allConnections.put(hostname, http);
             Member member = mock(Member.class);
             when(member.getUuid()).thenReturn(i + "");
+            Address address = mock(Address.class);
+            when(address.getHost()).thenReturn(hostname);
+            when(member.getAddress()).thenReturn(address);
             members.add(member);
         }
         when(cluster.getMembers()).thenReturn(members);

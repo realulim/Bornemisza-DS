@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -37,10 +36,10 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
+import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
-import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.sessions.JAXRSConfiguration;
 
 @Path("/")
@@ -56,7 +55,7 @@ public class Sessions {
     HazelcastInstance hazelcast;
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private List<String> allHostnames;
+    private final List<String> allHostnames = new ArrayList<>();
 
     private static final String CTOKEN_HEADER = "C-Token";
 
@@ -82,42 +81,29 @@ public class Sessions {
 
     /**
      * Manage colors within the Hazelcast and CouchDB clusters consistently.
-     */
-    private void updateColorsForCluster() {
-        updateMyColor();
-        updateHostnamesInCluster();
-    }
-
-    /**
      * Make sure that an AppServer cluster node always selects the same (and unused) color,
      * no matter how many other AppServer nodes are in the Hazelcast cluster.
      * This is achieved by ordering the nodes according to their Hazelcast UUIDs.
      */
-    private void updateMyColor() {
+    private void updateColorsForCluster() {
         Set<Member> members = hazelcast.getCluster().getMembers();
-        List<String> sortedUuids = members.stream()
-                .map(member -> member.getUuid())
-                .sorted(Comparator.<String>naturalOrder())
-                .collect(Collectors.toList());
-        String myself = hazelcast.getCluster().getLocalMember().getUuid();
-        int myIndex = sortedUuids.indexOf(myself);
-        if (myIndex >= JAXRSConfiguration.COLORS.size()) {
-            // use default color for any overflow nodes
-            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.DEFAULT_COLOR;
+        Collections.sort(new ArrayList(members), new MemberComparator());
+        String myUuid = hazelcast.getCluster().getLocalMember().getUuid();
+        int myIndex = 0;
+        for (Member member : members) {
+            allHostnames.add(member.getAddress().getHost());
+            if (member.getUuid().equals(myUuid)) {
+                if (myIndex >= JAXRSConfiguration.COLORS.size()) {
+                    // use default color for any overflow nodes
+                    JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.DEFAULT_COLOR;
+                }
+                else {
+                    // use one of the predefined colors
+                    JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(myIndex);
+                }
+            }
+            myIndex++;
         }
-        else {
-            // use one of the predefined colors
-            JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(myIndex);
-        }
-    }
-
-    /**
-     * Sorts all DB server hostnames lexicographically, so that a predictable and unique color
-     * can be assigned to each.
-     */
-    private void updateHostnamesInCluster() {
-        allHostnames = new ArrayList<>(basePool.getAllHostnames());
-        Collections.sort(allHostnames);
     }
 
     @GET
@@ -223,6 +209,12 @@ public class Sessions {
                     .build());
         }
         return JAXRSConfiguration.COLORS.get(index);
+    }
+
+    private static class MemberComparator implements Comparator<Member> {
+        @Override public int compare(Member m1, Member m2) {
+            return m1.getUuid().compareTo(m2.getUuid());
+        }
     }
 
 }

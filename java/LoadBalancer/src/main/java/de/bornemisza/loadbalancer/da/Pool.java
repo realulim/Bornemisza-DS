@@ -34,7 +34,7 @@ public abstract class Pool<T> {
         this.dbServerUtilisation = getDbServerUtilisation();
     }
 
-    public List<String> getDbServerQueue() {
+    protected List<String> getDbServerQueue() {
         if (this.dbServerQueue != null && this.dbServerQueue instanceof IList) {
             // It's a Hazelcast list, so all is good
             return this.dbServerQueue;
@@ -53,10 +53,6 @@ public abstract class Pool<T> {
         return this.dbServerQueue;
     }
 
-    public Set<String> getAllHostnames() {
-        return allConnections.keySet();
-    }
-
     private void populateDbServerQueue() {
         Set<String> hostnames = allConnections.keySet();
         if (dbServerQueue.isEmpty()) {
@@ -64,7 +60,7 @@ public abstract class Pool<T> {
         }
     }
 
-    public Map<String, Integer> getDbServerUtilisation() {
+    protected Map<String, Integer> getDbServerUtilisation() {
         if (this.dbServerUtilisation != null && this.dbServerUtilisation instanceof IMap) {
             // It's a Hazelcast map, so all is good
             return this.dbServerUtilisation;
@@ -83,7 +79,7 @@ public abstract class Pool<T> {
         return this.dbServerUtilisation;
     }
 
-    public void incrementRequestsFor(String hostname) {
+    protected void incrementRequestsFor(String hostname) {
         if (this.dbServerUtilisation == null) this.dbServerUtilisation = getDbServerUtilisation();
         this.dbServerUtilisation.compute(hostname, (k, v) -> v+1);
     }

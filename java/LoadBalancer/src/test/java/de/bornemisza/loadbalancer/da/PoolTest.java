@@ -1,16 +1,15 @@
 package de.bornemisza.loadbalancer.da;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
@@ -77,11 +76,13 @@ public class PoolTest {
     @Test
     public void verifyRequestCounting() {
         when(hazelcast.getList(anyString())).thenReturn(mock(IList.class));
-        when(hazelcast.getMap(anyString())).thenReturn(new PseudoHazelcastMap<>());
+        IMap utilisationMap = new PseudoHazelcastMap<>();
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         Pool CUT = new PoolImpl(allConnections, hazelcast);
-        Set<String> allHostnames = CUT.getAllHostnames();
+        List<String> allHostnames = Arrays.asList(new String[] { "host1", "host2", "host3.hosts.de" });
         int requestCount = wheel.nextInt(15) + 1;
         for (String hostname : allHostnames) {
+            utilisationMap.put(hostname, 0);
             for (int i = 0; i < requestCount; i++) {
                 CUT.incrementRequestsFor(hostname);
             }
