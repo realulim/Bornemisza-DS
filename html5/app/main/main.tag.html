@@ -172,7 +172,7 @@
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
-                    self.observable.trigger(LOADING_ERROR, { status: xhr.status, response: xhr.responseText })
+                    self.observable.trigger(LOADING_ERROR, { error: event.data.error })
                 }
                 else {
                     gatherResults(event)
