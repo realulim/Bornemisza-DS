@@ -100,7 +100,7 @@
             }, 5000)
         })
         this.observable.on(LOADING_ERROR, function (opts) {
-            console.log(LOADING_ERROR + ": " + opts.status + " " + opts.response)
+            console.log(LOADING_ERROR + ": " + opts.error)
             self.loadingError = true
             self.update()
         })
