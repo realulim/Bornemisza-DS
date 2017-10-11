@@ -90,9 +90,12 @@ public class LoadBalancerPoolTest {
         List<String> sortedHostnames = new ArrayList<>();
         sortedHostnames.add("hostname1");
         sortedHostnames.add("hostname2");
-        sortedHostnames.add("hostname3");
         CUT.updateQueue(sortedHostnames);
-        assertEquals(sortedHostnames, dbServers);
+        assertEquals(4, dbServers.size());
+        assertEquals("hostname1", dbServers.get(0));
+        assertEquals("hostname2", dbServers.get(1));
+        assertEquals("hostname2", dbServers.get(2));
+        assertEquals("hostname3", dbServers.get(3));
     }
 
 }
