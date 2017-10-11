@@ -1,4 +1,4 @@
-package de.bornemisza.rest;
+package de.bornemisza.loadbalancer.entity;
 
 import java.util.ArrayList;
 

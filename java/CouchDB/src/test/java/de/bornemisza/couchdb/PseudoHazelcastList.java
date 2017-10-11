@@ -14,12 +14,12 @@ public class PseudoHazelcastList<T> extends ArrayList<T> implements IList<T> {
 
     @Override
     public String addItemListener(ItemListener<T> il, boolean bln) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "MyListener";
     }
 
     @Override
     public boolean removeItemListener(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return true;
     }
 
     @Override

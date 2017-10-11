@@ -2,12 +2,12 @@ package de.bornemisza.rest.da;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
@@ -15,22 +15,32 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 
+import static de.bornemisza.loadbalancer.Config.SERVERS;
+import static de.bornemisza.loadbalancer.Config.UTILISATION;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.PseudoHazelcastList;
 import de.bornemisza.rest.PseudoHazelcastMap;
 
-import static de.bornemisza.loadbalancer.Config.SERVERS;
-import static de.bornemisza.loadbalancer.Config.UTILISATION;
-
 public class HttpPoolTest {
 
-    private HttpPool CUT;
+    class TestableHttpPool extends HttpPool {
+
+        public TestableHttpPool(Map<String, Http> allConnections, HazelcastInstance hz, HealthChecks healthChecks) {
+            super(allConnections, hz, healthChecks);
+        }
+
+        // expose protected method for testing
+        public List<String> getDbServers() {
+            return getDbServerQueue();
+        }
+    }
+
+    private TestableHttpPool CUT;
     private HazelcastInstance hazelcast;
     private HealthChecks healthChecks;
     private Map<String, Http> allConnections;
     private IMap dbServerUtilisation;
-    private IList dbServerQueue;
 
     @Before
     public void setUp() {
@@ -44,11 +54,11 @@ public class HttpPoolTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
-        dbServerQueue = new PseudoHazelcastList();
+        IList dbServerQueue = new PseudoHazelcastList();
         when(hazelcast.getList(SERVERS)).thenReturn(dbServerQueue);
         dbServerUtilisation = new PseudoHazelcastMap();
         when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
-        CUT = new HttpPool(allConnections, hazelcast, healthChecks);
+        CUT = new TestableHttpPool(allConnections, hazelcast, healthChecks);
     }
 
     @Test
@@ -73,8 +83,8 @@ public class HttpPoolTest {
         usageCount += (Integer) dbServerUtilisation.get("host3");
         assertEquals(1, usageCount.intValue());
         verify(healthChecks, times(allConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
-        assertEquals(dbServerQueue.get(0), dbServerQueue.get(2));
-        assertEquals(4, dbServerQueue.size());
+        assertEquals(CUT.getDbServers().get(0), CUT.getDbServers().get(2));
+        assertEquals(4, CUT.getDbServers().size());
     }
 
     @Test

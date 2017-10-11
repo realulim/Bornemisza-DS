@@ -27,11 +27,7 @@ public class HttpPool extends Pool<Http> {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                incrementRequestsFor(hostname);
-                if (! dbServerQueue.get(0).equals(hostname)) {
-                    // copy healthy host to head of queue
-                    dbServerQueue.add(0, hostname);
-                }
+                trackUtilisation(hostname);
                 return conn;
             }
             else {

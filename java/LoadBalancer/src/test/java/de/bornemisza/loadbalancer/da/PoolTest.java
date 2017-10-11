@@ -17,6 +17,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.OperationTimeoutException;
+import de.bornemisza.loadbalancer.entity.PseudoHazelcastList;
 
 import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
 
@@ -43,24 +44,23 @@ public class PoolTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
-        this.hazelcastList = mock(IList.class);
+        this.hazelcastList = new PseudoHazelcastList<>();
         this.hazelcastMap = mock(IMap.class);
     }
 
     @Test
     public void hazelcastWorking() {
-        when(hazelcastList.isEmpty()).thenReturn(true);
         when(hazelcastMap.isEmpty()).thenReturn(true);
         when(hazelcast.getList(anyString())).thenReturn(hazelcastList);
         when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
         Pool CUT = new PoolImpl(allConnections, hazelcast);
         List<String> dbServers = CUT.getDbServerQueue();
         assertEquals(hazelcastList, dbServers);
-        verify(dbServers).isEmpty();
-        verify(dbServers).addAll(anySet());
+        assertEquals(CUT.getAllHostnames().size(), dbServers.size());
         Map<String, Object> dbServerUtilisation = CUT.getDbServerUtilisation();
         assertEquals(hazelcastMap, dbServerUtilisation);
         for (String hostname : allConnections.keySet()) {
+            assertTrue(dbServers.contains(hostname));
             verify(dbServerUtilisation).isEmpty();
             verify(dbServerUtilisation).containsKey(hostname);
             verify(dbServerUtilisation).put(hostname, 0);
@@ -68,14 +68,13 @@ public class PoolTest {
 
         // subsequent invocations should just return the created data structures
         assertEquals(dbServers, CUT.getDbServerQueue());
-        verifyNoMoreInteractions(dbServers);
         assertEquals(dbServerUtilisation, CUT.getDbServerUtilisation());
         verifyNoMoreInteractions(dbServerUtilisation);
     }
 
     @Test
     public void verifyRequestCounting() {
-        when(hazelcast.getList(anyString())).thenReturn(mock(IList.class));
+        when(hazelcast.getList(anyString())).thenReturn(hazelcastList);
         IMap utilisationMap = new PseudoHazelcastMap<>();
         when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         Pool CUT = new PoolImpl(allConnections, hazelcast);
@@ -84,7 +83,7 @@ public class PoolTest {
         for (String hostname : allHostnames) {
             utilisationMap.put(hostname, 0);
             for (int i = 0; i < requestCount; i++) {
-                CUT.incrementRequestsFor(hostname);
+                CUT.trackUtilisation(hostname);
             }
         }
         for (String hostname : allHostnames) {
@@ -104,13 +103,17 @@ public class PoolTest {
                 .thenThrow(new OperationTimeoutException(errMsg))
                 .thenThrow(new OperationTimeoutException(errMsg))
                 .thenReturn(hazelcastMap);
+
         Pool CUT = new PoolImpl(allConnections, hazelcast);
         List<String> dbServers = CUT.getDbServerQueue();
-        assertNotEquals(hazelcastList, dbServers);
+        assertTrue(dbServers.isEmpty()); // We have not been successful in establishing a connection to Hazelcast upon initialisation
+        dbServers = CUT.getDbServerQueue(); // third invocation was successful, because Hazelcast returned to service
+        assertEquals(CUT.getAllHostnames().size(), dbServers.size());
+
         Map<String, Object> dbServerUtilisation = CUT.getDbServerUtilisation();
         assertNotEquals(hazelcastMap, dbServerUtilisation);
 
-        // subsequent invocation should return the Hazelcast data structure
+        // subsequent invocations should return the Hazelcast data structure
         assertEquals(hazelcastList.hashCode(), CUT.getDbServerQueue().hashCode());
         assertEquals(hazelcastMap.hashCode(), CUT.getDbServerUtilisation().hashCode());
     }

@@ -39,14 +39,10 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
             CouchDbConnection conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                incrementRequestsFor(hostname);
                 HttpClient httpClient = createHttpClient(conn, userName, password);
                 if (password != null) Arrays.fill(password, '*');
                 CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-                if (! dbServerQueue.get(0).equals(hostname)) {
-                    // copy healthy host to head of queue
-                    dbServerQueue.add(0, hostname);
-                }
+                trackUtilisation(hostname);
                 return new MyCouchDbConnector(hostname, conn, dbInstance);
             }
             else {
