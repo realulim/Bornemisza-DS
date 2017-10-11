@@ -35,9 +35,7 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerQueue = createDbServerQueue();
-Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "null" : String.join(",", dbServerQueueLocal)));
         mirrorDbServerQueue();
-Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "null" : String.join(",", dbServerQueueLocal)));
         this.dbServerUtilisation = getDbServerUtilisation();
     }
 
@@ -128,7 +126,7 @@ Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "n
         this.dbServerUtilisation.compute(hostname, (k, v) -> v+1);
         if (! dbServerQueueLocal.get(0).equals(hostname)) {
             // a healthy host was used, but it was not head of the queue => let's make it so
-            Logger.getAnonymousLogger().info("Moving healthy host to head of queue");
+            Logger.getAnonymousLogger().info("Moving healthy host " + hostname + " to head of queue");
             dbServerQueue.add(0, hostname);
         }
     }
