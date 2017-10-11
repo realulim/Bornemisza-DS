@@ -2,8 +2,8 @@ package de.bornemisza.rest;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.javalite.http.HttpException;
 
 import org.javalite.http.Post;
 
@@ -24,11 +24,7 @@ public class HealthChecks {
                 return false;
             }
         }
-        catch (NullPointerException ex) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "Stracktace", ex);
-            return false;
-        }
-        catch (Exception e) {
+        catch (HttpException e) {
             Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
             return false;
         }

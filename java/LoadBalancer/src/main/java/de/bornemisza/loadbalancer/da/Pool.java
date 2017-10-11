@@ -1,6 +1,7 @@
 package de.bornemisza.loadbalancer.da;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +83,8 @@ public abstract class Pool<T> {
     }
 
     private void updateDbServerQueueListener() {
-        if (this.DB_SERVER_QUEUE_LISTENER_ID != null) {
-            dbServerQueue.removeItemListener(this.DB_SERVER_QUEUE_LISTENER_ID);
+        if (DB_SERVER_QUEUE_LISTENER_ID != null) {
+            dbServerQueue.removeItemListener(DB_SERVER_QUEUE_LISTENER_ID);
         }
         ItemListener<String> listener = new ItemListener<String>() {
             @Override public void itemAdded(ItemEvent<String> ie) {
@@ -94,12 +95,12 @@ public abstract class Pool<T> {
             }
             @Override public void itemRemoved(ItemEvent<String> ie) {
                 if (ie.getItem() != null) {
-                    Logger.getAnonymousLogger().info("Removd " + ie.getItem() + " from DbServerQueue");
+                    Logger.getAnonymousLogger().info("Removed " + ie.getItem() + " from DbServerQueue");
                     mirrorDbServerQueue();
                 }
             }
         };
-        this.DB_SERVER_QUEUE_LISTENER_ID = dbServerQueue.addItemListener(listener, true);
+        DB_SERVER_QUEUE_LISTENER_ID = dbServerQueue.addItemListener(listener, true);
     }
 
     protected Map<String, Integer> getDbServerUtilisation() {
@@ -126,8 +127,9 @@ public abstract class Pool<T> {
         this.dbServerUtilisation.compute(hostname, (k, v) -> v+1);
         if (! dbServerQueueLocal.get(0).equals(hostname)) {
             // a healthy host was used, but it was not head of the queue => let's make it so
-            Logger.getAnonymousLogger().info("Moving healthy host " + hostname + " to head of queue in front of " + dbServerQueueLocal.get(0));
+            Logger.getAnonymousLogger().info("Moving healthy host to head of queue");
             dbServerQueueLocal.add(0, hostname);
+Logger.getAnonymousLogger().info("Queue 1: " + Arrays.toString(dbServerQueueLocal.toArray()));
         }
     }
 

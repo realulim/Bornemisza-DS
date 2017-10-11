@@ -9,6 +9,7 @@ import com.hazelcast.core.HazelcastInstance;
 import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
+import java.util.Arrays;
 
 public class HttpPool extends Pool<Http> {
 
@@ -23,6 +24,7 @@ public class HttpPool extends Pool<Http> {
 
     public Http getConnection() {
         List<String> dbServerQueue = getDbServerQueue();
+Logger.getAnonymousLogger().info("Queue 2: " + Arrays.toString(dbServerQueue.toArray()));
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
