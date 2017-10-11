@@ -21,8 +21,8 @@ public abstract class Pool<T> {
     protected final Map<String, T> allConnections;
     private final HazelcastInstance hazelcast;
 
-    private IList<String> dbServerQueue = null;
-    private List<String> dbServerQueueLocal = null;
+    private static IList<String> dbServerQueue = null;
+    private static List<String> dbServerQueueLocal = null;
     private static String DB_SERVER_QUEUE_LISTENER_ID = null;
 
     private Map<String, Integer> dbServerUtilisation = null;
@@ -48,7 +48,6 @@ public abstract class Pool<T> {
             // We are not connected to Hazelcast, so let's try it now
             this.dbServerQueue = createDbServerQueue();
             mirrorDbServerQueue();
-Logger.getAnonymousLogger().info("Queue 3: " + String.join(",", dbServerQueueLocal));
         }
         return this.dbServerQueueLocal;
     }
