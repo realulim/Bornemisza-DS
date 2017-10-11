@@ -1,7 +1,6 @@
 package de.bornemisza.loadbalancer.da;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +48,7 @@ public abstract class Pool<T> {
             // We are not connected to Hazelcast, so let's try it now
             this.dbServerQueue = createDbServerQueue();
             mirrorDbServerQueue();
+Logger.getAnonymousLogger().info("Queue 3: " + String.join(",", dbServerQueueLocal));
         }
         return this.dbServerQueueLocal;
     }
@@ -129,7 +129,7 @@ public abstract class Pool<T> {
             // a healthy host was used, but it was not head of the queue => let's make it so
             Logger.getAnonymousLogger().info("Moving healthy host to head of queue");
             dbServerQueueLocal.add(0, hostname);
-Logger.getAnonymousLogger().info("Queue 1: " + Arrays.toString(dbServerQueueLocal.toArray()));
+Logger.getAnonymousLogger().info("Queue 1: " + String.join(",", dbServerQueueLocal));
         }
     }
 
