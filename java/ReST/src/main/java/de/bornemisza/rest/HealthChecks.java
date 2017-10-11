@@ -10,6 +10,10 @@ import org.javalite.http.Post;
 public class HealthChecks {
 
     public boolean isCouchDbReady(Http http) {
+        if (http == null) {
+            Logger.getAnonymousLogger().warning("Null-Http");
+            return false;
+        }
         try {
             Post post = http.post("");
             Map<String, List<String>> headers = post.headers();

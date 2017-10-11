@@ -16,6 +16,10 @@ public class HealthChecks {
     }
 
     public boolean isCouchDbReady(CouchDbConnection conn) {
+        if (conn == null) {
+            Logger.getAnonymousLogger().warning("Null-CouchDbConnection");
+            return false;
+        }
         try {
             HttpClient httpClient = new StdHttpClient.Builder()
                         .url(conn.getBaseUrl())
