@@ -21,8 +21,8 @@ public abstract class Pool<T> {
     protected final Map<String, T> allConnections;
     private final HazelcastInstance hazelcast;
 
-    private static IList<String> dbServerQueue = null;
-    private static List<String> dbServerQueueLocal = null;
+    private IList<String> dbServerQueue = null;
+    private List<String> dbServerQueueLocal = null;
     private static String DB_SERVER_QUEUE_LISTENER_ID = null;
 
     private Map<String, Integer> dbServerUtilisation = null;
@@ -35,7 +35,9 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerQueue = createDbServerQueue();
+Logger.getAnonymousLogger().info("Queue 3a: " + String.join(",", dbServerQueueLocal));
         mirrorDbServerQueue();
+Logger.getAnonymousLogger().info("Queue 3b: " + String.join(",", dbServerQueueLocal));
         this.dbServerUtilisation = getDbServerUtilisation();
     }
 
