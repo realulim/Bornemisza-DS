@@ -2,6 +2,7 @@ package de.bornemisza.rest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.javalite.http.Post;
@@ -22,6 +23,10 @@ public class HealthChecks {
                 Logger.getAnonymousLogger("Health Check failed: " + header.get(0));
                 return false;
             }
+        }
+        catch (NullPointerException ex) {
+            Logger.getAnonymousLogger().log(Level.SEVERE, "Stracktace", ex);
+            return false;
         }
         catch (Exception e) {
             Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
