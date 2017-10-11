@@ -124,11 +124,6 @@ public abstract class Pool<T> {
     protected void trackUtilisation(String hostname) {
         if (this.dbServerUtilisation == null) this.dbServerUtilisation = getDbServerUtilisation();
         this.dbServerUtilisation.compute(hostname, (k, v) -> v+1);
-        if (! dbServerQueueLocal.get(0).equals(hostname)) {
-            // a healthy host was used, but it was not head of the queue => let's make it so
-            Logger.getAnonymousLogger().info("Moving healthy host " + hostname + " to head of queue");
-            dbServerQueue.add(0, hostname);
-        }
     }
 
     private void populateDbServerUtilisation() {
