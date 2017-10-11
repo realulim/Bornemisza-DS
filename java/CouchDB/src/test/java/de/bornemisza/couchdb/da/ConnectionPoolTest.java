@@ -133,13 +133,13 @@ public class ConnectionPoolTest {
         int startUsageCount = wheel.nextInt(1000);
         utilisationMap.put(hostname1, 0);
         utilisationMap.put(hostname2, startUsageCount);
-        int additionalUsageCount = wheel.nextInt(10);
+        int additionalUsageCount = wheel.nextInt(10) + 1;
         for (int i = 0; i < additionalUsageCount; i++) {
             assertNotNull(CUT.getConnector());
         }
         assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname2));
-        assertEquals(CUT.getDbServers().get(0), CUT.getDbServers().get(2));
         assertEquals(3, CUT.getDbServers().size());
+        assertEquals(CUT.getDbServers().get(0), CUT.getDbServers().get(2));
     }
 
     @Test
