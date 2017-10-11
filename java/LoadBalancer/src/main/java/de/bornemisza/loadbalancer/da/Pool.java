@@ -126,6 +126,7 @@ public abstract class Pool<T> {
         this.dbServerUtilisation.compute(hostname, (k, v) -> v+1);
         if (! dbServerQueueLocal.get(0).equals(hostname)) {
             // a healthy host was used, but it was not head of the queue => let's make it so
+            Logger.getAnonymousLogger().info("Moving healthy host " + hostname + " to head of queue");
             dbServerQueueLocal.add(0, hostname);
         }
     }
