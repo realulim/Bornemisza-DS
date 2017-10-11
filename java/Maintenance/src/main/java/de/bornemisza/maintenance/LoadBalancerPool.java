@@ -1,5 +1,6 @@
 package de.bornemisza.maintenance;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -19,6 +20,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
+import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
@@ -27,6 +29,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.Config;
+import de.bornemisza.loadbalancer.da.PoolFactory;
 
 @Singleton
 @Startup
@@ -108,9 +111,34 @@ public class LoadBalancerPool {
     public void performMaintenance() {
         List<String> sortedHostnames = sortHostnamesByUtilisation();
 
+        if (Config.DBSERVICE != null) {
+            List<String> allHostnames = retrieveAllHostsFromDns(Config.DBSERVICE);
+            addNewHostsForService(sortedHostnames, allHostnames);
+        }
+
         updateQueue(sortedHostnames);
 
         logNewQueueState();
+    }
+
+    List<String> retrieveAllHostsFromDns(String service) {
+        try {
+            return PoolFactory.getHostnamesForService(service);
+        }
+        catch (NamingException ex) {
+            Logger.getAnonymousLogger().severe("Problem reading SRV-Records: " + ex.toString());
+            return new ArrayList<>();
+        }
+    }
+
+    void addNewHostsForService(List<String> sortedHostnames, List<String> allHostnames) {
+        for (String hostname : allHostnames) {
+            if (! sortedHostnames.contains(hostname)) {
+                // a new host providing the service just appeared
+                sortedHostnames.add(0, hostname);
+                this.dbServerUtilisation.putIfAbsent(hostname, 0);
+            }
+        }
     }
 
     List<String> sortHostnamesByUtilisation() {

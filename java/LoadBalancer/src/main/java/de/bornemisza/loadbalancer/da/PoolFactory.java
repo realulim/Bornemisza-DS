@@ -21,6 +21,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
+import de.bornemisza.loadbalancer.Config;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
 
@@ -39,15 +40,13 @@ public abstract class PoolFactory implements ObjectFactory {
             String refClassName = ref.getClassName();
             String expectedClass = getClass().getName();
             if (refClassName.equals(getExpectedClass().getName())) {
-                String service = (String) ref.get("service").getContent();
+                Config.DBSERVICE = (String) ref.get("service").getContent();
                 String db = (String) ref.get("db").getContent();
                 RefAddr userNameAddr = ref.get("username");
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-                List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
-                        .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
-                        .collect(Collectors.toList());
+                List<String> hostnames = getHostnamesForService(Config.DBSERVICE);
                 return createPool(hostnames, db, userName, password);
             }
             else {
@@ -59,7 +58,14 @@ public abstract class PoolFactory implements ObjectFactory {
     protected abstract Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException;
     protected abstract Class getExpectedClass();
 
-    private List<SrvRecord> getSrvRecordsSortedByPriority(String service) throws NamingException {
+    public static List<String> getHostnamesForService(String service) throws NamingException {
+        List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
+                .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
+                .collect(Collectors.toList());
+        return hostnames;
+    }
+
+    static List<SrvRecord> getSrvRecordsSortedByPriority(String service) throws NamingException {
         Hashtable<String, String> env = new Hashtable<>();
         env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
         env.put("java.naming.provider.url", "dns:");
@@ -67,7 +73,7 @@ public abstract class PoolFactory implements ObjectFactory {
         return retrieveSrvRecordsAndSort(ctx, service);
     }
 
-    List<SrvRecord> retrieveSrvRecordsAndSort(DirContext ctx, String service) throws NamingException {
+    static List<SrvRecord> retrieveSrvRecordsAndSort(DirContext ctx, String service) throws NamingException {
         Attributes attrs = ctx.getAttributes(service, new String[] {"SRV"});
         NamingEnumeration<?> servers = attrs.get("srv").getAll();
         Set<SrvRecord> sortedRecords = new TreeSet<>();
