@@ -105,7 +105,7 @@ public class LoadBalancerPool {
     }
 
     @Timeout
-    public void checkPool() {
+    public void performMaintenance() {
         List<String> sortedHostnames = sortHostnamesByUtilisation();
 
         updateQueue(sortedHostnames);
