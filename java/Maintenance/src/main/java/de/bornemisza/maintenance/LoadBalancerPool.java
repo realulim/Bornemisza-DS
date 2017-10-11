@@ -3,6 +3,7 @@ package de.bornemisza.maintenance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,7 +114,7 @@ public class LoadBalancerPool {
 
         if (Config.DBSERVICE != null) {
             List<String> allHostnames = retrieveAllHostsFromDns(Config.DBSERVICE);
-            addNewHostsForService(sortedHostnames, allHostnames);
+            updateHostList(sortedHostnames, allHostnames);
         }
 
         updateQueue(sortedHostnames);
@@ -131,12 +132,21 @@ public class LoadBalancerPool {
         }
     }
 
-    void addNewHostsForService(List<String> sortedHostnames, List<String> allHostnames) {
+    void updateHostList(List<String> sortedHostnames, List<String> allHostnames) {
         for (String hostname : allHostnames) {
             if (! sortedHostnames.contains(hostname)) {
                 // a new host providing the service just appeared
                 sortedHostnames.add(0, hostname);
                 this.dbServerUtilisation.putIfAbsent(hostname, 0);
+                Logger.getAnonymousLogger().info("New DbServer detected: " + hostname);
+            }
+        }
+        for (Iterator<String> it = sortedHostnames.iterator(); it.hasNext(); ) {
+            String hostname = it.next();
+            if (! allHostnames.contains(hostname)) {
+                it.remove();
+                this.dbServerUtilisation.remove(hostname);
+                Logger.getAnonymousLogger().info("Marked DbServer as absent: " + hostname);
             }
         }
     }

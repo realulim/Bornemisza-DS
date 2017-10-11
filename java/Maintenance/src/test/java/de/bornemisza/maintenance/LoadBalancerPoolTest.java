@@ -80,11 +80,18 @@ public class LoadBalancerPoolTest {
         List<String> sortedHostnames = CUT.sortHostnamesByUtilisation();
         allHostnames.add(getHostname(10));
         allHostnames.add(getHostname(11));
-        CUT.addNewHostsForService(sortedHostnames, allHostnames);
+        CUT.updateHostList(sortedHostnames, allHostnames);
         assertEquals(getHostname(11), sortedHostnames.get(0));
         assertEquals(getHostname(10), sortedHostnames.get(1));
         assertEquals(new Integer(0), utilisationMap.get(getHostname(10)));
         assertEquals(new Integer(0), utilisationMap.get(getHostname(11)));
+        assertEquals(sortedHostnames.size(), utilisationMap.size());
+
+        allHostnames.remove(getHostname(3)); // simulate deleted SRV-Record
+        CUT.updateHostList(sortedHostnames, allHostnames);
+        assertFalse(sortedHostnames.contains(getHostname(3)));
+        assertEquals(allHostnames.size(), sortedHostnames.size());
+        assertNull(utilisationMap.get(getHostname(3)));
         assertEquals(sortedHostnames.size(), utilisationMap.size());
     }
 
