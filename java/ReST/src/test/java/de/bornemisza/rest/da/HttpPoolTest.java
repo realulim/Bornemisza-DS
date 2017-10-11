@@ -40,6 +40,7 @@ public class HttpPoolTest {
     private HazelcastInstance hazelcast;
     private HealthChecks healthChecks;
     private Map<String, Http> allConnections;
+    IList dbServerQueue;
     private IMap dbServerUtilisation;
 
     @Before
@@ -54,7 +55,7 @@ public class HttpPoolTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
-        IList dbServerQueue = new PseudoHazelcastList();
+        dbServerQueue = new PseudoHazelcastList();
         when(hazelcast.getList(SERVERS)).thenReturn(dbServerQueue);
         dbServerUtilisation = new PseudoHazelcastMap();
         when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
@@ -83,8 +84,8 @@ public class HttpPoolTest {
         usageCount += (Integer) dbServerUtilisation.get("host3");
         assertEquals(1, usageCount.intValue());
         verify(healthChecks, times(allConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
-        assertEquals(CUT.getDbServers().get(0), CUT.getDbServers().get(2));
-        assertEquals(4, CUT.getDbServers().size());
+        assertEquals(dbServerQueue.get(0), dbServerQueue.get(2));
+        assertEquals(4, dbServerQueue.size());
     }
 
     @Test
