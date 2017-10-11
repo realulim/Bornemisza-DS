@@ -35,9 +35,9 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerQueue = createDbServerQueue();
-Logger.getAnonymousLogger().info("Queue 3a: " + String.join(",", dbServerQueueLocal));
+Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "null" : String.join(",", dbServerQueueLocal)));
         mirrorDbServerQueue();
-Logger.getAnonymousLogger().info("Queue 3b: " + String.join(",", dbServerQueueLocal));
+Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "null" : String.join(",", dbServerQueueLocal)));
         this.dbServerUtilisation = getDbServerUtilisation();
     }
 
