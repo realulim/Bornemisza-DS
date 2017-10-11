@@ -79,13 +79,12 @@ public class HttpPoolTest {
     public void getConnection_someHealthChecksFailed() {
         when(healthChecks.isCouchDbReady(any())).thenReturn(false).thenReturn(true);
         assertNotNull(CUT.getConnection());
-        Integer usageCount = (Integer) dbServerUtilisation.get("host1");
-        usageCount += (Integer) dbServerUtilisation.get("host2");
-        usageCount += (Integer) dbServerUtilisation.get("host3");
-        assertEquals(1, usageCount.intValue());
+        int usageCount = (int) dbServerUtilisation.get("host1");
+        usageCount += (int) dbServerUtilisation.get("host2");
+        usageCount += (int) dbServerUtilisation.get("host3");
+        assertEquals(1, usageCount);
         verify(healthChecks, times(allConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
-        assertEquals(dbServerQueue.get(0), dbServerQueue.get(2));
-        assertEquals(4, dbServerQueue.size());
+        assertEquals(3, dbServerQueue.size());
     }
 
     @Test
