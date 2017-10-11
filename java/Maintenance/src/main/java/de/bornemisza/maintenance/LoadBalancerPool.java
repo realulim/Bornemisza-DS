@@ -25,6 +25,7 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+
 import de.bornemisza.loadbalancer.Config;
 
 @Singleton
@@ -121,7 +122,7 @@ public class LoadBalancerPool {
 
     void updateQueue(List<String> sortedHostnames) {
         dbServers.addAll(0, sortedHostnames); // add at start of queue
-        while (dbServers.size() > sortedHostnames.size()) {
+        while (dbServers.size() > (2 * sortedHostnames.size())) {
             // remove extraneous elements from end of queue
             dbServers.remove(dbServers.size() - 1);
         }
