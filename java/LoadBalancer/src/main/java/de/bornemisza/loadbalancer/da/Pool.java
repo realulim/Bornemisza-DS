@@ -47,7 +47,7 @@ Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "n
 
     protected List<String> getDbServerQueue() {
         if (this.dbServerQueue == null) {
-            // We are not connected to Hazelcast, so let's try it now
+            // We are not connected to Hazelcast, so let's give it a try
             this.dbServerQueue = createDbServerQueue();
             mirrorDbServerQueue();
         }
@@ -129,8 +129,7 @@ Logger.getAnonymousLogger().info("Queue 3a: " + (dbServerQueueLocal == null ? "n
         if (! dbServerQueueLocal.get(0).equals(hostname)) {
             // a healthy host was used, but it was not head of the queue => let's make it so
             Logger.getAnonymousLogger().info("Moving healthy host to head of queue");
-            dbServerQueueLocal.add(0, hostname);
-Logger.getAnonymousLogger().info("Queue 1: " + String.join(",", dbServerQueueLocal));
+            dbServerQueue.add(0, hostname);
         }
     }
 

@@ -23,7 +23,6 @@ public class HttpPool extends Pool<Http> {
 
     public Http getConnection() {
         List<String> dbServerQueue = getDbServerQueue();
-Logger.getAnonymousLogger().info("Queue 2: " + String.join(",", dbServerQueue));
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
