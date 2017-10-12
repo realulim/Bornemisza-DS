@@ -34,6 +34,7 @@ import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
+import javax.naming.Reference;
 
 @Singleton
 @Startup
@@ -158,10 +159,13 @@ public class LoadBalancerPool {
     protected String getDatabaseServiceName() throws NamingException {
         Context ctx = new InitialContext();
         System.out.println("Printing JNDI Context");
-        NamingEnumeration<NameClassPair> list = ctx.list("http/Base");
+        NamingEnumeration<NameClassPair> list = ctx.list("http");
         while (list.hasMore()) {
-            System.out.println(list.next().getName());
+            NameClassPair pair = list.next();
+            System.out.println("Name: " + pair.getName());
         }
+        Reference ref = ctx.lookup("http/Base");
+        System.out.println("Service: " + ref.get("service"));
         return null;
     }
 
