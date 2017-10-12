@@ -10,7 +10,7 @@ import com.hazelcast.core.HazelcastInstance;
 public abstract class SelfMaintainingPool<T> extends Pool<T> {
 
     private static long TIMESTAMP = System.currentTimeMillis();
-    private static final int PERIOD_IN_MILLIS = 20000;
+    private static final int PERIOD_IN_MILLIS = 10000;
 
     public SelfMaintainingPool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
         super(allConnections, hazelcast);

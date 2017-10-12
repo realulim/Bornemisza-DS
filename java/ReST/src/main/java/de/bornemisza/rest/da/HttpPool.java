@@ -23,6 +23,7 @@ public class HttpPool extends SelfMaintainingPool<Http> {
 
     public Http getConnection() {
         List<String> dbServerQueue = getDbServerQueue();
+Logger.getAnonymousLogger().info("Using Queue: " + String.join("|", dbServerQueue));
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {

@@ -58,12 +58,12 @@ public class LoadBalancerPool {
     public void init() {
         dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         dbServers = hazelcast.getList(Config.SERVERS);
-        hazelcast.getCluster().addMembershipListener(new MembershipListener() {
-            @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
-            @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
-            @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
-        });
-        rebuildTimer();
+//        hazelcast.getCluster().addMembershipListener(new MembershipListener() {
+//            @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
+//            @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
+//            @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
+//        });
+//        rebuildTimer();
     }
 
     void rebuildTimer() {

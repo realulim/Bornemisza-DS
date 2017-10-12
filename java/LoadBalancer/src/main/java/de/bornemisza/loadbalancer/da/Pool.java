@@ -67,6 +67,7 @@ public abstract class Pool<T> {
         if (this.dbServerQueue != null) {
             mirroredQueue.addAll(this.dbServerQueue);
         }
+Logger.getAnonymousLogger().info("Mirroring Queue: " + String.join("|", mirroredQueue));
         this.dbServerQueueLocal = mirroredQueue;
     }
 
