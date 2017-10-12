@@ -59,4 +59,13 @@
 		<in-memory-format>BINARY</in-memory-format>
 	</map>
 
+	<ringbuffer name="DatabaseServers">
+		<capacity>1000</capacity>
+		<time-to-live-seconds>86400</time-to-live-seconds>
+	</ringbuffer>
+
+	<reliable-topic name="DatabaseServers">
+		<statistics-enabled>true</statistics-enabled>
+		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
+	</reliable-topic>
 </hazelcast>
