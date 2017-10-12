@@ -160,17 +160,12 @@ public class LoadBalancerPool {
     protected String getDatabaseServiceName() throws NamingException {
         Context ctx = new InitialContext();
         System.out.println("Printing JNDI Context");
-        NamingEnumeration<NameClassPair> list = ctx.list("http");
-        while (list.hasMore()) {
-            NameClassPair pair = list.next();
-            System.out.println("Name: " + pair.getName());
-        }
-        Properties props = (Properties) ctx.lookup("http");
-        props = (Properties) ctx.lookup("http/Base");
-        System.out.println("Service: " + props.getProperty("service"));
-        System.out.println("Service: " + props.getProperty("service"));
-        Reference ref = (Reference)ctx.lookup("http/Base");
-        System.out.println("Service: " + ref.get("service"));
+        System.out.println("1: " + ctx.lookup("service").toString());
+        System.out.println("1: " + ctx.lookup("service").getClass().getName());
+        System.out.println("2: " + ctx.lookup("http").toString());
+        System.out.println("2: " + ctx.lookup("http").getClass().getName());
+        System.out.println("3: " + ctx.lookup("http/Base").toString());
+        System.out.println("3: " + ctx.lookup("http/Base").getClass().getName());
         return null;
     }
 
