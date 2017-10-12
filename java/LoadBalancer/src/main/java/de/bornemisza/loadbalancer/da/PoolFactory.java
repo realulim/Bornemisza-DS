@@ -36,7 +36,10 @@ public abstract class PoolFactory implements ObjectFactory {
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
+long start = System.currentTimeMillis();
                 List<String> hostnames = DnsProvider.getHostnamesForService(service);
+long duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("Get SRV-Records: " + duration);
                 return createPool(hostnames, db, userName, password);
             }
             else {

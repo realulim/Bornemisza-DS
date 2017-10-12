@@ -29,7 +29,10 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerUtilisation = getDbServerUtilisation();
+long start = System.currentTimeMillis();
         this.dbServerQueue = sortHostnamesByUtilisation();
+long duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("Sort Hostnames: " + duration);
     }
 
     public Set<String> getAllHostnames() {
