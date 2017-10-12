@@ -37,10 +37,16 @@ long start = System.currentTimeMillis();
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-                List<String> hostnames = DnsProvider.getHostnamesForService(service);
-                Object pool = createPool(hostnames, db, userName, password);
 long duration = System.currentTimeMillis() - start;
 Logger.getAnonymousLogger().info("ObjectFactory: " + duration);
+start = System.currentTimeMillis();
+                List<String> hostnames = DnsProvider.getHostnamesForService(service);
+duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("SRV-Records: " + duration);
+start = System.currentTimeMillis();
+                Object pool = createPool(hostnames, db, userName, password);
+duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("Create Pool: " + duration);
                 return pool;
             }
             else {
