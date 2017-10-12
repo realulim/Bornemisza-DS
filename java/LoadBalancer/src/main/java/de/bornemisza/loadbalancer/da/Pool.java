@@ -20,7 +20,7 @@ public abstract class Pool<T> {
     private final HazelcastInstance hazelcast;
 
     private IList<String> dbServerQueue = null;
-    protected List<String> dbServerQueueLocal = null;
+    protected static List<String> dbServerQueueLocal = null;
 
     protected Map<String, Integer> dbServerUtilisation = null;
 
@@ -47,7 +47,7 @@ Logger.getAnonymousLogger().info("Initialised: " + Thread.currentThread().getId(
             this.dbServerQueue = createDbServerQueue();
             mirrorDbServerQueue();
         }
-        return this.dbServerQueueLocal;
+        return dbServerQueueLocal;
     }
 
     private IList<String> createDbServerQueue() {

@@ -19,7 +19,7 @@ public abstract class SelfMaintainingPool<T> extends Pool<T> {
     public void performMaintenance() {
         if ((System.currentTimeMillis() - PERIOD_IN_MILLIS) > TIMESTAMP) {
             TIMESTAMP = System.currentTimeMillis();
-            this.dbServerQueueLocal = sortHostnamesByUtilisation();
+            dbServerQueueLocal = sortHostnamesByUtilisation();
             logNewQueueState();
         }
     }
@@ -33,7 +33,7 @@ public abstract class SelfMaintainingPool<T> extends Pool<T> {
 
     private void logNewQueueState() {
         StringBuilder sb = new StringBuilder("DbServerQueue");
-        for (String hostname : this.dbServerQueueLocal) {
+        for (String hostname : dbServerQueueLocal) {
             sb.append(" | ").append(hostname).append(":").append(this.dbServerUtilisation.get(hostname));
         }
         Logger.getAnonymousLogger().info(sb.toString());
