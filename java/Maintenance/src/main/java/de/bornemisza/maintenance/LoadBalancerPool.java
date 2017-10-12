@@ -158,7 +158,7 @@ public class LoadBalancerPool {
     protected String getDatabaseServiceName() throws NamingException {
         Context ctx = new InitialContext();
         System.out.println("Printing JNDI Context");
-        NamingEnumeration<NameClassPair> list = ctx.list("");
+        NamingEnumeration<NameClassPair> list = ctx.list("http");
         while (list.hasMore()) {
             System.out.println(list.next().getName());
         }
