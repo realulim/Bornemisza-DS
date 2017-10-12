@@ -34,6 +34,7 @@ import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
+import java.util.Properties;
 import javax.naming.Reference;
 
 @Singleton
@@ -164,6 +165,10 @@ public class LoadBalancerPool {
             NameClassPair pair = list.next();
             System.out.println("Name: " + pair.getName());
         }
+        Properties props = (Properties) ctx.lookup("http");
+        props = (Properties) ctx.lookup("http/Base");
+        System.out.println("Service: " + props.getProperty("service"));
+        System.out.println("Service: " + props.getProperty("service"));
         Reference ref = (Reference)ctx.lookup("http/Base");
         System.out.println("Service: " + ref.get("service"));
         return null;
