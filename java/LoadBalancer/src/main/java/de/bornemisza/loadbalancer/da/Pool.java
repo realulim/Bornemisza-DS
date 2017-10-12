@@ -87,14 +87,12 @@ public abstract class Pool<T> {
         }
         ItemListener<String> listener = new ItemListener<String>() {
             @Override public void itemAdded(ItemEvent<String> ie) {
-Logger.getAnonymousLogger().info("hupsa: " + ie.getItem());
                 if (ie.getItem() == null) {
                     Logger.getAnonymousLogger().warning("Null-Item was added to DbServerQueue!");
                 }
                 else mirrorDbServerQueue();
             }
             @Override public void itemRemoved(ItemEvent<String> ie) {
-Logger.getAnonymousLogger().info("hopsa: " + ie.getItem());
                 if (ie.getItem() != null) {
                     Logger.getAnonymousLogger().info("Removed " + ie.getItem() + " from DbServerQueue");
                     mirrorDbServerQueue();
