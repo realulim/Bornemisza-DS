@@ -13,8 +13,8 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
-import de.bornemisza.loadbalancer.Config;
 
+import de.bornemisza.loadbalancer.Config;
 
 public abstract class PoolFactory implements ObjectFactory {
 
