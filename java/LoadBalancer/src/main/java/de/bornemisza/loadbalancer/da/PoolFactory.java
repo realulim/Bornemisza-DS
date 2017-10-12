@@ -13,11 +13,13 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
+import java.util.logging.Logger;
 
 public abstract class PoolFactory implements ObjectFactory {
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
+Logger.getAnonymousLogger().info("ObjectFactory!");
         if (obj == null) {
             throw new NamingException("Reference is null");
         }

@@ -11,11 +11,13 @@ import javax.naming.NamingException;
 import de.bornemisza.loadbalancer.da.PoolFactory;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
+import java.util.logging.Logger;
 
 public class HttpPoolFactory extends PoolFactory {
 
     @Override
     protected Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException {
+Logger.getAnonymousLogger().info("Creating Pool!");
         Map<String, Http> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
         for (String hostname : hostnames) {

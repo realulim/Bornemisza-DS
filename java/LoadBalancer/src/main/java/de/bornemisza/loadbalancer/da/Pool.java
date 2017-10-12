@@ -25,6 +25,7 @@ public abstract class Pool<T> {
     protected Map<String, Integer> dbServerUtilisation = null;
 
     public Pool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
+Logger.getAnonymousLogger().info("Constructor!");
         this.allConnections = allConnections;
         this.hazelcast = hazelcast;
         this.initCluster();
@@ -32,7 +33,6 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerQueue = createDbServerQueue();
-Logger.getAnonymousLogger().info("About to Mirror 1");
         mirrorDbServerQueue();
         this.dbServerUtilisation = getDbServerUtilisation();
     }
@@ -45,7 +45,6 @@ Logger.getAnonymousLogger().info("About to Mirror 1");
         if (this.dbServerQueue == null) {
             // We are not connected to Hazelcast, so let's give it a try
             this.dbServerQueue = createDbServerQueue();
-Logger.getAnonymousLogger().info("About to Mirror 2");
             mirrorDbServerQueue();
         }
         return this.dbServerQueueLocal;
