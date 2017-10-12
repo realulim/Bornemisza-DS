@@ -164,7 +164,7 @@ public class LoadBalancerPool {
             NameClassPair pair = list.next();
             System.out.println("Name: " + pair.getName());
         }
-        Reference ref = ctx.lookup("http/Base");
+        Reference ref = (Reference)ctx.lookup("http/Base");
         System.out.println("Service: " + ref.get("service"));
         return null;
     }
