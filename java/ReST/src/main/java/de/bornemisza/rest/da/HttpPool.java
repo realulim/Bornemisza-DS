@@ -59,7 +59,6 @@ public class HttpPool extends Pool<Http> {
         @Override public void onMessage(Message<List<String>> msg) {
             List<String> publishedHostnames = msg.getMessageObject();
             Set<String> currentHostnames = allConnections.keySet();
-            Logger.getAnonymousLogger().info("Database Servers published: " + String.join(", ", publishedHostnames));
             for (String publishedHostname : publishedHostnames) {
                 if (! currentHostnames.contains(publishedHostname)) {
                     Logger.getAnonymousLogger().info("New Database Server: " + publishedHostname);
