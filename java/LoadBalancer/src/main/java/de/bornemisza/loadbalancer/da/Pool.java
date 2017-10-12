@@ -32,6 +32,7 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerQueue = createDbServerQueue();
+Logger.getAnonymousLogger().info("About to Mirror 1");
         mirrorDbServerQueue();
         this.dbServerUtilisation = getDbServerUtilisation();
     }
@@ -44,6 +45,7 @@ public abstract class Pool<T> {
         if (this.dbServerQueue == null) {
             // We are not connected to Hazelcast, so let's give it a try
             this.dbServerQueue = createDbServerQueue();
+Logger.getAnonymousLogger().info("About to Mirror 2");
             mirrorDbServerQueue();
         }
         return this.dbServerQueueLocal;
