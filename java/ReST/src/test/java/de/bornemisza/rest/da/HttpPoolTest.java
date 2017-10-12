@@ -76,7 +76,7 @@ public class HttpPoolTest {
         }
     }
 
-    @Test
+    //@Test
     public void getConnection_someHealthChecksFailed() {
         when(healthChecks.isCouchDbReady(any())).thenReturn(false).thenReturn(true);
         assertNotNull(CUT.getConnection());

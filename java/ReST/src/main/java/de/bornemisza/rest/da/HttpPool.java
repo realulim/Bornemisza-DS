@@ -6,11 +6,11 @@ import java.util.logging.Logger;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import de.bornemisza.loadbalancer.da.SelfMaintainingPool;
+import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
 
-public class HttpPool extends SelfMaintainingPool<Http> {
+public class HttpPool extends Pool<Http> {
 
     private final HealthChecks healthChecks;
 
@@ -23,13 +23,11 @@ public class HttpPool extends SelfMaintainingPool<Http> {
 
     public Http getConnection() {
         List<String> dbServerQueue = getDbServerQueue();
-Logger.getAnonymousLogger().info("Using Queue: " + String.join("|", dbServerQueue));
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 trackUtilisation(hostname);
-                performMaintenance();
                 return conn;
             }
             else {

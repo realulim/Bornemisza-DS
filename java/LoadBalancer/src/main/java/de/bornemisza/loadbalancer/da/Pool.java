@@ -1,15 +1,14 @@
 package de.bornemisza.loadbalancer.da;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 
 import de.bornemisza.loadbalancer.Config;
@@ -17,10 +16,8 @@ import de.bornemisza.loadbalancer.Config;
 public abstract class Pool<T> {
 
     protected final Map<String, T> allConnections;
+    private List<String> dbServerQueue = null;
     private final HazelcastInstance hazelcast;
-
-    private IList<String> dbServerQueue = null;
-    protected static List<String> dbServerQueueLocal = null;
 
     protected Map<String, Integer> dbServerUtilisation = null;
 
@@ -31,10 +28,8 @@ public abstract class Pool<T> {
     }
 
     private void initCluster() {
-        this.dbServerQueue = createDbServerQueue();
-        mirrorDbServerQueue();
         this.dbServerUtilisation = getDbServerUtilisation();
-Logger.getAnonymousLogger().info("Initialised: " + Thread.currentThread().getId());
+        this.dbServerQueue = sortHostnamesByUtilisation();
     }
 
     public Set<String> getAllHostnames() {
@@ -42,41 +37,14 @@ Logger.getAnonymousLogger().info("Initialised: " + Thread.currentThread().getId(
     }
 
     protected List<String> getDbServerQueue() {
-        if (this.dbServerQueue == null) {
-            // We are not connected to Hazelcast, so let's give it a try
-            this.dbServerQueue = createDbServerQueue();
-            mirrorDbServerQueue();
-        }
-        return dbServerQueueLocal;
+        return dbServerQueue;
     }
 
-    private IList<String> createDbServerQueue() {
-        try {
-            // let's try to get a Hazelcast list now
-            this.dbServerQueue = hazelcast.getList(Config.SERVERS);
-        }
-        catch (HazelcastException e) {
-            // no Hazelcast, so try again later
-            return null;
-        }
-        populateDbServerQueue();
-        return this.dbServerQueue;
-    }
-
-    private void mirrorDbServerQueue() {
-        List<String> mirroredQueue = new ArrayList<>();
-        if (this.dbServerQueue != null) {
-            mirroredQueue.addAll(this.dbServerQueue);
-        }
-Logger.getAnonymousLogger().info("Mirroring Queue: " + String.join("|", mirroredQueue));
-        this.dbServerQueueLocal = mirroredQueue;
-    }
-
-    private void populateDbServerQueue() {
-        Set<String> hostnames = allConnections.keySet();
-        if (dbServerQueue.isEmpty()) {
-            dbServerQueue.addAll(hostnames);
-        }
+    List<String> sortHostnamesByUtilisation() {
+        return this.dbServerUtilisation.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue())
+                .map(entry -> entry.getKey())
+                .collect(Collectors.toList());
     }
 
     protected Map<String, Integer> getDbServerUtilisation() {

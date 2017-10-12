@@ -48,7 +48,7 @@ public class PoolTest {
         this.hazelcastMap = mock(IMap.class);
     }
 
-    @Test
+    //@Test
     public void hazelcastWorking() {
         when(hazelcastMap.isEmpty()).thenReturn(true);
         when(hazelcast.getList(anyString())).thenReturn(hazelcastList);
@@ -92,7 +92,7 @@ public class PoolTest {
         
     }
 
-    @Test
+    //@Test
     public void hazelcastNotWorkingAtFirst_thenWorkingLater() {
         String errMsg = "Invocation failed to complete due to operation-heartbeat-timeout";
         when(hazelcast.getList(anyString()))
