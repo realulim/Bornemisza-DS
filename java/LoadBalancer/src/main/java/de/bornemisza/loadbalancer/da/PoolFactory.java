@@ -14,8 +14,6 @@ import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import de.bornemisza.loadbalancer.Config;
-
 public abstract class PoolFactory implements ObjectFactory {
 
     @Override
@@ -31,13 +29,13 @@ public abstract class PoolFactory implements ObjectFactory {
             String refClassName = ref.getClassName();
             String expectedClass = getClass().getName();
             if (refClassName.equals(getExpectedClass().getName())) {
-                Config.DBSERVICE = (String) ref.get("service").getContent();
+                String service = (String) ref.get("service").getContent();
                 String db = (String) ref.get("db").getContent();
                 RefAddr userNameAddr = ref.get("username");
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-                List<String> hostnames = DnsProvider.getHostnamesForService(Config.DBSERVICE);
+                List<String> hostnames = DnsProvider.getHostnamesForService(service);
                 return createPool(hostnames, db, userName, password);
             }
             else {

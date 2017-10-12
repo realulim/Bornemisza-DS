@@ -18,6 +18,7 @@ import de.bornemisza.loadbalancer.entity.SrvRecord;
 public class DnsProvider {
 
     public static List<String> getHostnamesForService(String service) throws NamingException {
+        if (service == null) throw new IllegalArgumentException("Service is null!");
         List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                 .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                 .collect(Collectors.toList());

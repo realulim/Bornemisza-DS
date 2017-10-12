@@ -19,6 +19,10 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -103,7 +107,8 @@ public class LoadBalancerPool {
         List<String> sortedHostnames = sortHostnamesByUtilisation();
 
         try {
-            List<String> dnsHostnames = DnsProvider.getHostnamesForService(Config.DBSERVICE);
+            String service = getDatabaseServiceName();
+            List<String> dnsHostnames = DnsProvider.getHostnamesForService(service);
             updateDbServerUtilisation(sortedHostnames, dnsHostnames);
             updateDbServerQueue(dnsHostnames);
         }
@@ -148,6 +153,15 @@ public class LoadBalancerPool {
             sb.append(" | ").append(hostname).append(":").append(dbServerUtilisation.get(hostname));
         }
         Logger.getAnonymousLogger().info(sb.toString());
+    }
+
+    protected String getDatabaseServiceName() throws NamingException {
+        Context ctx = new InitialContext();
+        NamingEnumeration<NameClassPair> list = ctx.list("java:comp/env/");
+        while (list.hasMore()) {
+            System.out.println(list.next().getName());
+        }
+        return null;
     }
 
 }
