@@ -25,7 +25,6 @@ public abstract class Pool<T> {
     protected Map<String, Integer> dbServerUtilisation = null;
 
     public Pool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
-Logger.getAnonymousLogger().info("Constructor!");
         this.allConnections = allConnections;
         this.hazelcast = hazelcast;
         this.initCluster();
@@ -35,6 +34,7 @@ Logger.getAnonymousLogger().info("Constructor!");
         this.dbServerQueue = createDbServerQueue();
         mirrorDbServerQueue();
         this.dbServerUtilisation = getDbServerUtilisation();
+Logger.getAnonymousLogger().info("Initialised: " + Thread.currentThread().getId());
     }
 
     public Set<String> getAllHostnames() {

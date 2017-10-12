@@ -17,7 +17,6 @@ public class HttpPoolFactory extends PoolFactory {
 
     @Override
     protected Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException {
-Logger.getAnonymousLogger().info("Creating Pool!");
         Map<String, Http> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
         for (String hostname : hostnames) {

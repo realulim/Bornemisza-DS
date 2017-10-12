@@ -19,7 +19,6 @@ public abstract class PoolFactory implements ObjectFactory {
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
-Logger.getAnonymousLogger().info("ObjectFactory!");
         if (obj == null) {
             throw new NamingException("Reference is null");
         }
