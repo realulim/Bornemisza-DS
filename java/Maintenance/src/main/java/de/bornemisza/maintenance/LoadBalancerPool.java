@@ -157,16 +157,8 @@ public class LoadBalancerPool {
         Logger.getAnonymousLogger().info(sb.toString());
     }
 
-    protected String getDatabaseServiceName() throws NamingException {
-        Context ctx = new InitialContext();
-        System.out.println("Printing JNDI Context");
-        System.out.println("1: " + ctx.lookup("service").toString());
-        System.out.println("1: " + ctx.lookup("service").getClass().getName());
-        System.out.println("2: " + ctx.lookup("http").toString());
-        System.out.println("2: " + ctx.lookup("http").getClass().getName());
-        System.out.println("3: " + ctx.lookup("http/Base").toString());
-        System.out.println("3: " + ctx.lookup("http/Base").getClass().getName());
-        return null;
+    protected String getDatabaseServiceName() {
+        return "_db._tcp.bornemisza.de.";
     }
 
 }
