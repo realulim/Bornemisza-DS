@@ -83,7 +83,7 @@ public class LoadBalancerPool {
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
         timerConfig.setInfo(TIMER_NAME);
-        timerService.createCalendarTimer(expression, timerConfig);
+//        timerService.createCalendarTimer(expression, timerConfig);
         Logger.getAnonymousLogger().info("Installed Timer with " + expression.toString());
     }
 

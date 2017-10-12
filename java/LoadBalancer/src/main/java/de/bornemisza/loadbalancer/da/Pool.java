@@ -11,8 +11,6 @@ import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
-import com.hazelcast.core.ItemEvent;
-import com.hazelcast.core.ItemListener;
 
 import de.bornemisza.loadbalancer.Config;
 
@@ -22,10 +20,9 @@ public abstract class Pool<T> {
     private final HazelcastInstance hazelcast;
 
     private IList<String> dbServerQueue = null;
-    private List<String> dbServerQueueLocal = null;
-    private static String DB_SERVER_QUEUE_LISTENER_ID = null;
+    protected List<String> dbServerQueueLocal = null;
 
-    private Map<String, Integer> dbServerUtilisation = null;
+    protected Map<String, Integer> dbServerUtilisation = null;
 
     public Pool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
         this.allConnections = allConnections;
@@ -62,7 +59,6 @@ public abstract class Pool<T> {
             return null;
         }
         populateDbServerQueue();
-        updateDbServerQueueListener();
         return this.dbServerQueue;
     }
 
@@ -79,27 +75,6 @@ public abstract class Pool<T> {
         if (dbServerQueue.isEmpty()) {
             dbServerQueue.addAll(hostnames);
         }
-    }
-
-    private void updateDbServerQueueListener() {
-        if (DB_SERVER_QUEUE_LISTENER_ID != null) {
-            dbServerQueue.removeItemListener(DB_SERVER_QUEUE_LISTENER_ID);
-        }
-        ItemListener<String> listener = new ItemListener<String>() {
-            @Override public void itemAdded(ItemEvent<String> ie) {
-                if (ie.getItem() == null) {
-                    Logger.getAnonymousLogger().warning("Null-Item was added to DbServerQueue!");
-                }
-                else mirrorDbServerQueue();
-            }
-            @Override public void itemRemoved(ItemEvent<String> ie) {
-                if (ie.getItem() != null) {
-                    Logger.getAnonymousLogger().info("Removed " + ie.getItem() + " from DbServerQueue");
-                    mirrorDbServerQueue();
-                }
-            }
-        };
-        DB_SERVER_QUEUE_LISTENER_ID = dbServerQueue.addItemListener(listener, true);
     }
 
     protected Map<String, Integer> getDbServerUtilisation() {
