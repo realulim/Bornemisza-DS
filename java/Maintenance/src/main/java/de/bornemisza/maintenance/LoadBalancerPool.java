@@ -12,8 +12,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ScheduleExpression;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
@@ -30,8 +28,8 @@ import com.hazelcast.core.MembershipListener;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 
-@Singleton
-@Startup
+//@Singleton
+//@Startup
 public class LoadBalancerPool {
 
     @Resource
@@ -58,12 +56,12 @@ public class LoadBalancerPool {
     public void init() {
         dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         dbServers = hazelcast.getList(Config.SERVERS);
-//        hazelcast.getCluster().addMembershipListener(new MembershipListener() {
-//            @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
-//            @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
-//            @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
-//        });
-//        rebuildTimer();
+        hazelcast.getCluster().addMembershipListener(new MembershipListener() {
+            @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
+            @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
+            @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
+        });
+        rebuildTimer();
     }
 
     void rebuildTimer() {
@@ -83,7 +81,7 @@ public class LoadBalancerPool {
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
         timerConfig.setInfo(TIMER_NAME);
-//        timerService.createCalendarTimer(expression, timerConfig);
+        timerService.createCalendarTimer(expression, timerConfig);
         Logger.getAnonymousLogger().info("Installed Timer with " + expression.toString());
     }
 
