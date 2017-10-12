@@ -19,14 +19,9 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameClassPair;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -34,8 +29,6 @@ import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
-import java.util.Properties;
-import javax.naming.Reference;
 
 @Singleton
 @Startup
@@ -112,7 +105,6 @@ public class LoadBalancerPool {
             String service = getDatabaseServiceName();
             List<String> dnsHostnames = DnsProvider.getHostnamesForService(service);
             updateDbServerUtilisation(sortedHostnames, dnsHostnames);
-            updateDbServerQueue(dnsHostnames);
         }
         catch (NamingException ex) {
             Logger.getAnonymousLogger().warning("Problem reading SRV-Records: " + ex.toString());
@@ -141,12 +133,6 @@ public class LoadBalancerPool {
                 this.dbServerUtilisation.remove(hostname);
             }
         }
-    }
-
-    // publishing the list of current hostnames according to DNS, so listeners can rebuild their connection pools
-    void updateDbServerQueue(List<String> sortedHostnames) {
-        ITopic<List<String>> topic = hazelcast.getReliableTopic(Config.DATABASE_SERVERS_TOPIC);
-        topic.publish(sortedHostnames);
     }
 
     private void logNewQueueState() {
