@@ -1,9 +1,7 @@
 package de.bornemisza.maintenance;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +22,7 @@ import javax.inject.Inject;
 import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -51,18 +50,9 @@ public class LoadBalancerPool {
     }
 
     // Constructor for Unit Tests
-    LoadBalancerPool(HazelcastInstance hz) {
+    LoadBalancerPool(HazelcastInstance hz, Map<String, Integer> utilisationMap) {
         this.hazelcast = hz;
-    }
-
-    // Constructor for Unit Tests
-    LoadBalancerPool(Map<String, Integer> utilisationMap) {
         this.dbServerUtilisation = utilisationMap;
-    }
-
-    // Constructor for Unit Tests
-    LoadBalancerPool(List<String> dbServers) {
-        this.dbServers = dbServers;
     }
 
     @PostConstruct
@@ -112,43 +102,16 @@ public class LoadBalancerPool {
     public void performMaintenance() {
         List<String> sortedHostnames = sortHostnamesByUtilisation();
 
-        if (Config.DBSERVICE != null) {
-            List<String> allHostnames = retrieveAllHostsFromDns(Config.DBSERVICE);
-            updateHostList(sortedHostnames, allHostnames);
-        }
-
-        updateQueue(sortedHostnames);
-
-        logNewQueueState();
-    }
-
-    List<String> retrieveAllHostsFromDns(String service) {
         try {
-            return DnsProvider.getHostnamesForService(service);
+            List<String> dnsHostnames = DnsProvider.getHostnamesForService(Config.DBSERVICE);
+            updateDbServerUtilisation(sortedHostnames, dnsHostnames);
+            updateDbServerQueue(dnsHostnames);
         }
         catch (NamingException ex) {
-            Logger.getAnonymousLogger().severe("Problem reading SRV-Records: " + ex.toString());
-            return new ArrayList<>();
+            Logger.getAnonymousLogger().warning("Problem reading SRV-Records: " + ex.toString());
         }
-    }
 
-    void updateHostList(List<String> sortedHostnames, List<String> allHostnames) {
-        for (String hostname : allHostnames) {
-            if (! sortedHostnames.contains(hostname)) {
-                // a new host providing the service just appeared
-                sortedHostnames.add(0, hostname);
-                this.dbServerUtilisation.putIfAbsent(hostname, 0);
-                Logger.getAnonymousLogger().info("New DbServer detected: " + hostname);
-            }
-        }
-        for (Iterator<String> it = sortedHostnames.iterator(); it.hasNext(); ) {
-            String hostname = it.next();
-            if (! allHostnames.contains(hostname)) {
-                it.remove();
-                this.dbServerUtilisation.remove(hostname);
-                Logger.getAnonymousLogger().info("Marked DbServer as absent: " + hostname);
-            }
-        }
+        logNewQueueState();
     }
 
     List<String> sortHostnamesByUtilisation() {
@@ -158,17 +121,25 @@ public class LoadBalancerPool {
                 .collect(Collectors.toList());
     }
 
-    void updateQueue(List<String> sortedHostnames) {
-        dbServers.addAll(0, sortedHostnames); // add at start of queue
-        while (dbServers.size() > sortedHostnames.size()) {
-            // remove extraneous elements from end of queue
-            try {
-                dbServers.remove(dbServers.size() - 1);
-            }
-            catch (ArrayIndexOutOfBoundsException e) {
-                // nothing, someone already deleted the element
+    void updateDbServerUtilisation(List<String> sortedHostnames, List<String> dnsHostnames) {
+        for (String dnsHostname : dnsHostnames) {
+            if (! sortedHostnames.contains(dnsHostname)) {
+                // a new host providing the service just appeared
+                this.dbServerUtilisation.putIfAbsent(dnsHostname, 0);
             }
         }
+        for (String hostname : sortedHostnames) {
+            if (! dnsHostnames.contains(hostname)) {
+                // a host providing the service has just disappeared
+                this.dbServerUtilisation.remove(hostname);
+            }
+        }
+    }
+
+    // publishing the list of current hostnames according to DNS, so listeners can rebuild their connection pools
+    void updateDbServerQueue(List<String> sortedHostnames) {
+        ITopic<List<String>> topic = hazelcast.getReliableTopic(Config.DATABASE_SERVERS_TOPIC);
+        topic.publish(sortedHostnames);
     }
 
     private void logNewQueueState() {

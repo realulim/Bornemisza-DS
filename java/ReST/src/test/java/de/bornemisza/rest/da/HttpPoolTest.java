@@ -14,9 +14,10 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.MessageListener;
 
-import static de.bornemisza.loadbalancer.Config.SERVERS;
-import static de.bornemisza.loadbalancer.Config.UTILISATION;
+import static de.bornemisza.loadbalancer.Config.*;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.PseudoHazelcastList;
@@ -40,8 +41,10 @@ public class HttpPoolTest {
     private HazelcastInstance hazelcast;
     private HealthChecks healthChecks;
     private Map<String, Http> allConnections;
-    IList dbServerQueue;
+    private IList dbServerQueue;
     private IMap dbServerUtilisation;
+    private ITopic topic;
+    private String messageListenerRegistrationId = "SomeListener-1243";
 
     @Before
     public void setUp() {
@@ -59,6 +62,9 @@ public class HttpPoolTest {
         when(hazelcast.getList(SERVERS)).thenReturn(dbServerQueue);
         dbServerUtilisation = new PseudoHazelcastMap();
         when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
+        topic = mock(ITopic.class);
+        when(topic.addMessageListener(any(MessageListener.class))).thenReturn(messageListenerRegistrationId);
+        when(hazelcast.getReliableTopic(DATABASE_SERVERS_TOPIC)).thenReturn(topic);
         CUT = new TestableHttpPool(allConnections, hazelcast, healthChecks);
     }
 
@@ -98,6 +104,17 @@ public class HttpPoolTest {
         usageCount += (Integer) dbServerUtilisation.get("host2");
         usageCount += (Integer) dbServerUtilisation.get("host3");
         assertEquals(expectedUsageCount, usageCount.intValue());
+    }
+
+    @Test
+    public void dispose() {
+        CUT.dispose();
+        verify(topic).removeMessageListener(messageListenerRegistrationId);
+    }
+
+    @Test
+    public void onMessage() {
+        // TBD
     }
 
 }

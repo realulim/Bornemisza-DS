@@ -9,19 +9,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IList;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
+
+import de.bornemisza.loadbalancer.Config;
 
 public class LoadBalancerPoolTest {
 
     private SecureRandom wheel;
+    private HazelcastInstance hazelcast;
 
     public LoadBalancerPoolTest() {
     }
@@ -29,11 +33,13 @@ public class LoadBalancerPoolTest {
     @Before
     public void setUp() {
         this.wheel = new SecureRandom();
+        hazelcast = mock(HazelcastInstance.class);
+        IList dbServers = mock(IList.class);
+        when(hazelcast.getList(Config.SERVERS)).thenReturn(dbServers);
     }
 
-    //@Test
+    @Test
     public void calculateMinuteExpression() {
-        HazelcastInstance hazelcast = mock(HazelcastInstance.class);
         Cluster cluster = mock(Cluster.class);
         when(hazelcast.getCluster()).thenReturn(cluster);
         Set<Member> members = new HashSet<>();
@@ -45,21 +51,21 @@ public class LoadBalancerPoolTest {
         }
         when(cluster.getLocalMember()).thenReturn(member);
         when(cluster.getMembers()).thenReturn(members);
-        LoadBalancerPool CUT = new LoadBalancerPool(hazelcast);
+        LoadBalancerPool CUT = new LoadBalancerPool(hazelcast, null);
         String expr = CUT.calculateMinuteExpression();
         assertTrue(Character.getNumericValue(expr.charAt(0)) < members.size());
         assertEquals("/", String.valueOf(expr.charAt(1)));
         assertEquals(members.size(), Character.getNumericValue(expr.charAt(2)));
     }
 
-    //@Test
+    @Test
     public void sortHostnamesByUtilisation() throws Exception {
         Map<String, Integer> utilisationMap = new HashMap<>();
         for (int i = 0; i < 10; i++) {
             String randomKey = UUID.randomUUID().toString();
             utilisationMap.put(randomKey, wheel.nextInt(100));
         }
-        LoadBalancerPool CUT = new LoadBalancerPool(utilisationMap);
+        LoadBalancerPool CUT = new LoadBalancerPool(null, utilisationMap);
         List<String> sortedKeys = CUT.sortHostnamesByUtilisation();
         int lastUtilisation = 0;
         for (String key : sortedKeys) {
@@ -76,53 +82,23 @@ public class LoadBalancerPoolTest {
             utilisationMap.put(getHostname(i), wheel.nextInt(100) + 1);
             allHostnames.add(getHostname(i));
         }
-        LoadBalancerPool CUT = new LoadBalancerPool(utilisationMap);
+        LoadBalancerPool CUT = new LoadBalancerPool(null, utilisationMap);
         List<String> sortedHostnames = CUT.sortHostnamesByUtilisation();
         allHostnames.add(getHostname(10));
         allHostnames.add(getHostname(11));
-        CUT.updateHostList(sortedHostnames, allHostnames);
-        assertEquals(getHostname(11), sortedHostnames.get(0));
-        assertEquals(getHostname(10), sortedHostnames.get(1));
+        CUT.updateDbServerUtilisation(sortedHostnames, allHostnames);
         assertEquals(new Integer(0), utilisationMap.get(getHostname(10)));
         assertEquals(new Integer(0), utilisationMap.get(getHostname(11)));
-        assertEquals(sortedHostnames.size(), utilisationMap.size());
+        assertEquals(sortedHostnames.size() + 2, utilisationMap.size());
 
         allHostnames.remove(getHostname(3)); // simulate deleted SRV-Record
-        CUT.updateHostList(sortedHostnames, allHostnames);
-        assertFalse(sortedHostnames.contains(getHostname(3)));
-        assertEquals(allHostnames.size(), sortedHostnames.size());
+        CUT.updateDbServerUtilisation(sortedHostnames, allHostnames);
         assertNull(utilisationMap.get(getHostname(3)));
-        assertEquals(sortedHostnames.size(), utilisationMap.size());
+        assertEquals(sortedHostnames.size() + 1, utilisationMap.size());
     }
 
     private String getHostname(int i) {
         return "host" + i + ".mydatabase.com";
     }
 
-    //@Test
-    public void updateQueue_emptyQueue() {
-        List<String> dbServers = new ArrayList<>();
-        LoadBalancerPool CUT = new LoadBalancerPool(dbServers);
-        List<String> sortedHostnames = new ArrayList<>();
-        sortedHostnames.add("hostname1");
-        sortedHostnames.add("hostname2");
-        sortedHostnames.add("hostname3");
-        CUT.updateQueue(sortedHostnames);
-        assertEquals(sortedHostnames, dbServers);
-    }
-
-    //@Test
-    public void updateQueue_filledQueue() {
-        List<String> dbServers = new ArrayList<>();
-        dbServers.add("hostname2");
-        dbServers.add("hostname3");
-        dbServers.add("hostname1");
-        LoadBalancerPool CUT = new LoadBalancerPool(dbServers);
-        List<String> sortedHostnames = new ArrayList<>();
-        sortedHostnames.add("hostname1");
-        sortedHostnames.add("hostname2");
-        sortedHostnames.add("hostname3");
-        CUT.updateQueue(sortedHostnames);
-        assertEquals(sortedHostnames, dbServers);
-    }
 }
