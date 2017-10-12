@@ -183,12 +183,12 @@ public class Sessions {
 long start = System.currentTimeMillis();
         Http httpBase = basePool.getConnection();
 long duration = System.currentTimeMillis() - start;
-Logger.getAnonymousLogger("Get Connection: " + duration);
+Logger.getAnonymousLogger().info("Get Connection: " + duration);
 start = System.currentTimeMillis();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
 duration = System.currentTimeMillis() - start;
-Logger.getAnonymousLogger("CouchDB: " + duration);
+Logger.getAnonymousLogger().info("CouchDB: " + duration);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
