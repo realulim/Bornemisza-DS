@@ -30,7 +30,7 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.Config;
-import de.bornemisza.loadbalancer.da.PoolFactory;
+import de.bornemisza.loadbalancer.da.DnsProvider;
 
 @Singleton
 @Startup
@@ -124,7 +124,7 @@ public class LoadBalancerPool {
 
     List<String> retrieveAllHostsFromDns(String service) {
         try {
-            return PoolFactory.getHostnamesForService(service);
+            return DnsProvider.getHostnamesForService(service);
         }
         catch (NamingException ex) {
             Logger.getAnonymousLogger().severe("Problem reading SRV-Records: " + ex.toString());
