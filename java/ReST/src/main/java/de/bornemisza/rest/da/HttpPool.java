@@ -27,10 +27,7 @@ public class HttpPool extends Pool<Http> {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-long start = System.currentTimeMillis();
                 trackUtilisation(hostname);
-long duration = System.currentTimeMillis() - start;
-Logger.getAnonymousLogger().info("Track Utilisation: " + duration);
                 return conn;
             }
             else {

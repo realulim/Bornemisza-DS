@@ -19,6 +19,7 @@ public abstract class PoolFactory implements ObjectFactory {
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
+long start = System.currentTimeMillis();
         if (obj == null) {
             throw new NamingException("Reference is null");
         }
@@ -36,11 +37,11 @@ public abstract class PoolFactory implements ObjectFactory {
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-long start = System.currentTimeMillis();
                 List<String> hostnames = DnsProvider.getHostnamesForService(service);
+                Object pool = createPool(hostnames, db, userName, password);
 long duration = System.currentTimeMillis() - start;
-Logger.getAnonymousLogger().info("Get SRV-Records: " + duration);
-                return createPool(hostnames, db, userName, password);
+Logger.getAnonymousLogger().info("ObjectFactory: " + duration);
+                return pool;
             }
             else {
                 throw new NamingException("Expected Class: " + expectedClass + ", configured Class: " + refClassName);
