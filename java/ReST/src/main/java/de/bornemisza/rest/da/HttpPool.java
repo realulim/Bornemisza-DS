@@ -20,7 +20,6 @@ public class HttpPool extends Pool<Http> {
                     HealthChecks healthChecks) {
         super(allConnections, hazelcast);
         this.healthChecks = healthChecks;
-        new DnsProvider(hazelcast);
     }
 
     public Http getConnection() {

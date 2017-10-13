@@ -37,6 +37,8 @@ public abstract class PoolFactory implements ObjectFactory {
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
                 List<String> hostnames = DnsProvider.getHostnamesForService(service);
+                new DnsProvider(getHazelcast());
+
                 return createPool(hostnames, db, userName, password);
             }
             else {
