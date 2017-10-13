@@ -11,7 +11,6 @@ import javax.naming.NamingException;
 import de.bornemisza.loadbalancer.da.PoolFactory;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
-import java.util.logging.Logger;
 
 public class HttpPoolFactory extends PoolFactory {
 
@@ -24,7 +23,6 @@ public class HttpPoolFactory extends PoolFactory {
         Map<String, Http> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
         for (String hostname : hostnames) {
-if (hostname == null) Logger.getAnonymousLogger().warning("Hostname null!!!!!!");
             Http conn = new Http(new URL("https://" + hostname + "/" + db));
             connections.put(hostname, conn);
         }
