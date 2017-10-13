@@ -59,7 +59,9 @@ public class Sessions {
 
     private static final String CTOKEN_HEADER = "C-Token";
 
-    public Sessions() { }
+    public Sessions() {
+Logger.getAnonymousLogger().info("Constructor Sessions");
+    }
 
     // Constructor for Unit Tests
     public Sessions(HttpPool sessionsPool, HttpPool basePool, HazelcastInstance hazelcast) {
