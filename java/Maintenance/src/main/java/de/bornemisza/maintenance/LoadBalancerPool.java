@@ -128,7 +128,7 @@ public class LoadBalancerPool {
         for (String hostname : sortedHostnames) {
             if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
-                this.dbServerUtilisation.remove(hostname);
+                this.dbServerUtilisation.put(hostname, 0);
             }
         }
     }
