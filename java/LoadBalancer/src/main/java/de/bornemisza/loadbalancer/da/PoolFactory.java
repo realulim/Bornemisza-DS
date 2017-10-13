@@ -3,6 +3,7 @@ package de.bornemisza.loadbalancer.da;
 import java.net.MalformedURLException;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -48,7 +49,10 @@ public abstract class PoolFactory implements ObjectFactory {
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
+long start = System.currentTimeMillis();
                 List<String> hostnames = this.dnsProvider.getHostnamesForService(service);
+long duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("Duration: " + duration);
                 Object pool = createPool(hostnames, db, userName, password);
                 return pool;
             }
