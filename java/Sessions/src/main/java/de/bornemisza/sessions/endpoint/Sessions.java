@@ -40,7 +40,6 @@ import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import java.util.logging.Logger;
 
 @Path("/")
 public class Sessions {
