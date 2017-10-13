@@ -20,6 +20,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
+import java.util.logging.Logger;
 
 public class DnsProvider {
 
@@ -39,6 +40,7 @@ public class DnsProvider {
             List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                     .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                     .collect(Collectors.toList());
+if (hostnames.contains(null)) Logger.getAnonymousLogger().warning("Null in Hostnames!!!!!");
             cache.put(service, hostnames, new CreatedExpiryPolicy(Duration.ONE_MINUTE));
             return hostnames;
         }
