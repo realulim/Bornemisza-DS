@@ -20,6 +20,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
+import java.util.logging.Logger;
 
 public class DnsProvider {
 
@@ -36,6 +37,7 @@ public class DnsProvider {
             return cache.get(service);
         }
         else {
+            Logger.getAnonymousLogger().info("No Cache hit, making DNS request...");
             List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                     .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                     .collect(Collectors.toList());
