@@ -31,6 +31,7 @@ import org.javalite.http.Get;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
+import java.util.logging.Logger;
 
 @Path("/uuid")
 public class Uuids {
@@ -99,9 +100,15 @@ public class Uuids {
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cToken)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
+long start = System.currentTimeMillis();
         Http httpBase = basePool.getConnection();
+long duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("getConnection gesamt: " + duration);
+start = System.currentTimeMillis();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
+duration = System.currentTimeMillis() - start;
+Logger.getAnonymousLogger().info("CouchDB: " + duration);
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
