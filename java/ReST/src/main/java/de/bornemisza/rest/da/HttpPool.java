@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import com.hazelcast.core.HazelcastInstance;
-import de.bornemisza.loadbalancer.da.DnsProvider;
 
 import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.HealthChecks;
@@ -20,7 +19,6 @@ public class HttpPool extends Pool<Http> {
                     HealthChecks healthChecks) {
         super(allConnections, hazelcast);
         this.healthChecks = healthChecks;
-        new DnsProvider(hazelcast);
     }
 
     public Http getConnection() {
