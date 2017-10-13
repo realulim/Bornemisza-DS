@@ -30,10 +30,16 @@ public class DnsProvider {
 
     public List<String> getHostnamesForService(String service) throws NamingException {
         if (service == null) throw new IllegalArgumentException("Service is null!");
-        List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
-                .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
-                .collect(Collectors.toList());
-        return hostnames;
+        if (cache.containsKey(service)) {
+            return cache.get(service);
+        }
+        else {
+            List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
+                    .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
+                    .collect(Collectors.toList());
+            cache.put(service, hostnames);
+            return hostnames;
+        }
     }
 
     List<SrvRecord> getSrvRecordsSortedByPriority(String service) throws NamingException {
