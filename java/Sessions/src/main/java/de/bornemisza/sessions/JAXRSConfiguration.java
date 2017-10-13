@@ -11,6 +11,7 @@ import javax.ws.rs.core.Application;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import de.bornemisza.sessions.endpoint.Sessions;
+import de.bornemisza.sessions.endpoint.Uuids;
 
 /**
  * Configures a JAX-RS endpoint.
@@ -25,6 +26,7 @@ public class JAXRSConfiguration extends Application {
         Set<Class<?>> classes = new HashSet<>();
 
         classes.add(Sessions.class);
+        classes.add(Uuids.class);
 
         classes.add(JacksonFeature.class);
 
