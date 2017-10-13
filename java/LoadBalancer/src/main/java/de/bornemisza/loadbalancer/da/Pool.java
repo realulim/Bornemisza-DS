@@ -72,9 +72,8 @@ public abstract class Pool<T> {
     }
 
     private void populateDbServerUtilisation() {
-        Set<String> hostnames = allConnections.keySet();
         if (dbServerUtilisation.isEmpty()) {
-            for (String key : hostnames) {
+            for (String key : allConnections.keySet()) {
                 if (! dbServerUtilisation.containsKey(key)) {
                     dbServerUtilisation.put(key, 0);
                 }
