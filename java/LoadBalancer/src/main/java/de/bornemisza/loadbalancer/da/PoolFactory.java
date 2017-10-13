@@ -38,7 +38,6 @@ Logger.getAnonymousLogger().info("Getting Pool for " + name.toString());
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
                 List<String> hostnames = DnsProvider.getHostnamesForService(service);
-Logger.getAnonymousLogger().info("Got Pool");
                 return createPool(hostnames, db, userName, password);
             }
             else {
