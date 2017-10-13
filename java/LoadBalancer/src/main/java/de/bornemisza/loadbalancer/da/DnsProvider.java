@@ -7,13 +7,15 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.cache.Cache;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
+import com.hazelcast.cache.ICache;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
@@ -21,7 +23,7 @@ import de.bornemisza.loadbalancer.entity.SrvRecord;
 
 public class DnsProvider {
 
-    private final Cache<String, List<String>> cache;
+    private final ICache<String, List<String>> cache;
 
     public DnsProvider(HazelcastInstance hazelcast) {
         ICacheManager cacheManager = hazelcast.getCacheManager();
@@ -37,7 +39,7 @@ public class DnsProvider {
             List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                     .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                     .collect(Collectors.toList());
-            cache.put(service, hostnames);
+            cache.put(service, hostnames, new CreatedExpiryPolicy(Duration.ONE_MINUTE));
             return hostnames;
         }
     }
