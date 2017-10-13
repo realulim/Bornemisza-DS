@@ -29,6 +29,7 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerUtilisation = getDbServerUtilisation();
+        this.populateDbServerUtilisation(); // add an entry for hosts that just appeared
         this.dbServerQueue = sortHostnamesByUtilisation();
     }
 
@@ -72,12 +73,8 @@ public abstract class Pool<T> {
     }
 
     private void populateDbServerUtilisation() {
-        if (dbServerUtilisation.isEmpty()) {
-            for (String key : allConnections.keySet()) {
-                if (! dbServerUtilisation.containsKey(key)) {
-                    dbServerUtilisation.put(key, 0);
-                }
-            }
+        for (String key : allConnections.keySet()) {
+            dbServerUtilisation.putIfAbsent(key, 0);
         }
     }
 
