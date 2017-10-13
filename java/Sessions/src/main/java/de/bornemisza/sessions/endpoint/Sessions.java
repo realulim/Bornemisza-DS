@@ -59,9 +59,7 @@ public class Sessions {
 
     private static final String CTOKEN_HEADER = "C-Token";
 
-    public Sessions() {
-Logger.getAnonymousLogger().info("Constructor Sessions");
-    }
+    public Sessions() { }
 
     // Constructor for Unit Tests
     public Sessions(HttpPool sessionsPool, HttpPool basePool, HazelcastInstance hazelcast) {
@@ -182,9 +180,7 @@ Logger.getAnonymousLogger().info("Constructor Sessions");
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cToken)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
-Logger.getAnonymousLogger().info("Getting Connection");
         Http httpBase = basePool.getConnection();
-Logger.getAnonymousLogger().info("Got Connection");
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
         if (get.responseCode() != 200) {
