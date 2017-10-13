@@ -13,11 +13,13 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
+import java.util.logging.Logger;
 
 public abstract class PoolFactory implements ObjectFactory {
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
+Logger.getAnonymousLogger().info("Getting Pool");
         if (obj == null) {
             throw new NamingException("Reference is null");
         }
@@ -36,6 +38,7 @@ public abstract class PoolFactory implements ObjectFactory {
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
                 List<String> hostnames = DnsProvider.getHostnamesForService(service);
+Logger.getAnonymousLogger().info("Got Pool");
                 return createPool(hostnames, db, userName, password);
             }
             else {

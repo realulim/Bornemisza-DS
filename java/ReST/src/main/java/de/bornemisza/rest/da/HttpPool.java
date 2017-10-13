@@ -22,12 +22,14 @@ public class HttpPool extends Pool<Http> {
     }
 
     public Http getConnection() {
+Logger.getAnonymousLogger().info("Getting Conn");
         List<String> dbServerQueue = getDbServerQueue();
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 trackUtilisation(hostname);
+Logger.getAnonymousLogger().info("Got Conn");
                 return conn;
             }
             else {

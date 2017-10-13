@@ -40,6 +40,7 @@ import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
+import java.util.logging.Logger;
 
 @Path("/")
 public class Sessions {
@@ -179,7 +180,9 @@ public class Sessions {
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cToken)) throw new WebApplicationException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
+Logger.getAnonymousLogger().info("Getting Connection");
         Http httpBase = basePool.getConnection();
+Logger.getAnonymousLogger().info("Got Connection");
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
         if (get.responseCode() != 200) {
