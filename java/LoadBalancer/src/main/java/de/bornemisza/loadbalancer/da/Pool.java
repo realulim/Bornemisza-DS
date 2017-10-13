@@ -30,7 +30,7 @@ public abstract class Pool<T> {
     private void initCluster() {
         this.dbServerUtilisation = getDbServerUtilisation();
         this.populateDbServerUtilisation(); // add an entry for hosts that just appeared
-        this.dbServerQueue = sortHostnamesByUtilisation();
+        this.dbServerQueue = sortHostnamesByUtilisation(allConnections.keySet());
     }
 
     public Set<String> getAllHostnames() {
@@ -41,10 +41,11 @@ public abstract class Pool<T> {
         return dbServerQueue;
     }
 
-    List<String> sortHostnamesByUtilisation() {
+    List<String> sortHostnamesByUtilisation(Set<String> allHostnames) {
         return this.dbServerUtilisation.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue())
                 .map(entry -> entry.getKey())
+                .filter(key -> allHostnames.contains(key)) // in case we have stale Utilisation entries
                 .collect(Collectors.toList());
     }
 

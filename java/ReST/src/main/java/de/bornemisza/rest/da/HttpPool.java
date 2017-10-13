@@ -25,11 +25,6 @@ public class HttpPool extends Pool<Http> {
         List<String> dbServerQueue = getDbServerQueue();
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
-if (conn == null) {
-    for (String key : allConnections.keySet()) {
-        Logger.getAnonymousLogger().warning("Key: " + key + ", Value: " + allConnections.get(key));
-    }
-}
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 trackUtilisation(hostname);
