@@ -58,4 +58,13 @@
 		<max-size policy="PER_NODE">1000</max-size>
 		<in-memory-format>BINARY</in-memory-format>
 	</map>
+
+<cache name="DatabaseServers">
+	<key-type class-name="java.lang.String" />
+	<value-type class-name="java.util.List" />
+	<backup-count>0</backup-count>
+	<async-backup-count>1</async-backup-count>
+	<in-memory-format>BINARY</in-memory-format>
+</cache>
+
 </hazelcast>
