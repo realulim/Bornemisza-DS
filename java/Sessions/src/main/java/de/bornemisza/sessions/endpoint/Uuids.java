@@ -32,7 +32,7 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
 
-@Path("/uuid")
+@Path("/")
 public class Uuids {
 
     @Resource(name="http/Base")
@@ -94,6 +94,7 @@ public class Uuids {
     }
 
     @GET
+    @Path("/uuid")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUuids(@HeaderParam(CTOKEN_HEADER) String cToken,
                              @DefaultValue("1")@QueryParam("count") int count) {
