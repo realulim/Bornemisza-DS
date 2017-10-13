@@ -54,7 +54,6 @@ public abstract class PoolFactory implements ObjectFactory {
         if (hazelcast == null || !hazelcast.getLifecycleService().isRunning()) {
             throw new NamingException("Hazelcast not ready!");
         }
-        new DnsProvider(hazelcast);
         return hazelcast;
     }
 

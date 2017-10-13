@@ -14,27 +14,18 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
 import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.Caching;
-import javax.cache.configuration.CompleteConfiguration;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.spi.CachingProvider;
 
 public class DnsProvider {
 
     private Cache<String, List<String>> cache;
 
     public DnsProvider(HazelcastInstance hazelcast) {
-//        ICacheManager cacheManager = hazelcast.getCacheManager();
-//        this.cache = cacheManager.getCache("DatabaseServers");
-        CachingProvider cachingProvider = Caching.getCachingProvider();
-        CacheManager cacheManager = cachingProvider.getCacheManager();
-        List<String> myList = new ArrayList<>();
-        CompleteConfiguration<String, List<String>> config = new MutableConfiguration<>();
-        cache = cacheManager.createCache("DatabaseServers", config);
+        ICacheManager cacheManager = hazelcast.getCacheManager();
+        this.cache = cacheManager.getCache("DatabaseServers");
     }
 
     public static List<String> getHostnamesForService(String service) throws NamingException {
