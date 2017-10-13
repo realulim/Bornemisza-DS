@@ -11,6 +11,11 @@ install_monit_pkgs:
     - group: root
     - mode: 600
 
+create-monit.log-symlink:
+  file.symlink:
+    - name: /opt/logs/monit.log
+    - target: /var/log/monit.log
+
 monit-running:
   service.running:
     - name: monit
