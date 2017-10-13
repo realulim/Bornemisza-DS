@@ -13,7 +13,6 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 import com.hazelcast.core.HazelcastInstance;
-import java.util.logging.Logger;
 
 public abstract class PoolFactory implements ObjectFactory {
 
@@ -21,21 +20,17 @@ public abstract class PoolFactory implements ObjectFactory {
     private final DnsProvider dnsProvider;
 
     public PoolFactory() throws NamingException {
-long start = System.currentTimeMillis();
         Context ctx = new InitialContext();
         this.hazelcast = (HazelcastInstance) ctx.lookup("payara/Hazelcast");
         if (hazelcast == null || !hazelcast.getLifecycleService().isRunning()) {
             throw new NamingException("Hazelcast not ready!");
         }
         this.dnsProvider = new DnsProvider(this.hazelcast);
-long duration = System.currentTimeMillis() - start;
-Logger.getAnonymousLogger().info("Constructor PoolFactory: " + duration);
     }
 
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
         // Logger.getAnonymousLogger().info("Getting Pool for " + name.toString());
-long start = System.currentTimeMillis();
         if (obj == null) {
             throw new NamingException("Reference is null");
         }
@@ -55,8 +50,6 @@ long start = System.currentTimeMillis();
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
                 List<String> hostnames = this.dnsProvider.getHostnamesForService(service);
                 Object pool = createPool(hostnames, db, userName, password);
-long duration = System.currentTimeMillis() - start;
-Logger.getAnonymousLogger().info("CreatePool: " + duration);
                 return pool;
             }
             else {
