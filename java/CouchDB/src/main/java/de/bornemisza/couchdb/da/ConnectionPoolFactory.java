@@ -14,8 +14,12 @@ import de.bornemisza.loadbalancer.da.PoolFactory;
 
 public class ConnectionPoolFactory extends PoolFactory {
 
+    public ConnectionPoolFactory() throws NamingException {
+        super();
+    }
+
     @Override
-    public Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException {
+    public Object createPool(List<String> hostnames, String db, String userName, String password) throws MalformedURLException {
         Map<String, CouchDbConnection> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
         for (String hostname : hostnames) {

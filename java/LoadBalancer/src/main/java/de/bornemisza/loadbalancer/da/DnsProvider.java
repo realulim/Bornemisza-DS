@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import javax.cache.Cache;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -17,18 +18,17 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
-import javax.cache.Cache;
 
 public class DnsProvider {
 
-    private Cache<String, List<String>> cache;
+    private final Cache<String, List<String>> cache;
 
     public DnsProvider(HazelcastInstance hazelcast) {
         ICacheManager cacheManager = hazelcast.getCacheManager();
         this.cache = cacheManager.getCache("DatabaseServers");
     }
 
-    public static List<String> getHostnamesForService(String service) throws NamingException {
+    public List<String> getHostnamesForService(String service) throws NamingException {
         if (service == null) throw new IllegalArgumentException("Service is null!");
         List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
                 .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
@@ -36,7 +36,7 @@ public class DnsProvider {
         return hostnames;
     }
 
-    static List<SrvRecord> getSrvRecordsSortedByPriority(String service) throws NamingException {
+    List<SrvRecord> getSrvRecordsSortedByPriority(String service) throws NamingException {
         Hashtable<String, String> env = new Hashtable<>();
         env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
         env.put("java.naming.provider.url", "dns:");
@@ -44,7 +44,7 @@ public class DnsProvider {
         return retrieveSrvRecordsAndSort(ctx, service);
     }
 
-    static List<SrvRecord> retrieveSrvRecordsAndSort(DirContext ctx, String service) throws NamingException {
+    List<SrvRecord> retrieveSrvRecordsAndSort(DirContext ctx, String service) throws NamingException {
         Attributes attrs = ctx.getAttributes(service, new String[] {"SRV"});
         NamingEnumeration<?> servers = attrs.get("srv").getAll();
         Set<SrvRecord> sortedRecords = new TreeSet<>();

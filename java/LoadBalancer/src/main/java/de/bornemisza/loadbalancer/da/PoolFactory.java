@@ -16,6 +16,18 @@ import com.hazelcast.core.HazelcastInstance;
 
 public abstract class PoolFactory implements ObjectFactory {
 
+    private final HazelcastInstance hazelcast;
+    private final DnsProvider dnsProvider;
+
+    public PoolFactory() throws NamingException {
+        Context ctx = new InitialContext();
+        this.hazelcast = (HazelcastInstance) ctx.lookup("payara/Hazelcast");
+        if (hazelcast == null || !hazelcast.getLifecycleService().isRunning()) {
+            throw new NamingException("Hazelcast not ready!");
+        }
+        this.dnsProvider = new DnsProvider(this.hazelcast);
+    }
+
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
         // Logger.getAnonymousLogger().info("Getting Pool for " + name.toString());
@@ -36,9 +48,7 @@ public abstract class PoolFactory implements ObjectFactory {
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-                List<String> hostnames = DnsProvider.getHostnamesForService(service);
-                new DnsProvider(getHazelcast());
-
+                List<String> hostnames = this.dnsProvider.getHostnamesForService(service);
                 return createPool(hostnames, db, userName, password);
             }
             else {
@@ -50,13 +60,12 @@ public abstract class PoolFactory implements ObjectFactory {
     protected abstract Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException;
     protected abstract Class getExpectedClass();
 
-    protected HazelcastInstance getHazelcast() throws NamingException {
-        Context ctx = new InitialContext();
-        HazelcastInstance hazelcast = (HazelcastInstance) ctx.lookup("payara/Hazelcast");
-        if (hazelcast == null || !hazelcast.getLifecycleService().isRunning()) {
-            throw new NamingException("Hazelcast not ready!");
-        }
-        return hazelcast;
+    protected HazelcastInstance getHazelcast() {
+        return this.hazelcast;
+    }
+
+    protected DnsProvider getDnsProvider() {
+        return this.dnsProvider;
     }
 
 }

@@ -101,7 +101,7 @@ public class LoadBalancerPool {
 
         try {
             String service = getDatabaseServiceName();
-            List<String> dnsHostnames = DnsProvider.getHostnamesForService(service);
+            List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(service);
             updateDbServerUtilisation(sortedHostnames, dnsHostnames);
         }
         catch (NamingException ex) {

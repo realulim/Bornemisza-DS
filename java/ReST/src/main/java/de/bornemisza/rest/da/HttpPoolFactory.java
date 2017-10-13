@@ -14,8 +14,12 @@ import de.bornemisza.rest.Http;
 
 public class HttpPoolFactory extends PoolFactory {
 
+    public HttpPoolFactory() throws NamingException {
+        super();
+    }
+
     @Override
-    protected Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException {
+    protected Object createPool(List<String> hostnames, String db, String userName, String password) throws MalformedURLException {
         Map<String, Http> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
         for (String hostname : hostnames) {

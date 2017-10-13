@@ -9,16 +9,29 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
 
 public class DnsProviderTest {
     
     private final String service = "_db._tcp.somedomain.com";
+    private DnsProvider CUT;
+
+    @Before
+    public void setUp() {
+        HazelcastInstance hazelcast = mock(HazelcastInstance.class);
+        ICacheManager cacheManager = mock(ICacheManager.class);
+        when(hazelcast.getCacheManager()).thenReturn(cacheManager);
+        this.CUT = new DnsProvider(hazelcast);
+    }
 
     @Test
     public void getSrvRecordsSortedByPriority_noServiceFound() throws Exception {
@@ -27,7 +40,7 @@ public class DnsProviderTest {
             NamingEnumeration<?> enumeration = createEnumerationMock(ctx);
 
             when(enumeration.hasMore()).thenReturn(false);
-            DnsProvider.retrieveSrvRecordsAndSort(ctx, service);
+            CUT.retrieveSrvRecordsAndSort(ctx, service);
             fail();
         }
         catch (NamingException ne) {
@@ -41,7 +54,7 @@ public class DnsProviderTest {
         NamingEnumeration<?> enumeration = createEnumerationMock(ctx);
         when(enumeration.hasMore()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(enumeration.next()).thenReturn("25 0 443 db23.somedomain.com.").thenReturn("5 0 443 db7.somedomain.com.").thenReturn("15 0 443 db3.somedomain.com.");
-        List<SrvRecord> srvRecords = DnsProvider.retrieveSrvRecordsAndSort(ctx, service);
+        List<SrvRecord> srvRecords = CUT.retrieveSrvRecordsAndSort(ctx, service);
         int lastPriority = -1;
         for (SrvRecord record : srvRecords) {
             assertTrue(lastPriority < record.getPriority());
