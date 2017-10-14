@@ -11,7 +11,7 @@ install_riot_pkgs:
   cmd.run:
     - name: npm install riot babel-core babel-preset-es2015-riot babel-plugin-external-helpers
     - cwd: {{ FRONTEND_DIR }}
-    - unless: npm list riot babel-core babel-preset-es2015-riot babel-plugin-external-helpers | wc -l | grep -q 6
+    - onlyif: npm list riot babel-core babel-preset-es2015-riot babel-plugin-external-helpers|grep "UNMET DEPENDENCY"
 
 # skip compilation if tags.js is the newest file in the directory tree
 compile-frontend:
