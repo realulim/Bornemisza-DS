@@ -125,7 +125,7 @@ public class LoadBalancerPool {
         }
     }
 
-    private void logNewQueueState() {
+    void logNewQueueState() {
         StringBuilder sb = new StringBuilder("DbServerQueue");
         for (String hostname : dbServerUtilisation.keySet()) {
             sb.append(" | ").append(hostname).append(":").append(dbServerUtilisation.get(hostname));
@@ -133,7 +133,7 @@ public class LoadBalancerPool {
         Logger.getAnonymousLogger().info(sb.toString());
     }
 
-    protected String getDatabaseServiceName() {
+    String getDatabaseServiceName() {
         return "_db._tcp.bornemisza.de.";
     }
 
