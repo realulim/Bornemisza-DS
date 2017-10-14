@@ -9,18 +9,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Member;
 
-import de.bornemisza.loadbalancer.Config;
 
 public class LoadBalancerPoolTest {
 
@@ -34,8 +31,6 @@ public class LoadBalancerPoolTest {
     public void setUp() {
         this.wheel = new SecureRandom();
         hazelcast = mock(HazelcastInstance.class);
-        IList dbServers = mock(IList.class);
-        when(hazelcast.getList(Config.SERVERS)).thenReturn(dbServers);
     }
 
     @Test
@@ -59,22 +54,6 @@ public class LoadBalancerPoolTest {
     }
 
     @Test
-    public void sortHostnamesByUtilisation() throws Exception {
-        Map<String, Integer> utilisationMap = new HashMap<>();
-        for (int i = 0; i < 10; i++) {
-            String randomKey = UUID.randomUUID().toString();
-            utilisationMap.put(randomKey, wheel.nextInt(100));
-        }
-        LoadBalancerPool CUT = new LoadBalancerPool(null, utilisationMap);
-        List<String> sortedKeys = CUT.sortHostnamesByUtilisation();
-        int lastUtilisation = 0;
-        for (String key : sortedKeys) {
-            int utilisation = utilisationMap.get(key);
-            assertTrue(lastUtilisation <= utilisation);
-        }
-    }
-
-    @Test
     public void addNewHostsForService() {
         Map<String, Integer> utilisationMap = new HashMap<>();
         List<String> allHostnames = new ArrayList<>();
@@ -83,18 +62,18 @@ public class LoadBalancerPoolTest {
             allHostnames.add(getHostname(i));
         }
         LoadBalancerPool CUT = new LoadBalancerPool(null, utilisationMap);
-        List<String> sortedHostnames = CUT.sortHostnamesByUtilisation();
         allHostnames.add(getHostname(10));
         allHostnames.add(getHostname(11));
-        CUT.updateDbServerUtilisation(sortedHostnames, allHostnames);
+        Set<String> utilisedHostnames = new HashSet<>(utilisationMap.keySet());
+        CUT.updateDbServerUtilisation(utilisedHostnames, allHostnames);
         assertEquals(new Integer(0), utilisationMap.get(getHostname(10)));
         assertEquals(new Integer(0), utilisationMap.get(getHostname(11)));
-        assertEquals(sortedHostnames.size() + 2, utilisationMap.size());
+        assertEquals(allHostnames.size(), utilisationMap.size());
 
         allHostnames.remove(getHostname(3)); // simulate deleted SRV-Record
-        CUT.updateDbServerUtilisation(sortedHostnames, allHostnames);
-        assertEquals(0, (int)utilisationMap.get(getHostname(3)));
-        assertEquals(sortedHostnames.size() + 2, utilisationMap.size());
+        CUT.updateDbServerUtilisation(utilisedHostnames, allHostnames);
+        assertNull(utilisationMap.get(getHostname(3)));
+        assertEquals(allHostnames.size(), utilisationMap.size());
     }
 
     private String getHostname(int i) {

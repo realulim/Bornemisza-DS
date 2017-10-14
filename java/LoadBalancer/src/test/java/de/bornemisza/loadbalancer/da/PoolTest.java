@@ -19,6 +19,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.OperationTimeoutException;
 
 import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
+import java.util.UUID;
 
 public class PoolTest {
 
@@ -45,7 +46,7 @@ public class PoolTest {
         this.hazelcastMap = new PseudoHazelcastMap();
     }
 
-    //@Test
+    @Test
     public void hazelcastWorking() {
         when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
         Pool CUT = new PoolImpl(allConnections, hazelcast);
@@ -64,26 +65,7 @@ public class PoolTest {
         assertEquals(dbServerUtilisation, CUT.getDbServerUtilisation());
     }
 
-    //@Test
-    public void verifyRequestCounting() {
-        IMap utilisationMap = new PseudoHazelcastMap<>();
-        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
-        Pool CUT = new PoolImpl(allConnections, hazelcast);
-        List<String> allHostnames = Arrays.asList(new String[] { "host1", "host2", "host3.hosts.de" });
-        int requestCount = wheel.nextInt(15) + 1;
-        for (String hostname : allHostnames) {
-            utilisationMap.put(hostname, 0);
-            for (int i = 0; i < requestCount; i++) {
-                CUT.trackUtilisation(hostname);
-            }
-        }
-        for (String hostname : allHostnames) {
-            assertEquals(requestCount, CUT.getDbServerUtilisation().get(hostname));
-        }
-        
-    }
-
-    //@Test
+    @Test
     public void hazelcastNotWorkingAtFirst_thenWorkingLater() {
         String errMsg = "Invocation failed to complete due to operation-heartbeat-timeout";
         when(hazelcast.getMap(anyString()))
@@ -100,6 +82,25 @@ public class PoolTest {
         dbServerUtilisation = CUT.getDbServerUtilisation();
         assertEquals(allConnections.size(), hazelcastMap.size());
         assertEquals(hazelcastMap, dbServerUtilisation);
+    }
+
+    @Test
+    public void verifyRequestCounting() {
+        IMap utilisationMap = new PseudoHazelcastMap<>();
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
+        Pool CUT = new PoolImpl(allConnections, hazelcast);
+        List<String> allHostnames = Arrays.asList(new String[] { "host1", "host2", "host3.hosts.de" });
+        int requestCount = wheel.nextInt(15) + 1;
+        for (String hostname : allHostnames) {
+            utilisationMap.put(hostname, 0);
+            for (int i = 0; i < requestCount; i++) {
+                CUT.trackUtilisation(hostname);
+            }
+        }
+        for (String hostname : allHostnames) {
+            assertEquals(requestCount, CUT.getDbServerUtilisation().get(hostname));
+        }
+        
     }
 
     @Test
@@ -122,6 +123,25 @@ public class PoolTest {
             assertNotNull(allConnections.get(hostname));
         }
     }
+
+    @Test
+    public void sortHostnamesByUtilisation() throws Exception {
+        IMap utilisationMap = new PseudoHazelcastMap<>();
+        for (int i = 0; i < 10; i++) {
+            String randomKey = UUID.randomUUID().toString();
+            utilisationMap.put(randomKey, wheel.nextInt(100));
+        }
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
+        Pool CUT = new PoolImpl(allConnections, hazelcast);
+        List<String> sortedHostnames = CUT.sortHostnamesByUtilisation(utilisationMap.keySet());
+        int lastUtilisation = 0;
+        for (String hostname : sortedHostnames) {
+            int utilisation = (Integer)utilisationMap.get(hostname);
+            assertTrue(lastUtilisation <= utilisation);
+            lastUtilisation = utilisation;
+        }
+    }
+
 
     public class PoolImpl extends Pool {
 

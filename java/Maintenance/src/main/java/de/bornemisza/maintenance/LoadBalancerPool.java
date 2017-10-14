@@ -12,6 +12,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ScheduleExpression;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
@@ -28,8 +30,8 @@ import com.hazelcast.core.MembershipListener;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 
-//@Singleton
-//@Startup
+@Singleton
+@Startup
 public class LoadBalancerPool {
 
     @Resource
@@ -41,7 +43,6 @@ public class LoadBalancerPool {
     HazelcastInstance hazelcast;
 
     private Map<String, Integer> dbServerUtilisation;
-    private List<String> dbServers;
 
     public LoadBalancerPool() {
     }
@@ -55,7 +56,6 @@ public class LoadBalancerPool {
     @PostConstruct
     public void init() {
         dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
-        dbServers = hazelcast.getList(Config.SERVERS);
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
             @Override public void memberAdded(MembershipEvent me) { rebuildTimer(); }
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimer(); }
@@ -97,12 +97,11 @@ public class LoadBalancerPool {
 
     @Timeout
     public void performMaintenance() {
-        List<String> sortedHostnames = sortHostnamesByUtilisation();
-
+        Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         try {
             String service = getDatabaseServiceName();
             List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(service);
-            updateDbServerUtilisation(sortedHostnames, dnsHostnames);
+            updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
         }
         catch (NamingException ex) {
             Logger.getAnonymousLogger().warning("Problem reading SRV-Records: " + ex.toString());
@@ -111,31 +110,24 @@ public class LoadBalancerPool {
         logNewQueueState();
     }
 
-    List<String> sortHostnamesByUtilisation() {
-        return this.dbServerUtilisation.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue())
-                .map(entry -> entry.getKey())
-                .collect(Collectors.toList());
-    }
-
-    void updateDbServerUtilisation(List<String> sortedHostnames, List<String> dnsHostnames) {
+    void updateDbServerUtilisation(Set<String> utilisedHostnames, List<String> dnsHostnames) {
         for (String dnsHostname : dnsHostnames) {
-            if (! sortedHostnames.contains(dnsHostname)) {
+            if (! utilisedHostnames.contains(dnsHostname)) {
                 // a new host providing the service just appeared
                 this.dbServerUtilisation.putIfAbsent(dnsHostname, 0);
             }
         }
-        for (String hostname : sortedHostnames) {
+        for (String hostname : utilisedHostnames) {
             if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
-                this.dbServerUtilisation.put(hostname, 0);
+                this.dbServerUtilisation.remove(hostname);
             }
         }
     }
 
     private void logNewQueueState() {
         StringBuilder sb = new StringBuilder("DbServerQueue");
-        for (String hostname : dbServers) {
+        for (String hostname : dbServerUtilisation.keySet()) {
             sb.append(" | ").append(hostname).append(":").append(dbServerUtilisation.get(hostname));
         }
         Logger.getAnonymousLogger().info(sb.toString());
