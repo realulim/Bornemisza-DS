@@ -8,16 +8,10 @@ install_nodejs_pkgs:
       - npm
 
 install_riot_pkgs:
-  npm.installed:
-    - pkgs:
-      - riot
-      - babel-core
-
-install_babel_pkgs:
   cmd.run:
-    - name: npm install babel-preset-es2015-riot babel-plugin-external-helpers
+    - name: npm install riot babel-core babel-preset-es2015-riot babel-plugin-external-helpers
     - cwd: {{ FRONTEND_DIR }}
-    - unless: npm list babel-preset-es2015-riot
+    - unless: npm list riot babel-core babel-preset-es2015-riot babel-plugin-external-helpers | wc -l | grep -q 6
 
 # skip compilation if tags.js is the newest file in the directory tree
 compile-frontend:
