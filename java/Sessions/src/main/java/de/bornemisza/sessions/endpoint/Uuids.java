@@ -138,9 +138,9 @@ public class Uuids {
         if (index == -1) {
             allUuidPrefixes.add(uuidPrefix);
             Collections.sort(allUuidPrefixes);
-            Logger.getAnonymousLogger("DB-Server Colors: " + String.join(",", allUuidPrefixes));
             index = allUuidPrefixes.indexOf(uuidPrefix);
         }
+        Logger.getAnonymousLogger("DB-Server Colors: " + String.join(",", allUuidPrefixes));
         if (index >= JAXRSConfiguration.COLORS.size()) return JAXRSConfiguration.DEFAULT_COLOR;
         else return JAXRSConfiguration.COLORS.get(index);
     }
