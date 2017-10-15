@@ -2,7 +2,6 @@ package de.bornemisza.loadbalancer.da;
 
 import java.net.MalformedURLException;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -16,8 +15,8 @@ import com.hazelcast.core.HazelcastInstance;
 
 public abstract class PoolFactory implements ObjectFactory {
 
-    private final HazelcastInstance hazelcast;
-    private final DnsProvider dnsProvider;
+    protected final HazelcastInstance hazelcast;
+    protected final DnsProvider dnsProvider;
 
     public PoolFactory() throws NamingException {
         Context ctx = new InitialContext();
@@ -42,15 +41,13 @@ public abstract class PoolFactory implements ObjectFactory {
             String refClassName = ref.getClassName();
             String expectedClass = getClass().getName();
             if (refClassName.equals(getExpectedClass().getName())) {
-                String service = (String) ref.get("service").getContent();
+                String srvRecordServiceName = (String) ref.get("service").getContent();
                 String db = (String) ref.get("db").getContent();
                 RefAddr userNameAddr = ref.get("username");
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
                 String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-                List<String> hostnames = this.dnsProvider.getHostnamesForService(service);
-                Object pool = createPool(hostnames, db, userName, password);
-                return pool;
+                return createPool(srvRecordServiceName, db, userName, password);
             }
             else {
                 throw new NamingException("Expected Class: " + expectedClass + ", configured Class: " + refClassName);
@@ -58,7 +55,7 @@ public abstract class PoolFactory implements ObjectFactory {
         }
     }
 
-    protected abstract Object createPool(List<String> hostnames, String db, String userName, String password) throws NamingException, MalformedURLException;
+    protected abstract Object createPool(String srvRecordServiceName, String db, String userName, String password) throws NamingException, MalformedURLException;
     protected abstract Class getExpectedClass();
 
     protected HazelcastInstance getHazelcast() {

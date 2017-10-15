@@ -3,7 +3,6 @@ package de.bornemisza.rest.da;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
@@ -19,14 +18,14 @@ public class HttpPoolFactory extends PoolFactory {
     }
 
     @Override
-    protected Object createPool(List<String> hostnames, String db, String userName, String password) throws MalformedURLException {
+    protected Object createPool(String srvRecordServiceName, String db, String userName, String password) throws MalformedURLException, NamingException {
         Map<String, Http> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
-        for (String hostname : hostnames) {
+        for (String hostname : this.dnsProvider.getHostnamesForService(srvRecordServiceName)) {
             Http conn = new Http(new URL("https://" + hostname + "/" + db));
             connections.put(hostname, conn);
         }
-        return new HttpPool(connections, getHazelcast(), new HealthChecks());
+        return new HttpPool(connections, this.hazelcast, new HealthChecks());
     }
 
     @Override

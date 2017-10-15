@@ -3,7 +3,6 @@ package de.bornemisza.couchdb.da;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
@@ -19,14 +18,14 @@ public class ConnectionPoolFactory extends PoolFactory {
     }
 
     @Override
-    public Object createPool(List<String> hostnames, String db, String userName, String password) throws MalformedURLException {
+    public Object createPool(String srvRecordServiceName, String db, String userName, String password) throws MalformedURLException, NamingException {
         Map<String, CouchDbConnection> connections = new HashMap<>();
         db = (db == null ? "" : db.replaceFirst ("^/*", ""));
-        for (String hostname : hostnames) {
+        for (String hostname : this.dnsProvider.getHostnamesForService(srvRecordServiceName)) {
             CouchDbConnection conn = new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
             connections.put(hostname, conn);
         }
-        return new ConnectionPool(connections, getHazelcast(), new HealthChecks());
+        return new ConnectionPool(connections, this.hazelcast, new HealthChecks());
     }
 
     @Override
