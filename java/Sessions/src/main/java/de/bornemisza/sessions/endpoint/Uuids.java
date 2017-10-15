@@ -34,6 +34,7 @@ import org.javalite.http.Get;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
+import java.util.logging.Logger;
 
 @Path("/uuid")
 public class Uuids {
@@ -137,6 +138,7 @@ public class Uuids {
         if (index == -1) {
             allUuidPrefixes.add(uuidPrefix);
             Collections.sort(allUuidPrefixes);
+            Logger.getAnonymousLogger("DB-Server Colors: " + String.join(",", allUuidPrefixes));
             index = allUuidPrefixes.indexOf(uuidPrefix);
         }
         if (index >= JAXRSConfiguration.COLORS.size()) return JAXRSConfiguration.DEFAULT_COLOR;
