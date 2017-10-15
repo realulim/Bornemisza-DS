@@ -9,12 +9,14 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import org.javalite.http.Get;
-import org.javalite.http.Post;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
+
+import org.javalite.http.Get;
+import org.javalite.http.Post;
 
 import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.Http;
@@ -42,7 +44,6 @@ public class SessionsTest {
         get = mock(Get.class);
         when(get.header(anyString(), any())).thenReturn(get);
         when(http.get(anyString())).thenReturn(get);
-        when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
 
         pool = mock(HttpPool.class);
         when(pool.getConnection()).thenReturn(http);
