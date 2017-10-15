@@ -10,16 +10,13 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import static org.mockito.Mockito.mock;
-
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+
 import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
 
 public class LoadBalancerTaskTest {
 
     private SecureRandom wheel;
-    private HazelcastInstance hazelcast;
     
     public LoadBalancerTaskTest() {
     }
@@ -27,7 +24,6 @@ public class LoadBalancerTaskTest {
     @Before
     public void setUp() {
         this.wheel = new SecureRandom();
-        hazelcast = mock(HazelcastInstance.class);
     }
 
     @Test
@@ -38,7 +34,7 @@ public class LoadBalancerTaskTest {
             utilisationMap.put(getHostname(i), wheel.nextInt(100) + 1);
             allHostnames.add(getHostname(i));
         }
-        LoadBalancerTask CUT = new LoadBalancerTask(hazelcast, utilisationMap);
+        LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
         allHostnames.add(getHostname(10));
         allHostnames.add(getHostname(11));
         Set<String> utilisedHostnames = new HashSet<>(utilisationMap.keySet());

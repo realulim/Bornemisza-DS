@@ -30,14 +30,17 @@ public class Scheduler {
     @Inject
     HazelcastInstance hazelcast;
 
+    @Inject
+    LoadBalancerTask loadBalancerTask;
+
     private Timer loadBalancerTaskTimer = null;
 
     public Scheduler() {
     }
 
     // Constructor for Unit Tests
-    Scheduler(HazelcastInstance hz) {
-        this.hazelcast = hz;
+    public Scheduler(HazelcastInstance hazelcast) {
+        this.hazelcast = hazelcast;
     }
 
     @PostConstruct
@@ -47,7 +50,10 @@ public class Scheduler {
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimers(); }
             @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
         });
-        rebuildTimers();
+        if (loadBalancerTask == null) {
+            // don't do it again, if already invoked by callback
+            rebuildTimers();
+        }
     }
 
     void rebuildTimers() {
@@ -69,7 +75,6 @@ public class Scheduler {
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
         timerConfig.setInfo(TIMER_NAME);
-        LoadBalancerTask loadBalancerTask = new LoadBalancerTask(hazelcast);
         this.loadBalancerTaskTimer = loadBalancerTask.createTimer(expression, timerConfig);
         Logger.getAnonymousLogger().info("Installed Timer " + TIMER_NAME + " with " + expression.toString());
     }

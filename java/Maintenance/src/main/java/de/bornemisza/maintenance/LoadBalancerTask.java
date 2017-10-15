@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.ScheduleExpression;
+import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
+import javax.inject.Inject;
 import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -19,25 +22,30 @@ import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.rest.da.HttpPool;
 
+@Stateless
 public class LoadBalancerTask {
-
-    @Resource(name="http/Base")
-    HttpPool pool;
 
     @Resource
     private TimerService timerService;
 
-    private final HazelcastInstance hazelcast;
-    private final IMap<String, Integer> dbServerUtilisation;
+    @Inject
+    HazelcastInstance hazelcast;
 
-    public LoadBalancerTask(HazelcastInstance hazelcast) {
-        this.hazelcast = hazelcast;
+    @Resource(name="http/Base")
+    HttpPool pool;
+
+    private IMap<String, Integer> dbServerUtilisation;
+
+    public LoadBalancerTask() {
+    }
+
+    @PostConstruct
+    public void init() {
         this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
     }
 
     // Constructor for Unit Tests
-    public LoadBalancerTask(HazelcastInstance hazelcast, IMap<String, Integer> dbServerUtilisation) {
-        this.hazelcast = hazelcast;
+    public LoadBalancerTask(IMap<String, Integer> dbServerUtilisation) {
         this.dbServerUtilisation = dbServerUtilisation;
     }
 
