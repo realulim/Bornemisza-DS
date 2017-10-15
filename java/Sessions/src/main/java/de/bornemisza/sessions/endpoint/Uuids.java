@@ -35,6 +35,8 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import java.io.IOException;
+import java.util.Map;
+import java.util.logging.Logger;
 import org.codehaus.jackson.JsonNode;
 
 @Path("/uuid")
@@ -108,6 +110,9 @@ public class Uuids {
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
+for (String header : get.headers().keySet()) {
+Logger.getAnonymousLogger().info(header + ": " + get.headers().get(header));
+}
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
