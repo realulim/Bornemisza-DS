@@ -12,3 +12,4 @@ base:
     - exim
     - frontend
     - monit
+    - srvrecords
