@@ -47,7 +47,7 @@ public class Uuids {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private List<String> allHostnames = new ArrayList<>();
-    private List<String> allUuidPrefixes = new ArrayList<>();
+    private static List<String> allUuidPrefixes = new ArrayList<>();
 
     private static final String CTOKEN_HEADER = "C-Token";
 
@@ -139,7 +139,6 @@ public class Uuids {
             allUuidPrefixes.add(uuidPrefix);
             Collections.sort(allUuidPrefixes);
             index = allUuidPrefixes.indexOf(uuidPrefix);
-            Logger.getAnonymousLogger().info("DB-Server Colors: " + String.join(",", allUuidPrefixes));
         }
         if (index >= JAXRSConfiguration.COLORS.size()) return JAXRSConfiguration.DEFAULT_COLOR;
         else return JAXRSConfiguration.COLORS.get(index);
