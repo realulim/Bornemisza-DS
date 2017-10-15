@@ -4,6 +4,7 @@ alias cbdb='curl -o bootstrap-bornemisza.sh https://raw.githubusercontent.com/re
 alias e='nano -w'
 alias ebr='nano -w /etc/profile.d/bash.sh'
 alias h='history'
+alias haproxy-configcheck='haproxy -c -V -f /etc/haproxy/haproxy.cfg'
 alias ipdown='ip link set dummy1 down'
 alias ipup='ip link set dummy1 up'
 alias l='ls -lah'
