@@ -13,12 +13,15 @@ import de.bornemisza.rest.Http;
 public class HttpPool extends Pool<Http> {
 
     private final HealthChecks healthChecks;
+    private final String serviceName;
 
     public HttpPool(Map<String, Http> allConnections,
                     HazelcastInstance hazelcast,
-                    HealthChecks healthChecks) {
+                    HealthChecks healthChecks,
+                    String serviceName) {
         super(allConnections, hazelcast);
         this.healthChecks = healthChecks;
+        this.serviceName = serviceName;
     }
 
     public Http getConnection() {
@@ -36,6 +39,11 @@ public class HttpPool extends Pool<Http> {
         }
         Logger.getAnonymousLogger().warning("No CouchDB Hosts available at all!");
         throw new RuntimeException("No CouchDB Backend ready!");
+    }
+
+    @Override
+    protected String getServiceName() {
+        return this.serviceName;
     }
 
 }

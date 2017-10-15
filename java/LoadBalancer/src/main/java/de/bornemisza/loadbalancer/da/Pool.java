@@ -16,10 +16,11 @@ import de.bornemisza.loadbalancer.Config;
 public abstract class Pool<T> {
 
     protected final Map<String, T> allConnections;
-    private List<String> dbServerQueue = null;
-    private final HazelcastInstance hazelcast;
-
     protected Map<String, Integer> dbServerUtilisation = null;
+    private final HazelcastInstance hazelcast;
+    private List<String> dbServerQueue = null;
+
+    protected abstract String getServiceName();
 
     public Pool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
         this.allConnections = allConnections;

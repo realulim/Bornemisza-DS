@@ -21,12 +21,15 @@ import de.bornemisza.loadbalancer.da.Pool;
 public class ConnectionPool extends Pool<CouchDbConnection> {
 
     private final HealthChecks healthChecks;
+    private final String serviceName;
 
     public ConnectionPool(Map<String, CouchDbConnection> connections, 
                           HazelcastInstance hazelcast,
-                          HealthChecks healthChecks) {
+                          HealthChecks healthChecks,
+                          String serviceName) {
         super(connections, hazelcast);
         this.healthChecks = healthChecks;
+        this.serviceName = serviceName;
     }
 
     public MyCouchDbConnector getConnector() {
@@ -65,5 +68,9 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
                     .password(String.valueOf(password))
                     .build();
     }
+
+    @Override
+    protected String getServiceName() {
+        return this.serviceName;    }
 
 }

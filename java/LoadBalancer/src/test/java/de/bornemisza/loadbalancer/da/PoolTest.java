@@ -148,6 +148,11 @@ public class PoolTest {
         public PoolImpl(Map<String, Object> allConnections, HazelcastInstance hazelcast) {
             super(allConnections, hazelcast);
         }
+
+        @Override
+        protected String getServiceName() {
+            return "someServiceName";
+        }
     }
     
 }

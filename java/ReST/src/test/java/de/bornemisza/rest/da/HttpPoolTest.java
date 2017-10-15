@@ -25,7 +25,7 @@ public class HttpPoolTest {
     class TestableHttpPool extends HttpPool {
 
         public TestableHttpPool(Map<String, Http> allConnections, HazelcastInstance hz, HealthChecks healthChecks) {
-            super(allConnections, hz, healthChecks);
+            super(allConnections, hz, healthChecks, "someServiceName");
         }
 
         // expose protected method for testing

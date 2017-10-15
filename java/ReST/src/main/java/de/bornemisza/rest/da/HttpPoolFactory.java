@@ -25,7 +25,7 @@ public class HttpPoolFactory extends PoolFactory {
             Http conn = new Http(new URL("https://" + hostname + "/" + db));
             connections.put(hostname, conn);
         }
-        return new HttpPool(connections, this.hazelcast, new HealthChecks());
+        return new HttpPool(connections, this.hazelcast, new HealthChecks(), srvRecordServiceName);
     }
 
     @Override

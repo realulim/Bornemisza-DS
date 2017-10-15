@@ -25,7 +25,7 @@ public class ConnectionPoolFactory extends PoolFactory {
             CouchDbConnection conn = new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
             connections.put(hostname, conn);
         }
-        return new ConnectionPool(connections, this.hazelcast, new HealthChecks());
+        return new ConnectionPool(connections, this.hazelcast, new HealthChecks(), srvRecordServiceName);
     }
 
     @Override

@@ -10,13 +10,12 @@ import java.util.Map;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.DbAccessException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
 
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.PseudoHazelcastList;
@@ -28,7 +27,7 @@ public class ConnectionPoolTest {
     class TestableConnectionPool extends ConnectionPool {
 
         public TestableConnectionPool(Map<String, CouchDbConnection> connections, HazelcastInstance hz, HealthChecks healthChecks) {
-            super(connections, hz, healthChecks);
+            super(connections, hz, healthChecks, "someServiceName");
         }
 
         // expose protected method for testing
