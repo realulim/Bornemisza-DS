@@ -77,9 +77,11 @@ public class LoadBalancerTask {
             }
         }
         for (String hostname : utilisedHostnames) {
-            if (dnsHostnames.contains(hostname) && newHostDetected) {
-                // start all hosts on equal terms
-                this.dbServerUtilisation.put(hostname, 0);
+            if (dnsHostnames.contains(hostname)) {
+                if (newHostDetected) {
+                    // start all hosts on equal terms
+                    this.dbServerUtilisation.put(hostname, 0);
+                }
             }
             else {
                 // a host providing the service has just disappeared
