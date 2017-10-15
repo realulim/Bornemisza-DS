@@ -115,14 +115,19 @@ public class LoadBalancerPool {
     }
 
     void updateDbServerUtilisation(Set<String> utilisedHostnames, List<String> dnsHostnames) {
+        boolean reset = false;
         for (String dnsHostname : dnsHostnames) {
             if (! utilisedHostnames.contains(dnsHostname)) {
                 // a new host providing the service just appeared
                 this.dbServerUtilisation.putIfAbsent(dnsHostname, 0);
+                reset = true; // start all hosts on equal terms
             }
         }
         for (String hostname : utilisedHostnames) {
-            if (! dnsHostnames.contains(hostname)) {
+            if (dnsHostnames.contains(hostname)) {
+                if (reset) this.dbServerUtilisation.put(hostname, 0);
+            }
+            else {
                 // a host providing the service has just disappeared
                 this.dbServerUtilisation.remove(hostname);
             }
