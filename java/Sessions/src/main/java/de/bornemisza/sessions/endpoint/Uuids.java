@@ -1,10 +1,11 @@
 package de.bornemisza.sessions.endpoint;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -27,14 +28,14 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.javalite.http.Get;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import java.util.logging.Logger;
+import java.io.IOException;
+import org.codehaus.jackson.JsonNode;
 
 @Path("/uuid")
 public class Uuids {
@@ -47,7 +48,7 @@ public class Uuids {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private List<String> allHostnames = new ArrayList<>();
-    private static List<String> allUuidPrefixes = new ArrayList<>();
+    private final List<String> allUuidPrefixes = new ArrayList<>();
 
     private static final String CTOKEN_HEADER = "C-Token";
 
@@ -111,11 +112,10 @@ public class Uuids {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
         }
-        String jsonResponse = get.text();
         return Response.ok()
                 .header("AppServer", JAXRSConfiguration.MY_COLOR)
-                .header("DbServer", getDbServerColor(jsonResponse))
-                .entity(jsonResponse).build();
+                .header("DbServer", getDbServerColor(httpBase))
+                .entity(get.text()).build();
     }
 
     private boolean isVoid(String value) {
@@ -124,25 +124,38 @@ public class Uuids {
         else return value.equals("null");
     }
 
-    private String getDbServerColor(String jsonResponse) {
-        JsonNode root;
-        try {
-            root = mapper.readTree(jsonResponse);
-        }
-        catch (IOException ioe) {
-            throw new WebApplicationException(
-                    Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioe.toString()).build());
-        }
-        String uuidPrefix = root.get("uuids").get(0).asText().substring(0, 20);
-        int index = allUuidPrefixes.indexOf(uuidPrefix);
+    private String getDbServerColor(Http http) {
+        String urlWithoutScheme = http.getBaseUrl().split("://")[1];
+        String hostname = urlWithoutScheme.substring(0, urlWithoutScheme.indexOf("/"));
+        int index = allHostnames.indexOf(hostname);
         if (index == -1) {
-            allUuidPrefixes.add(uuidPrefix);
-            Collections.sort(allUuidPrefixes);
-            index = allUuidPrefixes.indexOf(uuidPrefix);
+            throw new WebApplicationException(
+                    Response.serverError()
+                    .entity("Hostname " + hostname + " not found in " + String.join(", ", allHostnames))
+                    .build());
         }
-        if (index >= JAXRSConfiguration.COLORS.size()) return JAXRSConfiguration.DEFAULT_COLOR;
-        else return JAXRSConfiguration.COLORS.get(index);
+        return JAXRSConfiguration.COLORS.get(index);
     }
+
+//    private String getDbServerColor(String jsonResponse) {
+//        JsonNode root;
+//        try {
+//            root = mapper.readTree(jsonResponse);
+//        }
+//        catch (IOException ioe) {
+//            throw new WebApplicationException(
+//                    Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioe.toString()).build());
+//        }
+//        String uuidPrefix = root.get("uuids").get(0).asText().substring(0, 20);
+//        int index = allUuidPrefixes.indexOf(uuidPrefix);
+//        if (index == -1) {
+//            allUuidPrefixes.add(uuidPrefix);
+//            Collections.sort(allUuidPrefixes);
+//            index = allUuidPrefixes.indexOf(uuidPrefix);
+//        }
+//        if (index >= JAXRSConfiguration.COLORS.size()) return JAXRSConfiguration.DEFAULT_COLOR;
+//        else return JAXRSConfiguration.COLORS.get(index);
+//    }
 
     private static class MemberComparator implements Comparator<Member> {
         @Override public int compare(Member m1, Member m2) {
