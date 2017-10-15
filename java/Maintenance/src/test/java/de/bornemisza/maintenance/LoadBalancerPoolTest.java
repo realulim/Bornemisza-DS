@@ -66,8 +66,9 @@ public class LoadBalancerPoolTest {
         allHostnames.add(getHostname(11));
         Set<String> utilisedHostnames = new HashSet<>(utilisationMap.keySet());
         CUT.updateDbServerUtilisation(utilisedHostnames, allHostnames);
-        assertEquals(new Integer(0), utilisationMap.get(getHostname(10)));
-        assertEquals(new Integer(0), utilisationMap.get(getHostname(11)));
+        for (String hostname : utilisationMap.keySet()) {
+            assertEquals(new Integer(0), utilisationMap.get(hostname));
+        }
         assertEquals(allHostnames.size(), utilisationMap.size());
 
         allHostnames.remove(getHostname(3)); // simulate deleted SRV-Record
