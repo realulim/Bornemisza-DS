@@ -50,7 +50,7 @@ public class Scheduler {
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimers(); }
             @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
         });
-        if (loadBalancerTask == null) {
+        if (loadBalancerTaskTimer == null) {
             // don't do it again, if already invoked by callback
             rebuildTimers();
         }
