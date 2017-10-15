@@ -42,7 +42,7 @@ public class HttpPool extends Pool<Http> {
     }
 
     @Override
-    protected String getServiceName() {
+    public String getServiceName() {
         return this.serviceName;
     }
 

@@ -70,7 +70,7 @@ public class ConnectionPool extends Pool<CouchDbConnection> {
     }
 
     @Override
-    protected String getServiceName() {
+    public String getServiceName() {
         return this.serviceName;    }
 
 }

@@ -29,10 +29,14 @@ import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
+import de.bornemisza.rest.da.HttpPool;
 
 @Singleton
 @Startup
 public class LoadBalancerPool {
+
+    @Resource(name="http/Base")
+    HttpPool pool;
 
     @Resource
     private TimerService timerService;
@@ -99,8 +103,8 @@ public class LoadBalancerPool {
     public void performMaintenance() {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         try {
-            String service = getDatabaseServiceName();
-            List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(service);
+            String serviceName = pool.getServiceName();
+            List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
             updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
         }
         catch (NamingException ex) {
@@ -131,10 +135,6 @@ public class LoadBalancerPool {
             sb.append(" | ").append(hostname).append(":").append(dbServerUtilisation.get(hostname));
         }
         Logger.getAnonymousLogger().info(sb.toString());
-    }
-
-    String getDatabaseServiceName() {
-        return "_db._tcp.bornemisza.de.";
     }
 
 }
