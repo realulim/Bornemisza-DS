@@ -37,16 +37,7 @@ public class LoadBalancerTaskTest {
         LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
         assertEquals(dnsHostnames.size(), utilisationMap.size());
 
-        dnsHostnames.add(getHostname(10)); // simulate added SRV-Records
-        dnsHostnames.add(getHostname(11));
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
-        CUT.updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
-        assertEquals(dnsHostnames.size(), utilisationMap.size());
-        for (String hostname : utilisationMap.keySet()) {
-            assertEquals(new Integer(0), utilisationMap.get(hostname));
-        }
-
-        utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.remove(getHostname(3)); // simulate deleted SRV-Record
         CUT.updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
         assertNull(utilisationMap.get(getHostname(3)));

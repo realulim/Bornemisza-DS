@@ -16,9 +16,10 @@ import de.bornemisza.loadbalancer.Config;
 public abstract class Pool<T> {
 
     protected final Map<String, T> allConnections;
-    protected Map<String, Integer> dbServerUtilisation = null;
     private final HazelcastInstance hazelcast;
+
     private List<String> dbServerQueue = null;
+    private Map<String, Integer> dbServerUtilisation = null;
 
     protected abstract String getServiceName();
 
@@ -30,7 +31,6 @@ public abstract class Pool<T> {
 
     private void initCluster() {
         this.dbServerUtilisation = getDbServerUtilisation();
-        this.populateDbServerUtilisation(); // add an entry for hosts that just appeared
         this.dbServerQueue = sortHostnamesByUtilisation(allConnections.keySet());
     }
 
@@ -60,10 +60,9 @@ public abstract class Pool<T> {
             this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         }
         catch (HazelcastException e) {
-            // still no Hazelcast, so let's make it a plain map and try again next time
+            // no Hazelcast, so let's make it a plain map and try again next time
             Logger.getAnonymousLogger().warning("Hazelcast malfunctioning: " + e.toString());
-            if (this.dbServerUtilisation != null) return this.dbServerUtilisation;
-            else this.dbServerUtilisation = new HashMap<>(); // fallback, so clients can still work
+            this.dbServerUtilisation = new HashMap<>(); // fallback, so clients can still work
         }
         populateDbServerUtilisation();
         return this.dbServerUtilisation;
@@ -75,8 +74,14 @@ public abstract class Pool<T> {
     }
 
     private void populateDbServerUtilisation() {
-        for (String key : allConnections.keySet()) {
-            dbServerUtilisation.putIfAbsent(key, 0);
+        for (String newHostname : allConnections.keySet()) {
+            if (! dbServerUtilisation.containsKey(newHostname)) {
+                // reset utilisation for all hostname to start everyone on equal terms
+                for (String oldHostname : dbServerUtilisation.keySet()) {
+                    dbServerUtilisation.put(oldHostname, 0);
+                }
+                dbServerUtilisation.put(newHostname, 0);
+            }
         }
     }
 

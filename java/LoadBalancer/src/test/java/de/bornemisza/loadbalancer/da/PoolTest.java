@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.OperationTimeoutException;
 
 import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
-import java.util.UUID;
 
 public class PoolTest {
 
@@ -142,6 +142,24 @@ public class PoolTest {
         }
     }
 
+    @Test
+    public void addNewHostForService() {
+        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        IMap<String, Integer> utilisationMap = new PseudoHazelcastMap<>();
+        for (String hostname : allConnections.keySet()) {
+            utilisationMap.put(hostname, wheel.nextInt(100) + 1);
+        }
+        Pool CUT = new PoolImpl(allConnections, hazelcast);
+        assertEquals(allConnections.size(), CUT.getDbServerUtilisation().size());
+
+        allConnections.put("host-4.domain.de", new Object()); // simulate added SRV-Record
+        CUT = new PoolImpl(allConnections, hazelcast);
+        Map<String, Integer> dbServerUtilisationMap = hazelcastMap;
+        assertEquals(allConnections.size(), dbServerUtilisationMap.size());
+        for (String key : dbServerUtilisationMap.keySet()) {
+            assertEquals(0, (int)dbServerUtilisationMap.get(key));
+        }
+    }
 
     public class PoolImpl extends Pool {
 

@@ -69,27 +69,10 @@ public class LoadBalancerTask {
     }
 
     void updateDbServerUtilisation(Set<String> utilisedHostnames, List<String> dnsHostnames) {
-        boolean newHostDetected = false;
-        for (String dnsHostname : dnsHostnames) {
-Logger.getAnonymousLogger().info("Checking " + dnsHostname + " in " + String.join(",", utilisedHostnames));
-            if (! utilisedHostnames.contains(dnsHostname)) {
-                newHostDetected = true;
-                this.dbServerUtilisation.put(dnsHostname, 0);
-Logger.getAnonymousLogger().info("New Host detected: " + dnsHostname);
-            }
-        }
         for (String hostname : utilisedHostnames) {
-            if (dnsHostnames.contains(hostname)) {
-                if (newHostDetected) {
-                    // start all hosts on equal terms
-                    this.dbServerUtilisation.put(hostname, 0);
-Logger.getAnonymousLogger().info("Resetted " + hostname);
-                }
-            }
-            else {
+            if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
                 this.dbServerUtilisation.remove(hostname);
-Logger.getAnonymousLogger().info("Removed " + hostname);
             }
         }
     }
