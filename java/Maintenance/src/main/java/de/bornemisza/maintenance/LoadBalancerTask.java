@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.LocalBean;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
@@ -24,17 +23,13 @@ import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.rest.da.HttpPool;
 
 @Stateless
-@LocalBean
 public class LoadBalancerTask {
-
-    @Inject
-    HazelcastInstance hazelcast;
-
-    @Inject
-    DnsProvider dnsProvider;
 
     @Resource
     private TimerService timerService;
+
+    @Inject
+    HazelcastInstance hazelcast;
 
     @Resource(name="http/Base")
     HttpPool pool;
@@ -63,7 +58,7 @@ public class LoadBalancerTask {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         try {
             String serviceName = pool.getServiceName();
-            List<String> dnsHostnames = this.dnsProvider.getHostnamesForService(serviceName);
+            List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
             updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
         }
         catch (NamingException ex) {
