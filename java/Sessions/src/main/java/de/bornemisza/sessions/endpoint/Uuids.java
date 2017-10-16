@@ -1,7 +1,5 @@
 package de.bornemisza.sessions.endpoint;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +35,7 @@ import org.javalite.http.Get;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
+import de.bornemisza.sessions.da.DnsResolver;
 
 @Path("/uuid")
 public class Uuids {
@@ -47,18 +46,22 @@ public class Uuids {
     @Inject
     HazelcastInstance hazelcast;
 
+    @Inject
+    DnsResolver dnsResolver;
+
     private final ObjectMapper mapper = new ObjectMapper();
     private List<String> allHostnames = new ArrayList<>();
-    private Map<String, String> ipToHostname = new HashMap<>();
+    private final Map<String, String> ipToHostname = new HashMap<>();
 
     private static final String CTOKEN_HEADER = "C-Token";
 
     public Uuids() { }
 
     // Constructor for Unit Tests
-    public Uuids(HttpPool basePool, HazelcastInstance hazelcast) {
+    public Uuids(HttpPool basePool, HazelcastInstance hazelcast, DnsResolver dnsResolver) {
         this.basePool = basePool;
         this.hazelcast = hazelcast;
+        this.dnsResolver = dnsResolver;
         init();
     }
 
@@ -86,14 +89,13 @@ public class Uuids {
         allHostnames = new ArrayList(basePool.getAllHostnames());
         Collections.sort(allHostnames);
         for (String hostname : allHostnames) {
-            InetAddress addr;
-            try {
-                addr = InetAddress.getByName("internal." + hostname);
-                ipToHostname.put(addr.getHostAddress(), hostname);
+            String ip = dnsResolver.getHostAddress("internal." + hostname);
+            if (ip != null) {
+                ipToHostname.put(ip, hostname);
             }
-            catch (UnknownHostException ex) {
+            else {
                 // should never happen, but if it does, we'll live with the default color
-                Logger.getAnonymousLogger().severe(ex.toString());
+                Logger.getAnonymousLogger().severe("Cannot resolve internal." + hostname);
             }
         }
         for (Member member : members) {
