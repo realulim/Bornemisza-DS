@@ -32,6 +32,7 @@
             display: flex;
             justify-content: center;
         }
+
         .centered-column:last-child {
             margin-bottom: 40px;
         }
@@ -100,6 +101,9 @@
         this.loopMode = false
         this.batchMode = false
         this.worker = null
+
+        // manage charts
+        this.chartCounter = 0
 
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
@@ -239,6 +243,18 @@
             self.appServerColor = event.data.appServerColor
             self.dbServerColor = event.data.dbServerColor
             self.uuidCount++
+            self.chartCounter++
+            if (self.chartCounter > 10) {
+                // redraw chart every 10th request
+                self.chartCounter = 0
+                self.observable.trigger(UPDATE_APPSERVERS_CHART, { data: appServerData })
+            }
         }
+
+        var appServerData = {
+            labels: ["110", "0", "10", "0", "0"],
+            series: [[110], [0], [10], [0], [0]]
+        }
+
     </script>
 </main>

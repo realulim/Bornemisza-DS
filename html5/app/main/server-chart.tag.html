@@ -2,7 +2,7 @@
 
     <section class="panel">
         <p class="panel-heading">
-            Notifications
+            Application Servers
         </p>
         <div class="panel-block" style="display: flex; flex-direction: column;">
             <div class="ct-chart ct-perfect-fifth">
@@ -15,10 +15,36 @@
             border-color: grey;
             border-radius: 5px 5px 0px 0px;
         }
+
         .panel-block {
             background-color: whitesmoke;
             border-color: grey;
             border-radius: 0px 0px 5px 5px;
+        }
+
+        .ct-series-a .ct-bar {
+            stroke: lightseagreen;
+            stroke-width: 60px;
+        }
+
+        .ct-series-b .ct-bar {
+            stroke: crimson;
+            stroke-width: 60px;
+        }
+
+        .ct-series-c .ct-bar {
+            stroke: gold;
+            stroke-width: 60px;
+        }
+
+        .ct-series-d .ct-bar {
+            stroke: royalblue;
+            stroke-width: 60px;
+        }
+
+        .ct-series-e .ct-bar {
+            stroke: lightsalmon;
+            stroke-width: 60px;
         }
     </style>
 
@@ -42,18 +68,24 @@
             document.body.appendChild(script)
         })
 
-        this.observable.on(START_SINGLE, function (opts) {
-            if (serverChart == null) serverChart = new Chartist.Line('.ct-chart', chartistData,
+        this.observable.on(UPDATE_APPSERVERS_CHART, function (opts) {
+            if (self.serverChart == null) {
+                // create a new Chart and configure it
+                self.serverChart = new Chartist.Bar('.ct-chart', opts.data,
                 {
-                    lineSmooth: true
+                    lineSmooth: true,
+                    seriesBarDistance: 80,
+                    axisX: {
+                        showGrid: false
+                    }
                 });
+            }
+            else self.serverChart.update(opts.data)
         })
 
-        var chartistData = {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-            series: [
-                [5, 2, 4, 2, 0]
-            ]
+        var startData = {
+            labels: ["0", "0", "0", "0", "0"],
+            series: [ [0], [0], [0], [0], [0] ]
         }
     </script>
 
