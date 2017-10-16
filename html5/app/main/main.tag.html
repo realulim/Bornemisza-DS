@@ -28,6 +28,10 @@
     </div>
 
     <style>
+        .tag {
+            border-radius: 5px;
+        }
+
         .centered-column {
             display: flex;
             justify-content: center;
@@ -250,7 +254,6 @@
             self.uuidCount++
             self.chartCounter++
             self.appServerColors[event.data.appServerColor]++
-            console.log(self.chartCounter + " / " + self.chartUpdateFrequency)
             if (self.chartCounter > self.chartUpdateFrequency) {
                 // redraw chart every 10th request
                 self.chartCounter = 0
