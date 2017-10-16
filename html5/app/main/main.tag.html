@@ -104,6 +104,8 @@
 
         // manage charts
         this.chartCounter = 0
+        this.appServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
+        this.chartUpdateFrequency = 0
 
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
@@ -121,18 +123,21 @@
 
         this.observable.on(START_SINGLE, function () {
             self.singleMode = true
+            self.chartUpdateFrequency = 0
         })
         this.observable.on(STOP_SINGLE, function () {
             self.singleMode = false
         })
         this.observable.on(START_LOOP, function () {
             self.loopMode = true
+            self.chartUpdateFrequency = 10
         })
         this.observable.on(STOP_LOOP, function () {
             self.loopMode = false
         })
         this.observable.on(START_BATCH, function () {
             self.batchMode = true
+            self.chartUpdateFrequency = 100
         })
         this.observable.on(STOP_BATCH, function () {
             self.batchMode = false
@@ -244,17 +249,34 @@
             self.dbServerColor = event.data.dbServerColor
             self.uuidCount++
             self.chartCounter++
-            if (self.chartCounter > 10) {
+            self.appServerColors[event.data.appServerColor]++
+            console.log(self.chartCounter + " / " + self.chartUpdateFrequency)
+            if (self.chartCounter > self.chartUpdateFrequency) {
                 // redraw chart every 10th request
                 self.chartCounter = 0
-                self.observable.trigger(UPDATE_APPSERVERS_CHART, { data: appServerData })
+                self.observable.trigger(UPDATE_APPSERVERS_CHART, {
+                    data: {
+                        labels: createLabels(self.appServerColors),
+                        series: createSeries(self.appServerColors)
+                    }
+                })
             }
         }
 
-        var appServerData = {
-            labels: ["110", "0", "10", "0", "0"],
-            series: [[110], [0], [10], [0], [0]]
+        function createLabels(colors) {
+            var labels = []
+            for (var key in colors) {
+                labels.push("" + colors[key])
+            }
+            return labels
         }
 
+        function createSeries(colors) {
+            var series = []
+            for (var key in colors) {
+                series.push([colors[key]])
+            }
+            return series
+        }
     </script>
 </main>

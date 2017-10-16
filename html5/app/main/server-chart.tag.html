@@ -73,20 +73,18 @@
                 // create a new Chart and configure it
                 self.serverChart = new Chartist.Bar('.ct-chart', opts.data,
                 {
-                    lineSmooth: true,
                     seriesBarDistance: 80,
                     axisX: {
-                        showGrid: false
+                        showGrid: false,
+                        offset: 20
+                    },
+                    axisY: {
+                        scaleMinSpace: 50
                     }
                 });
             }
             else self.serverChart.update(opts.data)
         })
-
-        var startData = {
-            labels: ["0", "0", "0", "0", "0"],
-            series: [ [0], [0], [0], [0], [0] ]
-        }
     </script>
 
 </server-chart>
