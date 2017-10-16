@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.EJB;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
@@ -29,7 +28,7 @@ public class LoadBalancerTask {
     @Inject
     HazelcastInstance hazelcast;
 
-    @EJB
+    @Inject
     DnsProvider dnsProvider;
 
     @Resource
