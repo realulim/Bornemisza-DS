@@ -9,11 +9,10 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.javalite.http.Get;
-import org.javalite.http.Post;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
@@ -21,8 +20,12 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.nio.Address;
 
+import org.javalite.http.Get;
+import org.javalite.http.Post;
+
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
+import de.bornemisza.sessions.JAXRSConfiguration;
 
 public class UuidsTest {
 
@@ -125,8 +128,8 @@ public class UuidsTest {
         }
     }
 
-    //@Test
-    public void getUuids() {
+    @Test
+    public void getUuids_old() {
         String json = "{\n" +
                       "    \"uuids\": [\n" +
                       "        \"6f4f195712bd76a67b2cba6737007f44\",\n" +
@@ -144,7 +147,40 @@ public class UuidsTest {
         assertEquals("Crimson", response.getHeaderString("DbServer")); // second color
     }
 
-    //@Test
+    @Test
+    public void getUuids() {
+        String firstJson = "{\n" +
+                      "    \"uuids\": [\n" +
+                      "        \"8d0866239666bb5ad6fc5dce8297eef7\",\n" +
+                      "        \"c8fedfee503b1e6d52e3a52e10be5d1b\",\n" +
+                      "        \"8d0866239666bb5ad6fc5dce8297fe70\"\n" +
+                      "    ]\n" +
+                      "}";
+        String secondJson = "{\n" +
+                      "    \"uuids\": [\n" +
+                      "        \"c8fedfee503b1e6d52e3a52e10be6560\"\n" +
+                      "    ]\n" +
+                      "}";
+        String thirdJson = "{\n" +
+                      "    \"uuids\": [\n" +
+                      "        \"8d0866239666bb5ad6fc5dce829809fa\"\n" +
+                      "    ]\n" +
+                      "}";
+        String cookie = "MyCookie";
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(firstJson).thenReturn(secondJson).thenReturn(thirdJson);
+        Response response = CUT.getUuids(cookie, 3);
+        assertEquals(200, response.getStatus());
+        assertEquals(firstJson, response.getEntity());
+        assertEquals("Gold", response.getHeaderString("AppServer")); // third color
+        
+        response = CUT.getUuids(cookie, 1);
+        assertEquals("Crimson", response.getHeaderString("DbServer")); // second color
+        response = CUT.getUuids(cookie, 1);
+        assertEquals("LightSeaGreen", response.getHeaderString("DbServer")); // first color
+    }
+
+    @Test
     public void getUuids_moreMembersThanColors() {
         String json = "{\n" +
                       "    \"uuids\": [\n" +
@@ -174,61 +210,28 @@ public class UuidsTest {
         assertEquals("LightSalmon", response.getHeaderString("DbServer")); // last color
     }
 
-//    @Test
-//    public void getUuids() {
-//        String firstJson = "{\n" +
-//                      "    \"uuids\": [\n" +
-//                      "        \"8d0866239666bb5ad6fc5dce8297eef7\",\n" +
-//                      "        \"c8fedfee503b1e6d52e3a52e10be5d1b\",\n" +
-//                      "        \"8d0866239666bb5ad6fc5dce8297fe70\"\n" +
-//                      "    ]\n" +
-//                      "}";
-//        String secondJson = "{\n" +
-//                      "    \"uuids\": [\n" +
-//                      "        \"c8fedfee503b1e6d52e3a52e10be6560\"\n" +
-//                      "    ]\n" +
-//                      "}";
-//        String thirdJson = "{\n" +
-//                      "    \"uuids\": [\n" +
-//                      "        \"8d0866239666bb5ad6fc5dce829809fa\"\n" +
-//                      "    ]\n" +
-//                      "}";
-//        String cookie = "MyCookie";
-//        when(get.responseCode()).thenReturn(200);
-//        when(get.text()).thenReturn(firstJson).thenReturn(secondJson).thenReturn(thirdJson);
-//        Response response = CUT.getUuids(cookie, 3);
-//        assertEquals(200, response.getStatus());
-//        assertEquals(firstJson, response.getEntity());
-//        assertEquals("Gold", response.getHeaderString("AppServer")); // third color
-//        
-//        response = CUT.getUuids(cookie, 1);
-//        assertEquals("Crimson", response.getHeaderString("DbServer")); // second color
-//        response = CUT.getUuids(cookie, 1);
-//        assertEquals("LightSeaGreen", response.getHeaderString("DbServer")); // first color
-//    }
-//
-//    @Test
-//    public void getUuids_moreDbServersThanColors() {
-//        when(get.responseCode()).thenReturn(200);
-//        String cookie = "Cookie";
-//        when(get.text()).thenReturn(getJsonResponse(0)).thenReturn(getJsonResponse(1))
-//                .thenReturn(getJsonResponse(2)).thenReturn(getJsonResponse(3))
-//                .thenReturn(getJsonResponse(4)).thenReturn(getJsonResponse(5));
-//        for (int j = 0; j < JAXRSConfiguration.COLORS.size(); j++) {
-//            Response response = CUT.getUuids(cookie, 1);
-//            System.out.println(response.getHeaderString("DbServer"));
-//            assertEquals(JAXRSConfiguration.COLORS.get(j), response.getHeaderString("DbServer"));
-//        }
-//        Response response = CUT.getUuids(cookie, 1);
-//        assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
-//    }
-//
-//    private String getJsonResponse(int prefix) {
-//        return "{\n"
-//               + "    \"uuids\": [\n"
-//               + "        \"" + prefix + "c8fedfee503b1e6d52e3a52e10be656\"\n"
-//               + "    ]\n"
-//               + "}";
-//    }
+    @Test
+    public void getUuids_moreDbServersThanColors() {
+        when(get.responseCode()).thenReturn(200);
+        String cookie = "Cookie";
+        when(get.text()).thenReturn(getJsonResponse(0)).thenReturn(getJsonResponse(1))
+                .thenReturn(getJsonResponse(2)).thenReturn(getJsonResponse(3))
+                .thenReturn(getJsonResponse(4)).thenReturn(getJsonResponse(5));
+        for (int j = 0; j < JAXRSConfiguration.COLORS.size(); j++) {
+            Response response = CUT.getUuids(cookie, 1);
+            System.out.println(response.getHeaderString("DbServer"));
+            assertEquals(JAXRSConfiguration.COLORS.get(j), response.getHeaderString("DbServer"));
+        }
+        Response response = CUT.getUuids(cookie, 1);
+        assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
+    }
+
+    private String getJsonResponse(int prefix) {
+        return "{\n"
+               + "    \"uuids\": [\n"
+               + "        \"" + prefix + "c8fedfee503b1e6d52e3a52e10be656\"\n"
+               + "    ]\n"
+               + "}";
+    }
 
 }
