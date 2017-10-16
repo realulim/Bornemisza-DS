@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
@@ -25,14 +26,14 @@ import de.bornemisza.rest.da.HttpPool;
 @Stateless
 public class LoadBalancerTask {
 
-    @Resource
-    private TimerService timerService;
-
     @Inject
     HazelcastInstance hazelcast;
 
-    @Inject
+    @EJB
     DnsProvider dnsProvider;
+
+    @Resource
+    private TimerService timerService;
 
     @Resource(name="http/Base")
     HttpPool pool;
