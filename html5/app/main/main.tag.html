@@ -1,6 +1,6 @@
 <main>
 
-    <div class="tags has-addons">
+    <div class="centered-column tags has-addons">
         <span class="tag is-large is-dark">UUID</span>
         <span class="tag is-large is-uuid" style="padding-right: 0px;">{uuid}</span>
         <span class="tag is-large control" style="padding-left: 18px;">
@@ -10,10 +10,12 @@
         </span>
     </div>
 
-    <div if="{appServerColor}" class="tags">
-        <span class="tag is-large is-bold bg-{appServerColor}">Application Server</span>
-        <span class="tag is-medium is-bold is-uuid">{uuidCount}</span>
-        <span class="tag is-large is-bold bg-{dbServerColor}">Database Server</span>
+    <div class="centered-column tags has-addons">
+        <div if="{appServerColor}" class="tags">
+            <span class="tag is-large is-bold bg-{appServerColor}">Application Server</span>
+            <span class="tag is-medium is-bold is-uuid">{uuidCount}</span>
+            <span class="tag is-large is-bold bg-{dbServerColor}">Database Server</span>
+        </div>
     </div>
 
     <div if="{justMarried}" class="is-size-5 msg msg-good fade-in-out">
@@ -26,6 +28,14 @@
     </div>
 
     <style>
+        .centered-column {
+            display: flex;
+            justify-content: center;
+        }
+        .centered-column:last-child {
+            margin-bottom: 40px;
+        }
+
         a {
             color: var(--dark);
         }

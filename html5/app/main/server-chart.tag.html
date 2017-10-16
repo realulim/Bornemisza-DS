@@ -1,7 +1,33 @@
 <server-chart>
 
+    <section class="panel">
+        <p class="panel-heading">
+            Notifications
+        </p>
+        <div class="panel-block" style="display: flex; flex-direction: column;">
+            <div class="ct-chart ct-perfect-fifth">
+            </div>
+    </section>
+
+    <style>
+        .panel-heading {
+            background-color: #E5E4E2;
+            border-color: grey;
+            border-radius: 5px 5px 0px 0px;
+        }
+        .panel-block {
+            background-color: whitesmoke;
+            border-color: grey;
+            border-radius: 0px 0px 5px 5px;
+        }
+    </style>
+
     <script>
-        this.on('mount', function () {
+        this.mixin(ObservableMixin)
+        var self = this
+        var serverChart = null
+
+        this.on("mount", function () {
             var script = document.createElement("script");
             script.onload = function () {
                 var link = document.createElement("link")
@@ -15,6 +41,20 @@
             script.src = "https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"
             document.body.appendChild(script)
         })
+
+        this.observable.on(START_SINGLE, function (opts) {
+            if (serverChart == null) serverChart = new Chartist.Line('.ct-chart', chartistData,
+                {
+                    lineSmooth: true
+                });
+        })
+
+        var chartistData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            series: [
+                [5, 2, 4, 2, 0]
+            ]
+        }
     </script>
 
 </server-chart>
