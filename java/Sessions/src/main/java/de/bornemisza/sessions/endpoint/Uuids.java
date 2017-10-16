@@ -1,11 +1,14 @@
 package de.bornemisza.sessions.endpoint;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -34,10 +37,6 @@ import org.javalite.http.Get;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import java.io.IOException;
-import java.util.Map;
-import java.util.logging.Logger;
-import org.codehaus.jackson.JsonNode;
 
 @Path("/uuid")
 public class Uuids {
@@ -50,7 +49,7 @@ public class Uuids {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private List<String> allHostnames = new ArrayList<>();
-    private final List<String> allUuidPrefixes = new ArrayList<>();
+    private Map<String, String> ipToHostname = new HashMap<>();
 
     private static final String CTOKEN_HEADER = "C-Token";
 
@@ -86,10 +85,21 @@ public class Uuids {
         int myIndex = 0;
         allHostnames = new ArrayList(basePool.getAllHostnames());
         Collections.sort(allHostnames);
+        for (String hostname : allHostnames) {
+            InetAddress addr;
+            try {
+                addr = InetAddress.getByName("internal." + hostname);
+                ipToHostname.put(addr.getHostAddress(), hostname);
+            }
+            catch (UnknownHostException ex) {
+                // should never happen, but if it does, we'll live with the default color
+                Logger.getAnonymousLogger().severe(ex.toString());
+            }
+        }
         for (Member member : members) {
             if (member.getUuid().equals(myUuid)) {
                 if (myIndex >= JAXRSConfiguration.COLORS.size()) {
-                    // use default color for any overflow nodes
+                    // use default color for any overflow
                     JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.DEFAULT_COLOR;
                 }
                 else {
@@ -110,16 +120,16 @@ public class Uuids {
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
-for (String header : get.headers().keySet()) {
-Logger.getAnonymousLogger().info(header + ": " + get.headers().get(header));
-}
         if (get.responseCode() != 200) {
             throw new WebApplicationException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
         }
+        String header = "127.0.0.1";
+        List<String> backendHeaders = get.headers().get("X-Backend");
+        if (backendHeaders != null) header = backendHeaders.get(0);
         return Response.ok()
                 .header("AppServer", JAXRSConfiguration.MY_COLOR)
-                .header("DbServer", getDbServerColor(httpBase))
+                .header("DbServer", getDbServerColor(header))
                 .entity(get.text()).build();
     }
 
@@ -129,38 +139,13 @@ Logger.getAnonymousLogger().info(header + ": " + get.headers().get(header));
         else return value.equals("null");
     }
 
-    private String getDbServerColor(Http http) {
-        String urlWithoutScheme = http.getBaseUrl().split("://")[1];
-        String hostname = urlWithoutScheme.substring(0, urlWithoutScheme.indexOf("/"));
+    private String getDbServerColor(String ipAddressHeader) {
+        String hostname = ipToHostname.get(ipAddressHeader);
+        if (hostname == null) return JAXRSConfiguration.DEFAULT_COLOR;
         int index = allHostnames.indexOf(hostname);
-        if (index == -1) {
-            throw new WebApplicationException(
-                    Response.serverError()
-                    .entity("Hostname " + hostname + " not found in " + String.join(", ", allHostnames))
-                    .build());
-        }
-        return JAXRSConfiguration.COLORS.get(index);
+        if (index == -1) return JAXRSConfiguration.DEFAULT_COLOR;
+        else return JAXRSConfiguration.COLORS.get(index);
     }
-
-//    private String getDbServerColor(String jsonResponse) {
-//        JsonNode root;
-//        try {
-//            root = mapper.readTree(jsonResponse);
-//        }
-//        catch (IOException ioe) {
-//            throw new WebApplicationException(
-//                    Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioe.toString()).build());
-//        }
-//        String uuidPrefix = root.get("uuids").get(0).asText().substring(0, 20);
-//        int index = allUuidPrefixes.indexOf(uuidPrefix);
-//        if (index == -1) {
-//            allUuidPrefixes.add(uuidPrefix);
-//            Collections.sort(allUuidPrefixes);
-//            index = allUuidPrefixes.indexOf(uuidPrefix);
-//        }
-//        if (index >= JAXRSConfiguration.COLORS.size()) return JAXRSConfiguration.DEFAULT_COLOR;
-//        else return JAXRSConfiguration.COLORS.get(index);
-//    }
 
     private static class MemberComparator implements Comparator<Member> {
         @Override public int compare(Member m1, Member m2) {
