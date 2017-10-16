@@ -7,8 +7,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
@@ -21,13 +24,27 @@ import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
 
+@Stateless
 public class DnsProvider {
 
-    private final ICache<String, List<String>> cache;
+    @Inject
+    HazelcastInstance hazelcast;
 
-    public DnsProvider(HazelcastInstance hazelcast) {
+    private ICache<String, List<String>> cache;
+
+    public DnsProvider() {
+    }
+
+    @PostConstruct
+    private void init() {
         ICacheManager cacheManager = hazelcast.getCacheManager();
         this.cache = cacheManager.getCache("DatabaseServers");
+    }
+
+    // Constructor for Unit Tests or non-beans like PoolFactory
+    public DnsProvider(HazelcastInstance hazelcast) {
+        this.hazelcast = hazelcast;
+        init();
     }
 
     public List<String> getHostnamesForService(String service) throws NamingException {

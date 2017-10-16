@@ -31,6 +31,9 @@ public class LoadBalancerTask {
     @Inject
     HazelcastInstance hazelcast;
 
+    @Inject
+    DnsProvider dnsProvider;
+
     @Resource(name="http/Base")
     HttpPool pool;
 
@@ -58,7 +61,7 @@ public class LoadBalancerTask {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         try {
             String serviceName = pool.getServiceName();
-            List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
+            List<String> dnsHostnames = this.dnsProvider.getHostnamesForService(serviceName);
             updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
         }
         catch (NamingException ex) {
