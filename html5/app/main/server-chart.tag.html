@@ -73,7 +73,7 @@
                 // create a new Chart and configure it
                 self.serverChart = new Chartist.Bar('.ct-chart', opts.data,
                     {
-                        seriesBarDistance: 80,
+                        seriesBarDistance: 119,
                         axisX: {
                             showGrid: false,
                             offset: 20
@@ -81,7 +81,8 @@
                         axisY: {
                             scaleMinSpace: 50
                         }
-                    });
+                    }
+                );
             }
             else self.serverChart.update(opts.data)
         })
