@@ -22,29 +22,31 @@
             border-radius: 0px 0px 5px 5px;
         }
 
+        @media screen and (max-width: 1400px) {
+            .ct-bar {
+                stroke-width: 20px;
+            }
+        }
+        @media screen and (min-width: 1401px) {
+            .ct-bar {
+                stroke-width: 60px;
+            }
+        }
+
         .ct-series-a .ct-bar {
             stroke: lightseagreen;
-            stroke-width: 60px;
         }
-
         .ct-series-b .ct-bar {
             stroke: crimson;
-            stroke-width: 60px;
         }
-
         .ct-series-c .ct-bar {
             stroke: gold;
-            stroke-width: 60px;
         }
-
         .ct-series-d .ct-bar {
             stroke: royalblue;
-            stroke-width: 60px;
         }
-
         .ct-series-e .ct-bar {
             stroke: lightsalmon;
-            stroke-width: 60px;
         }
     </style>
 
@@ -73,7 +75,7 @@
                 // create a new Chart and configure it
                 self.serverChart = new Chartist.Bar('.ct-chart', opts.data,
                     {
-                        seriesBarDistance: 119,
+                        seriesBarDistance: 120,
                         axisX: {
                             showGrid: false,
                             offset: 20
@@ -82,7 +84,20 @@
                             scaleMinSpace: 50
                         }
                     }
-                );
+                    , [
+                    // Options override for media < 1600px
+                    ['screen and (max-width: 1600px)', {
+                        seriesBarDistance: 100
+                    }],
+                    ['screen and (max-width: 1300px)', {
+                        seriesBarDistance: 80
+                    }],
+                    ['screen and (max-width: 1000px)', {
+                        seriesBarDistance: 60
+                    }]
+                ]
+
+                    )
             }
             else self.serverChart.update(opts.data)
         })
