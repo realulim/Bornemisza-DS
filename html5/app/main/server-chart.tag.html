@@ -22,14 +22,61 @@
             border-radius: 0px 0px 5px 5px;
         }
 
-        @media screen and (max-width: 1400px) {
+        .ct-label {
+            font-size: 1em;
+            color: var(--dark);
+        }
+        .ct-bar {
+            stroke-width: 60px;
+        }
+        @media screen and (max-width: 1600px) {
             .ct-bar {
-                stroke-width: 20px;
+                stroke-width: 50px;
             }
         }
-        @media screen and (min-width: 1401px) {
+        @media screen and (max-width: 1280px) {
+            .ct-bar {
+                stroke-width: 40px;
+            }
+        }
+        @media screen and (max-width: 900px) {
+            .ct-bar {
+                stroke-width: 30px;
+            }
+        }
+        @media screen and (max-width: 768px) {
+            .ct-bar {
+                stroke-width: 80px;
+            }
+        }
+        @media screen and (max-width: 720px) {
+            .ct-bar {
+                stroke-width: 70px;
+            }
+        }
+        @media screen and (max-width: 680px) {
             .ct-bar {
                 stroke-width: 60px;
+            }
+        }
+        @media screen and (max-width: 620px) {
+            .ct-bar {
+                stroke-width: 50px;
+            }
+        }
+        @media screen and (max-width: 500px) {
+            .ct-bar {
+                stroke-width: 45px;
+            }
+        }
+        @media screen and (max-width: 450px) {
+            .ct-bar {
+                stroke-width: 40px;
+            }
+        }
+        @media screen and (max-width: 400px) {
+            .ct-bar {
+                stroke-width: 30px;
             }
         }
 
@@ -75,7 +122,7 @@
                 // create a new Chart and configure it
                 self.serverChart = new Chartist.Bar('.ct-chart', opts.data,
                     {
-                        seriesBarDistance: 120,
+                        seriesBarDistance: 119,
                         axisX: {
                             showGrid: false,
                             offset: 20
@@ -85,15 +132,66 @@
                         }
                     }
                     , [
-                    // Options override for media < 1600px
-                    ['screen and (max-width: 1600px)', {
-                        seriesBarDistance: 100
-                    }],
-                    ['screen and (max-width: 1300px)', {
+                    // responsive Option Overrides
+                    ['screen and (max-width: 1280px)', {
                         seriesBarDistance: 80
                     }],
-                    ['screen and (max-width: 1000px)', {
-                        seriesBarDistance: 60
+                    ['screen and (max-width: 1200px)', {
+                        seriesBarDistance: 73
+                    }],
+                    ['screen and (max-width: 1100px)', {
+                        seriesBarDistance: 65
+                    }],
+                    ['screen and (max-width: 1024px)', {
+                        seriesBarDistance: 58
+                    }],
+                    ['screen and (max-width: 968px)', {
+                        seriesBarDistance: 53
+                    }],
+                    ['screen and (max-width: 900px)', {
+                        seriesBarDistance: 48
+                    }],
+                    ['screen and (max-width: 840px)', {
+                        seriesBarDistance: 43
+                    }],
+                    ['screen and (max-width: 790px)', {
+                        seriesBarDistance: 39
+                    }],
+                    ['screen and (max-width: 768px)', {
+                        seriesBarDistance: 123
+                    }],
+                    ['screen and (max-width: 720px)', {
+                        seriesBarDistance: 113
+                    }],
+                    ['screen and (max-width: 680px)', {
+                        seriesBarDistance: 106
+                    }],
+                    ['screen and (max-width: 640px)', {
+                        seriesBarDistance: 98
+                    }],
+                    ['screen and (max-width: 640px)', {
+                        seriesBarDistance: 93
+                    }],
+                    ['screen and (max-width: 590px)', {
+                        seriesBarDistance: 87
+                    }],
+                    ['screen and (max-width: 560px)', {
+                        seriesBarDistance: 82
+                    }],
+                    ['screen and (max-width: 530px)', {
+                        seriesBarDistance: 76
+                    }],
+                    ['screen and (max-width: 500px)', {
+                        seriesBarDistance: 70
+                    }],
+                    ['screen and (max-width: 480px)', {
+                        seriesBarDistance: 65
+                    }],
+                    ['screen and (max-width: 450px)', {
+                        seriesBarDistance: 59
+                    }],
+                    ['screen and (max-width: 400px)', {
+                        seriesBarDistance: 49
                     }]
                 ]
 
