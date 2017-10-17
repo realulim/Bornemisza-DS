@@ -107,6 +107,7 @@
         // manage charts
         this.chartCounter = 0
         this.appServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
+        this.dbServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
         this.chartUpdateFrequency = 0
 
         this.observable.on(JUST_MARRIED, function (opts) {
@@ -252,13 +253,20 @@
             self.uuidCount++
             self.chartCounter++
             self.appServerColors[event.data.appServerColor]++
+            self.dbServerColors[event.data.dbServerColor]++
             if (self.chartCounter > self.chartUpdateFrequency) {
-                // redraw chart every nth request
+                // redraw charts every nth request
                 self.chartCounter = 0
                 self.observable.trigger(UPDATE_APPSERVERS_CHART, {
                     data: {
                         labels: createLabels(self.appServerColors),
                         series: createSeries(self.appServerColors)
+                    }
+                })
+                self.observable.trigger(UPDATE_DBSERVERS_CHART, {
+                    data: {
+                        labels: createLabels(self.dbServerColors),
+                        series: createSeries(self.dbServerColors)
                     }
                 })
             }

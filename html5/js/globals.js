@@ -16,7 +16,8 @@ var START_LOOP = "Start Loop Requests Mode";
 var STOP_LOOP = "Stop Loop Requests Mode";
 var START_BATCH = "Start Batch Requests Mode";
 var STOP_BATCH = "Stop Batch Requests Mode";
-var UPDATE_APPSERVERS_CHART = "Update AppServers Chart";
+var UPDATE_APPSERVERS_CHART = "Update Application Servers Chart";
+var UPDATE_DBSERVERS_CHART = "Update Database Servers Chart";
 
 // Functions
 function setBackground(color) {

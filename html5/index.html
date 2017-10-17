@@ -62,8 +62,8 @@
             riot.mount(document.getElementById("aside-content"), "aside")
             riot.mount(document.getElementById("top-content"), "user-menu")
             riot.mount(document.getElementById("slot1"), "main")
-            riot.mount(document.getElementById("slot2"), "server-chart")
-            riot.mount(document.getElementById("slot3"), "server-chart")
+            riot.mount(document.getElementById("slot2"), "server-chart", { type: "app" })
+            riot.mount(document.getElementById("slot3"), "server-chart", { type: "db" })
         })
         console.log("Router running...")
 
