@@ -1,6 +1,7 @@
 install_basics_pkgs:
   pkg.installed:
     - pkgs:
+      - htop
       - nano
       - net-tools
       - nmap-ncat
