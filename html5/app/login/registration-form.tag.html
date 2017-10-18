@@ -1,5 +1,5 @@
 <registration-form>
-    <div class="login">
+    <div ref="registration" class="login">
         <h1>Member Registration</h1>
         <form onsubmit="{handleRegistration}">
             <div class="field">
@@ -35,10 +35,74 @@
         </form>
     </div>
 
+    <div if="{regFailed}" class="is-size-5 msg msg-bad">
+        {this.errorMessage}
+        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
+    </div>
+    <div if="{regSuccess}" class="is-size-5 msg msg-good">
+        Registration successful - please check your E-Mail and confirm your Membership
+        <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
+    </div>
+    <div if="{regError}" class="is-size-5 msg msg-bad">
+        Unexpected Error - please try again later.
+        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
+    </div>
+
     <script>
+        var self = this
+        this.mixin(ObservableMixin)
+        this.regFailed = false
+        this.regSuccess = false
+        this.regError = false
+        this.errorMessage = "Unexpected Error - please try again later."
+
+        this.hideAllMessages = () => {
+            this.regFailed = false
+            this.regSuccess = false
+            this.regError = false
+        }
+
+        this.observable.on(REGISTRATION_FAILED, function () {
+            shakeElement(self.refs.registration)
+            self.regFailed = true
+            self.update()
+        })
+        this.observable.on(REGISTRATION_ERROR, function (opts) {
+            console.log(REGISTRATION_ERROR + ": " + opts.status + " " + opts.response)
+            self.regError = true
+            self.update()
+        })
+
         this.handleRegistration = (event) => {
             event.preventDefault()
-            console.log("Registration TBD")
+            this.hideAllMessages()
+            var password = self.refs.reg_password1.value
+            if (password !== self.refs.reg_password2.value) {
+                self.observable.trigger(REGISTRATION_FAILED)
+                self.errorMessage = "Passwords don't match";
+            }
+            else if (password.length < 4) {
+                self.observable.trigger(REGISTRATION_FAILED)
+                self.errorMessage = "Password has less than 4 characters";
+            }
+            else {
+                self.observable.trigger(LOADING_IN_PROGRESS)
+                var user = {
+                    name: self.refs.reg_user.value,
+                    password: password,
+                    email: self.refs.reg_email.value
+                }
+                qwest.post(config.urlUsers, user)
+                    .then(function (xhr, response) {
+                        self.observable.trigger(LOADING_DONE)
+                        self.regSuccess = true
+                    })
+                    .catch(function (error, xhr, response) {
+                        self.observable.trigger(LOADING_DONE)
+                        self.observable.trigger(REGISTRATION_ERROR, { status: xhr.status, response: xhr.responseText })
+                    })
+                console.log("Sent AJAX request to " + config.urlUsers)
+            }
         }
     </script>
 </registration-form>

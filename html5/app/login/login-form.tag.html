@@ -1,5 +1,5 @@
 <login-form>
-    <div class="login">
+    <div ref="login" class="login">
         <h1>Member Authentication</h1>
         <form onsubmit="{handleLogin}">
             <div class="field">
@@ -46,7 +46,7 @@
             this.refs.user.focus()
         })
         this.observable.on(AUTH_FAILED, function () {
-            shakeElement(self.opts.shake)
+            shakeElement(self.refs.login)
             self.authFailed = true
             self.update()
         })
