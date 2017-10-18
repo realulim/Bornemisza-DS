@@ -31,7 +31,7 @@
             stroke-width: 60px;
         }
 
-        @media screen and (max-width: 1600px) {
+        @media screen and (max-width: 1585px) {
             .ct-bar {
                 stroke-width: 50px;
             }
@@ -69,25 +69,37 @@
 
         @media screen and (max-width: 620px) {
             .ct-bar {
-                stroke-width: 50px;
+                stroke-width: 45px;
             }
         }
 
         @media screen and (max-width: 500px) {
             .ct-bar {
-                stroke-width: 45px;
+                stroke-width: 35px;
             }
         }
 
         @media screen and (max-width: 450px) {
             .ct-bar {
-                stroke-width: 40px;
+                stroke-width: 30px;
             }
         }
 
         @media screen and (max-width: 400px) {
             .ct-bar {
                 stroke-width: 30px;
+            }
+        }
+
+        @media screen and (max-width: 375px) {
+            .ct-bar {
+                stroke-width: 20px;
+            }
+        }
+
+        @media screen and (max-width: 340px) {
+            .ct-bar {
+                stroke-width: 15px;
             }
         }
 
@@ -139,7 +151,7 @@
                 self.serverChart = new Chartist.Bar('.ct-chart', opts.data,
                     {
                         // Options
-                        seriesBarDistance: 119,
+                        seriesBarDistance: 120,
                         axisX: {
                             showGrid: false,
                             offset: 20
@@ -150,6 +162,12 @@
                     }
                     , [
                         // responsive Option Overrides
+                        ['screen and (max-width: 1585px)', {
+                            seriesBarDistance: 94
+                        }],
+                        ['screen and (max-width: 1440px)', {
+                            seriesBarDistance: 84
+                        }],
                         ['screen and (max-width: 1280px)', {
                             seriesBarDistance: 80
                         }],
@@ -181,13 +199,10 @@
                             seriesBarDistance: 113
                         }],
                         ['screen and (max-width: 680px)', {
-                            seriesBarDistance: 106
+                            seriesBarDistance: 105
                         }],
                         ['screen and (max-width: 640px)', {
                             seriesBarDistance: 98
-                        }],
-                        ['screen and (max-width: 640px)', {
-                            seriesBarDistance: 93
                         }],
                         ['screen and (max-width: 590px)', {
                             seriesBarDistance: 87
@@ -205,10 +220,16 @@
                             seriesBarDistance: 65
                         }],
                         ['screen and (max-width: 450px)', {
-                            seriesBarDistance: 59
+                            seriesBarDistance: 50
                         }],
                         ['screen and (max-width: 400px)', {
-                            seriesBarDistance: 49
+                            seriesBarDistance: 43
+                        }],
+                        ['screen and (max-width: 375px)', {
+                            seriesBarDistance: 38
+                        }],
+                        ['screen and (max-width: 340px)', {
+                            seriesBarDistance: 32
                         }]
                     ]
                 )
