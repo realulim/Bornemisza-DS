@@ -92,12 +92,28 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         verify(uuidMap).remove(uuidCaptor.getValue());
     }
 
-    protected void onMessage_uuidClash_doNotSendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
+    protected void onMessage_uuidExists_doNotSendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
         String previousValue = UUID.randomUUID().toString();
         when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
-
+        when(uuidMap.get(previousValue)).thenReturn(user);
         CUT.onMessage(msg);
 
+        verifyNoMoreInteractions(mailSender);
+    }
+
+    protected void onMessage_uuidExists_sendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
+        String previousValue = UUID.randomUUID().toString();
+        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
+        User userWithDifferentMailAddress = new User();
+        userWithDifferentMailAddress.setName(user.getName());
+        userWithDifferentMailAddress.setPassword(user.getPassword());
+        InternetAddress otherRecipient = new InternetAddress("user@otheraddress.de");
+        userWithDifferentMailAddress.setEmail(otherRecipient);
+        when(uuidMap.get(previousValue)).thenReturn(userWithDifferentMailAddress);
+        CUT.onMessage(msg);
+
+        verify(uuidMap.put(previousValue, userWithDifferentMailAddress, 24, TimeUnit.HOURS));
+        verify(mailSender).sendMail(eq(otherRecipient), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(mailSender);
     }
 

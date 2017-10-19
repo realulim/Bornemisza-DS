@@ -34,8 +34,13 @@ public class NewUserAccountListenerTest extends AbstractConfirmationMailListener
     }
 
     @Test
-    public void onMessage_uuidClash_doNotSendAdditionalMail() throws AddressException, NoSuchProviderException {
-        onMessage_uuidClash_doNotSendAdditionalMail_Base();
+    public void onMessage_uuidExists_doNotSendAdditionalMail() throws AddressException, NoSuchProviderException {
+        onMessage_uuidExists_doNotSendAdditionalMail_Base();
+    }
+
+    @Test
+    public void onMessage_uuidExists_sendAdditionalMailIfAddressDifferent() throws AddressException, NoSuchProviderException {
+        onMessage_uuidExists_doNotSendAdditionalMail_Base();
     }
 
 }

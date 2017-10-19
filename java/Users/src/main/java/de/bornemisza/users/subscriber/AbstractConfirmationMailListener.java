@@ -82,7 +82,7 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
         String uuid = UUID.randomUUID().toString();
         Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString() + " with " + uuid);
         String previousValue = this.userIdMap.putIfAbsent(user.getId(), uuid, 24, TimeUnit.HOURS);
-        if (previousValue == null) {
+        if (previousValue == null || emailChanged(previousValue, user)) {
             // first map entry for this user
             this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
             boolean mailSent = sendConfirmationMail(user, uuid);
@@ -95,6 +95,11 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
             Logger.getAnonymousLogger().info("Skipping Request Handling, it is already being worked on.");
         }
         Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + userIdMap.size());
+    }
+
+    private boolean emailChanged(String currentUuid, User newUserData) {
+        User currentUserData = this.uuidMap.get(currentUuid);
+        return !currentUserData.getEmail().equals(newUserData.getEmail());
     }
 
     private boolean sendConfirmationMail(User user, String uuid) {
