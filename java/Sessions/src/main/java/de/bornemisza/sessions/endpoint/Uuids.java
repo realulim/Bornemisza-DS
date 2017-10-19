@@ -29,7 +29,6 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.javalite.http.Get;
 
 import de.bornemisza.rest.Http;
@@ -49,7 +48,6 @@ public class Uuids {
     @Inject
     DnsResolver dnsResolver;
 
-    private final ObjectMapper mapper = new ObjectMapper();
     private List<String> allHostnames = new ArrayList<>();
     private final Map<String, String> ipToHostname = new HashMap<>();
 
