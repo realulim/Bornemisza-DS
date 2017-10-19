@@ -1,4 +1,5 @@
 <registration-form>
+
     <div ref="registration" class="login">
         <h1>Member Registration</h1>
         <form onsubmit="{handleRegistration}">
@@ -35,10 +36,6 @@
         </form>
     </div>
 
-    <div if="{regSuccess}" class="is-size-5 msg msg-good">
-        Welcome {regSuccess}! Please check your E-Mail to confirm your Membership.
-        <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
-    </div>
     <div if="{regFailed}" class="is-size-5 msg msg-bad">
         {this.errorMessage}
         <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
@@ -51,25 +48,16 @@
     <script>
         var self = this
         this.mixin(ObservableMixin)
+
         this.regFailed = false
-        this.regSuccess = false
         this.regError = false
         this.errorMessage = "Unexpected Error - please try again later."
 
         this.hideAllMessages = () => {
             this.regFailed = false
-            this.regSuccess = false
             this.regError = false
         }
 
-        this.observable.on(REGISTRATION_SUCCESS, function (opts) {
-            self.regSuccess = opts.name
-            self.update()
-            setTimeout(function () {
-                self.regSuccess = false
-                self.update()
-            }, 5000)
-        })
         this.observable.on(REGISTRATION_FAILED, function () {
             shakeElement(self.refs.registration)
             self.regFailed = true
