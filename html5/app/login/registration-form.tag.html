@@ -101,7 +101,7 @@
                     .catch(function (error, xhr, response) {
                         self.observable.trigger(LOADING_DONE)
                         self.errorMessage = user.name + " already exists!"
-                        if (xhr.status === 401) self.observable.trigger(REGISTRATION_FAILED)
+                        if (xhr.status === 409) self.observable.trigger(REGISTRATION_FAILED)
                         else self.observable.trigger(REGISTRATION_ERROR, { status: xhr.status, response: xhr.responseText })
                     })
                 console.log("Sent AJAX request to " + config.urlUsers)
