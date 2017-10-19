@@ -82,8 +82,7 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
         String uuid = UUID.randomUUID().toString();
         Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString() + " with " + uuid);
         String previousValue = this.userIdMap.putIfAbsent(user.getId(), uuid, 24, TimeUnit.HOURS);
-        if (previousValue == null || emailChanged(previousValue, user)) {
-            // first map entry for this user
+        if (firstEntry(previousValue, uuid) || emailChanged(previousValue, user)) {
             this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
             boolean mailSent = sendConfirmationMail(user, uuid);
             if (!mailSent) {
@@ -97,9 +96,26 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
         Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + userIdMap.size());
     }
 
+    private boolean firstEntry(String previousValue, String futureUuid) {
+        if (previousValue == null) {
+            Logger.getAnonymousLogger().info("First Entry for " + futureUuid);
+            return true;
+        }
+        else return false;
+    }
+
     private boolean emailChanged(String currentUuid, User newUserData) {
         User currentUserData = this.uuidMap.get(currentUuid);
-        return !currentUserData.getEmail().equals(newUserData.getEmail());
+        String currentEmail = currentUserData.getEmail().getAddress();
+        String newEmail = newUserData.getEmail().getAddress();
+        if (currentEmail.equals(newEmail)) {
+            Logger.getAnonymousLogger().info("Identical E-Mail: " + newEmail);
+            return false;
+        }
+        else {
+            Logger.getAnonymousLogger().info("New E-Mail: " + newEmail + " (from " + currentEmail + ")");
+            return true;
+        }
     }
 
     private boolean sendConfirmationMail(User user, String uuid) {
