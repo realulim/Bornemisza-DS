@@ -86,7 +86,8 @@
                 var user = {
                     name: self.refs.reg_user.value,
                     password: password,
-                    email: self.refs.reg_email.value
+                    email: self.refs.reg_email.value,
+                    roles: [ "user", "customer" ]
                 }
                 qwest.post(config.urlUsers, user, {
                     timeout: 5000,
