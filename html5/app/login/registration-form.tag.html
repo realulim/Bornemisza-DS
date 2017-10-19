@@ -56,6 +56,7 @@
         this.hideAllMessages = () => {
             this.regFailed = false
             this.regError = false
+            this.errorMessage = "Unexpected Error - please try again later."
         }
 
         this.observable.on(REGISTRATION_FAILED, function () {
@@ -99,7 +100,9 @@
                     })
                     .catch(function (error, xhr, response) {
                         self.observable.trigger(LOADING_DONE)
-                        self.observable.trigger(REGISTRATION_ERROR, { status: xhr.status, response: xhr.responseText })
+                        self.errorMessage = user.name + " already exists!"
+                        if (xhr.status === 401) self.observable.trigger(REGISTRATION_FAILED)
+                        else self.observable.trigger(REGISTRATION_ERROR, { status: xhr.status, response: xhr.responseText })
                     })
                 console.log("Sent AJAX request to " + config.urlUsers)
                 }
