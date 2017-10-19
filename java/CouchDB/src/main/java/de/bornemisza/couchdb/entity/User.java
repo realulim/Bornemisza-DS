@@ -1,9 +1,9 @@
 package de.bornemisza.couchdb.entity;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.mail.internet.InternetAddress;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -52,7 +52,10 @@ public class User extends CouchDbDocument {
         return name;
     }
 
-    public void setName(@NotNull String name) {
+    /**
+     * @param name not null
+     */
+    public void setName(String name) {
         this.name = name;
         setId(USERNAME_PREFIX + name);
     }
@@ -61,7 +64,10 @@ public class User extends CouchDbDocument {
         return password;
     }
 
-    public void setPassword(@NotNull char[] password) {
+    /**
+     * @param password not null
+     */
+    public void setPassword(char[] password) {
         this.password = password;
     }
 
@@ -69,7 +75,10 @@ public class User extends CouchDbDocument {
         return email;
     }
 
-    public void setEmail(@NotNull InternetAddress email) {
+    /**
+     * @param email not null
+     */
+    public void setEmail(InternetAddress email) {
         this.email = email;
     }
 
@@ -77,14 +86,17 @@ public class User extends CouchDbDocument {
         return roles;
     }
 
-    public void setRoles(@NotNull List<String> roles) {
+    /**
+     * @param roles not null
+     */
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 
     @Override
     public String toString() {
         return "CouchDbDocument{" + "id=" + getId() + ", rev=" + getRevision() + ", attachments=" + getAttachments() + ", conflicts=" + getConflicts() + "}" +
-               "User{" + "type=" + type + ", name=" + name + ", password=" + password + ", email=" + email + ", roles=" + roles + '}';
+               "User{" + "type=" + type + ", name=" + name + ", password=" + Arrays.toString(password) + ", email=" + email + ", roles=" + roles + '}';
     }
 
 }

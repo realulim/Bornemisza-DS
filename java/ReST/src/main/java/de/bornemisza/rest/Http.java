@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import static java.net.URLEncoder.encode;
 
-import javax.validation.constraints.NotNull;
-
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
@@ -40,7 +38,10 @@ public class Http {
 
     private final String baseUrl;
 
-    public Http(@NotNull URL baseUrl) {
+    /**
+     * @param baseUrl not null
+     */
+    public Http(URL baseUrl) {
         String url = baseUrl.toString();
         if (! url.endsWith("/")) {
             url = url + "/";

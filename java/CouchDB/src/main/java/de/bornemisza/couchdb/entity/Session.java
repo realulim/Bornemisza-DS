@@ -3,8 +3,6 @@ package de.bornemisza.couchdb.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -50,7 +48,10 @@ public class Session {
         return principal;
     }
 
-    public void setPrincipal(@NotNull String name) {
+    /**
+     * @param name not null
+     */
+    public void setPrincipal(String name) {
         this.principal = name;
     }
 
@@ -58,7 +59,10 @@ public class Session {
         return roles;
     }
 
-    public void addRole(@NotNull String role) {
+    /**
+     * @param role not null
+     */
+    public void addRole(String role) {
         this.roles.add(role);
     }
 

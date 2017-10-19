@@ -11,14 +11,20 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.validation.constraints.NotNull;
 
 public class MailSender {
 
     @Resource(name = "mail/Outgoing")
     private Session mailSession;
 
-    public boolean sendMail(@NotNull InternetAddress recipient, @NotNull String subject, @NotNull String textContent, String htmlContent) {
+    /**
+     * @param recipient not null
+     * @param subject not null
+     * @param textContent not null
+     * @param htmlContent null
+     * @return whether the mail could be sent or not
+     */
+    public boolean sendMail(InternetAddress recipient, String subject, String textContent, String htmlContent) {
         try {
             MimeMessage msg = new MimeMessage(mailSession);
             msg.setSubject(subject);
