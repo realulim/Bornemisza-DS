@@ -1,16 +1,17 @@
 <cards>
 
-    <div ref="regSuccessMsg" class="modal">
+    <div ref="regSuccessMsg" class="modal fade-in">
         <div class="modal-background"></div>
         <div class="modal-card">
             <header class="modal-card-head">
-                <p class="modal-card-title">Welcome {userName}!</p>
+                <p class="modal-card-title is-size-2 is-purple">Welcome {userName}!</p>
             </header>
-            <section class="modal-card-body">
-                Please check your E-Mail, you should have received a message with a link to confirm your membership.
+            <section class="modal-card-body is-size-5 is-purple">
+                Please check your E-Mail, you should have received a confirmation message.
+                Activate your membership by clicking on the link inside.
             </section>
             <footer class="modal-card-foot">
-                <button class="button" onclick="{dismiss}">Very well, my Lord!</button>
+                <button class="button is-size-6 is-rounded" onclick="{dismiss}">Very well</button>
             </footer>
         </div>
     </div>
@@ -27,6 +28,49 @@
     </div>
 
     <style>
+        .modal-background {
+            background-color: rgba(112, 128, 144, 0.86);
+        }
+        .modal-card {
+            color: var(--purple);
+            font-family: Lusitana;
+            bottom: 10vh;
+            width: 50vw;
+            height: 50vh;
+            border-radius: 20px;
+            -webkit-box-shadow: 0px 0px 145px 14px rgba(0,0,0,0.63);
+            -moz-box-shadow: 0px 0px 145px 14px rgba(0,0,0,0.63);
+            box-shadow: 0px 0px 145px 14px rgba(0,0,0,0.63);
+        }
+        .modal-card-head {
+            background-color: var(--platinum);
+            border-radius: 20px 20px 0px 0px;
+            -webkit-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+            -moz-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .modal-card-body {
+            background-color: var(--platinum);
+        }
+        .modal-card-foot {
+            background-color: var(--platinum);
+            justify-content: center;
+            border-radius: 0px 0px 20px 20px;
+            -webkit-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+            -moz-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .is-purple {
+            color: var(--purple);
+        }
+        .is-rounded {
+            color: var(--purple);
+            font-family: Lusitana;
+            border-radius: 10px;
+            border-color: var(--mediumslate);
+        }
+
         .cards {
             perspective: 800px;
             width: 434px;
