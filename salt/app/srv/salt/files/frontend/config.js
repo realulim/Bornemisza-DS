@@ -3,5 +3,5 @@ var config = {
 	urlActiveSession: 'https://{{ pillar['sslhost'] }}/sessions/active',
 	urlEndSession: 'https://{{ pillar['sslhost'] }}/sessions',
 	urlUuid: 'https://{{ pillar['sslhost'] }}/sessions/uuid',
-	urlUsers: 'https://{{ pillar['sslhost'] }}/sessions/users'
+	urlUsers: 'https://{{ pillar['sslhost'] }}/users'
 }
