@@ -84,7 +84,7 @@ public class CouchPoolTest {
         CUT = new TestableConnectionPool(hazelcast, mock(DnsProvider.class), healthChecks);
     }
 
-    //@Test
+    @Test
     public void getConnector_emptyHostQueue_noUtilisation_allAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
@@ -92,7 +92,7 @@ public class CouchPoolTest {
         assertEquals(allTestConnections.size(), CUT.getDbServers().size(), utilisationMap.size());
     }
 
-    //@Test
+    @Test
     public void getConnector_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
@@ -100,7 +100,7 @@ public class CouchPoolTest {
         if (allTestConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
 
-    //@Test
+    @Test
     public void getConnector_emptyHostQueue_noUtilisation_noneAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
         try {
@@ -113,7 +113,7 @@ public class CouchPoolTest {
         }
     }
 
-    //@Test
+    @Test
     public void getConnector_preExisting_HostQueue_and_Utilisation() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
@@ -154,7 +154,7 @@ public class CouchPoolTest {
                         (int)utilisationMap.get(hostname1) + (int)utilisationMap.get(hostname2));
     }
 
-    //@Test
+    @Test
     public void getConnector_nullCredentials() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
@@ -173,7 +173,7 @@ public class CouchPoolTest {
         verify(conn).getPassword();
     }
 
-    //@Test
+    @Test
     public void getConnector_credentialsGiven() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
