@@ -15,6 +15,7 @@ public class HttpPool extends Pool<Http> {
     private final HealthChecks healthChecks;
     private final String serviceName;
 
+    // java:comp/env/http/Base
     public HttpPool(Map<String, Http> allConnections,
                     HazelcastInstance hazelcast,
                     HealthChecks healthChecks,
