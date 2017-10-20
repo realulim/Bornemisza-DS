@@ -3,11 +3,14 @@ package de.bornemisza.rest;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.javalite.http.HttpException;
 
+import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
 public class HealthChecks {
+
+    public HealthChecks() {
+    }
 
     public boolean isCouchDbReady(Http http) {
         if (http == null) {

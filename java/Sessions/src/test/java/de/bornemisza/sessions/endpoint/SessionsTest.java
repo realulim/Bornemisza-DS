@@ -9,18 +9,16 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import static org.mockito.Mockito.*;
-
 import org.javalite.http.Get;
 import org.javalite.http.Post;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
 
 import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.Http;
-import de.bornemisza.rest.da.HttpPool;
+import de.bornemisza.sessions.da.HttpSessionsPool;
 
 public class SessionsTest {
 
@@ -31,7 +29,7 @@ public class SessionsTest {
     private Post post;
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
-    private HttpPool pool;
+    private HttpSessionsPool pool;
 
     @Before
     public void setUp() {
@@ -45,7 +43,7 @@ public class SessionsTest {
         when(get.header(anyString(), any())).thenReturn(get);
         when(http.get(anyString())).thenReturn(get);
 
-        pool = mock(HttpPool.class);
+        pool = mock(HttpSessionsPool.class);
         when(pool.getConnection()).thenReturn(http);
 
         CUT = new Sessions(pool);

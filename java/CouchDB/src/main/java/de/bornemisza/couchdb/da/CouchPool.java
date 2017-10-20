@@ -1,9 +1,14 @@
 package de.bornemisza.couchdb.da;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
 
@@ -16,20 +21,48 @@ import org.ektorp.impl.StdCouchDbInstance;
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.loadbalancer.da.Pool;
 
-public class ConnectionPool extends Pool<CouchDbConnection> {
+public abstract class CouchPool extends Pool<CouchDbConnection> {
 
     private final HealthChecks healthChecks;
-    private final String serviceName;
+    private String serviceName;
 
-    public ConnectionPool(Map<String, CouchDbConnection> connections, 
-                          HazelcastInstance hazelcast,
-                          HealthChecks healthChecks,
-                          String serviceName) {
-        super(connections, hazelcast);
+    public CouchPool() {
+        super();
+        this.healthChecks = new HealthChecks();
+    }
+
+    // Constructor for Unit Tests
+    public CouchPool(HazelcastInstance hz, DnsProvider dnsProvider, HealthChecks healthChecks, String serviceName) {
+        super(hz, dnsProvider);
         this.healthChecks = healthChecks;
         this.serviceName = serviceName;
+    }
+
+    protected abstract LoadBalancerConfig getLoadBalancerConfig();
+
+    @Override
+    protected Map<String, CouchDbConnection> createConnections() {
+        LoadBalancerConfig lbConfig = getLoadBalancerConfig();
+        this.serviceName = lbConfig.getServiceName();
+        Map<String, CouchDbConnection> connections = new HashMap<>();
+        String db = lbConfig.getInstanceName();
+        String userName = lbConfig.getUserName();
+        String password = lbConfig.getPassword() == null ? null : String.valueOf(lbConfig.getPassword());
+        db = (db == null ? "" : db.replaceFirst ("^/*", ""));
+        try {
+            for (String hostname : this.dnsProvider.getHostnamesForService(serviceName)) {
+                CouchDbConnection conn = new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
+                connections.put(hostname, conn);
+            }
+        }
+        catch (NamingException | MalformedURLException ex) {
+            throw new RuntimeException("Cannot create CouchPool: " + ex.toString());
+        }
+        return connections;
     }
 
     public MyCouchDbConnector getConnector() {

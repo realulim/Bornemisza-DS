@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,13 +25,14 @@ import org.javalite.http.Post;
 
 import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.BasicAuthCredentials;
-import de.bornemisza.rest.da.HttpPool;
+import de.bornemisza.sessions.da.HttpSessionsPool;
 
+@Stateless
 @Path("/")
 public class Sessions {
 
-    @Resource(name="http/Sessions")
-    HttpPool sessionsPool;
+    @Inject
+    HttpSessionsPool sessionsPool;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -39,7 +41,7 @@ public class Sessions {
     public Sessions() { }
 
     // Constructor for Unit Tests
-    public Sessions(HttpPool sessionsPool) {
+    public Sessions(HttpSessionsPool sessionsPool) {
         this.sessionsPool = sessionsPool;
     }
 

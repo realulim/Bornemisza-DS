@@ -8,38 +8,51 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hazelcast.core.HazelcastInstance;
+
 import org.ektorp.CouchDbConnector;
 import org.ektorp.DbAccessException;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-
-import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.couchdb.HealthChecks;
 import de.bornemisza.couchdb.PseudoHazelcastList;
 import de.bornemisza.couchdb.PseudoHazelcastMap;
 import de.bornemisza.couchdb.entity.CouchDbConnection;
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import de.bornemisza.loadbalancer.da.DnsProvider;
 
-public class ConnectionPoolTest {
+public class CouchPoolTest {
 
-    class TestableConnectionPool extends ConnectionPool {
+    class TestableConnectionPool extends CouchPool {
 
-        public TestableConnectionPool(Map<String, CouchDbConnection> connections, HazelcastInstance hz, HealthChecks healthChecks) {
-            super(connections, hz, healthChecks, "someServiceName");
+        public TestableConnectionPool(HazelcastInstance hz, DnsProvider dnsProvider, HealthChecks healthChecks) {
+            super(hz, dnsProvider, healthChecks, "someServiceName");
         }
 
         // expose protected method for testing
         public List<String> getDbServers() {
             return getDbServerQueue();
         }
+
+        @Override
+        protected LoadBalancerConfig getLoadBalancerConfig() {
+            return null; // nothing
+        }
+
+        @Override
+        protected Map<String, CouchDbConnection> createConnections() {
+            return allTestConnections;
+        }
+
     }
 
     private final SecureRandom wheel = new SecureRandom();
 
     private List<String> hostnames;
-    private Map<String, CouchDbConnection> allConnections;
+    private Map<String, CouchDbConnection> allTestConnections;
     private PseudoHazelcastList dbServerQueue;
     private HazelcastInstance hazelcast;
     private PseudoHazelcastMap utilisationMap;
@@ -54,10 +67,10 @@ public class ConnectionPoolTest {
             hostnames.add("hostname" + i + ".domain.de");
         }
         
-        allConnections = new HashMap<>();
+        allTestConnections = new HashMap<>();
         CouchDbConnection conn = getConnection();
         for (String hostname : hostnames) {
-            allConnections.put(hostname, conn);
+            allTestConnections.put(hostname, conn);
         }
         
         hazelcast = mock(HazelcastInstance.class);
@@ -68,7 +81,7 @@ public class ConnectionPoolTest {
         
         healthChecks = mock(HealthChecks.class);
 
-        CUT = new TestableConnectionPool(allConnections, hazelcast, healthChecks);
+        CUT = new TestableConnectionPool(hazelcast, mock(DnsProvider.class), healthChecks);
     }
 
     //@Test
@@ -76,15 +89,15 @@ public class ConnectionPoolTest {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
         assertNotNull(dbConn);
-        assertEquals(allConnections.size(), CUT.getDbServers().size(), utilisationMap.size());
+        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), utilisationMap.size());
     }
 
     //@Test
     public void getConnector_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
-        assertEquals(allConnections.size(), CUT.getDbServers().size(), utilisationMap.size() - 1);
-        if (allConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
+        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), utilisationMap.size() - 1);
+        if (allTestConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
 
     //@Test
@@ -104,8 +117,8 @@ public class ConnectionPoolTest {
     public void getConnector_preExisting_HostQueue_and_Utilisation() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         String hostname = "hostname.domain.de";
-        allConnections.clear();
-        allConnections.put(hostname, getConnection());
+        allTestConnections.clear();
+        allTestConnections.put(hostname, getConnection());
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname);
         utilisationMap.clear();
@@ -123,9 +136,9 @@ public class ConnectionPoolTest {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false).thenReturn(true);
         String hostname1 = "hostname1.domain.de";
         String hostname2 = "hostname2.domain.de";
-        allConnections.clear();
-        allConnections.put(hostname1, getConnection());
-        allConnections.put(hostname2, getConnection());
+        allTestConnections.clear();
+        allTestConnections.put(hostname1, getConnection());
+        allTestConnections.put(hostname2, getConnection());
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname1);
         CUT.getDbServers().add(hostname2);
@@ -146,8 +159,8 @@ public class ConnectionPoolTest {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
-        allConnections.clear();
-        allConnections.put(hostname, conn);
+        allTestConnections.clear();
+        allTestConnections.put(hostname, conn);
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname);
         utilisationMap.clear();
@@ -165,8 +178,8 @@ public class ConnectionPoolTest {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
-        allConnections.clear();
-        allConnections.put(hostname, conn);
+        allTestConnections.clear();
+        allTestConnections.put(hostname, conn);
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname);
         utilisationMap.clear();

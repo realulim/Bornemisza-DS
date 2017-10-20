@@ -23,9 +23,11 @@ import de.bornemisza.loadbalancer.entity.SrvRecord;
 
 public class DnsProvider {
 
+    private final HazelcastInstance hazelcast;
     private final ICache<String, List<String>> cache;
 
-    public DnsProvider(HazelcastInstance hazelcast) {
+    public DnsProvider(HazelcastInstance hz) {
+        this.hazelcast = hz;
         ICacheManager cacheManager = hazelcast.getCacheManager();
         this.cache = cacheManager.getCache("DatabaseServers");
     }

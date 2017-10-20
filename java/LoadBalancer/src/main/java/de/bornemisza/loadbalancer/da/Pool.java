@@ -7,6 +7,9 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -15,21 +18,35 @@ import de.bornemisza.loadbalancer.Config;
 
 public abstract class Pool<T> {
 
-    protected final Map<String, T> allConnections;
-    private final HazelcastInstance hazelcast;
+    @Inject
+    protected HazelcastInstance hazelcast;
+
+    protected DnsProvider dnsProvider;
+    protected Map<String, T> allConnections;
 
     private List<String> dbServerQueue = null;
     private Map<String, Integer> dbServerUtilisation = null;
 
     protected abstract String getServiceName();
+    protected abstract Map<String, T> createConnections();
 
-    public Pool(Map<String, T> allConnections, HazelcastInstance hazelcast) {
-        this.allConnections = allConnections;
+    public Pool() { }
+
+    // Constructor for Unit Tests
+    public Pool(HazelcastInstance hazelcast, DnsProvider dnsProvider) {
         this.hazelcast = hazelcast;
+        this.dnsProvider = dnsProvider;
+        this.initCluster();
+    }
+
+    @PostConstruct
+    protected void init() {
+        this.dnsProvider = new DnsProvider(hazelcast);
         this.initCluster();
     }
 
     private void initCluster() {
+        this.allConnections = createConnections();
         this.dbServerUtilisation = getDbServerUtilisation();
         this.dbServerQueue = sortHostnamesByUtilisation(allConnections.keySet());
     }

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
 
 import org.ektorp.DbInfo;
@@ -12,18 +12,17 @@ import org.ektorp.DocumentNotFoundException;
 import org.ektorp.Options;
 import org.ektorp.UpdateConflictException;
 
-import de.bornemisza.couchdb.da.ConnectionPool;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
-import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.rest.BasicAuthCredentials;
 
 public class UsersService {
 
-    @Resource(name="couchdb/Users")
-    ConnectionPool pool;
+    @Inject
+    CouchUsersPool pool;
 
-    @Resource(name="couchdb/admin")
-    ConnectionPool adminPool;
+    @Inject
+    CouchAdminPool adminPool;
 
     public UsersService() {
     }

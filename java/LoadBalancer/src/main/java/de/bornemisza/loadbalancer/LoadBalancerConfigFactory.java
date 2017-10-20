@@ -1,35 +1,17 @@
-package de.bornemisza.loadbalancer.da;
+package de.bornemisza.loadbalancer;
 
-import java.net.MalformedURLException;
 import java.util.Hashtable;
-
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
-import com.hazelcast.core.HazelcastInstance;
-
-public abstract class PoolFactory implements ObjectFactory {
-
-    protected final HazelcastInstance hazelcast;
-    protected final DnsProvider dnsProvider;
-
-    public PoolFactory() throws NamingException {
-        Context ctx = new InitialContext();
-        this.hazelcast = (HazelcastInstance) ctx.lookup("payara/Hazelcast");
-        if (hazelcast == null || !hazelcast.getLifecycleService().isRunning()) {
-            throw new NamingException("Hazelcast not ready!");
-        }
-        this.dnsProvider = new DnsProvider(this.hazelcast);
-    }
-
+public class LoadBalancerConfigFactory implements ObjectFactory {
+    
     @Override
     public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment) throws Exception {
-        // Logger.getAnonymousLogger().info("Getting Pool for " + name.toString());
         if (obj == null) {
             throw new NamingException("Reference is null");
         }
@@ -46,8 +28,8 @@ public abstract class PoolFactory implements ObjectFactory {
                 RefAddr userNameAddr = ref.get("username");
                 String userName = userNameAddr == null ? null : (String) userNameAddr.getContent();
                 RefAddr passwordAddr = ref.get("password");
-                String password = passwordAddr == null ? null : (String) passwordAddr.getContent();
-                return createPool(srvRecordServiceName, db, userName, password);
+                char[] password = passwordAddr == null ? null : ((String)passwordAddr.getContent()).toCharArray();
+                return new LoadBalancerConfig(srvRecordServiceName, db, userName, password);
             }
             else {
                 throw new NamingException("Expected Class: " + expectedClass + ", configured Class: " + refClassName);
@@ -55,15 +37,8 @@ public abstract class PoolFactory implements ObjectFactory {
         }
     }
 
-    protected abstract Object createPool(String srvRecordServiceName, String db, String userName, String password) throws NamingException, MalformedURLException;
-    protected abstract Class getExpectedClass();
-
-    protected HazelcastInstance getHazelcast() {
-        return this.hazelcast;
-    }
-
-    protected DnsProvider getDnsProvider() {
-        return this.dnsProvider;
+    private Class getExpectedClass() {
+        return LoadBalancerConfig.class;
     }
 
 }

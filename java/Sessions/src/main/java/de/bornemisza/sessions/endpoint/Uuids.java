@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -32,15 +32,16 @@ import com.hazelcast.core.MembershipListener;
 import org.javalite.http.Get;
 
 import de.bornemisza.rest.Http;
-import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
+import de.bornemisza.sessions.da.HttpBasePool;
 
+@Stateless
 @Path("/uuid")
 public class Uuids {
 
-    @Resource(name="http/Base")
-    HttpPool basePool;
+    @Inject
+    HttpBasePool basePool;
 
     @Inject
     HazelcastInstance hazelcast;
@@ -56,7 +57,7 @@ public class Uuids {
     public Uuids() { }
 
     // Constructor for Unit Tests
-    public Uuids(HttpPool basePool, HazelcastInstance hazelcast, DnsResolver dnsResolver) {
+    public Uuids(HttpBasePool basePool, HazelcastInstance hazelcast, DnsResolver dnsResolver) {
         this.basePool = basePool;
         this.hazelcast = hazelcast;
         this.dnsResolver = dnsResolver;

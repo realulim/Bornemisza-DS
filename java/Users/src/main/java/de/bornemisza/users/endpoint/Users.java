@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -28,6 +29,7 @@ import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 
+@Stateless
 @Path("/")
 public class Users {
 

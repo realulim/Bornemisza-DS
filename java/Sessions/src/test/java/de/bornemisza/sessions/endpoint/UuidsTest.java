@@ -26,9 +26,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import de.bornemisza.rest.Http;
-import de.bornemisza.rest.da.HttpPool;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
+import de.bornemisza.sessions.da.HttpBasePool;
 
 public class UuidsTest {
 
@@ -38,7 +38,7 @@ public class UuidsTest {
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
     private HazelcastInstance hazelcast;
-    private HttpPool pool;
+    private HttpBasePool pool;
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
     private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
@@ -56,7 +56,7 @@ public class UuidsTest {
         when(http.get(anyString())).thenReturn(get);
         when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
 
-        pool = mock(HttpPool.class);
+        pool = mock(HttpBasePool.class);
         when(pool.getConnection()).thenReturn(http);
 
         hazelcast = mock(HazelcastInstance.class);

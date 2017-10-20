@@ -11,6 +11,7 @@ import org.junit.runners.MethodSorters;
 
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.couchdb.entity.User;
+import java.util.Arrays;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {
@@ -96,8 +97,9 @@ public class BornemiszaIT extends IntegrationTestBase {
         cToken = response.getHeader("C-Token");
         List<String> uuids = jsonPath.getList("uuids");
         assertEquals(count, uuids.size());
-        assertEquals("LightSeaGreen", response.getHeader("AppServer"));
-        assertEquals("LightSeaGreen", response.getHeader("DbServer"));
+        List<String> definedColors = Arrays.asList(new String[] { "LightSeaGreen", "Crimson", "Gold", "RoyalBlue", "LightSalmon"});
+        assertTrue(definedColors.contains(response.getHeader("AppServer")));
+        assertTrue(definedColors.contains(response.getHeader("DbServer")));
     }
 
     @Test

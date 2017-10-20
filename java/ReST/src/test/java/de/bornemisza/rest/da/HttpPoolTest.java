@@ -5,56 +5,69 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import static org.mockito.Mockito.*;
-
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+
+import static de.bornemisza.loadbalancer.Config.*;
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.PseudoHazelcastMap;
-import static de.bornemisza.loadbalancer.Config.*;
 
 public class HttpPoolTest {
 
     class TestableHttpPool extends HttpPool {
 
-        public TestableHttpPool(Map<String, Http> allConnections, HazelcastInstance hz, HealthChecks healthChecks) {
-            super(allConnections, hz, healthChecks, "someServiceName");
+        public TestableHttpPool(HazelcastInstance hz, DnsProvider dnsProvider, HealthChecks healthChecks) {
+            super(hz, dnsProvider, healthChecks, "someServiceName");
         }
 
         // expose protected method for testing
         public List<String> getDbServers() {
             return getDbServerQueue();
         }
+
+        @Override
+        protected LoadBalancerConfig getLoadBalancerConfig() {
+            return null; // nothing
+        }
+
+        @Override
+        protected Map<String, Http> createConnections() {
+            return allTestConnections;
+        }
+
     }
 
     private TestableHttpPool CUT;
     private HazelcastInstance hazelcast;
     private HealthChecks healthChecks;
-    private Map<String, Http> allConnections;
+    private Map<String, Http> allTestConnections;
     private IMap dbServerUtilisation;
 
     @Before
     public void setUp() {
         hazelcast = mock(HazelcastInstance.class);
         healthChecks = mock(HealthChecks.class);
-        allConnections = new HashMap<>();
-        allConnections.put("host1", mock(Http.class));
-        allConnections.put("host2", mock(Http.class));
-        allConnections.put("host3", mock(Http.class));
+        allTestConnections = new HashMap<>();
+        allTestConnections.put("host1", mock(Http.class));
+        allTestConnections.put("host2", mock(Http.class));
+        allTestConnections.put("host3", mock(Http.class));
 
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
         dbServerUtilisation = new PseudoHazelcastMap();
         when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
-        CUT = new TestableHttpPool(allConnections, hazelcast, healthChecks);
+
+        CUT = new TestableHttpPool(hazelcast, mock(DnsProvider.class), healthChecks);
     }
 
     @Test
@@ -66,7 +79,7 @@ public class HttpPoolTest {
         }
         catch (RuntimeException ex) {
             assertEquals("No CouchDB Backend ready!", ex.getMessage());
-            verify(healthChecks, times(allConnections.keySet().size())).isCouchDbReady(any(Http.class));
+            verify(healthChecks, times(allTestConnections.keySet().size())).isCouchDbReady(any(Http.class));
         }
     }
 
@@ -78,7 +91,7 @@ public class HttpPoolTest {
         usageCount += (int) dbServerUtilisation.get("host2");
         usageCount += (int) dbServerUtilisation.get("host3");
         assertEquals(1, usageCount);
-        verify(healthChecks, times(allConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
+        verify(healthChecks, times(allTestConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
         assertEquals(3, CUT.getDbServers().size());
     }
 

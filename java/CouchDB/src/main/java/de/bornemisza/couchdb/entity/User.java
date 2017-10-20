@@ -96,7 +96,7 @@ public class User extends CouchDbDocument {
     @Override
     public String toString() {
         return "CouchDbDocument{" + "id=" + getId() + ", rev=" + getRevision() + ", attachments=" + getAttachments() + ", conflicts=" + getConflicts() + "}" +
-               "User{" + "type=" + type + ", name=" + name + ", password=" + Arrays.toString(password) + ", email=" + email + ", roles=" + roles + '}';
+               "User{" + "type=" + type + ", name=" + name + ", password=******" + ", email=" + email + ", roles=" + roles + '}';
     }
 
 }
