@@ -40,7 +40,7 @@ public class ChangeEmailRequestListenerTest extends AbstractConfirmationMailList
 
     @Test
     public void onMessage_uuidExists_sendAdditionalMailIfAddressDifferent() throws AddressException, NoSuchProviderException {
-        onMessage_uuidExists_doNotSendAdditionalMail_Base();
+        onMessage_uuidExists_sendAdditionalMail_Base();
     }
 
 }

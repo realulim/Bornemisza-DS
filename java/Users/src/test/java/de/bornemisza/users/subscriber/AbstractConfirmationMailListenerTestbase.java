@@ -1,6 +1,7 @@
 package de.bornemisza.users.subscriber;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.NoSuchProviderException;
@@ -8,9 +9,8 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.junit.Before;
-import static org.junit.Assert.assertTrue;
-
 import org.mockito.ArgumentCaptor;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -22,7 +22,6 @@ import com.hazelcast.core.Message;
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
-import java.util.UUID;
 
 public abstract class AbstractConfirmationMailListenerTestbase {
     
@@ -109,10 +108,13 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         userWithDifferentMailAddress.setPassword(user.getPassword());
         InternetAddress otherRecipient = new InternetAddress("user@otheraddress.de");
         userWithDifferentMailAddress.setEmail(otherRecipient);
-        when(uuidMap.get(previousValue)).thenReturn(userWithDifferentMailAddress);
+
+        when(uuidMap.get(previousValue)).thenReturn(user);
+        when(msg.getMessageObject()).thenReturn(userWithDifferentMailAddress);
+
         CUT.onMessage(msg);
 
-        verify(uuidMap.put(previousValue, userWithDifferentMailAddress, 24, TimeUnit.HOURS));
+        verify(uuidMap).put(anyString(), eq(userWithDifferentMailAddress), eq(24l), eq(TimeUnit.HOURS));
         verify(mailSender).sendMail(eq(otherRecipient), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(mailSender);
     }
