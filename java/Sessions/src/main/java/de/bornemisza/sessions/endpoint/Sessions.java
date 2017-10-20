@@ -12,7 +12,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -54,7 +53,7 @@ public class Sessions {
             creds = new BasicAuthCredentials(authHeader);
         }
         catch (CredentialNotFoundException ex) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+            throw new RestException(Response.Status.UNAUTHORIZED);
         }
         Post post = sessionsPool.getConnection().post("")
             .param("name", creds.getUserName())
@@ -76,12 +75,12 @@ public class Sessions {
     @Path("active")
     @Produces(MediaType.APPLICATION_JSON)
     public Session getActiveSession(@HeaderParam(CTOKEN_HEADER) String cToken) {
-        if (isVoid(cToken)) throw new WebApplicationException(
+        if (isVoid(cToken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
         Get get = sessionsPool.getConnection().get("")
                 .header(HttpHeaders.COOKIE, cToken);
         if (get.responseCode() != 200) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
         }
         Session session = new Session();
@@ -90,7 +89,7 @@ public class Sessions {
             root = mapper.readTree(get.text());
         }
         catch (IOException ioe) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioe.toString()).build());
         }
         session.setPrincipal(root.path("userCtx").path("name").asText());

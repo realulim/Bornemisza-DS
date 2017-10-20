@@ -17,7 +17,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -49,20 +48,20 @@ public class Users {
     public User getUser(@PathParam("name") String userName,
                         @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) {
-            throw new WebApplicationException(Status.BAD_REQUEST);
+            throw new RestException(Status.BAD_REQUEST);
         }
         User user;
         try {
             user = facade.getUser(userName, authHeader);
         }
         catch (UnauthorizedException ex) {
-            throw new WebApplicationException(Status.UNAUTHORIZED);
+            throw new RestException(Status.UNAUTHORIZED);
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
-        if (user == null) throw new WebApplicationException(Status.NOT_FOUND);
+        if (user == null) throw new RestException(Status.NOT_FOUND);
         else return user;
     }
 
@@ -70,7 +69,7 @@ public class Users {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response userAccountCreationRequest(User user) {
         if (user == null || user.getEmail() == null) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
         }
         Consumer userAccountCreationRequestConsumer = new Consumer<UsersFacade>() {
@@ -105,7 +104,7 @@ public class Users {
             String emailStr,
             @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) {
-            throw new WebApplicationException(Status.BAD_REQUEST);
+            throw new RestException(Status.BAD_REQUEST);
         }
         InternetAddress email = validateEmail(emailStr);
         User user = getUser(userName, authHeader);
@@ -143,7 +142,7 @@ public class Users {
                            @PathParam("newpassword") String password,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName) || isVoid(password)) {
-            throw new WebApplicationException(Status.BAD_REQUEST);
+            throw new RestException(Status.BAD_REQUEST);
         }
         User user = getUser(userName, authHeader);
         user.setPassword(password.toCharArray());
@@ -151,11 +150,11 @@ public class Users {
             user = facade.changePassword(user, user.getRevision(), authHeader);
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
         if (user == null) {
-            throw new WebApplicationException(
+            throw new RestException(
                 Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
         }
         return user;
@@ -166,7 +165,7 @@ public class Users {
     public void deleteUser(@PathParam("name") String userName, 
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) {
-            throw new WebApplicationException(Status.NOT_FOUND);
+            throw new RestException(Status.NOT_FOUND);
         }
         User user = getUser(userName, authHeader);
         boolean success;
@@ -174,11 +173,11 @@ public class Users {
             success = facade.deleteUser(userName, user.getRevision(), authHeader);
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
         if (! success) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
         }
     }
@@ -189,7 +188,7 @@ public class Users {
         else return value.equals("null");
     }
 
-    private void validateUuid(String uuidStr) throws WebApplicationException {
+    private void validateUuid(String uuidStr) throws RestException {
         UUID uuid;
         try {
             uuid = isVoid(uuidStr) ? null : UUID.fromString(uuidStr);
@@ -198,12 +197,12 @@ public class Users {
             uuid = null;
         }
         if (uuid == null) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build());
         }
     }
 
-    private InternetAddress validateEmail(String emailStr) throws WebApplicationException {
+    private InternetAddress validateEmail(String emailStr) throws RestException {
         InternetAddress newEmail;
         try {
             newEmail = isVoid(emailStr) ? null : new InternetAddress(emailStr);
@@ -212,7 +211,7 @@ public class Users {
             newEmail = null;
         }
         if (newEmail == null) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.BAD_REQUEST).entity("E-Mail missing or unparseable!").build());
         }
         return newEmail;
@@ -232,11 +231,11 @@ public class Users {
                 default:
                     status = Status.INTERNAL_SERVER_ERROR;
             }
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(status).entity(be.getMessage()).build());
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
         return Response.accepted().build();
@@ -249,15 +248,15 @@ public class Users {
         }
         catch (BusinessException e) {
             Status status = e.getType() == Type.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(status).entity(expiryMsg).build());
         }
         catch (RuntimeException ex) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
         if (confirmedUser == null) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(Status.CONFLICT).entity(conflictMsg).build());
         }
         return confirmedUser;

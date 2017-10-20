@@ -17,19 +17,18 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.javalite.http.Get;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-
-import org.javalite.http.Get;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
@@ -116,13 +115,13 @@ public class Uuids {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUuids(@HeaderParam(CTOKEN_HEADER) String cToken,
                              @DefaultValue("1")@QueryParam("count") int count) {
-        if (isVoid(cToken)) throw new WebApplicationException(
+        if (isVoid(cToken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
         if (get.responseCode() != 200) {
-            throw new WebApplicationException(
+            throw new RestException(
                     Response.status(get.responseCode()).entity(get.responseMessage()).build());
         }
         String header = "127.0.0.1";
