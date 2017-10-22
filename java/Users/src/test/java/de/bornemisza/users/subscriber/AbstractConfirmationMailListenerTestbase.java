@@ -50,6 +50,8 @@ public abstract class AbstractConfirmationMailListenerTestbase {
 
         requestTopic = mock(ITopic.class);
         userIdMap = mock(IMap.class);
+        when(userIdMap.tryLock(anyString())).thenReturn(true);
+
         uuidMap = mock(IMap.class);
         mailSender = mock(MailSender.class);
         hazelcast = mock(HazelcastInstance.class);
@@ -79,6 +81,7 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         String htmlMailBody = htmlContentCaptor.getValue();
         assertTrue(htmlMailBody.contains(expectedLink));
         assertTrue(htmlMailBody.contains("font-family:Helvetica, Arial, sans-serif"));
+        verify(userIdMap).unlock(any());
     }
     
     protected void onMessage_mailNotSent_Base() throws AddressException, NoSuchProviderException, IOException {
@@ -89,11 +92,22 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         CUT.onMessage(msg);
 
         verify(uuidMap).remove(uuidCaptor.getValue());
+        verify(userIdMap).unlock(any());
     }
 
-    protected void onMessage_uuidExists_doNotSendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
+    protected void onMessage_uuidExists_doNotSendAdditionalMail_unchangedValue_Base() throws AddressException, NoSuchProviderException {
         String previousValue = UUID.randomUUID().toString();
         when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
+        when(uuidMap.get(previousValue)).thenReturn(user);
+        CUT.onMessage(msg);
+
+        verifyNoMoreInteractions(mailSender);
+    }
+
+    protected void onMessage_uuidExists_doNotSendAdditionalMail_locked_Base() throws AddressException, NoSuchProviderException {
+        String previousValue = UUID.randomUUID().toString();
+        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
+        when(userIdMap.tryLock(anyString())).thenReturn(false);
         when(uuidMap.get(previousValue)).thenReturn(user);
         CUT.onMessage(msg);
 
@@ -103,6 +117,7 @@ public abstract class AbstractConfirmationMailListenerTestbase {
     protected void onMessage_uuidExists_sendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
         String previousValue = UUID.randomUUID().toString();
         when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
+        when(userIdMap.tryLock(anyString())).thenReturn(true);
         User userWithDifferentMailAddress = new User();
         userWithDifferentMailAddress.setName(user.getName());
         userWithDifferentMailAddress.setPassword(user.getPassword());
@@ -110,13 +125,16 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         userWithDifferentMailAddress.setEmail(otherRecipient);
 
         when(uuidMap.get(previousValue)).thenReturn(user);
+        when(hazelcast.getMap(endsWith(JAXRSConfiguration.MAP_USERID_SUFFIX))).thenReturn(userIdMap);
         when(msg.getMessageObject()).thenReturn(userWithDifferentMailAddress);
 
+        CUT = getRequestListener(mailSender, hazelcast);
         CUT.onMessage(msg);
 
         verify(uuidMap).put(anyString(), eq(userWithDifferentMailAddress), eq(24l), eq(TimeUnit.HOURS));
         verify(mailSender).sendMail(eq(otherRecipient), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(mailSender);
+        verify(userIdMap).unlock(any());
     }
 
 }

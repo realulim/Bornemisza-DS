@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -24,7 +25,6 @@ import com.hazelcast.core.MessageListener;
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
-import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractConfirmationMailListener implements MessageListener<User> {
 
@@ -82,26 +82,45 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
         String uuid = UUID.randomUUID().toString();
         Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString() + " with " + uuid);
         String previousValue = this.userIdMap.putIfAbsent(user.getId(), uuid, 24, TimeUnit.HOURS);
-        if (firstEntry(previousValue, uuid) || emailChanged(previousValue, user)) {
+        if (previousValue != null) {
+            // entry already present
+            if (emailChanged(previousValue, user)) {
+                putNewValueAndSendMail(uuid, user);
+            }
+            else {
+                Logger.getAnonymousLogger().info("Skipping Mail, it was already sent previously.");
+            }
+        }
+        else {
+            // first entry
+            putNewValueAndSendMail(uuid, user);
+        }
+    }
+
+    private void putNewValueAndSendMail(String uuid, User user) {
+        // there was a previous request, let's see if we have to send another mail
+        if (this.userIdMap.tryLock(user.getId())) {
             this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
+            Logger.getAnonymousLogger().info("Wrote new Value to Map: " + user);
             boolean mailSent = sendConfirmationMail(user, uuid);
             if (!mailSent) {
                 this.userIdMap.remove(user.getId());
                 this.uuidMap.remove(uuid);
             }
-        } 
+            unlockUserIdMapEntry(user.getId());
+        }
         else {
             Logger.getAnonymousLogger().info("Skipping Request Handling, it is already being worked on.");
         }
-        Logger.getAnonymousLogger().info("Unconfirmed Requests in " + getRequestMapName() + ": " + userIdMap.size());
     }
 
-    private boolean firstEntry(String previousValue, String futureUuid) {
-        if (previousValue == null) {
-            Logger.getAnonymousLogger().info("First Entry for " + futureUuid);
-            return true;
+    private void unlockUserIdMapEntry(String key) {
+        try {
+            userIdMap.unlock(key);
         }
-        else return false;
+        catch (IllegalMonitorStateException e) {
+            Logger.getAnonymousLogger().severe("Cannot unlock " + key + ", another thread is holding the lock");
+        }
     }
 
     private boolean emailChanged(String currentUuid, User newUserData) {
