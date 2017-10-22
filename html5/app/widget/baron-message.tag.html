@@ -4,13 +4,15 @@
 		<div class="modal-background"></div>
 		<div class="modal-card">
 			<header class="modal-card-head">
-				<p class="modal-card-title is-size-2 is-purple">{title}</p>
+				<p class="modal-card-title is-size-4 is-purple has-text-centered">{title}</p>
 			</header>
-			<section class="modal-card-body is-size-5 is-purple">
-				<yield/>
+			<section class="modal-card-body is-size-6 is-purple">
+				<div class="content">
+					<yield/>
+				</div>
 			</section>
 			<footer class="modal-card-foot">
-				<button class="button is-size-6 is-rounded" onclick="{dismiss}">{buttonText}</button>
+				<a class="button is-rounded" onclick="{dismiss}">&raquo; {buttonText} &laquo</a>
 			</footer>
 		</div>
 	</div>
@@ -22,7 +24,7 @@
 
 		.modal-card {
 			color: var(--purple);
-			font-family: Lusitana;
+			font-family: 'Kurale', sans-serif;
 			bottom: 10vh;
 			width: 50vw;
 			height: 50vh;
@@ -38,10 +40,12 @@
 			-webkit-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
 			-moz-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
 			box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+			padding: 0.5em;
 		}
 
 		.modal-card-body {
 			background-color: var(--platinum);
+			padding: 0.75em;
 		}
 
 		.modal-card-foot {
@@ -51,15 +55,26 @@
 			-webkit-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
 			-moz-box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
 			box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+			padding: 0.5em;
 		}
 
+		.button {
+			height: 2em;
+			padding-top: 0px;
+			padding-bottom: 0px;
+			padding-left: 0.5em;
+			padding-right: 0.5em;
+		}
+		.button:hover {
+			background-color: var(--selectcolor);
+			text-decoration: none;
+		}
 		.is-purple {
 			color: var(--purple);
 		}
 
 		.is-rounded {
 			color: var(--purple);
-			font-family: Lusitana;
 			border-radius: 10px;
 			border-color: var(--mediumslate);
 		}
