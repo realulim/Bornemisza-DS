@@ -34,8 +34,8 @@ public class ChangeEmailRequestListenerTest extends AbstractConfirmationMailList
     }
 
     @Test
-    public void onMessage_uuidExists_doNotSendAdditionalMail_unchangedValue() throws AddressException, NoSuchProviderException {
-        onMessage_uuidExists_doNotSendAdditionalMail_unchangedValue_Base();
+    public void onMessage_userExists_doNotSendAdditionalMail() throws AddressException, NoSuchProviderException {
+        onMessage_userExists_doNotSendAdditionalMail_Base();
     }
 
     @Test

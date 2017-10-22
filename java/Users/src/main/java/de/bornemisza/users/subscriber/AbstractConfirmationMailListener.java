@@ -79,61 +79,31 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     @Override
     public void onMessage(Message<User> msg) {
         User user = msg.getMessageObject();
+        for (User existingUser : uuidMap.values()) {
+            if (existingUser.getId().equals(user.getId()) && 
+                existingUser.getEmail().getAddress().equals(user.getEmail().getAddress())) {
+                Logger.getAnonymousLogger().info("Skipping Mail to " + user.getEmail().getAddress() + " as it was already sent previously.");
+                return;
+            }
+        }
+        // Now we know that we have to send an email unless the message is already being worked on
+        String previousValue = this.userIdMap.putIfAbsent(user.getId(), "locked", 5, TimeUnit.MINUTES);
         String uuid = UUID.randomUUID().toString();
-        Logger.getAnonymousLogger().info("Request detected on Topic " + getRequestTopicName() + " for: " + user.toString() + " with " + uuid);
-        String previousValue = this.userIdMap.putIfAbsent(user.getId(), uuid, 24, TimeUnit.HOURS);
-        if (previousValue != null) {
-            // entry already present
-            if (emailChanged(previousValue, user)) {
-                putNewValueAndSendMail(uuid, user);
-            }
-            else {
-                Logger.getAnonymousLogger().info("Skipping Mail, it was already sent previously.");
-            }
-        }
-        else {
-            // first entry
-            putNewValueAndSendMail(uuid, user);
-        }
-    }
-
-    private void putNewValueAndSendMail(String uuid, User user) {
-        // there was a previous request, let's see if we have to send another mail
-        if (this.userIdMap.tryLock(user.getId())) {
-            this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
-            Logger.getAnonymousLogger().info("Wrote new Value to Map: " + user);
-            boolean mailSent = sendConfirmationMail(user, uuid);
-            if (!mailSent) {
-                this.userIdMap.remove(user.getId());
-                this.uuidMap.remove(uuid);
-            }
-            unlockUserIdMapEntry(user.getId());
+        if (previousValue == null || !previousValue.equals("locked")) {
+            storeNewValueAndSendMail(uuid, user);
+            this.userIdMap.put(user.getId(), uuid, 24, TimeUnit.HOURS);
         }
         else {
             Logger.getAnonymousLogger().info("Skipping Request Handling, it is already being worked on.");
         }
     }
 
-    private void unlockUserIdMapEntry(String key) {
-        try {
-            userIdMap.unlock(key);
-        }
-        catch (IllegalMonitorStateException e) {
-            Logger.getAnonymousLogger().severe("Cannot unlock " + key + ", another thread is holding the lock");
-        }
-    }
-
-    private boolean emailChanged(String currentUuid, User newUserData) {
-        User currentUserData = this.uuidMap.get(currentUuid);
-        String currentEmail = currentUserData.getEmail().getAddress();
-        String newEmail = newUserData.getEmail().getAddress();
-        if (currentEmail.equals(newEmail)) {
-            Logger.getAnonymousLogger().info("Identical E-Mail: " + newEmail);
-            return false;
-        }
-        else {
-            Logger.getAnonymousLogger().info("New E-Mail: " + newEmail + " (from " + currentEmail + ")");
-            return true;
+    private void storeNewValueAndSendMail(String uuid, User user) {
+        this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
+        boolean mailSent = sendConfirmationMail(user, uuid);
+        if (!mailSent) {
+            this.userIdMap.remove(user.getId());
+            this.uuidMap.remove(uuid);
         }
     }
 

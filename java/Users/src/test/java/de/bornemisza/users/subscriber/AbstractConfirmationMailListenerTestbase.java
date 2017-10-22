@@ -1,6 +1,7 @@
 package de.bornemisza.users.subscriber;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -9,8 +10,9 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.junit.Before;
-import org.mockito.ArgumentCaptor;
 import static org.junit.Assert.assertTrue;
+
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +52,6 @@ public abstract class AbstractConfirmationMailListenerTestbase {
 
         requestTopic = mock(ITopic.class);
         userIdMap = mock(IMap.class);
-        when(userIdMap.tryLock(anyString())).thenReturn(true);
 
         uuidMap = mock(IMap.class);
         mailSender = mock(MailSender.class);
@@ -63,7 +64,8 @@ public abstract class AbstractConfirmationMailListenerTestbase {
 
     protected void onMessage_mailSent_styledTemplate_Base() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
-        when(userIdMap.putIfAbsent(eq(user.getId()), uuidCaptor.capture(), anyLong(), any(TimeUnit.class))).thenReturn(null);
+        when(userIdMap.putIfAbsent(eq(user.getId()), eq("locked"), anyLong(), any(TimeUnit.class))).thenReturn(null);
+        when(uuidMap.put(uuidCaptor.capture(), any(User.class), anyLong(), any(TimeUnit.class))).thenReturn(null);
 
         ArgumentCaptor<String> textContentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> htmlContentCaptor = ArgumentCaptor.forClass(String.class);
@@ -81,43 +83,48 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         String htmlMailBody = htmlContentCaptor.getValue();
         assertTrue(htmlMailBody.contains(expectedLink));
         assertTrue(htmlMailBody.contains("font-family:Helvetica, Arial, sans-serif"));
-        verify(userIdMap).unlock(any());
     }
     
     protected void onMessage_mailNotSent_Base() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
-        when(userIdMap.putIfAbsent(eq(user.getId()), uuidCaptor.capture(), anyLong(), any(TimeUnit.class))).thenReturn(null);
+        when(userIdMap.putIfAbsent(eq(user.getId()), eq("locked"), anyLong(), any(TimeUnit.class))).thenReturn(null);
+        when(uuidMap.put(uuidCaptor.capture(), any(User.class), anyLong(), any(TimeUnit.class))).thenReturn(null);
 
         when(mailSender.sendMail(eq(user.getEmail()), contains("Confirmation"), anyString(), anyString())).thenReturn(false);
         CUT.onMessage(msg);
 
-        verify(uuidMap).remove(uuidCaptor.getValue());
-        verify(userIdMap).unlock(any());
+        verify(userIdMap).remove(user.getId());
+        verify(uuidMap).remove(anyString());
     }
 
-    protected void onMessage_uuidExists_doNotSendAdditionalMail_unchangedValue_Base() throws AddressException, NoSuchProviderException {
-        String previousValue = UUID.randomUUID().toString();
-        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
-        when(uuidMap.get(previousValue)).thenReturn(user);
+    protected void onMessage_userExists_doNotSendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
+        User existingUser = new User();
+        existingUser.setName(user.getName());
+        existingUser.setEmail(user.getEmail());
+        when(uuidMap.values()).thenReturn(Arrays.asList(new User[] { existingUser }));
         CUT.onMessage(msg);
 
         verifyNoMoreInteractions(mailSender);
+        verifyNoMoreInteractions(userIdMap);
+        verify(uuidMap).values();
+        verifyNoMoreInteractions(uuidMap);
     }
 
     protected void onMessage_uuidExists_doNotSendAdditionalMail_locked_Base() throws AddressException, NoSuchProviderException {
-        String previousValue = UUID.randomUUID().toString();
-        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
-        when(userIdMap.tryLock(anyString())).thenReturn(false);
-        when(uuidMap.get(previousValue)).thenReturn(user);
+        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn("locked");
         CUT.onMessage(msg);
 
         verifyNoMoreInteractions(mailSender);
+        verify(userIdMap).putIfAbsent(anyString(), anyString(), anyLong(), any(TimeUnit.class));
+        verifyNoMoreInteractions(userIdMap);
+        verify(uuidMap).values();
+        verifyNoMoreInteractions(uuidMap);
     }
 
     protected void onMessage_uuidExists_sendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
         String previousValue = UUID.randomUUID().toString();
         when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(previousValue);
-        when(userIdMap.tryLock(anyString())).thenReturn(true);
+        when(uuidMap.values()).thenReturn(Arrays.asList(new User[] { user }));
         User userWithDifferentMailAddress = new User();
         userWithDifferentMailAddress.setName(user.getName());
         userWithDifferentMailAddress.setPassword(user.getPassword());
@@ -134,7 +141,6 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         verify(uuidMap).put(anyString(), eq(userWithDifferentMailAddress), eq(24l), eq(TimeUnit.HOURS));
         verify(mailSender).sendMail(eq(otherRecipient), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(mailSender);
-        verify(userIdMap).unlock(any());
     }
 
 }

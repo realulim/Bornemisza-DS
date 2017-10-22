@@ -35,7 +35,7 @@ public class NewUserAccountListenerTest extends AbstractConfirmationMailListener
 
     @Test
     public void onMessage_uuidExists_doNotSendAdditionalMail_unchangedValue() throws AddressException, NoSuchProviderException {
-        onMessage_uuidExists_doNotSendAdditionalMail_unchangedValue_Base();
+        onMessage_userExists_doNotSendAdditionalMail_Base();
     }
 
     @Test
