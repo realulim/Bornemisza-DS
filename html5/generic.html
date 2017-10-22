@@ -10,12 +10,11 @@
 
     <link href="apple-touch-icon.png" rel="apple-touch-icon">
 
-    <link href="css/normalize.css" rel="stylesheet">
+    <linkhref="css/normalize.css" rel="stylesheet" >
     <link href="css/default.css" rel="stylesheet">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.5.3/css/bulma.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Kurale" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 
@@ -29,12 +28,24 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <spinner delay="1000"></spinner>
-    <div id="root"></div>
-    
+    <baron-message>
+        <div if="{failure}">
+            <div>Unfortunately an error occurred while trying to confirm your membership.</div>
+            <ul>
+                <li>Perhaps your registration request expired? The confirmation code is only valid for 24 hours.
+                    In that case please register again.</li>
+                <li>However, only one mail per 24 hours is ever sent out to any e-mail address.</li>
+            </ul>
+        </div>
+        <div if="{success}">
+            <div class="block"></div>
+            <div class="block">Congratulations! Your membership has been approved.</div>
+            <div>You can now sign in with your chosen username and password.</div>
+        </div>
+    </baron-message>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.7.3/riot.min.js"></script>
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js"></script>
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js"></script>
     <script type="text/javascript" title="Grapnel Router">
         !function (a) { function b(b) { "use strict"; var c = this; return this.events = {}, this.state = null, this.options = b || {}, this.options.env = this.options.env || (0 === Object.keys(a).length && process && process.browser !== !0 ? "server" : "client"), this.options.mode = this.options.mode || ("server" !== this.options.env && this.options.pushState && a.history && a.history.pushState ? "pushState" : "hashchange"), this.version = "0.6.4", "function" == typeof a.addEventListener && (a.addEventListener("hashchange", function () { c.trigger("hashchange") }), a.addEventListener("popstate", function (a) { return (!c.state || null !== c.state.previousState) && void c.trigger("navigate") })), this } function c(a, b) { this.stack = c.global.slice(0), this.router = a, this.runCallback = !0, this.callbackRan = !1, this.propagateEvent = !0, this.value = a.path(); for (var d in b) this[d] = b[d]; return this } function d(a) { this.route = a, this.keys = [], this.regex = b.regexRoute(a, this.keys) } b.regexRoute = function (a, b, c, d) { return a instanceof RegExp ? a : (a instanceof Array && (a = "(" + a.join("|") + ")"), a = a.concat(d ? "" : "/?").replace(/\/\(/g, "(?:/").replace(/\+/g, "__plus__").replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, function (a, c, d, e, f, g) { return b.push({ name: e, optional: !!g }), c = c || "", "" + (g ? "" : c) + "(?:" + (g ? c : "") + (d || "") + (f || d && "([^/.]+?)" || "([^/]+?)") + ")" + (g || "") }).replace(/([\/.])/g, "\\$1").replace(/__plus__/g, "(.+)").replace(/\*/g, "(.*)"), new RegExp("^" + a + "$", c ? "" : "i")) }, b._forEach = function (a, b) { return "function" == typeof Array.prototype.forEach ? Array.prototype.forEach.call(a, b) : function (a, b) { for (var c = 0, d = this.length; c < d; ++c)a.call(b, this[c], c, this) }.call(a, b) }, b.prototype.get = b.prototype.add = function (a) { var b = this, e = Array.prototype.slice.call(arguments, 1, -1), f = Array.prototype.slice.call(arguments, -1)[0], g = new d(a), h = function () { var d = g.parse(b.path()); if (d.match) { var h = { route: a, params: d.params, req: d, regex: d.match }, i = new c(b, h).enqueue(e.concat(f)); if (b.trigger("match", i, d), !i.runCallback) return b; if (i.previousState = b.state, b.state = i, i.parent() && i.parent().propagateEvent === !1) return i.propagateEvent = !1, b; i.callback() } return b }, i = "pushState" !== b.options.mode && "server" !== b.options.env ? "hashchange" : "navigate"; return h().on(i, h) }, b.prototype.trigger = function (a) { var c = this, d = Array.prototype.slice.call(arguments, 1); return this.events[a] && b._forEach(this.events[a], function (a) { a.apply(c, d) }), this }, b.prototype.on = b.prototype.bind = function (a, c) { var d = this, e = a.split(" "); return b._forEach(e, function (a) { d.events[a] ? d.events[a].push(c) : d.events[a] = [c] }), this }, b.prototype.once = function (a, b) { var c = !1; return this.on(a, function () { return !c && (c = !0, b.apply(this, arguments), b = null, !0) }) }, b.prototype.context = function (a) { var b = this, c = Array.prototype.slice.call(arguments, 1); return function () { var d = arguments[0], e = arguments.length > 2 ? Array.prototype.slice.call(arguments, 1, -1) : [], f = Array.prototype.slice.call(arguments, -1)[0], g = "/" !== a.slice(-1) && "/" !== d && "" !== d ? a + "/" : a, h = "/" !== d.substr(0, 1) ? d : d.substr(1), i = g + h; return b.add.apply(b, [i].concat(c).concat(e).concat([f])) } }, b.prototype.navigate = function (a) { return this.path(a).trigger("navigate") }, b.prototype.path = function (b) { var c, d = this; return "string" == typeof b ? ("pushState" === d.options.mode ? (c = d.options.root ? d.options.root + b : b, a.history.pushState({}, null, c)) : a.location ? a.location.hash = (d.options.hashBang ? "!" : "") + b : a._pathname = b || "", this) : "undefined" == typeof b ? c = "pushState" === d.options.mode ? a.location.pathname.replace(d.options.root, "") : "pushState" !== d.options.mode && a.location ? a.location.hash ? a.location.hash.split(d.options.hashBang ? "#!" : "#")[1] : "" : a._pathname || "" : b === !1 ? ("pushState" === d.options.mode ? a.history.pushState({}, null, d.options.root || "/") : a.location && (a.location.hash = d.options.hashBang ? "!" : ""), d) : void 0 }, b.listen = function () { var a, c; return arguments[0] && arguments[1] ? (a = arguments[0], c = arguments[1]) : c = arguments[0], function () { for (var a in c) this.add.call(this, a, c[a]); return this }.call(new b(a || {})) }, c.global = [], c.prototype.preventDefault = function () { this.runCallback = !1 }, c.prototype.stopPropagation = function () { this.propagateEvent = !1 }, c.prototype.parent = function () { var a = !(!this.previousState || !this.previousState.value || this.previousState.value != this.value); return !!a && this.previousState }, c.prototype.callback = function () { this.callbackRan = !0, this.timeStamp = Date.now(), this.next() }, c.prototype.enqueue = function (a, b) { for (var c = Array.isArray(a) ? b < a.length ? a.reverse() : a : [a]; c.length;)this.stack.splice(b || this.stack.length + 1, 0, c.shift()); return this }, c.prototype.next = function () { var a = this; return this.stack.shift().call(this.router, this.req, this, function () { a.next.call(a) }) }, d.prototype.parse = function (a) { var c = a.match(this.regex), d = this, e = { params: {}, keys: this.keys, matches: (c || []).slice(1), match: c }; return b._forEach(e.matches, function (a, b) { var c = d.keys[b] && d.keys[b].name ? d.keys[b].name : b; e.params[c] = a ? decodeURIComponent(a) : void 0 }), e }, b.CallStack = c, b.Request = d, "function" != typeof a.define || a.define.amd.grapnel ? "object" == typeof module && "object" == typeof module.exports ? module.exports = exports = b : a.Grapnel = b : a.define(function (c, d, e) { return a.define.amd.grapnel = !0, b }) }.call({}, "object" == typeof window ? window : this);
     </script>
@@ -48,34 +59,94 @@
         var ObservableMixin = {
             observable: this.observable
         }
-        riot.mount("spinner")
-        var root = document.getElementById("root")
-        
+
+        riot.mount('*')
+
         var router = new Grapnel({ pushState: true });
-        router.get("/", function (req) {
-            router.navigate("/index.html")
+        router.get("/generic.html", function (req) {
+            var params = parseRequestParams()
+            if (params.action === "confirm" && params.type === "user") {
+                confirmUser(params.uuid)
+            }
         })
         router.get("/index.html", function (req) {
-            setBackground("slategrey")
-            riot.mount(root, "cards")
-        })
-        router.get("/main.html", function (req) {
-            riot.mount(root, "layout")
-            riot.mount(document.getElementById("aside-content"), "aside")
-            riot.mount(document.getElementById("top-content"), "user-menu")
-            riot.mount(document.getElementById("slot1"), "main")
-            riot.mount(document.getElementById("slot2"), "server-chart", {title: "Application Servers", event: UPDATE_APPSERVERS_CHART, chartid: "appChart"})
-            riot.mount(document.getElementById("slot3"), "server-chart", {title: "Database Servers", event: UPDATE_DBSERVERS_CHART, chartid: "dbChart"})
+            window.location = "/index.html" // redirect to main single page application
         })
         console.log("Router running...")
 
-        this.observable.on(AUTH_SUCCESS, function (opts) {
-            sessionStorage.clear()
-            sessionStorage.setItem("user", opts.user)
-            sessionStorage.setItem("ctoken", opts.ctoken)
-            router.navigate("/main.html")
-            self.observable.trigger(JUST_MARRIED, { displayAuthSuccessMessage: true })
-        })
+        function confirmUser(uuid) {
+            var url = config.urlConfirmUser + "/" + uuid
+            console.log("Confirming to " + url)
+            qwest.get(url, {}, {
+                timeout: 5000
+            })
+                .then(function (xhr, response) {
+                    self.success = true
+                    self.observable.trigger(SHOW_BARON_MESSAGE, 
+                    {
+                        title: "Membership Activation successful",
+                        buttonText: "Very well"
+                    })
+                })
+                .catch(function (error, xhr, response) {
+                    console.log(xhr.responseText)
+                    self.failure = true
+                    self.observable.trigger(SHOW_BARON_MESSAGE,
+                        {
+                            title: "Membership Activation failed",
+                            buttonText: "Most unfortunate"
+                        })
+                    })
+        }
+
+        function parseRequestParams() {
+            var queryString = window.location.search.slice(1);
+            var obj = {};
+
+            if (queryString) {
+                // stuff after # is not part of query string, so get rid of it
+                queryString = queryString.split('#')[0];
+                var arr = queryString.split('&');
+
+                for (var i = 0; i < arr.length; i++) {
+                    var a = arr[i].split('=');
+
+                    // in case params look like: list[]=thing1&list[]=thing2
+                    var paramNum = undefined;
+                    var paramName = a[0].replace(/\[\d*\]/, function (v) {
+                        paramNum = v.slice(1, -1);
+                        return '';
+                    });
+
+                    var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
+                    paramName = paramName.toLowerCase();
+                    paramValue = paramValue.toLowerCase();
+
+                    // if parameter name already exists
+                    if (obj[paramName]) {
+                        // convert value to array (if still string)
+                        if (typeof obj[paramName] === 'string') {
+                            obj[paramName] = [obj[paramName]];
+                        }
+                        // if no array index number specified...
+                        if (typeof paramNum === 'undefined') {
+                            // put the value on the end of the array
+                            obj[paramName].push(paramValue);
+                        }
+                        // if array index number specified...
+                        else {
+                            // put the value at that index number
+                            obj[paramName][paramNum] = paramValue;
+                        }
+                    }
+                    // if param name doesn't exist yet, set it
+                    else {
+                        obj[paramName] = paramValue;
+                    }
+                }
+            }
+            return obj;
+        }
     </script>
 </body>
 

@@ -1,6 +1,6 @@
 <baron-message>
 
-	<div ref="regSuccessMsg" class="modal fade-in">
+	<div ref="modalMessage" class="modal fade-in">
 		<div class="modal-background"></div>
 		<div class="modal-card">
 			<header class="modal-card-head">
@@ -45,7 +45,7 @@
 
 		.modal-card-body {
 			background-color: var(--platinum);
-			padding: 0.75em;
+			padding: 1em;
 		}
 
 		.modal-card-foot {
@@ -88,7 +88,7 @@
 		this.buttonText = ""
 
 		this.dismiss = () => {
-			self.refs.regSuccessMsg.classList.remove("is-active")
+			self.refs.modalMessage.classList.remove("is-active")
 			self.update()
 			router.navigate("/index.html")
 		}
