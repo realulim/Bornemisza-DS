@@ -72,12 +72,12 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         CUT.onMessage(msg);
 
         // Text-Mailbody must contain Link
-        String expectedLink = getConfirmationLinkPrefix() + "/" + uuidCaptor.getValue();
+        String expectedLink = getConfirmationLinkPrefix() + uuidCaptor.getValue();
         String textMailBody = textContentCaptor.getValue();
         assertTrue(textMailBody.contains(expectedLink));
 
         // Html-Mailbody must contain Link and Style
-        expectedLink = "<a href=\"" + getConfirmationLinkPrefix() + "/" + uuidCaptor.getValue() + "\"";
+        expectedLink = "<a href=\"" + getConfirmationLinkPrefix() + uuidCaptor.getValue() + "\"";
         String htmlMailBody = htmlContentCaptor.getValue();
         assertTrue(htmlMailBody.contains(expectedLink));
         assertTrue(htmlMailBody.contains("font-family:Helvetica, Arial, sans-serif"));

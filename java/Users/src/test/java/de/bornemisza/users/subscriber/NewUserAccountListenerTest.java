@@ -20,7 +20,7 @@ public class NewUserAccountListenerTest extends AbstractConfirmationMailListener
 
     @Override
     String getConfirmationLinkPrefix() {
-        return "https://" + System.getProperty("FQDN") + "/confirmUser";
+        return "https://" + System.getProperty("FQDN") + "/generic.html?action=confirm&type=user&uuid=";
     }
 
     @Test

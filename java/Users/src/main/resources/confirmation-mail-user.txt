@@ -3,6 +3,6 @@ Please activate your new User Account by clicking the Link below.
 
 If you have not signed up for our service, please ignore this message.
 
-Yes, I am $NAME$. And henceforth I shall be a Member! ( https://$FQDN$/confirmUser/$UUID$ )
+Yes, I am $NAME$. And henceforth I shall be a Member! ( https://$FQDN$/generic.html?action=confirm&type=user&uuid=$UUID$ )
 
 - The Baron

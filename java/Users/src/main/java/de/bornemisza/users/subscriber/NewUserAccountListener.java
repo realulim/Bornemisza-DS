@@ -48,12 +48,12 @@ public class NewUserAccountListener extends AbstractConfirmationMailListener {
 
     @Override
     String getFallbackHtmlTemplate() {
-        return "<html><h3>Please click on the confirmation link to create your user account:</h3><a href=\"https://$FQDN$/confirmUser/$UUID$\">Yes, I'm $NAME$ and I want to become a Member!</a></html>";
+        return "<html><h3>Please click on the confirmation link to create your user account:</h3><a href=\"https://$FQDN$/generic.html?action=confirm&type=user&uuid=$UUID$\">Yes, I'm $NAME$ and I want to become a Member!</a></html>";
     }
 
     @Override
     String getFallbackTextTemplate() {
-        return "Dear $NAME$, please copy this link into your browser to create your user account: https://$FQDN$/confirmUser/$UUID$";
+        return "Dear $NAME$, please copy this link into your browser to create your user account: https://$FQDN$/generic.html?action=confirm&type=user&uuid=$UUID$";
     }
 
 }
