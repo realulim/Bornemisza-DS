@@ -20,7 +20,7 @@ public class ChangeEmailRequestListenerTest extends AbstractConfirmationMailList
 
     @Override
     String getConfirmationLinkPrefix() {
-        return "https://" + System.getProperty("FQDN") + "/generic.html?action=confirm&type=user&uuid=";
+        return "https://" + System.getProperty("FQDN") + "/generic.html?action=confirm&type=email&uuid=";
     }
 
     @Test

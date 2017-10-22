@@ -3,6 +3,6 @@ Please confirm your new E-Mail Address by clicking the Link below.
 
 If you have not signed up for our service, please ignore this message.
 
-Henceforth this shall be my E-Mail Address! ( https://$FQDN$/generic.html?action=confirm&type=user&uuid=$UUID$ )
+Henceforth this shall be my E-Mail Address! ( https://$FQDN$/generic.html?action=confirm&type=email&uuid=$UUID$ )
 
 - The Baron
