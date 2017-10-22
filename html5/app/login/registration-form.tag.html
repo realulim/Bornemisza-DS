@@ -96,7 +96,10 @@
                 })
                     .then(function (xhr, response) {
                         self.observable.trigger(LOADING_DONE)
-                        self.observable.trigger(SHOW_BARON_MESSAGE, { name: user.name })
+                        self.observable.trigger(SHOW_BARON_MESSAGE, {
+                            title: "Welcome " + user.name + "!",
+                            buttonText: "Very well"
+                        })
                     })
                     .catch(function (error, xhr, response) {
                         self.observable.trigger(LOADING_DONE)
