@@ -2,10 +2,10 @@
 var AUTH_SUCCESS = "Authentication successful";
 var AUTH_FAILED = "Authentication failed";
 var AUTH_ERROR = "Error while authenticating";
-var REGISTRATION_SUCCESS = "Registration successful";
 var REGISTRATION_FAILED = "Registration failed";
 var REGISTRATION_ERROR = "Error while registering";
-var LOGOUT_REQUESTED = "Logout requested by User"
+var SHOW_BARON_MESSAGE = "Show message from the Baron";
+var LOGOUT_REQUESTED = "Logout requested by User";
 var LOADING_IN_PROGRESS = "Loading Data in Progress";
 var LOADING_DONE = "Loading Data completed";
 var LOADING_ERROR = "Error while loading Data";

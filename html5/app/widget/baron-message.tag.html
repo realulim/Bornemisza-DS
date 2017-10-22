@@ -76,7 +76,7 @@
 			router.navigate("/index.html")
 		}
 
-		this.observable.on(REGISTRATION_SUCCESS, function (opts) {
+		this.observable.on(SHOW_BARON_MESSAGE, function (opts) {
 			self.userName = opts.name
 			self.refs.regSuccessMsg.classList.add("is-active")
 			self.update()
