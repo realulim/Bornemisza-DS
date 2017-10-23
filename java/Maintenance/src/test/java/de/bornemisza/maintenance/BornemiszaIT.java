@@ -32,13 +32,14 @@ public class BornemiszaIT extends IntegrationTestBase {
         String confirmationLink = retrieveConfirmationLink(user.getEmail());
         assertTrue(confirmationLink.startsWith("https://"));
         System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
-        Response response = clickConfirmationLink(confirmationLink, 200);
+        String apiLink = convertToApiLink(confirmationLink, "user");
+        Response response = clickApiLink(apiLink, 200);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
         assertNull(jsonPath.getString("password"));
 
         /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
-        response = clickConfirmationLink(confirmationLink, 404);
+        response = clickApiLink(apiLink, 404);
         assertEquals("User Account Creation Request does not exist - maybe expired?", response.print());
     }
 
@@ -132,12 +133,13 @@ public class BornemiszaIT extends IntegrationTestBase {
         String confirmationLink = retrieveConfirmationLink(newEmail);
         assertTrue(confirmationLink.startsWith("https://"));
         System.out.println("Mail delivered after " + (System.currentTimeMillis() - start) + " ms.");
-        Response response = clickConfirmationLink(confirmationLink, 200, creds);
+        String apiLink = convertToApiLink(confirmationLink, "email");
+        Response response = clickApiLink(apiLink, 200, creds);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(newEmail.toString(), jsonPath.getString("email"));
 
         /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
-        response = clickConfirmationLink(confirmationLink, 404, creds);
+        response = clickApiLink(apiLink, 404, creds);
         assertEquals("E-Mail Change Request does not exist - maybe expired?", response.print());
     }
 

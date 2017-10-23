@@ -129,14 +129,20 @@ public class IntegrationTestBase {
         return html.split("href=\"")[1].split("\"")[0];
     }
 
-    protected Response clickConfirmationLink(String confirmationLink, int expectedStatusCode) {
-        return clickConfirmationLink(confirmationLink, expectedStatusCode, null);
+    protected String convertToApiLink(String confirmationLink, String type) {
+        String uuid = confirmationLink.substring(confirmationLink.lastIndexOf("=") + 1);
+        String baseUrl = confirmationLink.substring(0, confirmationLink.indexOf("?") - "generic.html".length());
+        return baseUrl + "users/confirmation/" + type + "/" + uuid;
     }
 
-    protected Response clickConfirmationLink(String confirmationLink, int expectedStatusCode, BasicAuthCredentials creds) {
-        String uuid = confirmationLink.substring(confirmationLink.lastIndexOf("/") + 1);
+    protected Response clickApiLink(String confirmationLink, int expectedStatusCode) {
+        return clickApiLink(confirmationLink, expectedStatusCode, null);
+    }
+
+    protected Response clickApiLink(String apiLink, int expectedStatusCode, BasicAuthCredentials creds) {
+        String uuid = apiLink.substring(apiLink.lastIndexOf("/") + 1);
         RequestSpecification localRequestSpec = new RequestSpecBuilder()
-                .setBaseUri(confirmationLink.substring(0, confirmationLink.length() - uuid.length()))
+                .setBaseUri(apiLink.substring(0, apiLink.length() - uuid.length()))
                 .addFilter(new RequestLoggingFilter())
                 .addFilter(new ResponseLoggingFilter())
                 .build();
