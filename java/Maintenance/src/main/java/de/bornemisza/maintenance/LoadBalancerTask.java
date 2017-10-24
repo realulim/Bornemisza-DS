@@ -20,7 +20,6 @@ import com.hazelcast.core.IMap;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
-import de.bornemisza.rest.da.HttpPool;
 
 @Stateless
 public class LoadBalancerTask {
@@ -31,8 +30,8 @@ public class LoadBalancerTask {
     @Inject
     HazelcastInstance hazelcast;
 
-    @Resource(name="http/Base")
-    HttpPool pool;
+    @Inject
+    HttpBasePool pool;
 
     private IMap<String, Integer> dbServerUtilisation;
 
@@ -73,6 +72,7 @@ public class LoadBalancerTask {
             if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
                 this.dbServerUtilisation.remove(hostname);
+                Logger.getAnonymousLogger().info("Host has disappeared: " + hostname);
             }
         }
     }
