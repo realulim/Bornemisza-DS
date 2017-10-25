@@ -86,7 +86,6 @@ public abstract class Pool<T> {
     }
 
     protected void trackUtilisation(String hostname) {
-        if (this.dbServerUtilisation == null) this.dbServerUtilisation = getDbServerUtilisation();
         this.dbServerUtilisation.computeIfPresent(hostname, (k, v) -> v+1);
     }
 
