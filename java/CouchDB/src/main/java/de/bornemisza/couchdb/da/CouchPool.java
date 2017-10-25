@@ -59,7 +59,7 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
                 connections.put(hostname, conn);
             }
         }
-        catch (NamingException | MalformedURLException ex) {
+        catch (MalformedURLException ex) {
             throw new RuntimeException("Cannot create CouchPool: " + ex.toString());
         }
         return connections;

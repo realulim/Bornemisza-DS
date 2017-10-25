@@ -49,7 +49,7 @@ public abstract class HttpPool extends Pool<Http> {
                 connections.put(hostname, conn);
             }
         }
-        catch (NamingException | MalformedURLException ex) {
+        catch (MalformedURLException ex) {
             throw new RuntimeException("Cannot create HttpPool: " + ex.toString());
         }
         return connections;

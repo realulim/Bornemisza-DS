@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.cache.expiry.CreatedExpiryPolicy;
@@ -25,36 +26,50 @@ public class DnsProvider {
 
     private final HazelcastInstance hazelcast;
     private final ICache<String, List<String>> cache;
+    private List<String> cachedDatabaseServers = new ArrayList<>();
+
+    private final Hashtable<String, String> env = new Hashtable<>();
+    private DirContext ctx;
 
     public DnsProvider(HazelcastInstance hz) {
         this.hazelcast = hz;
         ICacheManager cacheManager = hazelcast.getCacheManager();
         this.cache = cacheManager.getCache("DatabaseServers");
+
+        env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
+        env.put("java.naming.provider.url", "dns:");
     }
 
-    public List<String> getHostnamesForService(String service) throws NamingException {
+    // Constructor for Unit Tests
+    public DnsProvider(HazelcastInstance hazelcast, DirContext context) {
+        this(hazelcast);
+        this.ctx = context;
+    }
+
+    public List<String> getHostnamesForService(String service) {
         if (service == null) throw new IllegalArgumentException("Service is null!");
-        if (cache.containsKey(service)) {
-            return cache.get(service);
-        }
+        List<String> hostnames = cache.get(service);
+        if (hostnames != null) return hostnames; // cache hit
         else {
-            List<String> hostnames = getSrvRecordsSortedByPriority(service).stream()
-                    .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
-                    .collect(Collectors.toList());
-            cache.put(service, hostnames, new CreatedExpiryPolicy(Duration.ONE_MINUTE));
+            try {
+                // Read SRV-Records from DNS
+                hostnames = retrieveSrvRecordsAndSort(service).stream()
+                        .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
+                        .collect(Collectors.toList());
+                this.cachedDatabaseServers = hostnames; // cache locally as a fallback in case of DNS failures
+                cache.put(service, hostnames, new CreatedExpiryPolicy(Duration.ONE_MINUTE));
+                Logger.getAnonymousLogger().info("Refreshing SRV-Record Cache: " + String.join(",", hostnames));
+            }
+            catch (NamingException ex) {
+                Logger.getAnonymousLogger().warning("Problem getting SRV-Records: " + ex.toString());
+                return this.cachedDatabaseServers;
+            }
             return hostnames;
         }
     }
 
-    List<SrvRecord> getSrvRecordsSortedByPriority(String service) throws NamingException {
-        Hashtable<String, String> env = new Hashtable<>();
-        env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
-        env.put("java.naming.provider.url", "dns:");
-        DirContext ctx = new InitialDirContext(env);
-        return retrieveSrvRecordsAndSort(ctx, service);
-    }
-
-    List<SrvRecord> retrieveSrvRecordsAndSort(DirContext ctx, String service) throws NamingException {
+    List<SrvRecord> retrieveSrvRecordsAndSort(String service) throws NamingException {
+        if (ctx == null) ctx = new InitialDirContext(env);
         Attributes attrs = ctx.getAttributes(service, new String[] {"SRV"});
         NamingEnumeration<?> servers = attrs.get("srv").getAll();
         Set<SrvRecord> sortedRecords = new TreeSet<>();

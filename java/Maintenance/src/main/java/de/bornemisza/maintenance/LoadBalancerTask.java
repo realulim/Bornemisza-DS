@@ -55,14 +55,9 @@ public class LoadBalancerTask {
     @Timeout
     public void performMaintenance() {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
-        try {
-            String serviceName = pool.getServiceName();
-            List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
-            updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
-        }
-        catch (NamingException ex) {
-            Logger.getAnonymousLogger().warning("Problem reading SRV-Records: " + ex.toString());
-        }
+        String serviceName = pool.getServiceName();
+        List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
+        updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
 
         logNewQueueState();
     }
