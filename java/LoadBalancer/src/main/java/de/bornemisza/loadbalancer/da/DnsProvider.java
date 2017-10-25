@@ -47,7 +47,6 @@ public class DnsProvider {
     }
 
     public List<String> getHostnamesForService(String service) {
-        if (service == null) throw new IllegalArgumentException("Service is null!");
         List<String> hostnames = cache.get(service);
         if (hostnames != null) return hostnames; // cache hit
         else {

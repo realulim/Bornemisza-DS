@@ -13,7 +13,6 @@ import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
-import javax.naming.NamingException;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
