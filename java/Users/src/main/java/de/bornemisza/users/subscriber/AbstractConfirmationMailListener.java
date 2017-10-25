@@ -79,6 +79,11 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
     @Override
     public void onMessage(Message<User> msg) {
         User user = msg.getMessageObject();
+        String previousValue = this.userIdMap.putIfAbsent(user.getId(), "locked", 5, TimeUnit.MINUTES);
+        if (previousValue != null && previousValue.equals("locked")) {
+            Logger.getAnonymousLogger().info("Skipping Request Handling, it is already being worked on.");
+            return;
+        }
         for (User existingUser : uuidMap.values()) {
             if (existingUser.getId().equals(user.getId()) && 
                 existingUser.getEmail().getAddress().equals(user.getEmail().getAddress())) {
@@ -86,16 +91,10 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
                 return;
             }
         }
-        // Now we know that we have to send an email unless the message is already being worked on
-        String previousValue = this.userIdMap.putIfAbsent(user.getId(), "locked", 5, TimeUnit.MINUTES);
+        // Now we know that we have to send an email
         String uuid = UUID.randomUUID().toString();
-        if (previousValue == null || !previousValue.equals("locked")) {
-            storeNewValueAndSendMail(uuid, user);
-            this.userIdMap.put(user.getId(), uuid, 24, TimeUnit.HOURS);
-        }
-        else {
-            Logger.getAnonymousLogger().info("Skipping Request Handling, it is already being worked on.");
-        }
+        storeNewValueAndSendMail(uuid, user);
+        this.userIdMap.put(user.getId(), uuid, 24, TimeUnit.HOURS);
     }
 
     private void storeNewValueAndSendMail(String uuid, User user) {

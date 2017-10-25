@@ -101,13 +101,15 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         User existingUser = new User();
         existingUser.setName(user.getName());
         existingUser.setEmail(user.getEmail());
+        when(userIdMap.putIfAbsent(eq(user.getId()), anyString(), anyLong(), any(TimeUnit.class))).thenReturn(UUID.randomUUID().toString());
         when(uuidMap.values()).thenReturn(Arrays.asList(new User[] { existingUser }));
         CUT.onMessage(msg);
 
-        verifyNoMoreInteractions(mailSender);
+        verify(userIdMap).putIfAbsent(anyString(), anyString(), anyLong(), any(TimeUnit.class));
         verifyNoMoreInteractions(userIdMap);
         verify(uuidMap).values();
         verifyNoMoreInteractions(uuidMap);
+        verifyNoMoreInteractions(mailSender);
     }
 
     protected void onMessage_uuidExists_doNotSendAdditionalMail_locked_Base() throws AddressException, NoSuchProviderException {
@@ -117,7 +119,6 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         verifyNoMoreInteractions(mailSender);
         verify(userIdMap).putIfAbsent(anyString(), anyString(), anyLong(), any(TimeUnit.class));
         verifyNoMoreInteractions(userIdMap);
-        verify(uuidMap).values();
         verifyNoMoreInteractions(uuidMap);
     }
 
