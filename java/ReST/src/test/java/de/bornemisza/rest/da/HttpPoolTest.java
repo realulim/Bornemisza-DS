@@ -36,7 +36,7 @@ public class HttpPoolTest {
 
         @Override
         protected LoadBalancerConfig getLoadBalancerConfig() {
-            return null; // nothing
+            return new LoadBalancerConfig("serviceName", "instanceName", "someUser", "password".toCharArray());
         }
 
         @Override
@@ -68,6 +68,17 @@ public class HttpPoolTest {
         when(hazelcast.getMap(UTILISATION)).thenReturn(dbServerUtilisation);
 
         CUT = new TestableHttpPool(hazelcast, mock(DnsProvider.class), healthChecks);
+    }
+
+    @Test
+    public void getConnection_connectionNull() {
+        CUT.getDbServers().add(0, "host0");
+        when(healthChecks.isCouchDbReady(any())).thenReturn(true);
+        int previousSize = allTestConnections.size();
+
+        CUT.getConnection();
+
+        assertEquals(previousSize + 1, allTestConnections.size()); // new connection was added
     }
 
     @Test

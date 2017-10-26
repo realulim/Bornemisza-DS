@@ -39,7 +39,7 @@ public class CouchPoolTest {
 
         @Override
         protected LoadBalancerConfig getLoadBalancerConfig() {
-            return null; // nothing
+            return new LoadBalancerConfig("serviceName", "instanceName", "someUser", "password".toCharArray());
         }
 
         @Override
@@ -82,6 +82,17 @@ public class CouchPoolTest {
         healthChecks = mock(HealthChecks.class);
 
         CUT = new TestableConnectionPool(hazelcast, mock(DnsProvider.class), healthChecks);
+    }
+
+    @Test
+    public void getConnection_connectionNull() {
+        CUT.getDbServers().add(0, "host0");
+        when(healthChecks.isCouchDbReady(any())).thenReturn(true);
+        int previousSize = allTestConnections.size();
+
+        CUT.getConnector();
+
+        assertEquals(previousSize + 1, allTestConnections.size()); // new connection was added
     }
 
     @Test

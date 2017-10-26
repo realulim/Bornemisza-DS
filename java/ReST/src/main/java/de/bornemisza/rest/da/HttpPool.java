@@ -39,24 +39,33 @@ public abstract class HttpPool extends Pool<Http> {
         LoadBalancerConfig lbConfig = getLoadBalancerConfig();
         this.serviceName = lbConfig.getServiceName();
         Map<String, Http> connections = new HashMap<>();
-        String db = lbConfig.getInstanceName();
-        db = (db == null ? "" : db.replaceFirst ("^/*", ""));
-        try {
-            for (String hostname : this.dnsProvider.getHostnamesForService(serviceName)) {
-                Http conn = new Http(new URL("https://" + hostname + "/" + db));
-                connections.put(hostname, conn);
-            }
-        }
-        catch (MalformedURLException ex) {
-            throw new RuntimeException("Cannot create HttpPool: " + ex.toString());
+        for (String hostname : this.dnsProvider.getHostnamesForService(serviceName)) {
+            Http conn = createConnection(lbConfig, hostname);
+            connections.put(hostname, conn);
         }
         return connections;
+    }
+
+    private Http createConnection(LoadBalancerConfig lbConfig, String hostname) {
+        try {
+            String db = lbConfig.getInstanceName();
+            db = (db == null ? "" : db.replaceFirst ("^/*", ""));
+            return new Http(new URL("https://" + hostname + "/" + db));
+        }
+        catch (MalformedURLException ex) {
+            throw new RuntimeException("Cannot create Http: " + ex.toString());
+        }
     }
 
     public Http getConnection() {
         List<String> dbServerQueue = getDbServerQueue();
         for (String hostname : dbServerQueue) {
             Http conn = allConnections.get(hostname);
+            if (conn == null) {
+                // in case a new SRV-Record popped up, but we haven't created a Connection for it yet
+                conn = createConnection(getLoadBalancerConfig(), hostname);
+                allConnections.put(hostname, conn);
+            }
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 trackUtilisation(hostname);

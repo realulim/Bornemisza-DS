@@ -47,20 +47,24 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
         LoadBalancerConfig lbConfig = getLoadBalancerConfig();
         this.serviceName = lbConfig.getServiceName();
         Map<String, CouchDbConnection> connections = new HashMap<>();
-        String db = lbConfig.getInstanceName();
-        String userName = lbConfig.getUserName();
-        String password = lbConfig.getPassword() == null ? null : String.valueOf(lbConfig.getPassword());
-        db = (db == null ? "" : db.replaceFirst ("^/*", ""));
-        try {
-            for (String hostname : this.dnsProvider.getHostnamesForService(serviceName)) {
-                CouchDbConnection conn = new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
-                connections.put(hostname, conn);
-            }
-        }
-        catch (MalformedURLException ex) {
-            throw new RuntimeException("Cannot create CouchPool: " + ex.toString());
+        for (String hostname : this.dnsProvider.getHostnamesForService(serviceName)) {
+            CouchDbConnection conn = createConnection(lbConfig, hostname);
+            connections.put(hostname, conn);
         }
         return connections;
+    }
+
+    private CouchDbConnection createConnection(LoadBalancerConfig lbConfig, String hostname) {
+        try {
+            String db = lbConfig.getInstanceName();
+            String userName = lbConfig.getUserName();
+            String password = lbConfig.getPassword() == null ? null : String.valueOf(lbConfig.getPassword());
+            db = (db == null ? "" : db.replaceFirst ("^/*", ""));
+            return new CouchDbConnection(new URL("https://" + hostname + "/"), db, userName, password);
+        }
+        catch (MalformedURLException ex) {
+            throw new RuntimeException("Cannot create CouchDbConnection: " + ex.toString());
+        }
     }
 
     public MyCouchDbConnector getConnector() {
@@ -71,6 +75,11 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
         List<String> dbServerQueue = getDbServerQueue();
         for (String hostname : dbServerQueue) {
             CouchDbConnection conn = allConnections.get(hostname);
+            if (conn == null) {
+                // in case a new SRV-Record popped up, but we haven't created a Connection for it yet
+                conn = createConnection(getLoadBalancerConfig(), hostname);
+                allConnections.put(hostname, conn);
+            }
             if (healthChecks.isCouchDbReady(conn)) {
                 Logger.getAnonymousLogger().fine(hostname + " available, using it.");
                 HttpClient httpClient = createHttpClient(conn, userName, password);
