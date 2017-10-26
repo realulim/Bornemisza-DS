@@ -105,7 +105,7 @@ public class PoolTest {
     }
 
     @Test
-    public void sortHostnamesByUtilisation() throws Exception {
+    public void getDbServerQueue() throws Exception {
         IMap utilisationMap = new PseudoHazelcastMap<>();
         for (int i = 0; i < 10; i++) {
             String randomKey = UUID.randomUUID().toString();
@@ -113,7 +113,7 @@ public class PoolTest {
         }
         when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         Pool CUT = new PoolImpl(hazelcast);
-        List<String> sortedHostnames = CUT.sortHostnamesByUtilisation(utilisationMap.keySet());
+        List<String> sortedHostnames = CUT.getDbServerQueue();
         int lastUtilisation = 0;
         for (String hostname : sortedHostnames) {
             int utilisation = (Integer)utilisationMap.get(hostname);

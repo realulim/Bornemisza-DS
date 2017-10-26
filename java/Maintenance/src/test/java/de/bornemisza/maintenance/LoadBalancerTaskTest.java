@@ -27,15 +27,35 @@ public class LoadBalancerTaskTest {
     }
 
     @Test
-    public void addNewHostsForService() {
+    public void hostAppeared() {
         IMap<String, Integer> utilisationMap = new PseudoHazelcastMap<>();
         List<String> dnsHostnames = new ArrayList<>();
         for (int i = 1; i < 10; i++) {
             utilisationMap.put(getHostname(i), wheel.nextInt(100) + 1);
             dnsHostnames.add(getHostname(i));
         }
-        LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
         assertEquals(dnsHostnames.size(), utilisationMap.size());
+
+        LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
+
+        Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
+        dnsHostnames.add(getHostname(999)); // simulated new SRV-Record
+        CUT.updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
+        assertNotNull(utilisationMap.get(getHostname(999)));
+        assertEquals(dnsHostnames.size(), utilisationMap.size());
+    }
+
+    @Test
+    public void hostDisappeared() {
+        IMap<String, Integer> utilisationMap = new PseudoHazelcastMap<>();
+        List<String> dnsHostnames = new ArrayList<>();
+        for (int i = 1; i < 10; i++) {
+            utilisationMap.put(getHostname(i), wheel.nextInt(100) + 1);
+            dnsHostnames.add(getHostname(i));
+        }
+        assertEquals(dnsHostnames.size(), utilisationMap.size());
+
+        LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
 
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.remove(getHostname(3)); // simulate deleted SRV-Record

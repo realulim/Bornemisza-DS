@@ -24,7 +24,6 @@ public abstract class Pool<T> {
     protected DnsProvider dnsProvider;
     protected Map<String, T> allConnections;
 
-    private List<String> dbServerQueue = null;
     private Map<String, Integer> dbServerUtilisation = null;
 
     protected abstract String getServiceName();
@@ -48,7 +47,6 @@ public abstract class Pool<T> {
     private void initCluster() {
         this.allConnections = createConnections();
         this.dbServerUtilisation = getDbServerUtilisation();
-        this.dbServerQueue = sortHostnamesByUtilisation(allConnections.keySet());
     }
 
     public Set<String> getAllHostnames() {
@@ -56,10 +54,6 @@ public abstract class Pool<T> {
     }
 
     protected List<String> getDbServerQueue() {
-        return dbServerQueue;
-    }
-
-    List<String> sortHostnamesByUtilisation(Set<String> allHostnames) {
         return this.dbServerUtilisation.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue())
                 .map(entry -> entry.getKey())
@@ -80,7 +74,7 @@ public abstract class Pool<T> {
             Logger.getAnonymousLogger().warning("Hazelcast malfunctioning: " + e.toString());
             this.dbServerUtilisation = new HashMap<>(); // fallback, so clients can still work
         }
-        populateDbServerUtilisation();
+        initialPopulateOfDbServerUtilisation();
         return this.dbServerUtilisation;
     }
 
@@ -88,15 +82,9 @@ public abstract class Pool<T> {
         this.dbServerUtilisation.computeIfPresent(hostname, (k, v) -> v+1);
     }
 
-    private void populateDbServerUtilisation() {
+    private void initialPopulateOfDbServerUtilisation() {
         for (String newHostname : allConnections.keySet()) {
-            if (! dbServerUtilisation.containsKey(newHostname)) {
-                // reset utilisation for all hostname to start everyone on equal terms
-                for (String oldHostname : dbServerUtilisation.keySet()) {
-                    dbServerUtilisation.put(oldHostname, 0);
-                }
-                dbServerUtilisation.put(newHostname, 0);
-            }
+            dbServerUtilisation.putIfAbsent(newHostname, 0);
         }
     }
 
