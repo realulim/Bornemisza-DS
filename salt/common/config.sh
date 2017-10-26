@@ -8,7 +8,7 @@ CFAPI=https://api.cloudflare.com/client/v4/zones
 # you have to change the following settings
 entrypoint=www.bornemisza.de
 
-app_HostCount=3
+app_HostCount=5
 app_HostPrefix=app
 app_Domain=fra.bornemisza.de
 app_publicIpInterface=eth0
