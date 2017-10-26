@@ -63,7 +63,6 @@ public abstract class Pool<T> {
         return this.dbServerUtilisation.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue())
                 .map(entry -> entry.getKey())
-                .filter(key -> allHostnames.contains(key)) // in case we have stale Utilisation entries
                 .collect(Collectors.toList());
     }
 

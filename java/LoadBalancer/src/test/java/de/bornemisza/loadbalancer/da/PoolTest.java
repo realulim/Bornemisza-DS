@@ -105,27 +105,6 @@ public class PoolTest {
     }
 
     @Test
-    public void verifyConsistencyBetweenQueueAndAllHostnames() {
-        IMap utilisationMap = new PseudoHazelcastMap<>();
-        for (String key : allTestConnections.keySet()) {
-            utilisationMap.put(key, 12);
-        }
-        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
-        Pool CUT = new PoolImpl(hazelcast);
-        List<String> dbServerQueue = CUT.getDbServerQueue();
-        for (String hostname : dbServerQueue) {
-            assertTrue(utilisationMap.containsKey(hostname));
-        }
-        // Now let's simulate removing a host from DNS
-        allTestConnections.remove("host-1.domain.de");
-        CUT = new PoolImpl(hazelcast);
-        dbServerQueue = CUT.getDbServerQueue();
-        for (String hostname : dbServerQueue) {
-            assertNotNull(allTestConnections.get(hostname));
-        }
-    }
-
-    @Test
     public void sortHostnamesByUtilisation() throws Exception {
         IMap utilisationMap = new PseudoHazelcastMap<>();
         for (int i = 0; i < 10; i++) {
