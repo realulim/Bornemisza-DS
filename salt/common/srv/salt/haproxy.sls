@@ -19,7 +19,6 @@ irqbalance:
     - user: root
     - group: root
     - mode: 644
-    - show_changes: false
 
 configure_haproxy_logging:
   file.append:
