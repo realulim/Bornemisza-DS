@@ -259,7 +259,7 @@ check network public with interface eth0
     else if succeeded
         then exec "/bin/bash -c 'ip link set dummy1 up'"
 
-check network public with interface eth1
+check network private with interface eth1
     if failed link
         then exec "/bin/bash -c 'ip link set dummy1 down'"
     else if succeeded
