@@ -9,9 +9,6 @@ CFAPI=https://api.cloudflare.com/client/v4/zones
 domain=bornemisza.de
 entrypoint=www.bornemisza.de
 
-app_HostCount=5
-app_HostPrefix=app
-app_Domain=fra.bornemisza.de
 app_publicIpInterface=eth0
 app_privateIpInterface=eth1
 
