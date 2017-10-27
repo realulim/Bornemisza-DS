@@ -38,7 +38,7 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 	printf "clusterip: $CLUSTERIP\n" >> $PillarLocal/couchdb.sls
 	printf "\n"
 
-	CLUSTERSIZE=${#db_HostLocation[@]}
+	CLUSTERSIZE=`host -t srv _db._tcp.$domain.|wc -l`
 	printf "clustersize: $CLUSTERSIZE\n" >> $PillarLocal/couchdb.sls
 fi
 
@@ -50,10 +50,9 @@ fi
 
 # haproxy needs to know all external hostnames to select the correct load balancing strategy
 COUNTER=1
-for LOCATION in ${db_HostLocation[@]}
+for HOSTNAME in `host -t srv _db._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
 	if ! grep -q hostname$COUNTER /srv/pillar/haproxy.sls ; then
-		HOSTNAME=$db_HostPrefix.$LOCATION.$db_Domain
 		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/haproxy.sls
 	fi
 	let "COUNTER++"
