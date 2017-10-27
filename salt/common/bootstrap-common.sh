@@ -21,7 +21,7 @@ if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	printf "hostname: $HOSTNAME\n" | tee -a $PillarLocal/basics.sls
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "ip: $IP\n" | tee -a $PillarLocal/basics.sls
-	SSLDOMAIN=`printf $entrypoint | rev | awk -F. '{ print $1"."$2 }' | rev`
+	SSLDOMAIN=`printf $domain`
         printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 

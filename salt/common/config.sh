@@ -6,6 +6,7 @@ SvnTrunk=https://github.com/realulim/Bornemisza/trunk
 CFAPI=https://api.cloudflare.com/client/v4/zones
 
 # you have to change the following settings
+domain=bornemisza.de
 entrypoint=www.bornemisza.de
 
 app_HostCount=5
