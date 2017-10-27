@@ -46,6 +46,9 @@ do
 	fi
 done
 
+# cluster size needs to be rewritten on every run
+printf "clustersize: `host -t srv _app._tcp.$domain.|wc -l`\n" | tee $PillarLocal/cluster.sls
+
 # birdc needs to know the floating ip in order to manage failover routing
 if ! grep -q floatip: /srv/pillar/basics.sls ; then
 	FLOATIP=`getip $entrypoint`
