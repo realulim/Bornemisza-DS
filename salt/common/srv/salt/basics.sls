@@ -103,6 +103,7 @@ mount-swapfile:
 
 /opt/scripts/checkForDeletedSrvRecords.sh:
   file.managed:
+    - source: salt://files/basics/checkForDeletedSrvRecords.sh
     - template: jinja
     - user: root
     - group: root
