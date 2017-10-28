@@ -8,3 +8,4 @@ base:
     - haproxy
     - ufw
     - srvrecords
+    - scripts
