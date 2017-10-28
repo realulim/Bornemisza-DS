@@ -39,9 +39,6 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 	printf "\n"
 fi
 
-# cluster size needs to be rewritten on every run
-printf "clustersize: `host -t srv _db._tcp.$domain.|wc -l`\n" | tee $PillarLocal/cluster.sls
-
 # letsencrypt needs to know the ssl endpoint for creating its certificate
 if ! grep -q sslhost: /srv/pillar/basics.sls ; then
 	SSLHOST=`domainname -f`
