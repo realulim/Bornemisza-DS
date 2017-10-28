@@ -22,7 +22,7 @@ if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	IP=`ip addr show ${!VARNAME}|grep "inet "|cut -d"/" -f1|cut -d" " -f6`
 	printf "ip: $IP\n" | tee -a $PillarLocal/basics.sls
 	SSLDOMAIN=`printf $domain`
-        printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
+	printf "ssldomain: $SSLDOMAIN\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # determine my private IP
@@ -34,6 +34,9 @@ fi
 if ! grep -q service: $PillarLocal/basics.sls ; then
 	printf "service: $1\n" | tee -a $PillarLocal/basics.sls
 fi
+
+# cluster sizes need to be rewritten on every run
+printf "appclustersize: `host -t srv _app._tcp.$domain.|wc -l`\ndbclustersize: `host -t srv _db._tcp.$domain.|wc -l`\n" | tee $PillarLocal/cluster.sls
 
 # ask for Cloudflare API key
 if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
