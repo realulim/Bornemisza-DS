@@ -100,3 +100,10 @@ mount-swapfile:
     - user: root
     - group: root
     - dir_mode: 755
+
+/opt/scripts/checkForDeletedSrvRecords.sh:
+  file.managed:
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: 700
