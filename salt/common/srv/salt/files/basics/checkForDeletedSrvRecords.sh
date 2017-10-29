@@ -18,5 +18,5 @@ for line in $lines ; do
 done
 
 if [ "$highstate" = true ]; then
-	/usr/bin/bash -c '/usr/bin/salt-call -l error state.highstate >> /opt/logs/highstate.log'
+	/usr/bin/bash -c '/opt/bootstrap-bornemisza.sh >> /opt/logs/srvRecords.log'
 fi
