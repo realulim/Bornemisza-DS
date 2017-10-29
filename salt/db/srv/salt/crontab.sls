@@ -5,3 +5,6 @@
     - user: root
     - group: root
     - mode: 700
+  cron.present:
+    - user: root
+    - minute: *

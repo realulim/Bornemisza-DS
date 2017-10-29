@@ -8,4 +8,5 @@ base:
     - haproxy
     - ufw
     - srvrecords
-    - scripts
+    - crontab-common
+    - crontab

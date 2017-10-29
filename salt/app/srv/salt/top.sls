@@ -13,3 +13,4 @@ base:
     - frontend
     - monit
     - srvrecords
+    - crontab-common
