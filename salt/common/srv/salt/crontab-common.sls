@@ -7,7 +7,7 @@
     - mode: 700
   cron.present:
     - user: root
-    - minute: *
+    - minute: '*'
 
 /usr/bin/salt-call -l info state.highstate >> /opt/logs/highstate.log
   cron.present:
