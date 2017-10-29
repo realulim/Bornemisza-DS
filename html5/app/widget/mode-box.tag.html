@@ -56,6 +56,12 @@
         this.mixin(ObservableMixin)
         var self = this
 
+        this.on('unmount', function() {
+            this.observable.off(START_SINGLE)
+            this.observable.off(START_LOOP)
+            this.observable.off(START_BATCH)
+        })
+
         this.observable.on(START_SINGLE, function (opts) {
             self.refs.singleRadio.classList.remove("fa-circle-o")
             self.refs.singleRadio.classList.add("fa-dot-circle-o")

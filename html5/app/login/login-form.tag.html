@@ -42,8 +42,12 @@
             this.authError = false
         }
 
-        this.on('mount', () => {
+        this.on('mount', function() {
             this.refs.user.focus()
+        })
+        this.on('unmount', function() {
+            this.observable.off(AUTH_FAILED)
+            this.observable.off(AUTH_ERROR)
         })
         this.observable.on(AUTH_FAILED, function () {
             shakeElement(self.refs.login)

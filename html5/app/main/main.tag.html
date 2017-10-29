@@ -110,6 +110,17 @@
         this.dbServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
         this.chartUpdateFrequency = 0
 
+        this.on('unmount', function() {
+            this.observable.off(JUST_MARRIED)
+            this.observable.off(LOADING_ERROR)
+            this.observable.off(START_SINGLE)
+            this.observable.off(STOP_SINGLE)
+            this.observable.off(START_LOOP)
+            this.observable.off(STOP_LOOP)
+            this.observable.off(START_BATCH)
+            this.observable.off(STOP_BATCH)
+        })
+
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
             self.update()
@@ -150,18 +161,6 @@
             this.justMarried = false
             this.loadingError = false
             this.update()
-        }
-
-        this.logout = (event) => {
-            event.preventDefault()
-            qwest.delete(config.urlEndSession, {
-            })
-                .then(function (xhr, response) {
-                    console.log("Logged out.")
-                })
-                .catch(function (error, xhr, response) {
-                    console.log("Error logging out: " + error)
-                })
         }
 
         this.getUuid = (event) => {

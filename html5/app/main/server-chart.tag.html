@@ -27,7 +27,7 @@
             font-size: 1em;
             color: var(--dark);
         }
-        
+
         .ct-bar {
             stroke-width: 70px;
         }
@@ -96,7 +96,11 @@
         this.title = opts.title
         this.event = opts.event
         this.chartId = opts.chartid
-        
+
+        this.on('unmount', function() {
+            this.observable.off(self.event)
+        })
+
         this.observable.on(self.event, function (opts) {
             if (self.serverChart == null) {
                 // create a new Chart and configure it

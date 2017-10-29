@@ -28,12 +28,25 @@
         this.mixin(ObservableMixin)
         this.user = sessionStorage.getItem("user")
 
+        this.on('unmount', function() {
+            this.observable.off(LOGOUT_REQUESTED)
+        })
+
         this.observable.on(LOGOUT_REQUESTED, function (opts) {
             self.logout()
         })
 
         this.logout = () => {
             sessionStorage.clear()
+            this.observable.trigger(STOP_LOOP)
+            qwest.delete(config.urlEndSession, {
+            })
+                .then(function (xhr, response) {
+                    console.log("Logged out.")
+                })
+                .catch(function (error, xhr, response) {
+                    console.log("Error logging out: " + error)
+                })
             console.log("Session ended.")
             router.navigate("/index.html")
         }

@@ -38,6 +38,10 @@
         this.mixin(ObservableMixin)
         var self = this;
 
+        this.on('unmount', function() {
+            this.observable.off(TOGGLE_SPINNER)
+        })
+
         this.toggleSpinner = () => {
             self.observable.trigger(TOGGLE_SPINNER)
         }

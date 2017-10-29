@@ -87,6 +87,10 @@
 		this.title = ""
 		this.buttonText = ""
 
+        this.on('unmount', function() {
+            this.observable.off(SHOW_BARON_MESSAGE)
+        })
+
 		this.dismiss = () => {
 			self.refs.modalMessage.classList.remove("is-active")
 			self.update()

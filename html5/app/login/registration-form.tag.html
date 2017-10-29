@@ -59,6 +59,10 @@
             this.errorMessage = "Unexpected Error - please try again later."
         }
 
+        this.on('unmount', function() {
+            this.observable.off(REGISTRATION_FAILED)
+            this.observable.off(REGISTRATION_ERROR)
+        })
         this.observable.on(REGISTRATION_FAILED, function () {
             shakeElement(self.refs.registration)
             self.regFailed = true

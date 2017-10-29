@@ -17,6 +17,13 @@
 		this.isLoading = false
 		this.disabled = false
 
+        this.on('unmount', function() {
+            this.observable.off(LOADING_IN_PROGRESS)
+            this.observable.off(LOADING_DONE)
+            this.observable.off(DISABLE_SPINNER)
+            this.observable.off(ENABLE_SPINNER)
+        })
+
 		this.observable.on(LOADING_IN_PROGRESS, function (opts) {
 			if (!self.disabled) {
 				self.isLoading = true
