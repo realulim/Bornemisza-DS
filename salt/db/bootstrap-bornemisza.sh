@@ -9,6 +9,7 @@ svn export --force $SvnTrunk/salt/db/srv/salt $SaltLocal
 if [ ! -e $PillarLocal/top.sls ]; then
 	svn export --force $SvnTrunk/salt/db/srv/pillar/top.sls $PillarLocal
 	svn export --force $SvnTrunk/salt/db/srv/pillar/dbservers.sls $PillarLocal
+	svn export --force $SvnTrunk/salt/db/srv/pillar/appserverips.sls $PillarLocal
 fi
 
 # dynamic pillar: haproxy
@@ -58,11 +59,9 @@ done
 COUNTER=1
 for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
-	sed -i /ipapp$COUNTER/d $PillarLocal/haproxy.sls
 	IPADDRESS=`getip $HOSTNAME`
-	if [ ! -z $IPADDRESS ]; then
-		printf "ipapp$COUNTER: $IPADDRESS\n" | tee -a $PillarLocal/haproxy.sls
-		let "COUNTER++"
+	if ! grep -q $IPADDRESS $PillarLocal/appserverips.sls ; then
+		printf "  - $IPADDRESS\n" | tee -a $PillarLocal/appserverips.sls
 	fi
 done
 
