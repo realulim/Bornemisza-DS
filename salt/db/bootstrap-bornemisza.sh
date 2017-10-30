@@ -7,8 +7,8 @@ sh bootstrap-common.sh db
 # create db state tree
 svn export --force $SvnTrunk/salt/db/srv/salt /srv/salt
 if [ ! -e $PillarLocal/top.sls ]; then
-	svn export --force $SvnTrunk/salt/db/srv/pillar/top.sls /srv/pillar
-	svn export --force $SvnTrunk/salt/db/srv/pillar/dbservers.sls /srv/pillar
+	svn export --force $SvnTrunk/salt/db/srv/pillar/top.sls $PillarLocal
+	svn export --force $SvnTrunk/salt/db/srv/pillar/dbservers.sls $PillarLocal
 fi
 
 # dynamic pillar: haproxy
@@ -41,7 +41,7 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
-if ! grep -q sslhost: /srv/pillar/basics.sls ; then
+if ! grep -q sslhost: $PillarLocal/basics.sls ; then
 	SSLHOST=`domainname -f`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls	
 fi
@@ -49,7 +49,7 @@ fi
 # haproxy needs to know all external hostnames to select the correct load balancing strategy
 for HOSTNAME in `host -t srv _db._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
-	if ! grep -q $HOSTNAME /srv/pillar/dbservers.sls ; then
+	if ! grep -q $HOSTNAME $PillarLocal/dbservers.sls ; then
 		printf "  - $HOSTNAME\n" | tee -a $PillarLocal/dbservers.sls
 	fi
 done
@@ -58,7 +58,7 @@ done
 COUNTER=1
 for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
-	sed -i /ipapp$COUNTER/d /srv/pillar/haproxy.sls
+	sed -i /ipapp$COUNTER/d $PillarLocal/haproxy.sls
 	IPADDRESS=`getip $HOSTNAME`
 	if [ ! -z $IPADDRESS ]; then
 		printf "ipapp$COUNTER: $IPADDRESS\n" | tee -a $PillarLocal/haproxy.sls

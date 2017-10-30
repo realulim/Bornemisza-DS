@@ -46,14 +46,14 @@ if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
 fi
 
 # ask for Cloudflare email (username of Cloudflare account)
-if ! grep -q CFEMAIL: /srv/pillar/basics.sls ; then
+if ! grep -q CFEMAIL: $PillarLocal/basics.sls ; then
 	read -s -p 'Cloudflare Email: ' CFEMAIL
 	printf "CFEMAIL: $CFEMAIL\n" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
 # determine zone id of domain
-if ! grep -q CFZONEID: /srv/pillar/basics.sls ; then
+if ! grep -q CFZONEID: $PillarLocal/basics.sls ; then
 	CFZONEID=`/srv/salt/files/basics/cloudflare.sh get-zoneid "$CFAPI" $CFEMAIL $CFKEY`
 	printf "CFZONEID: $CFZONEID\n" | tee -a $PillarLocal/basics.sls
 	printf "CFAPI: $CFAPI\n" | tee -a $PillarLocal/basics.sls

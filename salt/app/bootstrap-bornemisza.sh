@@ -8,8 +8,8 @@ sh bootstrap-common.sh app
 svn export --force $SvnTrunk/salt/app/srv/salt /srv/salt
 svn export --force $SvnTrunk/html5 /opt/frontend
 if [ ! -e $PillarLocal/top.sls ]; then
-	svn export --force $SvnTrunk/salt/app/srv/pillar/top.sls /srv/pillar
-	svn export --force $SvnTrunk/salt/app/srv/pillar/appservers.sls /srv/pillar
+	svn export --force $SvnTrunk/salt/app/srv/pillar/top.sls $PillarLocal
+	svn export --force $SvnTrunk/salt/app/srv/pillar/appservers.sls $PillarLocal
 fi
 
 # dynamic pillar: haproxy
@@ -31,7 +31,7 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
-if ! grep -q sslhost: /srv/pillar/basics.sls ; then
+if ! grep -q sslhost: $PillarLocal/basics.sls ; then
 	FLOATIP=`getip $entrypoint`
 	SSLHOST=`host $FLOATIP | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/'`
 	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls
@@ -40,26 +40,26 @@ fi
 # haproxy needs to know all appserver hostnames for load balancing between them
 for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
-	if ! grep -q $HOSTNAME /srv/pillar/appservers.sls ; then
+	if ! grep -q $HOSTNAME $PillarLocal/appservers.sls ; then
 		printf "  - $HOSTNAME\n" | tee -a $PillarLocal/appservers.sls
 	fi
 done
 
 # birdc needs to know the floating ip in order to manage failover routing
-if ! grep -q floatip: /srv/pillar/basics.sls ; then
+if ! grep -q floatip: $PillarLocal/basics.sls ; then
 	FLOATIP=`getip $entrypoint`
 	printf "floatip: $FLOATIP\n" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
-if ! grep -q ASN: /srv/pillar/basics.sls ; then
+if ! grep -q ASN: $PillarLocal/basics.sls ; then
 	read -s -p 'ASN: ' ASN
 	printf "ASN: $ASN\n" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
 # ask for BGP password
-if ! grep -q BGP: /srv/pillar/basics.sls ; then
+if ! grep -q BGP: $PillarLocal/basics.sls ; then
 	read -s -p 'BGP: ' BGP
 	printf "BGP: $BGP\n" >> $PillarLocal/basics.sls
 	printf "\n"
