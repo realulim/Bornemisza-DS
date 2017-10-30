@@ -1,5 +1,6 @@
 base:
   '*':
+    - dbservers
     - basics
     - cluster
     - couchdb

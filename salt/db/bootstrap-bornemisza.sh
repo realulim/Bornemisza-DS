@@ -46,13 +46,11 @@ if ! grep -q sslhost: /srv/pillar/basics.sls ; then
 fi
 
 # haproxy needs to know all external hostnames to select the correct load balancing strategy
-COUNTER=1
 for HOSTNAME in `host -t srv _db._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
-	if ! grep -q hostname$COUNTER /srv/pillar/haproxy.sls ; then
-		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/haproxy.sls
+	if ! grep -q $HOSTNAME /srv/pillar/dbservers.sls ; then
+		printf "  - $HOSTNAME\n" | tee -a $PillarLocal/dbservers.sls
 	fi
-	let "COUNTER++"
 done
 
 # haproxy needs to know the appserver source ips that are whitelisted for database access
