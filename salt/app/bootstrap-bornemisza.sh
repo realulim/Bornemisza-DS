@@ -41,7 +41,7 @@ fi
 for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
 	if ! grep -q $HOSTNAME /srv/pillar/appservers.sls ; then
-		printf "  $HOSTNAME\n" | tee -a $PillarLocal/appservers.sls
+		printf "  - $HOSTNAME\n" | tee -a $PillarLocal/appservers.sls
 	fi
 done
 
