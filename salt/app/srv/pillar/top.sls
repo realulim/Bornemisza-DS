@@ -1,5 +1,6 @@
 base:
   '*':
+    - appservers
     - basics
     - cluster
     - haproxy
