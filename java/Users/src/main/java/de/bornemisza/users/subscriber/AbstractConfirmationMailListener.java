@@ -94,15 +94,15 @@ public abstract class AbstractConfirmationMailListener implements MessageListene
         // Now we know that we have to send an email
         String uuid = UUID.randomUUID().toString();
         storeNewValueAndSendMail(uuid, user);
-        this.userIdMap.put(user.getId(), uuid, 24, TimeUnit.HOURS);
+        this.userIdMap.set(user.getId(), uuid, 24, TimeUnit.HOURS);
     }
 
     private void storeNewValueAndSendMail(String uuid, User user) {
-        this.uuidMap.put(uuid, user, 24, TimeUnit.HOURS);
+        this.uuidMap.set(uuid, user, 24, TimeUnit.HOURS);
         boolean mailSent = sendConfirmationMail(user, uuid);
         if (!mailSent) {
-            this.userIdMap.remove(user.getId());
-            this.uuidMap.remove(uuid);
+            this.userIdMap.delete(user.getId());
+            this.uuidMap.delete(uuid);
         }
     }
 

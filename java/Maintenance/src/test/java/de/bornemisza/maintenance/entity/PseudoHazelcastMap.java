@@ -28,7 +28,7 @@ public class PseudoHazelcastMap<K, V> extends HashMap<K, V> implements IMap<K, V
 
     @Override
     public void delete(Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        remove(o);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class PseudoHazelcastMap<K, V> extends HashMap<K, V> implements IMap<K, V
 
     @Override
     public void set(K k, V v) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        put(k, v);
     }
 
     @Override

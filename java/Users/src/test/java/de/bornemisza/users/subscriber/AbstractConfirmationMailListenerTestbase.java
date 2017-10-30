@@ -65,7 +65,6 @@ public abstract class AbstractConfirmationMailListenerTestbase {
     protected void onMessage_mailSent_styledTemplate_Base() throws AddressException, NoSuchProviderException, IOException {
         ArgumentCaptor<String> uuidCaptor =  ArgumentCaptor.forClass(String.class);
         when(userIdMap.putIfAbsent(eq(user.getId()), eq("locked"), anyLong(), any(TimeUnit.class))).thenReturn(null);
-        when(uuidMap.put(uuidCaptor.capture(), any(User.class), anyLong(), any(TimeUnit.class))).thenReturn(null);
 
         ArgumentCaptor<String> textContentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> htmlContentCaptor = ArgumentCaptor.forClass(String.class);
@@ -74,6 +73,7 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         CUT.onMessage(msg);
 
         // Text-Mailbody must contain Link
+        verify(uuidMap).set(uuidCaptor.capture(), any(User.class), anyLong(), any(TimeUnit.class));
         String expectedLink = getConfirmationLinkPrefix() + uuidCaptor.getValue();
         String textMailBody = textContentCaptor.getValue();
         assertTrue(textMailBody.contains(expectedLink));
@@ -93,8 +93,8 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         when(mailSender.sendMail(eq(user.getEmail()), contains("Confirmation"), anyString(), anyString())).thenReturn(false);
         CUT.onMessage(msg);
 
-        verify(userIdMap).remove(user.getId());
-        verify(uuidMap).remove(anyString());
+        verify(userIdMap).delete(user.getId());
+        verify(uuidMap).delete(anyString());
     }
 
     protected void onMessage_userExists_doNotSendAdditionalMail_Base() throws AddressException, NoSuchProviderException {
@@ -139,7 +139,7 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         CUT = getRequestListener(mailSender, hazelcast);
         CUT.onMessage(msg);
 
-        verify(uuidMap).put(anyString(), eq(userWithDifferentMailAddress), eq(24l), eq(TimeUnit.HOURS));
+        verify(uuidMap).set(anyString(), eq(userWithDifferentMailAddress), eq(24l), eq(TimeUnit.HOURS));
         verify(mailSender).sendMail(eq(otherRecipient), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(mailSender);
     }

@@ -69,7 +69,7 @@ public class UsersFacade {
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
         }
-        newUserAccountMap_userId.remove(user.getId());
+        newUserAccountMap_userId.delete(user.getId());
         try {
             return usersService.createUser(user);
         }
@@ -92,7 +92,7 @@ public class UsersFacade {
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
         }
-        changeEmailRequestMap_userId.remove(user.getId());
+        changeEmailRequestMap_userId.delete(user.getId());
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             User newUser = usersService.getUser(user.getName(), creds);

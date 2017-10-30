@@ -66,7 +66,7 @@ public class LoadBalancerTask {
         for (String hostname : dnsHostnames) {
             if (! utilisedHostnames.contains(hostname)) {
                 // a host providing the service has just appeared
-                this.dbServerUtilisation.put(hostname, 0);
+                this.dbServerUtilisation.set(hostname, 0);
                 newHostAppeared = true;
                 Logger.getAnonymousLogger().info("Host appeared: " + hostname);
             }
@@ -74,11 +74,11 @@ public class LoadBalancerTask {
         for (String hostname : utilisedHostnames) {
             if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
-                this.dbServerUtilisation.remove(hostname);
+                this.dbServerUtilisation.delete(hostname);
                 Logger.getAnonymousLogger().info("Host disappeared: " + hostname);
             }
             else if (newHostAppeared) {
-                this.dbServerUtilisation.put(hostname, 0); // reset utilisation to start everyone on equal terms
+                this.dbServerUtilisation.set(hostname, 0); // reset utilisation to start everyone on equal terms
             }
         }
     }
