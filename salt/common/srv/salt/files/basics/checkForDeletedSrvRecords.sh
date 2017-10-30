@@ -6,7 +6,7 @@ service={{ pillar['service'] }}
 
 records=`host -t srv _$service._tcp.$domain.|cut -d" " -f8`
 
-lines=`grep hostname /srv/pillar/haproxy.sls|cut -d" " -f2`
+lines=`grep '-' /srv/pillar/appservers.sls|cut -d" " -f4`
 
 highstate=false
 for line in $lines ; do
