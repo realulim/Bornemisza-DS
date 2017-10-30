@@ -6,7 +6,7 @@ source ./config.sh $1
 # create common state tree
 mkdir -p $PillarLocal
 
-svn export --force $SvnTrunk/salt/common/srv/salt /srv/salt
+svn export --force $SvnTrunk/salt/common/srv/salt $SaltLocal
 chmod u+x /srv/salt/files/basics/cloudflare.sh
 
 # put svn trunk url in pillar for subsequent checkouts via salt

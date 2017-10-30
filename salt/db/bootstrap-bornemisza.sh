@@ -5,7 +5,7 @@ source ./config.sh db
 sh bootstrap-common.sh db
 
 # create db state tree
-svn export --force $SvnTrunk/salt/db/srv/salt /srv/salt
+svn export --force $SvnTrunk/salt/db/srv/salt $SaltLocal
 if [ ! -e $PillarLocal/top.sls ]; then
 	svn export --force $SvnTrunk/salt/db/srv/pillar/top.sls $PillarLocal
 	svn export --force $SvnTrunk/salt/db/srv/pillar/dbservers.sls $PillarLocal
