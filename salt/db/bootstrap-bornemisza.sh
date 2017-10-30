@@ -8,6 +8,7 @@ sh bootstrap-common.sh db
 svn export --force $SvnTrunk/salt/db/srv/salt /srv/salt
 if [ ! -e $PillarLocal/top.sls ]; then
 	svn export --force $SvnTrunk/salt/db/srv/pillar/top.sls /srv/pillar
+	svn export --force $SvnTrunk/salt/db/srv/pillar/dbservers.sls /srv/pillar
 fi
 
 # dynamic pillar: haproxy
