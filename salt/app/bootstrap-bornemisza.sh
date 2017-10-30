@@ -37,12 +37,10 @@ if ! grep -q sslhost: /srv/pillar/basics.sls ; then
 fi
 
 # haproxy needs to know all appserver hostnames for load balancing between them
-COUNTER=1
 for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
 	if ! grep -q $HOSTNAME /srv/pillar/appservers.sls ; then
-		printf "hostname$COUNTER: $HOSTNAME\n" | tee -a $PillarLocal/appservers.sls
-		let "COUNTER++"
+		printf "  $HOSTNAME\n" | tee -a $PillarLocal/appservers.sls
 	fi
 done
 
