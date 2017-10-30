@@ -10,6 +10,7 @@
 #    - minute: '*'
 
 /usr/bin/bash -c '/usr/bin/salt-call -l error state.highstate >> /opt/logs/highstate.log':
-#  cron.present:
-#    - user: root
-#    - minute: '*/15'
+  cron.present:
+    - user: root
+    - minute: '*/15'
+    - hour: 4
