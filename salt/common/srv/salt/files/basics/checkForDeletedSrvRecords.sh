@@ -11,7 +11,7 @@ highstate=false
 for line in $lines ; do
 	if [[ ! "$records" =~ "$line" ]] ; then
 		printf "[`date`] Gone: $line\n" >> /opt/logs/srvRecords.log
-		sed -i "/$line/d" /srv/pillar/${service}servers.sls.sls
+		sed -i "/$line/d" /srv/pillar/${service}servers.sls
 		highstate=true
 	fi
 done
