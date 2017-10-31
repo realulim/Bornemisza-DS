@@ -1,5 +1,6 @@
 package de.bornemisza.sessions.endpoint;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,19 +12,20 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import static org.mockito.Mockito.*;
+
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
-import com.hazelcast.nio.Address;
 
 import org.javalite.http.Get;
 import org.javalite.http.Post;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
@@ -61,7 +63,7 @@ public class UuidsTest {
 
         hazelcast = mock(HazelcastInstance.class);
         Set<Member> members = createMembers(5);
-        Cluster cluster = createCluster(members, "3"); // third AppServer
+        Cluster cluster = createCluster(members, "db3.domain.de"); // third AppServer
         when(hazelcast.getCluster()).thenReturn(cluster);
 
         this.dnsResolver = mock(DnsResolver.class);
@@ -87,22 +89,23 @@ public class UuidsTest {
             ipAddresses.add("192.168.0." + i);
 
             Member member = mock(Member.class);
-            when(member.getUuid()).thenReturn(i + "");
-            Address address = mock(Address.class);
-            when(address.getHost()).thenReturn(hostname);
-            when(member.getAddress()).thenReturn(address);
+            InetSocketAddress address = mock(InetSocketAddress.class);
+            when(address.getHostName()).thenReturn(hostname);
+            when(member.getSocketAddress()).thenReturn(address);
             members.add(member);
         }
         when(pool.getAllHostnames()).thenReturn(allConnections.keySet());
         return members;
     }
 
-    private Cluster createCluster(Set<Member> members, String myUuid) {
+    private Cluster createCluster(Set<Member> members, String myHostname) {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(members);
         Member myself = mock(Member.class);
         when(cluster.getLocalMember()).thenReturn(myself);
-        when(myself.getUuid()).thenReturn(myUuid);
+        InetSocketAddress address = mock(InetSocketAddress.class);
+        when(address.getHostName()).thenReturn(myHostname);
+        when(myself.getSocketAddress()).thenReturn(address);
         return cluster;
     }
 
@@ -196,7 +199,7 @@ public class UuidsTest {
         when(get.headers()).thenReturn(mapWithBackendHeader);
 
         Set<Member> members = createMembers(6);
-        Cluster cluster = createCluster(members, "6"); // sixth AppServer
+        Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
         when(hazelcast.getCluster()).thenReturn(cluster);
         CUT = new Uuids(pool, hazelcast, dnsResolver);
 

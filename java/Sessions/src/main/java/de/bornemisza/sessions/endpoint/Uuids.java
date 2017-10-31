@@ -77,12 +77,12 @@ public class Uuids {
      * Manage colors within the Hazelcast and CouchDB clusters consistently.
      * Make sure that an AppServer cluster node always selects the same (and unused) color,
      * no matter how many other AppServer nodes are in the Hazelcast cluster.
-     * This is achieved by ordering the nodes according to their Hazelcast UUIDs.
+     * This is achieved by ordering the nodes according to their IP addresses.
      */
     private void updateColorsForCluster() {
         List<Member> members = new ArrayList(hazelcast.getCluster().getMembers());
         Collections.sort(members, new MemberComparator());
-        String myUuid = hazelcast.getCluster().getLocalMember().getUuid();
+        String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
         int myIndex = 0;
         allHostnames = new ArrayList(basePool.getAllHostnames());
         Collections.sort(allHostnames);
@@ -97,7 +97,7 @@ public class Uuids {
             }
         }
         for (Member member : members) {
-            if (member.getUuid().equals(myUuid)) {
+            if (member.getSocketAddress().getHostName().equals(myHostname)) {
                 if (myIndex >= JAXRSConfiguration.COLORS.size()) {
                     // use default color for any overflow
                     JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.DEFAULT_COLOR;
@@ -149,7 +149,7 @@ public class Uuids {
 
     private static class MemberComparator implements Comparator<Member> {
         @Override public int compare(Member m1, Member m2) {
-            return m1.getUuid().compareTo(m2.getUuid());
+            return m1.getSocketAddress().getHostName().compareTo(m2.getSocketAddress().getHostName());
         }
     }
 
