@@ -82,7 +82,7 @@ public class Uuids {
     private void updateColorsForCluster() {
         List<Member> members = new ArrayList(hazelcast.getCluster().getMembers());
         Collections.sort(members, new MemberComparator());
-        String myIp = hazelcast.getCluster().getLocalMember().getSocketAddress().getAddress().getHostAddress();
+        String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
         int myIndex = 0;
         allHostnames = new ArrayList(basePool.getAllHostnames());
         Collections.sort(allHostnames);
@@ -97,7 +97,7 @@ public class Uuids {
             }
         }
         for (Member member : members) {
-            if (member.getSocketAddress().getAddress().getHostAddress().equals(myIp)) {
+            if (member.getSocketAddress().getHostName().equals(myHostname)) {
                 if (myIndex >= JAXRSConfiguration.COLORS.size()) {
                     // use default color for any overflow
                     JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.DEFAULT_COLOR;
@@ -106,8 +106,8 @@ public class Uuids {
                     // use one of the predefined colors
                     JAXRSConfiguration.MY_COLOR = JAXRSConfiguration.COLORS.get(myIndex);
                 }
-                Logger.getAnonymousLogger().info("Assigning " + JAXRSConfiguration.MY_COLOR + " to " + myIp);
             }
+            Logger.getAnonymousLogger().info("Assigning " + JAXRSConfiguration.MY_COLOR + " to " + myHostname);
             myIndex++;
         }
     }
@@ -150,7 +150,7 @@ public class Uuids {
 
     private static class MemberComparator implements Comparator<Member> {
         @Override public int compare(Member m1, Member m2) {
-            return m1.getSocketAddress().getAddress().getHostAddress().compareTo(m2.getSocketAddress().getAddress().getHostAddress());
+            return m1.getSocketAddress().getHostName().compareTo(m2.getSocketAddress().getHostName());
         }
     }
 
