@@ -16,6 +16,10 @@
         <span class="tag is-large is-bold bg-{dbServerColor}">Database Server&#160;&#160;&#160;</span>
     </div>
 
+    <div if="{measurementAvailable}" class="is-size-5 msg msg-baron fade-in">
+        Last: {duration} ms ({requests} req/s), Average: {avgDuration} ms ({avgRequests} req/s)
+        <a onclick="{hideAllMessages}" class="delete is-small msg-baron-close"></a>
+    </div>
     <div if="{justMarried}" class="is-size-5 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
@@ -104,6 +108,14 @@
         this.batchMode = false
         this.worker = null
 
+        // measurements
+        this.measurementsTaken = 0
+        this.duration = 0
+        this.avgDuration = 0
+        this.requests = 0
+        this.avgRequests = 0
+        this.measurementAvailable = false
+
         // manage charts
         this.chartCounter = 0
         this.appServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
@@ -160,6 +172,7 @@
         this.hideAllMessages = () => {
             this.justMarried = false
             this.loadingError = false
+            this.measurementAvailable = false
             this.update()
         }
 
@@ -224,6 +237,7 @@
         function startBatchRequests() {
             var uuidStart = self.uuidCount
             var batchSize = 1000
+            var startTime = Date.now()
             self.worker = new Worker("/js/getUuidWorker.js")
             for (var i = 0; i < batchSize; i++) {
                 self.worker.postMessage(self.ctoken)
@@ -237,6 +251,12 @@
                     gatherResults(event)
                 }
                 if ((self.uuidCount - uuidStart) >= batchSize) {
+                    self.duration = (Date.now() - startTime)
+                    self.requests = Math.round(batchSize / (self.duration / 1000))
+                    self.avgDuration = Math.round(((self.avgDuration * self.measurementsTaken) + self.duration) / (self.measurementsTaken + 1))
+                    self.avgRequests = Math.round(((self.avgRequests * self.measurementsTaken) + self.requests) / (self.measurementsTaken + 1))
+                    self.measurementsTaken++
+                    self.measurementAvailable = true
                     // Only update the screen after the batch is complete
                     self.update()
                     self.worker.terminate()

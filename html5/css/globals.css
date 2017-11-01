@@ -170,3 +170,12 @@ a:hover {
 .msg-good-close {
   background-color: var(--msggood);
 }
+
+.msg-baron {
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+.msg-baron-close {
+  background-color: var(--purple);
+}
