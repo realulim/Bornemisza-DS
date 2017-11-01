@@ -14,6 +14,7 @@ import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.HttpMulti;
 
 public abstract class HttpPool extends Pool<Http> {
 
@@ -55,6 +56,21 @@ public abstract class HttpPool extends Pool<Http> {
         catch (MalformedURLException ex) {
             throw new RuntimeException("Cannot create Http: " + ex.toString());
         }
+    }
+
+    public HttpMulti getConnections() {
+        List<String> dbServerQueue = getDbServerQueue();
+        HttpMulti httpMulti = new HttpMulti(this.getDbServerUtilisation());
+        for (String hostname : dbServerQueue) {
+            Http conn = allConnections.get(hostname);
+            if (conn == null) {
+                // in case a new SRV-Record popped up, but we haven't created a Connection for it yet
+                conn = createConnection(getLoadBalancerConfig(), hostname);
+                allConnections.put(hostname, conn);
+            }
+            httpMulti.add(hostname, conn);
+        }
+        return httpMulti;
     }
 
     public Http getConnection() {
