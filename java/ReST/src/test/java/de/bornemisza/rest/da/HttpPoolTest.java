@@ -29,11 +29,6 @@ public class HttpPoolTest {
             super(hz, dnsProvider, healthChecks, "someServiceName");
         }
 
-        // expose protected method for testing
-        public List<String> getDbServers() {
-            return getDbServerQueue();
-        }
-
         @Override
         protected LoadBalancerConfig getLoadBalancerConfig() {
             return new LoadBalancerConfig("serviceName", "instanceName", "someUser", "password".toCharArray());
@@ -44,6 +39,10 @@ public class HttpPoolTest {
             return allTestConnections;
         }
 
+        @Override
+        protected List<String> getDbServerQueue() {
+            return super.getDbServerQueue();
+        }
     }
 
     private TestableHttpPool CUT;
@@ -72,7 +71,8 @@ public class HttpPoolTest {
 
     @Test
     public void getConnection_connectionNull() {
-        CUT.getDbServers().add(0, "host0");
+        dbServerUtilisation.put("host0", -1); // need to have fewer then 0 (which all other hosts start on)
+
         when(healthChecks.isCouchDbReady(any())).thenReturn(true);
         int previousSize = allTestConnections.size();
 
@@ -103,7 +103,7 @@ public class HttpPoolTest {
         usageCount += (int) dbServerUtilisation.get("host3");
         assertEquals(1, usageCount);
         verify(healthChecks, times(allTestConnections.keySet().size() - 1)).isCouchDbReady(any(Http.class));
-        assertEquals(3, CUT.getDbServers().size());
+        assertEquals(3, CUT.getDbServerQueue().size());
     }
 
     @Test
