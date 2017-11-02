@@ -38,6 +38,7 @@ if ! grep -q sslhost: $PillarLocal/basics.sls ; then
 fi
 
 # haproxy needs to know all appserver hostnames for load balancing between them
+sed -i '/  - .*/d' $PillarLocal/appservers.sls
 for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
 do
 	if ! grep -q $HOSTNAME $PillarLocal/appservers.sls ; then
