@@ -55,7 +55,7 @@ public class CouchPoolTest {
     private Map<String, CouchDbConnection> allTestConnections;
     private PseudoHazelcastList dbServerQueue;
     private HazelcastInstance hazelcast;
-    private PseudoHazelcastMap utilisationMap;
+    private PseudoHazelcastMap dbServerUtilisation;
     private HealthChecks healthChecks;
 
     private TestableConnectionPool CUT;
@@ -76,8 +76,8 @@ public class CouchPoolTest {
         hazelcast = mock(HazelcastInstance.class);
         dbServerQueue = new PseudoHazelcastList();
         when(hazelcast.getList(anyString())).thenReturn(dbServerQueue);
-        utilisationMap = new PseudoHazelcastMap();
-        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
+        dbServerUtilisation = new PseudoHazelcastMap();
+        when(hazelcast.getMap(anyString())).thenReturn(dbServerUtilisation);
         
         healthChecks = mock(HealthChecks.class);
 
@@ -86,7 +86,8 @@ public class CouchPoolTest {
 
     @Test
     public void getConnection_connectionNull() {
-        CUT.getDbServers().add(0, "host0");
+        dbServerUtilisation.put("host0", -1); // need to have fewer then 0 (which all other hosts start on)
+
         when(healthChecks.isCouchDbReady(any())).thenReturn(true);
         int previousSize = allTestConnections.size();
 
@@ -100,14 +101,14 @@ public class CouchPoolTest {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
         assertNotNull(dbConn);
-        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), utilisationMap.size());
+        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), dbServerUtilisation.size());
     }
 
     @Test
     public void getConnector_emptyHostQueue_noUtilisation_notAllAvailable() {
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnector dbConn = CUT.getConnector();
-        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), utilisationMap.size() - 1);
+        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), dbServerUtilisation.size() - 1);
         if (allTestConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
     }
 
@@ -120,7 +121,7 @@ public class CouchPoolTest {
         }
         catch (DbAccessException ex) {
             // expected
-            assertEquals(0, CUT.getDbServers().size(), utilisationMap.size());
+            assertEquals(0, CUT.getDbServers().size(), dbServerUtilisation.size());
         }
     }
 
@@ -132,14 +133,14 @@ public class CouchPoolTest {
         allTestConnections.put(hostname, getConnection());
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname);
-        utilisationMap.clear();
+        dbServerUtilisation.clear();
         int startUsageCount = wheel.nextInt(1000);
-        utilisationMap.put(hostname, startUsageCount);
+        dbServerUtilisation.put(hostname, startUsageCount);
         int additionalUsageCount = wheel.nextInt(10);
         for (int i = 0; i < additionalUsageCount; i++) {
             assertNotNull(CUT.getConnector());
         }
-        assertEquals(startUsageCount + additionalUsageCount, utilisationMap.get(hostname));
+        assertEquals(startUsageCount + additionalUsageCount, dbServerUtilisation.get(hostname));
     }
 
     @Test
@@ -153,16 +154,16 @@ public class CouchPoolTest {
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname1);
         CUT.getDbServers().add(hostname2);
-        utilisationMap.clear();
+        dbServerUtilisation.clear();
         int startUsageCount = wheel.nextInt(1000) + 1;
-        utilisationMap.put(hostname1, 0);
-        utilisationMap.put(hostname2, startUsageCount);
+        dbServerUtilisation.put(hostname1, 0);
+        dbServerUtilisation.put(hostname2, startUsageCount);
         int additionalUsageCount = wheel.nextInt(10) + 1;
         for (int i = 0; i < additionalUsageCount; i++) {
             assertNotNull(CUT.getConnector());
         }
         assertEquals(   startUsageCount + additionalUsageCount, 
-                        (int)utilisationMap.get(hostname1) + (int)utilisationMap.get(hostname2));
+                        (int)dbServerUtilisation.get(hostname1) + (int)dbServerUtilisation.get(hostname2));
     }
 
     @Test
@@ -174,8 +175,8 @@ public class CouchPoolTest {
         allTestConnections.put(hostname, conn);
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname);
-        utilisationMap.clear();
-        utilisationMap.put(hostname, 1);
+        dbServerUtilisation.clear();
+        dbServerUtilisation.put(hostname, 1);
  
         CUT.getConnector(null, null);
         verify(conn).getBaseUrl();
@@ -193,8 +194,8 @@ public class CouchPoolTest {
         allTestConnections.put(hostname, conn);
         CUT.getDbServers().clear();
         CUT.getDbServers().add(hostname);
-        utilisationMap.clear();
-        utilisationMap.put(hostname, 1);
+        dbServerUtilisation.clear();
+        dbServerUtilisation.put(hostname, 1);
  
         String userName = "Ike";
         char[] password = new char[] {'p', 'w'};
