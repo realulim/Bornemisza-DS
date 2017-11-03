@@ -31,9 +31,9 @@ public class Scheduler {
     HazelcastInstance hazelcast;
 
     @Inject
-    SrvRecordsTask loadBalancerTask;
+    SrvRecordsTask srvRecordsTask;
 
-    private Timer loadBalancerTaskTimer = null;
+    private Timer srvRecordsTaskTimer = null;
 
     public Scheduler() {
     }
@@ -50,7 +50,7 @@ public class Scheduler {
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimers(); }
             @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
         });
-        if (loadBalancerTaskTimer == null) {
+        if (srvRecordsTaskTimer == null) {
             // don't do it again, if already invoked by callback
             rebuildTimers();
         }
@@ -58,14 +58,14 @@ public class Scheduler {
 
     void rebuildTimers() {
         try {
-            if (loadBalancerTaskTimer != null) {
-                loadBalancerTaskTimer.cancel();
+            if (srvRecordsTaskTimer != null) {
+                srvRecordsTaskTimer.cancel();
                 Logger.getAnonymousLogger().info("Cancelled Timer " + TIMER_NAME);
             }
             createLoadBalancerTaskTimer();
         }
         catch (IllegalStateException | NoSuchObjectLocalException e) {
-            Logger.getAnonymousLogger().severe("Timer " + loadBalancerTaskTimer + " inaccessible: " + e.toString());
+            Logger.getAnonymousLogger().severe("Timer " + srvRecordsTaskTimer + " inaccessible: " + e.toString());
         }
     }
 
@@ -75,7 +75,7 @@ public class Scheduler {
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
         timerConfig.setInfo(TIMER_NAME);
-        this.loadBalancerTaskTimer = loadBalancerTask.createTimer(expression, timerConfig);
+        this.srvRecordsTaskTimer = srvRecordsTask.createTimer(expression, timerConfig);
         Logger.getAnonymousLogger().info("Installed Timer " + TIMER_NAME + " with " + expression.toString());
     }
 
