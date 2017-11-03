@@ -36,7 +36,7 @@ public class LoadBalancerTaskTest {
         }
         assertEquals(dnsHostnames.size(), utilisationMap.size());
 
-        LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
+        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap);
 
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.add(getHostname(999)); // simulated new SRV-Record
@@ -55,7 +55,7 @@ public class LoadBalancerTaskTest {
         }
         assertEquals(dnsHostnames.size(), utilisationMap.size());
 
-        LoadBalancerTask CUT = new LoadBalancerTask(utilisationMap);
+        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap);
 
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.remove(getHostname(3)); // simulate deleted SRV-Record

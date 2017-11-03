@@ -31,7 +31,7 @@ public class Scheduler {
     HazelcastInstance hazelcast;
 
     @Inject
-    LoadBalancerTask loadBalancerTask;
+    SrvRecordsTask loadBalancerTask;
 
     private Timer loadBalancerTaskTimer = null;
 

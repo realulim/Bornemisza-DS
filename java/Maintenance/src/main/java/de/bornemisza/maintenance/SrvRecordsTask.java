@@ -21,7 +21,7 @@ import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 
 @Stateless
-public class LoadBalancerTask {
+public class SrvRecordsTask {
 
     @Resource
     private TimerService timerService;
@@ -34,7 +34,7 @@ public class LoadBalancerTask {
 
     private IMap<String, Integer> dbServerUtilisation;
 
-    public LoadBalancerTask() {
+    public SrvRecordsTask() {
     }
 
     @PostConstruct
@@ -43,7 +43,7 @@ public class LoadBalancerTask {
     }
 
     // Constructor for Unit Tests
-    public LoadBalancerTask(IMap<String, Integer> dbServerUtilisation) {
+    public SrvRecordsTask(IMap<String, Integer> dbServerUtilisation) {
         this.dbServerUtilisation = dbServerUtilisation;
     }
 
@@ -52,7 +52,7 @@ public class LoadBalancerTask {
     }
 
     @Timeout
-    public void performMaintenance() {
+    public void srvRecordsMaintenance() {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         String serviceName = pool.getServiceName();
         List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
