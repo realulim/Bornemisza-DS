@@ -84,7 +84,7 @@ public class Uuids {
         Collections.sort(members, new MemberComparator());
         String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
         int myIndex = 0;
-        allHostnames = new ArrayList(basePool.getAllHostnames());
+        allHostnames = new ArrayList(basePool.getAllConnections().keySet());
         Collections.sort(allHostnames);
         for (String hostname : allHostnames) {
             String ip = dnsResolver.getHostAddress("internal." + hostname);

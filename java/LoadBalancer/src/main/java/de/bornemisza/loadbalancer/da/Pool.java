@@ -49,8 +49,8 @@ public abstract class Pool<T> {
         this.dbServerUtilisation = getDbServerUtilisation();
     }
 
-    public Set<String> getAllHostnames() {
-        return this.allConnections.keySet();
+    public Map<String, T> getAllConnections() {
+        return this.allConnections;
     }
 
     protected List<String> getDbServerQueue() {

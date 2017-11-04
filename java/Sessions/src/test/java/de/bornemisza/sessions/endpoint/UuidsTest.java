@@ -94,7 +94,7 @@ public class UuidsTest {
             when(member.getSocketAddress()).thenReturn(address);
             members.add(member);
         }
-        when(pool.getAllHostnames()).thenReturn(allConnections.keySet());
+        when(pool.getAllConnections()).thenReturn(allConnections);
         return members;
     }
 

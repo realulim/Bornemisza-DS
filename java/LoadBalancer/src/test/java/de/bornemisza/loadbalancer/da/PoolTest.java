@@ -51,7 +51,7 @@ public class PoolTest {
         when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
         Pool CUT = new PoolImpl(hazelcast);
         List<String> dbServers = CUT.getDbServerQueue();
-        assertEquals(CUT.getAllHostnames().size(), dbServers.size());
+        assertEquals(CUT.getAllConnections().size(), dbServers.size());
         Map<String, Object> dbServerUtilisation = CUT.getDbServerUtilisation();
         assertEquals(hazelcastMap, dbServerUtilisation);
         for (String hostname : allTestConnections.keySet()) {
