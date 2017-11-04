@@ -89,4 +89,18 @@ public class Scheduler {
         return sortedUuids.indexOf(myself) + "/" + members.size();
     }
 
+    String calculateSecondExpression() {
+        Set<Member> members = hazelcast.getCluster().getMembers();
+        List<String> sortedUuids = members.stream()
+                .map(member -> member.getUuid())
+                .sorted(Comparator.<String>naturalOrder())
+                .collect(Collectors.toList());
+        String myself = hazelcast.getCluster().getLocalMember().getUuid();
+        int myIndex = sortedUuids.indexOf(myself);
+        if (myIndex < 6) {
+            return "" + (myIndex * 10);
+        }
+        else return null;
+    }
+
 }

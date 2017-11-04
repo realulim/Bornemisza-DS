@@ -48,4 +48,41 @@ public class SchedulerTest {
         assertEquals(members.size(), Character.getNumericValue(expr.charAt(2)));
     }
 
+    @Test
+    public void calculateSecondExpression_memberAmongFirstSix() {
+        Cluster cluster = mock(Cluster.class);
+        when(hazelcast.getCluster()).thenReturn(cluster);
+        Set<Member> members = new HashSet<>();
+        Member member = null;
+        int count = wheel.nextInt(6);
+        for (int i = 0; i <= count; i++) {
+            member = mock(Member.class);
+            when(member.getUuid()).thenReturn("ABC" + i);
+            members.add(member);
+        }
+        when(cluster.getLocalMember()).thenReturn(member);
+        when(cluster.getMembers()).thenReturn(members);
+        Scheduler CUT = new Scheduler(hazelcast);
+        String expr = CUT.calculateSecondExpression();
+        assertEquals(expr, "" + (count * 10));
+    }
+
+    @Test
+    public void calculateSecondExpression_memberNotAmongFirstSix() {
+        Cluster cluster = mock(Cluster.class);
+        when(hazelcast.getCluster()).thenReturn(cluster);
+        Set<Member> members = new HashSet<>();
+        Member member = null;
+        for (int i = 0; i < 10; i++) {
+            member = mock(Member.class);
+            when(member.getUuid()).thenReturn("ABC" + i);
+            members.add(member);
+        }
+        when(cluster.getLocalMember()).thenReturn(member);
+        when(cluster.getMembers()).thenReturn(members);
+        Scheduler CUT = new Scheduler(hazelcast);
+        String expr = CUT.calculateSecondExpression();
+        assertNull(expr);
+    }
+
 }
