@@ -25,7 +25,7 @@ import com.hazelcast.core.MembershipListener;
 @Singleton
 public class Scheduler {
 
-    private static final String TIMER_NAME = "LoadBalancerTaskTimer";
+    private static final String SRV_RECORDS_TASK_TIMER_NAME = "SrvRecordsTaskTimer";
 
     @Inject
     HazelcastInstance hazelcast;
@@ -60,23 +60,23 @@ public class Scheduler {
         try {
             if (srvRecordsTaskTimer != null) {
                 srvRecordsTaskTimer.cancel();
-                Logger.getAnonymousLogger().info("Cancelled Timer " + TIMER_NAME);
+                Logger.getAnonymousLogger().info("Cancelled Timer " + SRV_RECORDS_TASK_TIMER_NAME);
             }
-            createLoadBalancerTaskTimer();
+            createSrvRecordsTaskTimer();
         }
         catch (IllegalStateException | NoSuchObjectLocalException e) {
             Logger.getAnonymousLogger().severe("Timer " + srvRecordsTaskTimer + " inaccessible: " + e.toString());
         }
     }
 
-    private void createLoadBalancerTaskTimer() {
+    private void createSrvRecordsTaskTimer() {
         ScheduleExpression expression = new ScheduleExpression();
         expression.hour("*").minute(calculateMinuteExpression());
         TimerConfig timerConfig = new TimerConfig();
         timerConfig.setPersistent(false);
-        timerConfig.setInfo(TIMER_NAME);
+        timerConfig.setInfo(SRV_RECORDS_TASK_TIMER_NAME);
         this.srvRecordsTaskTimer = srvRecordsTask.createTimer(expression, timerConfig);
-        Logger.getAnonymousLogger().info("Installed Timer " + TIMER_NAME + " with " + expression.toString());
+        Logger.getAnonymousLogger().info("Installed Timer " + SRV_RECORDS_TASK_TIMER_NAME + " with " + expression.toString());
     }
 
     String calculateMinuteExpression() {
