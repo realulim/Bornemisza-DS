@@ -148,9 +148,15 @@ public class Uuids {
 
     private String getDbServerColor(String ipAddressHeader) {
         String hostname = ipToHostname.get(ipAddressHeader);
-        if (hostname == null) return JAXRSConfiguration.DEFAULT_COLOR;
+        if (hostname == null) {
+            Logger.getAnonymousLogger().warning("No Hostname found for " + ipAddressHeader);
+            return JAXRSConfiguration.DEFAULT_COLOR;
+        }
         int index = allHostnames.indexOf(hostname);
-        if (index == -1) return JAXRSConfiguration.DEFAULT_COLOR;
+        if (index == -1) {
+            Logger.getAnonymousLogger().warning("Hostname not found: " + hostname);
+            return JAXRSConfiguration.DEFAULT_COLOR;
+        }
         else return JAXRSConfiguration.COLORS.get(index);
     }
 
