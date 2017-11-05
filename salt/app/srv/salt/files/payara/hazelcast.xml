@@ -59,12 +59,22 @@
 		<in-memory-format>BINARY</in-memory-format>
 	</map>
 
-<cache name="DatabaseServers">
-	<key-type class-name="java.lang.String" />
-	<value-type class-name="java.util.List" />
-	<backup-count>0</backup-count>
-	<async-backup-count>1</async-backup-count>
-	<in-memory-format>BINARY</in-memory-format>
-</cache>
+	<ringbuffer name="ClusterMaintenance">
+		<capacity>1000</capacity>
+		<time-to-live-seconds>86400</time-to-live-seconds>
+	</ringbuffer>
+
+	<reliable-topic name="ClusterMaintenance">
+		<statistics-enabled>true</statistics-enabled>
+		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
+	</reliable-topic>
+
+	<cache name="DatabaseServers">
+		<key-type class-name="java.lang.String" />
+		<value-type class-name="java.util.List" />
+		<backup-count>0</backup-count>
+		<async-backup-count>1</async-backup-count>
+		<in-memory-format>BINARY</in-memory-format>
+	</cache>
 
 </hazelcast>
