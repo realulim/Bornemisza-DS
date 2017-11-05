@@ -22,13 +22,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.javalite.http.Get;
+import org.javalite.http.HttpException;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
-
-import org.javalite.http.Get;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
@@ -121,9 +122,14 @@ public class Uuids {
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cToken);
-        if (get.responseCode() != 200) {
-            throw new RestException(
-                    Response.status(get.responseCode()).entity(get.responseMessage()).build());
+        try {
+            int responseCode = get.responseCode();
+            if (responseCode != 200) {
+                return Response.status(responseCode).entity(get.responseMessage()).build();
+            }
+        }
+        catch (HttpException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.toString()).build();
         }
         String header = "127.0.0.1";
         List<String> backendHeaders = get.headers().get("X-Backend");

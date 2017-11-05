@@ -1,5 +1,6 @@
 package de.bornemisza.sessions.endpoint;
 
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,20 +13,19 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.javalite.http.Get;
+import org.javalite.http.HttpException;
+import org.javalite.http.Post;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
-
-import org.javalite.http.Get;
-import org.javalite.http.Post;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
@@ -122,19 +122,25 @@ public class UuidsTest {
     }
 
     @Test
+    public void getUuids_technicalError() {
+        String msg = "Connection refused";
+        ConnectException cause = new ConnectException(msg);
+        HttpException wrapperException = new HttpException(msg, cause);
+        when(get.responseCode()).thenThrow(wrapperException);
+        Response resp = CUT.getUuids("MyCookie", 3);
+        assertEquals(500, resp.getStatus());
+        assertEquals(wrapperException.toString(), resp.getEntity());
+    }
+
+    @Test
     public void getUuids_getFailed() {
         int errorCode = 509;
         String msg = "Bandwidth Limit Exceeded";
         when(get.responseCode()).thenReturn(errorCode);
         when(get.responseMessage()).thenReturn(msg);
-        try {
-            CUT.getUuids("MyCookie", 3);
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(errorCode, e.getResponse().getStatus());
-            assertEquals(msg, e.getResponse().getEntity());
-        }
+        Response resp = CUT.getUuids("MyCookie", 3);
+        assertEquals(errorCode, resp.getStatus());
+        assertEquals(msg, resp.getEntity());
     }
 
     @Test
