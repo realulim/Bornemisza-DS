@@ -26,6 +26,7 @@ import com.hazelcast.core.MembershipListener;
 public class Scheduler {
 
     private static final String SRV_RECORDS_TASK_TIMER_NAME = "SrvRecordsTaskTimer";
+    private static final String HEALTH_CHECK_TASK_TIMER_NAME = "HealthCheckTaskTimer";
 
     @Inject
     HazelcastInstance hazelcast;
@@ -33,7 +34,11 @@ public class Scheduler {
     @Inject
     SrvRecordsTask srvRecordsTask;
 
+    @Inject
+    HealthCheckTask healthCheckTask;
+
     private Timer srvRecordsTaskTimer = null;
+    private Timer healthCheckTaskTimer = null;
 
     public Scheduler() {
     }
@@ -50,7 +55,7 @@ public class Scheduler {
             @Override public void memberRemoved(MembershipEvent me) { rebuildTimers(); }
             @Override public void memberAttributeChanged(MemberAttributeEvent mae) { }
         });
-        if (srvRecordsTaskTimer == null) {
+        if (srvRecordsTaskTimer == null || healthCheckTaskTimer == null) {
             // don't do it again, if already invoked by callback
             rebuildTimers();
         }
@@ -62,10 +67,15 @@ public class Scheduler {
                 srvRecordsTaskTimer.cancel();
                 Logger.getAnonymousLogger().info("Cancelled Timer " + SRV_RECORDS_TASK_TIMER_NAME);
             }
+            if (healthCheckTaskTimer != null) {
+                healthCheckTaskTimer.cancel();
+                Logger.getAnonymousLogger().info("Cancelled Timer " + HEALTH_CHECK_TASK_TIMER_NAME);
+            }
             createSrvRecordsTaskTimer();
+            createHealthCheckTaskTimer();
         }
         catch (IllegalStateException | NoSuchObjectLocalException e) {
-            Logger.getAnonymousLogger().severe("Timer " + srvRecordsTaskTimer + " inaccessible: " + e.toString());
+            Logger.getAnonymousLogger().severe("Timer inaccessible: " + e.toString());
         }
     }
 
@@ -77,6 +87,22 @@ public class Scheduler {
         timerConfig.setInfo(SRV_RECORDS_TASK_TIMER_NAME);
         this.srvRecordsTaskTimer = srvRecordsTask.createTimer(expression, timerConfig);
         Logger.getAnonymousLogger().info("Installed Timer " + SRV_RECORDS_TASK_TIMER_NAME + " with " + expression.toString());
+    }
+
+    private void createHealthCheckTaskTimer() {
+        String seconds = calculateSecondExpression();
+        if (seconds != null) {
+            ScheduleExpression expression = new ScheduleExpression();
+            expression.hour("*").minute("*").second(calculateSecondExpression());
+            TimerConfig timerConfig = new TimerConfig();
+            timerConfig.setPersistent(false);
+            timerConfig.setInfo(HEALTH_CHECK_TASK_TIMER_NAME);
+            this.healthCheckTaskTimer = healthCheckTask.createTimer(expression, timerConfig);
+            Logger.getAnonymousLogger().info("Installed Timer " + HEALTH_CHECK_TASK_TIMER_NAME + " with " + expression.toString());
+        }
+        else {
+            Logger.getAnonymousLogger().info("Skipping Timer " + HEALTH_CHECK_TASK_TIMER_NAME + ", there are already enough of them.");
+        }
     }
 
     String calculateMinuteExpression() {
@@ -91,6 +117,7 @@ public class Scheduler {
 
     String calculateSecondExpression() {
         Set<Member> members = hazelcast.getCluster().getMembers();
+        int clusterSize = members.size();
         List<String> sortedUuids = members.stream()
                 .map(member -> member.getUuid())
                 .sorted(Comparator.<String>naturalOrder())
@@ -98,7 +125,10 @@ public class Scheduler {
         String myself = hazelcast.getCluster().getLocalMember().getUuid();
         int myIndex = sortedUuids.indexOf(myself);
         if (myIndex < 6) {
-            return "" + (myIndex * 10);
+            if ((myIndex + clusterSize) < 6) {
+                return myIndex * 10 + "/" + clusterSize * 10;
+            }
+            else return myIndex * 10 + "";
         }
         else return null;
     }
