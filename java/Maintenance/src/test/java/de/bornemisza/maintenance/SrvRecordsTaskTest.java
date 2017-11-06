@@ -17,6 +17,8 @@ import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
 public class SrvRecordsTaskTest {
 
     private SecureRandom wheel;
+    private IMap<String, Integer> utilisationMap;
+    private List<String> dnsHostnames;
     
     public SrvRecordsTaskTest() {
     }
@@ -24,18 +26,17 @@ public class SrvRecordsTaskTest {
     @Before
     public void setUp() {
         this.wheel = new SecureRandom();
-    }
-
-    @Test
-    public void hostAppeared() {
-        IMap<String, Integer> utilisationMap = new PseudoHazelcastMap<>();
-        List<String> dnsHostnames = new ArrayList<>();
+        utilisationMap = new PseudoHazelcastMap<>();
+        dnsHostnames = new ArrayList<>();
         for (int i = 1; i < 10; i++) {
             utilisationMap.put(getHostname(i), wheel.nextInt(100) + 1);
             dnsHostnames.add(getHostname(i));
         }
         assertEquals(dnsHostnames.size(), utilisationMap.size());
+    }
 
+    @Test
+    public void hostAppeared() {
         SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap);
 
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
@@ -47,14 +48,6 @@ public class SrvRecordsTaskTest {
 
     @Test
     public void hostDisappeared() {
-        IMap<String, Integer> utilisationMap = new PseudoHazelcastMap<>();
-        List<String> dnsHostnames = new ArrayList<>();
-        for (int i = 1; i < 10; i++) {
-            utilisationMap.put(getHostname(i), wheel.nextInt(100) + 1);
-            dnsHostnames.add(getHostname(i));
-        }
-        assertEquals(dnsHostnames.size(), utilisationMap.size());
-
         SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap);
 
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
