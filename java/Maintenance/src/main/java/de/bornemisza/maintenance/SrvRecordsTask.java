@@ -16,6 +16,8 @@ import javax.inject.Inject;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+import de.bornemisza.loadbalancer.ClusterEvent;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
@@ -33,6 +35,7 @@ public class SrvRecordsTask {
     HttpBasePool pool;
 
     private IMap<String, Integer> dbServerUtilisation;
+    private ITopic<ClusterEvent> clusterMaintenanceTopic;
 
     public SrvRecordsTask() {
     }
@@ -40,6 +43,7 @@ public class SrvRecordsTask {
     @PostConstruct
     public void init() {
         this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
+        this.clusterMaintenanceTopic = hazelcast.getTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
     }
 
     // Constructor for Unit Tests
@@ -57,7 +61,6 @@ public class SrvRecordsTask {
         String serviceName = pool.getServiceName();
         List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
         updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
-
         logNewQueueState();
     }
 
