@@ -1,6 +1,10 @@
 package de.bornemisza.loadbalancer;
 
-public class ClusterEvent {
+import java.io.Serializable;
+
+public class ClusterEvent implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final String hostname;
     private final ClusterEventType type;
