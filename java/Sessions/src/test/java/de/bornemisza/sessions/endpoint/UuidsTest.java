@@ -75,7 +75,9 @@ public class UuidsTest {
     class IpAddressAnswer implements Answer {
         private int i = 0;
         @Override public String answer(InvocationOnMock iom) throws Throwable {
-            String ipAddress = ipAddresses.get(i++);
+            if (i >= ipAddresses.size()) return null;
+            String ipAddress = ipAddresses.get(i);
+            i++;
             return ipAddress;
         }
     }

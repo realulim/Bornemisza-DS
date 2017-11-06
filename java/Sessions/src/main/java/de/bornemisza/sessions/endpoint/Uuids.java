@@ -81,6 +81,7 @@ public class Uuids {
      * This is achieved by ordering the nodes according to their IP addresses.
      */
     private void updateColorsForCluster() {
+        ipToHostname.clear();
         List<Member> members = new ArrayList(hazelcast.getCluster().getMembers());
         Collections.sort(members, new MemberComparator());
         String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
@@ -154,11 +155,7 @@ public class Uuids {
             return JAXRSConfiguration.DEFAULT_COLOR;
         }
         int index = allHostnames.indexOf(hostname);
-        if (index == -1) {
-            Logger.getAnonymousLogger().warning("Hostname not found: " + hostname);
-            return JAXRSConfiguration.DEFAULT_COLOR;
-        }
-        else return JAXRSConfiguration.COLORS.get(index);
+        return JAXRSConfiguration.COLORS.get(index);
     }
 
     private static class MemberComparator implements Comparator<Member> {
