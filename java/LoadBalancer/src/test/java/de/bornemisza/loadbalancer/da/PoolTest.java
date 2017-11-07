@@ -8,16 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Message;
 import com.hazelcast.core.OperationTimeoutException;
+import de.bornemisza.loadbalancer.ClusterEvent;
+import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
-
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
 
 public class PoolTest {
@@ -42,6 +47,8 @@ public class PoolTest {
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
         when(hazelcast.getCluster()).thenReturn(cluster);
+        ITopic clusterMaintenanceTopic = mock(ITopic.class);
+        when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
 
         this.hazelcastMap = new PseudoHazelcastMap();
     }
@@ -123,21 +130,46 @@ public class PoolTest {
 
     @Test
     public void addNewHostForService() {
+        String newHost = "host-999.domain.de";
         when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
-        IMap<String, Integer> utilisationMap = new PseudoHazelcastMap<>();
         for (String hostname : allTestConnections.keySet()) {
-            utilisationMap.put(hostname, wheel.nextInt(100) + 1);
+            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
         }
         Pool CUT = new PoolImpl(hazelcast);
         assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
 
-        allTestConnections.put("host-4.domain.de", new Object()); // simulate added SRV-Record
-        CUT = new PoolImpl(hazelcast);
-        Map<String, Integer> dbServerUtilisationMap = hazelcastMap;
-        assertEquals(allTestConnections.size(), dbServerUtilisationMap.size());
-        for (String key : dbServerUtilisationMap.keySet()) {
-            assertEquals(0, (int)dbServerUtilisationMap.get(key));
+        ClusterEvent clusterEvent = new ClusterEvent(newHost, ClusterEventType.HOST_APPEARED);
+        Message msg = mock(Message.class);
+        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        CUT.onMessage(msg);
+
+        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
+        for (String hostname : utilisationMap.keySet()) {
+            assertEquals(0, (int)utilisationMap.get(hostname));
         }
+        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
+        assertTrue(CUT.getDbServerUtilisation().keySet().contains(newHost));
+    }
+
+    @Test
+    public void removeHostFromService() {
+        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        for (String hostname : allTestConnections.keySet()) {
+            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
+        }
+        Pool CUT = new PoolImpl(hazelcast);
+        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
+
+        String removedHost = allTestConnections.keySet().iterator().next();
+        ClusterEvent clusterEvent = new ClusterEvent(removedHost, ClusterEventType.HOST_DISAPPEARED);
+        Message msg = mock(Message.class);
+        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        CUT.onMessage(msg);
+
+        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
+        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
+        assertFalse(allTestConnections.keySet().contains(removedHost));
+        assertFalse(utilisationMap.keySet().contains(removedHost));
     }
 
     public class PoolImpl extends Pool {
@@ -154,6 +186,16 @@ public class PoolTest {
         @Override
         protected Map<String, Object> createConnections() {
             return allTestConnections;
+        }
+
+        @Override
+        protected Object createConnection(LoadBalancerConfig lbConfig, String hostname) {
+            return new Object();
+        }
+
+        @Override
+        protected LoadBalancerConfig getLoadBalancerConfig() {
+            return mock(LoadBalancerConfig.class);
         }
 
     }

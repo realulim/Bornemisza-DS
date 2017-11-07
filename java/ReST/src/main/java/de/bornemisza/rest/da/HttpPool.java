@@ -3,7 +3,6 @@ package de.bornemisza.rest.da;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -12,25 +11,19 @@ import com.hazelcast.core.HazelcastInstance;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.loadbalancer.da.Pool;
-import de.bornemisza.rest.HealthChecks;
 import de.bornemisza.rest.Http;
 
 public abstract class HttpPool extends Pool<Http> {
 
-    private final HealthChecks healthChecks;
     private String serviceName;
 
     public HttpPool() {
         super();
-        this.healthChecks = new HealthChecks();
     }
 
-    protected abstract LoadBalancerConfig getLoadBalancerConfig();
-
     // Constructor for Unit Tests
-    public HttpPool(HazelcastInstance hz, DnsProvider dnsProvider, HealthChecks healthChecks, String serviceName) {
+    public HttpPool(HazelcastInstance hz, DnsProvider dnsProvider, String serviceName) {
         super(hz, dnsProvider);
-        this.healthChecks = healthChecks;
         this.serviceName = serviceName;
     }
 
@@ -46,7 +39,8 @@ public abstract class HttpPool extends Pool<Http> {
         return connections;
     }
 
-    private Http createConnection(LoadBalancerConfig lbConfig, String hostname) {
+    @Override
+    protected Http createConnection(LoadBalancerConfig lbConfig, String hostname) {
         try {
             String db = lbConfig.getInstanceName();
             db = (db == null ? "" : db.replaceFirst ("^/*", ""));
@@ -58,25 +52,18 @@ public abstract class HttpPool extends Pool<Http> {
     }
 
     public Http getConnection() {
-        List<String> dbServerQueue = getDbServerQueue();
-        for (String hostname : dbServerQueue) {
+        for (String hostname : getDbServerQueue()) {
             Http conn = allConnections.get(hostname);
             if (conn == null) {
                 // in case a new SRV-Record popped up, but we haven't created a Connection for it yet
                 conn = createConnection(getLoadBalancerConfig(), hostname);
                 allConnections.put(hostname, conn);
+                Logger.getAnonymousLogger().info("Created new Connection for " + hostname);
             }
-            if (healthChecks.isCouchDbReady(conn)) {
-                Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                trackUtilisation(hostname);
-                return conn;
-            }
-            else {
-                Logger.getAnonymousLogger().info(hostname + " unreachable...");
-            }
+            trackUtilisation(hostname);
+            return conn;
         }
-        Logger.getAnonymousLogger().warning("No CouchDB Hosts available at all!");
-        throw new RuntimeException("No CouchDB Backend ready!");
+        throw new IllegalStateException("No DbServer available at all!");
     }
 
     @Override

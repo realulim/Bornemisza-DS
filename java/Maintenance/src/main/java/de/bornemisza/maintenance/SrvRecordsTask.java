@@ -18,6 +18,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import de.bornemisza.loadbalancer.ClusterEvent;
+import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
@@ -43,12 +44,13 @@ public class SrvRecordsTask {
     @PostConstruct
     public void init() {
         this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
-        this.clusterMaintenanceTopic = hazelcast.getTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
+        this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
     }
 
     // Constructor for Unit Tests
-    public SrvRecordsTask(IMap<String, Integer> dbServerUtilisation) {
+    public SrvRecordsTask(IMap<String, Integer> dbServerUtilisation, ITopic<ClusterEvent> topic) {
         this.dbServerUtilisation = dbServerUtilisation;
+        this.clusterMaintenanceTopic = topic;
     }
 
     public Timer createTimer(ScheduleExpression expression, TimerConfig timerConfig) {
@@ -60,28 +62,23 @@ public class SrvRecordsTask {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         String serviceName = pool.getServiceName();
         List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
-        updateDbServerUtilisation(utilisedHostnames, dnsHostnames);
+        updateDbServers(utilisedHostnames, dnsHostnames);
         logNewQueueState();
     }
 
-    void updateDbServerUtilisation(Set<String> utilisedHostnames, List<String> dnsHostnames) {
-        boolean newHostAppeared = false;
+    void updateDbServers(Set<String> utilisedHostnames, List<String> dnsHostnames) {
         for (String hostname : dnsHostnames) {
             if (! utilisedHostnames.contains(hostname)) {
                 // a host providing the service has just appeared
-                this.dbServerUtilisation.set(hostname, 0);
-                newHostAppeared = true;
-                Logger.getAnonymousLogger().info("Host appeared: " + hostname);
+                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_APPEARED);
+                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
         for (String hostname : utilisedHostnames) {
             if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
-                this.dbServerUtilisation.delete(hostname);
-                Logger.getAnonymousLogger().info("Host disappeared: " + hostname);
-            }
-            else if (newHostAppeared) {
-                this.dbServerUtilisation.set(hostname, 0); // reset utilisation to start everyone on equal terms
+                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_DISAPPEARED);
+                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
     }

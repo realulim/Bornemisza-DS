@@ -6,17 +6,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
-
-import com.hazelcast.core.HazelcastInstance;
 
 import org.ektorp.CouchDbInstance;
-import org.ektorp.DbAccessException;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import de.bornemisza.couchdb.HealthChecks;
+import com.hazelcast.core.HazelcastInstance;
+
 import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
@@ -25,22 +22,17 @@ import de.bornemisza.loadbalancer.da.Pool;
 
 public abstract class CouchPool extends Pool<CouchDbConnection> {
 
-    private final HealthChecks healthChecks;
     private String serviceName;
 
     public CouchPool() {
         super();
-        this.healthChecks = new HealthChecks();
     }
 
     // Constructor for Unit Tests
-    public CouchPool(HazelcastInstance hz, DnsProvider dnsProvider, HealthChecks healthChecks, String serviceName) {
+    public CouchPool(HazelcastInstance hz, DnsProvider dnsProvider, String serviceName) {
         super(hz, dnsProvider);
-        this.healthChecks = healthChecks;
         this.serviceName = serviceName;
     }
-
-    protected abstract LoadBalancerConfig getLoadBalancerConfig();
 
     @Override
     protected Map<String, CouchDbConnection> createConnections() {
@@ -54,7 +46,8 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
         return connections;
     }
 
-    private CouchDbConnection createConnection(LoadBalancerConfig lbConfig, String hostname) {
+    @Override
+    protected CouchDbConnection createConnection(LoadBalancerConfig lbConfig, String hostname) {
         try {
             String db = lbConfig.getInstanceName();
             String userName = lbConfig.getUserName();
@@ -80,20 +73,13 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
                 conn = createConnection(getLoadBalancerConfig(), hostname);
                 allConnections.put(hostname, conn);
             }
-            if (healthChecks.isCouchDbReady(conn)) {
-                Logger.getAnonymousLogger().fine(hostname + " available, using it.");
-                HttpClient httpClient = createHttpClient(conn, userName, password);
-                if (password != null) Arrays.fill(password, '*');
-                CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
-                trackUtilisation(hostname);
-                return new MyCouchDbConnector(hostname, conn, dbInstance);
-            }
-            else {
-                Logger.getAnonymousLogger().info(hostname + " unreachable...");
-            }
+            HttpClient httpClient = createHttpClient(conn, userName, password);
+            if (password != null) Arrays.fill(password, '*');
+            CouchDbInstance dbInstance = new StdCouchDbInstance(httpClient);
+            trackUtilisation(hostname);
+            return new MyCouchDbConnector(hostname, conn, dbInstance);
         }
-        Logger.getAnonymousLogger().warning("No CouchDB Hosts available at all!");
-        throw new DbAccessException("No CouchDB Backend ready!");
+        throw new IllegalStateException("No DbServer available at all!");
     }
 
     private HttpClient createHttpClient(CouchDbConnection conn, String userName, char[] password) {
@@ -111,6 +97,7 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
 
     @Override
     public String getServiceName() {
-        return this.serviceName;    }
+        return this.serviceName;
+    }
 
 }

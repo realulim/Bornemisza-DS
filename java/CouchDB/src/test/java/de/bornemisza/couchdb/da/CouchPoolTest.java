@@ -8,16 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hazelcast.core.HazelcastInstance;
-
 import org.ektorp.CouchDbConnector;
 import org.ektorp.DbAccessException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import de.bornemisza.couchdb.HealthChecks;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ITopic;
+
 import de.bornemisza.couchdb.PseudoHazelcastList;
 import de.bornemisza.couchdb.PseudoHazelcastMap;
 import de.bornemisza.couchdb.entity.CouchDbConnection;
@@ -28,8 +28,8 @@ public class CouchPoolTest {
 
     class TestableConnectionPool extends CouchPool {
 
-        public TestableConnectionPool(HazelcastInstance hz, DnsProvider dnsProvider, HealthChecks healthChecks) {
-            super(hz, dnsProvider, healthChecks, "someServiceName");
+        public TestableConnectionPool(HazelcastInstance hz, DnsProvider dnsProvider) {
+            super(hz, dnsProvider, "someServiceName");
         }
 
         // expose protected method for testing
@@ -56,7 +56,6 @@ public class CouchPoolTest {
     private PseudoHazelcastList dbServerQueue;
     private HazelcastInstance hazelcast;
     private PseudoHazelcastMap dbServerUtilisation;
-    private HealthChecks healthChecks;
 
     private TestableConnectionPool CUT;
 
@@ -78,17 +77,17 @@ public class CouchPoolTest {
         when(hazelcast.getList(anyString())).thenReturn(dbServerQueue);
         dbServerUtilisation = new PseudoHazelcastMap();
         when(hazelcast.getMap(anyString())).thenReturn(dbServerUtilisation);
-        
-        healthChecks = mock(HealthChecks.class);
 
-        CUT = new TestableConnectionPool(hazelcast, mock(DnsProvider.class), healthChecks);
+        ITopic clusterMaintenanceTopic = mock(ITopic.class);
+        when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
+        
+        CUT = new TestableConnectionPool(hazelcast, mock(DnsProvider.class));
     }
 
     @Test
     public void getConnection_connectionNull() {
         dbServerUtilisation.put("host0", -1); // need to have fewer then 0 (which all other hosts start on)
 
-        when(healthChecks.isCouchDbReady(any())).thenReturn(true);
         int previousSize = allTestConnections.size();
 
         CUT.getConnector();
@@ -97,37 +96,19 @@ public class CouchPoolTest {
     }
 
     @Test
-    public void getConnector_emptyHostQueue_noUtilisation_allAvailable() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
-        CouchDbConnector dbConn = CUT.getConnector();
-        assertNotNull(dbConn);
-        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), dbServerUtilisation.size());
-    }
-
-    @Test
-    public void getConnector_emptyHostQueue_noUtilisation_notAllAvailable() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
-        CouchDbConnector dbConn = CUT.getConnector();
-        assertEquals(allTestConnections.size(), CUT.getDbServers().size(), dbServerUtilisation.size() - 1);
-        if (allTestConnections.size() > 1) assertNotNull(dbConn); // we need at least two hosts, because the first is unavailable
-    }
-
-    @Test
-    public void getConnector_emptyHostQueue_noUtilisation_noneAvailable() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
+    public void getConnection_noBackendsAvailable() {
+        dbServerUtilisation.clear();
         try {
             CUT.getConnector();
             fail();
         }
-        catch (DbAccessException ex) {
-            // expected
-            assertEquals(0, CUT.getDbServers().size(), dbServerUtilisation.size());
+        catch (IllegalStateException e) {
+            assertEquals("No DbServer available at all!", e.getMessage());
         }
     }
 
     @Test
-    public void getConnector_preExisting_HostQueue_and_Utilisation() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
+    public void getConnector() {
         String hostname = "hostname.domain.de";
         allTestConnections.clear();
         allTestConnections.put(hostname, getConnection());
@@ -144,31 +125,7 @@ public class CouchPoolTest {
     }
 
     @Test
-    public void getConnector_hostQueueWithUnhealthyServers() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false).thenReturn(true);
-        String hostname1 = "hostname1.domain.de";
-        String hostname2 = "hostname2.domain.de";
-        allTestConnections.clear();
-        allTestConnections.put(hostname1, getConnection());
-        allTestConnections.put(hostname2, getConnection());
-        CUT.getDbServers().clear();
-        CUT.getDbServers().add(hostname1);
-        CUT.getDbServers().add(hostname2);
-        dbServerUtilisation.clear();
-        int startUsageCount = wheel.nextInt(1000) + 1;
-        dbServerUtilisation.put(hostname1, 0);
-        dbServerUtilisation.put(hostname2, startUsageCount);
-        int additionalUsageCount = wheel.nextInt(10) + 1;
-        for (int i = 0; i < additionalUsageCount; i++) {
-            assertNotNull(CUT.getConnector());
-        }
-        assertEquals(   startUsageCount + additionalUsageCount, 
-                        (int)dbServerUtilisation.get(hostname1) + (int)dbServerUtilisation.get(hostname2));
-    }
-
-    @Test
     public void getConnector_nullCredentials() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
         allTestConnections.clear();
@@ -187,7 +144,6 @@ public class CouchPoolTest {
 
     @Test
     public void getConnector_credentialsGiven() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
         CouchDbConnection conn = getConnectionMock();
         String hostname = "hostname.domain.de";
         allTestConnections.clear();

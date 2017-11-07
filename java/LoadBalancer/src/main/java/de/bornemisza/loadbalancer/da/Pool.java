@@ -3,20 +3,25 @@ package de.bornemisza.loadbalancer.da;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import com.hazelcast.core.HazelcastException;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Message;
+import com.hazelcast.core.MessageListener;
 
+import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.Config;
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 
-public abstract class Pool<T> {
+public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
     @Inject
     protected HazelcastInstance hazelcast;
@@ -25,9 +30,13 @@ public abstract class Pool<T> {
     protected Map<String, T> allConnections;
 
     private Map<String, Integer> dbServerUtilisation = null;
+    private ITopic<ClusterEvent> clusterMaintenanceTopic;
+    private String registrationId;
 
     protected abstract String getServiceName();
     protected abstract Map<String, T> createConnections();
+    protected abstract T createConnection(LoadBalancerConfig lbConfig, String hostname);
+    protected abstract LoadBalancerConfig getLoadBalancerConfig();
 
     public Pool() { }
 
@@ -47,6 +56,48 @@ public abstract class Pool<T> {
     private void initCluster() {
         this.allConnections = createConnections();
         this.dbServerUtilisation = getDbServerUtilisation();
+        this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
+        this.registrationId = clusterMaintenanceTopic.addMessageListener(this);
+    }
+
+    @PreDestroy
+    public void dispose() {
+        clusterMaintenanceTopic.removeMessageListener(registrationId);
+        Logger.getAnonymousLogger().info("Message Listener " + registrationId + " removed.");
+    }
+
+    @Override
+    public void onMessage(Message<ClusterEvent> msg) {
+        ClusterEvent clusterEvent = msg.getMessageObject();
+        String hostname = clusterEvent.getHostname();
+        switch (clusterEvent.getType()) {
+            case HOST_APPEARED:
+                if (! this.dbServerUtilisation.containsKey(hostname)) {
+                    this.dbServerUtilisation.put(hostname, 0);
+                }
+                if (! this.allConnections.containsKey(hostname)) {
+                    this.allConnections.put(hostname, createConnection(getLoadBalancerConfig(), hostname));
+                    for (String otherHostname : this.dbServerUtilisation.keySet()) {
+                        // reset utilisation to start everyone on equal terms
+                        this.dbServerUtilisation.put(otherHostname, 0);
+                    }
+                }
+                break;
+            case HOST_DISAPPEARED:
+                if (this.dbServerUtilisation.containsKey(hostname)) {
+                    this.dbServerUtilisation.remove(hostname);
+                }
+                if (this.allConnections.containsKey(hostname)) {
+                    this.allConnections.remove(hostname);
+                }
+                break;
+            case HOST_HEALTHY:
+                break;
+            case HOST_UNHEALTHY:
+                break;
+            default:
+        }
+        Logger.getAnonymousLogger().info("ClusterEvent: " + hostname + "/" + clusterEvent.getType().name());
     }
 
     public Map<String, T> getAllConnections() {
