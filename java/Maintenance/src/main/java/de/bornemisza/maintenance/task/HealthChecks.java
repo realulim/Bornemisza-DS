@@ -1,6 +1,6 @@
-package de.bornemisza.couchdb;
+package de.bornemisza.maintenance.task;
 
-import java.util.logging.Logger;
+import javax.ejb.Stateless;
 
 import org.ektorp.CouchDbInstance;
 import org.ektorp.DbAccessException;
@@ -10,16 +10,10 @@ import org.ektorp.impl.StdCouchDbInstance;
 
 import de.bornemisza.couchdb.entity.CouchDbConnection;
 
+@Stateless
 public class HealthChecks {
-
-    public HealthChecks() {
-    }
-
+    
     public boolean isCouchDbReady(CouchDbConnection conn) {
-        if (conn == null) {
-            Logger.getAnonymousLogger().warning("Null-CouchDbConnection");
-            return false;
-        }
         try {
             HttpClient httpClient = new StdHttpClient.Builder()
                         .url(conn.getBaseUrl())
@@ -30,7 +24,6 @@ public class HealthChecks {
             return dbInstance.checkIfDbExists(conn.getDatabaseName());
         }
         catch (DbAccessException e) {
-            Logger.getAnonymousLogger().warning("CouchDB not ready: " + e.toString());
             return false;
         }
     }

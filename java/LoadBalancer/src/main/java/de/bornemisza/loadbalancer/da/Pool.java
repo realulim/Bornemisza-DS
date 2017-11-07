@@ -77,10 +77,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
                 }
                 if (! this.allConnections.containsKey(hostname)) {
                     this.allConnections.put(hostname, createConnection(getLoadBalancerConfig(), hostname));
-                    for (String otherHostname : this.dbServerUtilisation.keySet()) {
-                        // reset utilisation to start everyone on equal terms
-                        this.dbServerUtilisation.put(otherHostname, 0);
-                    }
+                    resetUtilisation(); // start everyone on equal terms
                 }
                 break;
             case HOST_DISAPPEARED:
@@ -92,8 +89,11 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
                 }
                 break;
             case HOST_HEALTHY:
+                resetUtilisation(); // start everyone on equal terms
+                this.dbServerUtilisation.put(hostname, 0);
                 break;
             case HOST_UNHEALTHY:
+                this.dbServerUtilisation.remove(hostname);
                 break;
             default:
         }
@@ -136,6 +136,12 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
     private void initialPopulateOfDbServerUtilisation() {
         for (String newHostname : allConnections.keySet()) {
             dbServerUtilisation.putIfAbsent(newHostname, 0);
+        }
+    }
+
+    private void resetUtilisation() {
+        for (String hostname : this.dbServerUtilisation.keySet()) {
+            this.dbServerUtilisation.put(hostname, 0);
         }
     }
 

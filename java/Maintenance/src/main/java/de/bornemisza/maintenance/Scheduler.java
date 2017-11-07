@@ -21,6 +21,9 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
+import de.bornemisza.maintenance.task.HealthCheckTask;
+import de.bornemisza.maintenance.task.SrvRecordsTask;
+
 @Startup
 @Singleton
 public class Scheduler {

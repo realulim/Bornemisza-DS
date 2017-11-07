@@ -1,4 +1,4 @@
-package de.bornemisza.maintenance;
+package de.bornemisza.maintenance.task;
 
 import java.util.List;
 import java.util.Set;
@@ -22,6 +22,7 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
+import de.bornemisza.maintenance.HttpBasePool;
 
 @Stateless
 public class SrvRecordsTask {

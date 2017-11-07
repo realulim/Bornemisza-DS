@@ -1,0 +1,95 @@
+package de.bornemisza.maintenance.task;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.ejb.ScheduleExpression;
+import javax.ejb.Stateless;
+import javax.ejb.Timeout;
+import javax.ejb.Timer;
+import javax.ejb.TimerConfig;
+import javax.ejb.TimerService;
+import javax.inject.Inject;
+
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.ITopic;
+
+import de.bornemisza.couchdb.entity.CouchDbConnection;
+import de.bornemisza.loadbalancer.ClusterEvent;
+import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
+import de.bornemisza.loadbalancer.Config;
+import de.bornemisza.maintenance.CouchAdminPool;
+
+@Stateless
+public class HealthCheckTask {
+    
+    @Resource
+    private TimerService timerService;
+
+    @Inject
+    HazelcastInstance hazelcast;
+
+    @Inject
+    CouchAdminPool couchPool;
+
+    @Inject
+    HealthChecks healthChecks;
+
+    private IMap<String, Integer> dbServerUtilisation;
+    private ITopic<ClusterEvent> clusterMaintenanceTopic;
+    private static final Set<String> FAILING_HOSTS = new HashSet<>();
+
+    public HealthCheckTask() {
+    }
+
+    // Constructor for Unit Tests
+    public HealthCheckTask(CouchAdminPool couchPool,
+                            IMap<String, Integer> utilisationMap,
+                            ITopic<ClusterEvent> topic, 
+                            HealthChecks healthChecks) {
+        this.couchPool = couchPool;
+        this.dbServerUtilisation = utilisationMap;
+        this.clusterMaintenanceTopic = topic;
+        this.healthChecks = healthChecks;
+    }
+
+    @PostConstruct
+    public void init() {
+        this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
+        this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
+    }
+
+    public Timer createTimer(ScheduleExpression expression, TimerConfig timerConfig) {
+        return timerService.createCalendarTimer(expression, timerConfig);
+    }
+
+    @Timeout
+    public void healthChecks() {
+        Map<String, CouchDbConnection> connections = couchPool.getAllConnections();
+        for (Map.Entry<String, Integer> entry : this.dbServerUtilisation.entrySet()) {
+            String hostname = entry.getKey();
+            if (healthChecks.isCouchDbReady(connections.get(hostname))) {
+                if (FAILING_HOSTS.contains(hostname)) {
+                    FAILING_HOSTS.remove(hostname);
+                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
+                }
+                // Host still healthy, just keep it in rotation
+            }
+            else {
+                if (! FAILING_HOSTS.contains(hostname)) {
+                    FAILING_HOSTS.add(hostname);
+                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
+                }
+                // Host still unhealthy, just keep it out of rotation
+            }
+        }
+    }
+
+}

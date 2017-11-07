@@ -172,6 +172,46 @@ public class PoolTest {
         assertFalse(utilisationMap.keySet().contains(removedHost));
     }
 
+    @Test
+    public void hostUnhealthy() {
+        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        for (String hostname : allTestConnections.keySet()) {
+            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
+        }
+        Pool CUT = new PoolImpl(hazelcast);
+        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
+
+        String unhealthyHost = allTestConnections.keySet().iterator().next();
+        ClusterEvent clusterEvent = new ClusterEvent(unhealthyHost, ClusterEventType.HOST_UNHEALTHY);
+        Message msg = mock(Message.class);
+        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        CUT.onMessage(msg);
+
+        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
+        assertFalse(utilisationMap.containsKey(unhealthyHost));
+    }
+
+    @Test
+    public void hostHealthyAgain() {
+        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        for (String hostname : allTestConnections.keySet()) {
+            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
+        }
+        Pool CUT = new PoolImpl(hazelcast);
+        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
+
+        String healthyHost = allTestConnections.keySet().iterator().next();
+        ClusterEvent clusterEvent = new ClusterEvent(healthyHost, ClusterEventType.HOST_HEALTHY);
+        Message msg = mock(Message.class);
+        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        CUT.onMessage(msg);
+
+        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
+        for (int count : utilisationMap.values()) {
+            assertEquals(0, count);
+        }
+    }
+
     public class PoolImpl extends Pool {
         
         public PoolImpl(HazelcastInstance hazelcast) {

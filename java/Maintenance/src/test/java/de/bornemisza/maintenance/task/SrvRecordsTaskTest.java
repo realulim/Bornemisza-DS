@@ -1,4 +1,4 @@
-package de.bornemisza.maintenance;
+package de.bornemisza.maintenance.task;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
