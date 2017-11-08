@@ -1,6 +1,5 @@
 package de.bornemisza.maintenance.task;
 
-import java.security.SecureRandom;
 import java.util.List;
 
 import org.junit.Before;
@@ -22,8 +21,7 @@ import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
 
 public class HealthCheckTaskTest {
 
-    private final SecureRandom wheel = new SecureRandom();
-    private IMap utilisationMap;
+    private String hostname;
     private ITopic clusterMaintenanceTopic;
     private ArgumentCaptor<ClusterEvent> captor;
     private HealthChecks healthChecks;
@@ -34,26 +32,24 @@ public class HealthCheckTaskTest {
     
     @Before
     public void setUp() {
-        utilisationMap = new PseudoHazelcastMap<>();
         HazelcastInstance hazelcast = mock(HazelcastInstance.class);
         clusterMaintenanceTopic = mock(ITopic.class);
-        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
         captor = ArgumentCaptor.forClass(ClusterEvent.class);
 
-        IMap connections = mock(IMap.class);
-        when(connections.get(anyString())).thenReturn(mock(CouchDbConnection.class));
+        hostname = "db-1.domain.de";
+        IMap connections = new PseudoHazelcastMap();
+        connections.put(hostname, mock(CouchDbConnection.class));
+        
         CouchAdminPool couchPool = mock(CouchAdminPool.class);
         when(couchPool.getAllConnections()).thenReturn(connections);
         healthChecks = mock(HealthChecks.class);
 
-        CUT = new HealthCheckTask(couchPool, utilisationMap, clusterMaintenanceTopic, healthChecks);
+        CUT = new HealthCheckTask(couchPool, clusterMaintenanceTopic, healthChecks);
     }
 
     @Test
     public void healthChecks() {
-        String hostname = "db-1.domain.de";
-        utilisationMap.put(hostname, wheel.nextInt(100) + 1);
         when(healthChecks.isCouchDbReady(any(CouchDbConnection.class)))
                 .thenReturn(true)
                 .thenReturn(false)

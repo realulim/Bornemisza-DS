@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
 import de.bornemisza.couchdb.entity.CouchDbConnection;
@@ -40,7 +39,6 @@ public class HealthCheckTask {
     @Inject
     HealthChecks healthChecks;
 
-    private IMap<String, Integer> dbServerUtilisation;
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
     private static final Set<String> FAILING_HOSTS = new HashSet<>();
 
@@ -48,19 +46,14 @@ public class HealthCheckTask {
     }
 
     // Constructor for Unit Tests
-    public HealthCheckTask(CouchAdminPool couchPool,
-                            IMap<String, Integer> utilisationMap,
-                            ITopic<ClusterEvent> topic, 
-                            HealthChecks healthChecks) {
+    public HealthCheckTask(CouchAdminPool couchPool, ITopic<ClusterEvent> topic, HealthChecks healthChecks) {
         this.couchPool = couchPool;
-        this.dbServerUtilisation = utilisationMap;
         this.clusterMaintenanceTopic = topic;
         this.healthChecks = healthChecks;
     }
 
     @PostConstruct
     public void init() {
-        this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
     }
 
@@ -71,9 +64,9 @@ public class HealthCheckTask {
     @Timeout
     public void healthChecks() {
         Map<String, CouchDbConnection> connections = couchPool.getAllConnections();
-        for (Map.Entry<String, Integer> entry : this.dbServerUtilisation.entrySet()) {
+        for (Map.Entry<String, CouchDbConnection> entry : connections.entrySet()) {
             String hostname = entry.getKey();
-            if (healthChecks.isCouchDbReady(connections.get(hostname))) {
+            if (healthChecks.isCouchDbReady(entry.getValue())) {
                 if (FAILING_HOSTS.contains(hostname)) {
                     FAILING_HOSTS.remove(hostname);
                     ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
