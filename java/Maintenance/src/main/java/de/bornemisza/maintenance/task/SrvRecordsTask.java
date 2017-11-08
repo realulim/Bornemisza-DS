@@ -17,12 +17,13 @@ import javax.inject.Inject;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
+import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
-import de.bornemisza.maintenance.HttpBasePool;
+import de.bornemisza.maintenance.CouchAdminPool;
 
 @Stateless
 public class SrvRecordsTask {
@@ -34,7 +35,10 @@ public class SrvRecordsTask {
     HazelcastInstance hazelcast;
 
     @Inject
-    HttpBasePool pool;
+    CouchAdminPool couchPool;
+
+    @Inject
+    HealthChecks healthChecks;
 
     private IMap<String, Integer> dbServerUtilisation;
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
@@ -49,9 +53,11 @@ public class SrvRecordsTask {
     }
 
     // Constructor for Unit Tests
-    public SrvRecordsTask(IMap<String, Integer> dbServerUtilisation, ITopic<ClusterEvent> topic) {
+    public SrvRecordsTask(IMap<String, Integer> dbServerUtilisation, ITopic<ClusterEvent> topic, CouchAdminPool couchPool, HealthChecks healthChecks) {
         this.dbServerUtilisation = dbServerUtilisation;
         this.clusterMaintenanceTopic = topic;
+        this.couchPool = couchPool;
+        this.healthChecks = healthChecks;
     }
 
     public Timer createTimer(ScheduleExpression expression, TimerConfig timerConfig) {
@@ -61,7 +67,7 @@ public class SrvRecordsTask {
     @Timeout
     public void srvRecordsMaintenance() {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
-        String serviceName = pool.getServiceName();
+        String serviceName = couchPool.getServiceName();
         List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
         updateDbServers(utilisedHostnames, dnsHostnames);
         logNewQueueState();
@@ -70,9 +76,13 @@ public class SrvRecordsTask {
     void updateDbServers(Set<String> utilisedHostnames, List<String> dnsHostnames) {
         for (String hostname : dnsHostnames) {
             if (! utilisedHostnames.contains(hostname)) {
-                // a host providing the service has just appeared
-                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_APPEARED);
-                this.clusterMaintenanceTopic.publish(clusterEvent);
+                // a host providing the service is available, but not in rotation
+                CouchDbConnection conn = couchPool.getAllConnections().get(hostname);
+                if (conn == null || healthChecks.isCouchDbReady(conn)) {
+                    // it's either new or healthy, so we can add it to the rotation
+                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_APPEARED);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
+                }
             }
         }
         for (String hostname : utilisedHostnames) {

@@ -27,7 +27,7 @@ import de.bornemisza.maintenance.CouchAdminPool;
 
 @Stateless
 public class HealthCheckTask {
-    
+
     @Resource
     private TimerService timerService;
 
