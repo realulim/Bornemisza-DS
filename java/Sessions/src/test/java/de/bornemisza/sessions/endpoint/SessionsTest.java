@@ -1,5 +1,6 @@
 package de.bornemisza.sessions.endpoint;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,10 +11,11 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.javalite.http.Get;
+import org.javalite.http.HttpException;
 import org.javalite.http.Post;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.couchdb.entity.Session;
@@ -47,6 +49,17 @@ public class SessionsTest {
         when(pool.getConnection()).thenReturn(http);
 
         CUT = new Sessions(pool);
+    }
+
+    @Test
+    public void getNewSession_technicalError() {
+        String msg = "Connection refused";
+        ConnectException cause = new ConnectException(msg);
+        HttpException wrapperException = new HttpException(msg, cause);
+        when(post.responseCode()).thenThrow(wrapperException);
+        Response resp = CUT.getNewSession(AUTH_HEADER);
+        assertEquals(500, resp.getStatus());
+        assertEquals(wrapperException.toString(), resp.getEntity());
     }
 
     @Test
@@ -90,6 +103,23 @@ public class SessionsTest {
         Response response = CUT.getNewSession(AUTH_HEADER);
         assertEquals(200, response.getStatus());
         assertEquals(cookie, response.getHeaderString("C-Token"));
+    }
+
+    @Test
+    public void getActiveSession_technicalError() {
+        String msg = "Connection refused";
+        ConnectException cause = new ConnectException(msg);
+        HttpException wrapperException = new HttpException(msg, cause);
+        when(get.responseCode()).thenThrow(wrapperException);
+        try {
+            CUT.getActiveSession("MyCookie");
+            fail();
+        }
+        catch (RestException ex) {
+            Response resp = ex.getResponse();
+            assertEquals(500, resp.getStatus());
+            assertEquals(wrapperException.toString(), resp.getEntity());
+        }
     }
 
     @Test

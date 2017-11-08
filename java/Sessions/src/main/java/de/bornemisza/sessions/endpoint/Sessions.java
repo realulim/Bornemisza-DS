@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.javalite.http.Get;
+import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
 import de.bornemisza.couchdb.entity.Session;
@@ -58,8 +59,14 @@ public class Sessions {
         Post post = sessionsPool.getConnection().post("")
             .param("name", creds.getUserName())
             .param("password", creds.getPassword());
-        if (post.responseCode() != 200) {
-            return Response.status(post.responseCode()).entity(post.responseMessage()).build();
+        try {
+            int responseCode = post.responseCode();
+            if (responseCode != 200) {
+                return Response.status(responseCode).entity(post.responseMessage()).build();
+            }
+        }
+        catch (HttpException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.toString()).build();
         }
         Map<String, List<String>> headers = post.headers();
         List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
@@ -79,9 +86,14 @@ public class Sessions {
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
         Get get = sessionsPool.getConnection().get("")
                 .header(HttpHeaders.COOKIE, cToken);
-        if (get.responseCode() != 200) {
-            throw new RestException(
-                    Response.status(get.responseCode()).entity(get.responseMessage()).build());
+        try {
+            int responseCode = get.responseCode();
+            if (responseCode != 200) {
+                throw new RestException(Response.status(responseCode).entity(get.responseMessage()).build());
+            }
+        }
+        catch (HttpException ex) {
+            throw new RestException(Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.toString()).build());
         }
         Session session = new Session();
         JsonNode root;
