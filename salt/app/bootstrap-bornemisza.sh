@@ -25,7 +25,7 @@ fi
 
 # ask for CouchDB admin password
 if [ ! -e $PillarLocal/couchdb.sls ]; then
-	read -s -p -r 'CouchDB Admin Password: ' COUCH_PW
+	read -rs -p 'CouchDB Admin Password: ' COUCH_PW
 	printf "couchdb-admin-password: %s\n" "$COUCH_PW" > $PillarLocal/couchdb.sls
 	printf "\n"
 fi
@@ -34,39 +34,39 @@ fi
 if ! grep -q sslhost: $PillarLocal/basics.sls ; then
 	FLOATIP=$(getip $entrypoint)
 	SSLHOST=$(host "$FLOATIP" | cut -d' ' -f5 | sed -r 's/(.*)\..*/\1/')
-	printf "sslhost: %s\n" "$SSLHOST" | tee -a "$PillarLocal"/basics.sls
+	printf "sslhost: %s\n" "$SSLHOST" | tee -a $PillarLocal/basics.sls
 fi
 
 # haproxy needs to know all appserver hostnames for load balancing between them
 sed -i '/  - .*/d' $PillarLocal/appservers.sls
 for HOSTNAME in $(host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" ")
 do
-	if ! grep -q "$HOSTNAME" "$PillarLocal"/appservers.sls ; then
-		printf "  - %s\n" "$HOSTNAME" | tee -a "$PillarLocal"/appservers.sls
+	if ! grep -q "$HOSTNAME" $PillarLocal/appservers.sls ; then
+		printf "  - %s\n" "$HOSTNAME" | tee -a $PillarLocal/appservers.sls
 	fi
 done
 
 # birdc needs to know the floating ip in order to manage failover routing
-if ! grep -q floatip: "$PillarLocal"/basics.sls ; then
+if ! grep -q floatip: $PillarLocal/basics.sls ; then
 	FLOATIP=$(getip $entrypoint)
-	printf "floatip: %s\n" "$FLOATIP" | tee -a "$PillarLocal"/basics.sls
+	printf "floatip: %s\n" "$FLOATIP" | tee -a $PillarLocal/basics.sls
 fi
 
 # ask for autonomous system number
-if ! grep -q ASN: "$PillarLocal"/basics.sls ; then
-	read -s -p -r 'ASN: ' ASN
-	printf "ASN: %s\n" "$ASN" >> "$PillarLocal"/basics.sls
+if ! grep -q ASN: $PillarLocal/basics.sls ; then
+	read -rs -p 'ASN: ' ASN
+	printf "ASN: %s\n" "$ASN" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
 # ask for BGP password
 if ! grep -q BGP: $PillarLocal/basics.sls ; then
-	read -s -p -r 'BGP: ' BGP
-	printf "BGP: %s\n" "$BGP" >> "$PillarLocal"/basics.sls
+	read -rs -p 'BGP: ' BGP
+	printf "BGP: %s\n" "$BGP" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
-chmod -R 400 "$PillarLocal"
+chmod -R 400 $PillarLocal
 
 # collect all pillar secrets in order to exclude them from Salt's output
 SECRET_KEYS=(CFEMAIL CFKEY BGP ASN stats-password asadmin-password asadmin-master-password couchdb-admin-password)
