@@ -9,7 +9,7 @@
     - user: root
     - minute: '*'
 
-/usr/bin/bash -c '/usr/bin/salt-call -l error state.highstate >> /opt/logs/highstate.log':
+/usr/bin/bash -c '/opt/bootstrap-bornemisza.sh >> /opt/logs/highstate.log':
   cron.present:
     - user: root
     - minute: '*/15'
