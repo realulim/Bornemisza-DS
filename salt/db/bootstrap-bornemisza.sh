@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /opt/scripts
+cd /opt/scripts || exit -1
 source ./config.sh db
 sh bootstrap-common.sh db
 
@@ -14,56 +14,55 @@ fi
 
 # dynamic pillar: haproxy
 if [ ! -e $PillarLocal/haproxy.sls ]; then
-        printf "stats-password: `generatepw`\n" > $PillarLocal/haproxy.sls
+        printf "stats-password: %s\n" "$(generatepw)" > "$PillarLocal"/haproxy.sls
 fi
 
 # dynamic pillar: couchdb
 if [ ! -e $PillarLocal/couchdb.sls ]; then
-	read -s -p 'CouchDB Admin Password [leave empty to generate random string]: ' COUCH_PW
-	if [ -z $COUCH_PW ]; then
-		COUCH_PW=`generatepw`
+	read -s -p -r 'CouchDB Admin Password [leave empty to generate random string]: ' COUCH_PW
+	if [ -z "$COUCH_PW" ]; then
+		COUCH_PW=$(generatepw)
 	fi
-	printf "couchdb-admin-password: $COUCH_PW\n" > $PillarLocal/couchdb.sls
+	printf "couchdb-admin-password: %s\n" "$COUCH_PW" > $PillarLocal/couchdb.sls
 	printf "\n"
 
-	read -s -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
-	if [ -z $COOKIE ]; then
-		COOKIE=`generatepw`
+	read -s -p -r 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
+	if [ -z "$COOKIE" ]; then
+		COOKIE=$(generatepw)
 	fi
-	printf "cookie: $COOKIE\n" >> $PillarLocal/couchdb.sls
+	printf "cookie: %s\n" "$COOKIE" >> "$PillarLocal"/couchdb.sls
 	printf "\n"
 
-	read -p 'IP Address of Node already in Cluster [leave empty if this is the first node]: ' CLUSTERIP
-	if [ -z $CLUSTERIP ]; then
-		CLUSTERIP=`getprivip db`
+	read -p -r 'IP Address of Node already in Cluster [leave empty if this is the first node]: ' CLUSTERIP
+	if [ -z "$CLUSTERIP" ]; then
+		CLUSTERIP=$(getprivip db)
 	fi
-	printf "clusterip: $CLUSTERIP\n" >> $PillarLocal/couchdb.sls
+	printf "clusterip: %s\n" "$CLUSTERIP" >> "$PillarLocal"/couchdb.sls
 	printf "\n"
 fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
 if ! grep -q sslhost: $PillarLocal/basics.sls ; then
-	SSLHOST=`domainname -f`
-	printf "sslhost: $SSLHOST\n" | tee -a $PillarLocal/basics.sls	
+	SSLHOST=$(domainname -f)
+	printf "sslhost: %s\n" "$SSLHOST" | tee -a "$PillarLocal"/basics.sls	
 fi
 
 # haproxy needs to know all external hostnames to select the correct load balancing strategy
 sed -i '/  - .*/d' $PillarLocal/dbservers.sls
-for HOSTNAME in `host -t srv _db._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
+for HOSTNAME in $(host -t srv _db._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" ")
 do
-	if ! grep -q $HOSTNAME $PillarLocal/dbservers.sls ; then
-		printf "  - $HOSTNAME\n" | tee -a $PillarLocal/dbservers.sls
+	if ! grep -q "$HOSTNAME" "$PillarLocal"/dbservers.sls ; then
+		printf "  - %s\n" "$HOSTNAME" tee -a "$PillarLocal"/dbservers.sls
 	fi
 done
 
 # haproxy needs to know the appserver source ips that are whitelisted for database access
 sed -i '/  - .*/d' $PillarLocal/appserverips.sls
-COUNTER=1
-for HOSTNAME in `host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" "`
+for HOSTNAME in $(host -t srv _app._tcp.$domain.|cut -d" " -f8|sort|rev|cut -c2-|rev|paste -s -d" ")
 do
-	IPADDRESS=`getip $HOSTNAME`
-	if ! grep -q $IPADDRESS $PillarLocal/appserverips.sls ; then
-		printf "  - $IPADDRESS\n" | tee -a $PillarLocal/appserverips.sls
+	IPADDRESS=$(getip "$HOSTNAME")
+	if ! grep -q "$IPADDRESS" "$PillarLocal"/appserverips.sls ; then
+		printf "  - %s\n" "$IPADDRESS" | tee -a "$PillarLocal"/appserverips.sls
 	fi
 done
 
@@ -71,7 +70,7 @@ chmod -R 400 $PillarLocal
 
 # collect all pillar secrets in order to exclude them from Salt's output
 SECRET_KEYS=(CFEMAIL CFKEY couchdb-admin-password cookie stats-password)
-EXCL_STR=`getsecrets ${SECRET_KEYS[@]}`
+EXCL_STR=$(getsecrets "${SECRET_KEYS[@]}")
 
 # create server
-salt-call -l info state.highstate --force-color |& egrep -v $EXCL_STR
+salt-call -l info state.highstate --force-color |& grep -E -v "$EXCL_STR"
