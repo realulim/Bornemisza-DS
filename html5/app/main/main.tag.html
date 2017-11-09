@@ -271,8 +271,8 @@
             self.dbServerColor = event.data.dbServerColor
             self.uuidCount++
             self.chartCounter++
-            self.appServerColors[event.data.appServerColor]++
-            self.dbServerColors[event.data.dbServerColor]++
+            self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor]+1||1
+            self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor]+1||1
             if (self.chartCounter > self.chartUpdateFrequency) {
                 // redraw charts every nth request
                 self.chartCounter = 0
