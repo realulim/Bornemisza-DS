@@ -8,9 +8,9 @@ fi
 BORNEY=https://raw.githubusercontent.com/realulim/Bornemisza/master/salt
 
 mkdir -p /opt/scripts
-cd /opt/scripts
+cd /opt/scripts || exit -1
 curl -o ./config.sh -L $BORNEY/common/config.sh
-source config.sh $1
+source config.sh "$1"
 
 # update system
 yum -y update
@@ -29,7 +29,7 @@ systemctl stop salt-minion
 
 # download and process installation scripts
 curl -o bootstrap-common.sh -L $BORNEY/common/bootstrap-common.sh
-cd /opt
-curl -o bootstrap-bornemisza.sh -L $BORNEY/$1/bootstrap-bornemisza.sh
+cd /opt || exit -1
+curl -o bootstrap-bornemisza.sh -L "$BORNEY/$1/bootstrap-bornemisza.sh"
 chmod u+x bootstrap-bornemisza.sh
 sh bootstrap-bornemisza.sh
