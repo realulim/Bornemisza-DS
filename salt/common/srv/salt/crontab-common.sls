@@ -13,4 +13,4 @@
   cron.present:
     - user: root
     - minute: '*/15'
-    - hour: *
+    - hour: '*'
