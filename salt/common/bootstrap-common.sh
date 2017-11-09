@@ -43,7 +43,7 @@ printf "appclustersize: %s\ndbclustersize: %s\n" "$APPCLUSTERSIZE" "$DBCLUSTERSI
 # ask for Cloudflare API key
 if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
 	read -rs -p 'Cloudflare API Key: ' CFKEY
-	printf "CFKEY: %a\n" "$CFKEY" >> $PillarLocal/basics.sls
+	printf "CFKEY: %s\n" "$CFKEY" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
