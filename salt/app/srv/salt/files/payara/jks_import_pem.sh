@@ -14,6 +14,6 @@ for N in $(seq 0 $((CERTS - 1))); do
 	if keytool -list -keystore "$KEYSTORE" -storepass "$PASSWORD" | grep "$ALIAS" ; then
 		keytool -delete -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$PASSWORD"
 	fi
-	> "$PEM_FILE" awk "n==$N { print }; /END CERTIFICATE/ { n++ }" |
+	cat "$PEM_FILE" | awk "n==$N { print }; /END CERTIFICATE/ { n++ }" |
 		keytool -noprompt -import -trustcacerts -alias "$ALIAS" -keystore "$KEYSTORE" -storepass "$PASSWORD"
 done
