@@ -1,5 +1,5 @@
-{% set COUCHDB_DIR='apache-couchdb-2.1.0' %}
-{% set COUCHDB_TARGZ='apache-couchdb-2.1.0.tar.gz' %}
+{% set COUCHDB_DIR='apache-couchdb-2.1.1' %}
+{% set COUCHDB_TARGZ='apache-couchdb-2.1.1.tar.gz' %}
 {% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
 {% set URL='http://' + pillar['privip'] + ':5984' %}
