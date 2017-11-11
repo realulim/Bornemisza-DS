@@ -166,6 +166,6 @@ create-database-{{ db }}:
 
 create-or-update-design-doc-User:
   cmd.run:
-    - name: /opt/scripts/ddoc.sh {{ URL }}
+    - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
     - onchanges:
       - {{ VIEWS }}/User.json
