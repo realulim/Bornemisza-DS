@@ -54,6 +54,7 @@
             router.navigate("/index.html")
         })
         router.get("/index.html", function (req) {
+            self.observable.trigger(STOP_LOOP)
             setBackground("slategrey")
             riot.mount(root, "cards")
         })
@@ -69,7 +70,6 @@
 
         this.observable.on(AUTH_SUCCESS, function (opts) {
             sessionStorage.clear()
-            self.observable.trigger(STOP_LOOP)
             sessionStorage.setItem("user", opts.user)
             router.navigate("/main.html")
             self.observable.trigger(JUST_MARRIED, { displayAuthSuccessMessage: true, ctoken: opts.ctoken })
