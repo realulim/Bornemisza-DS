@@ -47,7 +47,7 @@ public class Users {
     @Produces(MediaType.APPLICATION_JSON)
     public User getUser(@PathParam("name") String userName,
                         @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (isVoid(userName)) {
+        if (isVoid(userName) || hasIllegalCharacters(userName)) {
             throw new RestException(Status.BAD_REQUEST);
         }
         User user;
@@ -71,6 +71,10 @@ public class Users {
         if (user == null || user.getEmail() == null) {
             throw new RestException(
                     Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
+        }
+        else if (hasIllegalCharacters(user.getName())) {
+            throw new RestException(
+                    Response.status(Status.BAD_REQUEST).entity("Illegal Characters in User Name!").build());
         }
         Consumer userAccountCreationRequestConsumer = new Consumer<UsersFacade>() {
             @Override
@@ -186,6 +190,12 @@ public class Users {
         if (value == null) return true;
         else if (value.length() == 0) return true;
         else return value.equals("null");
+    }
+
+    private boolean hasIllegalCharacters(String value) {
+        if (isVoid(value)) return false;
+        String[] array = value.split("[<>\"&']", 2);
+        return array.length > 1;
     }
 
     private void validateUuid(String uuidStr) throws RestException {

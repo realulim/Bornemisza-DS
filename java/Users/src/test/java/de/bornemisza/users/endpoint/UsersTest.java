@@ -51,6 +51,17 @@ public class UsersTest {
     }
 
     @Test
+    public void getUser_illegalCharactersInUserName() {
+        try {
+            CUT.getUser("<script>alert('hooboo');</script>", null);
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
     public void getUser_technicalException() {
         when(facade.getUser(anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         try {
@@ -102,6 +113,20 @@ public class UsersTest {
     public void userAccountCreationRequest_nullEmail() {
         try {
             CUT.userAccountCreationRequest(new User());
+            fail();
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(400, ex.getResponse().getStatus());
+        }
+    }
+
+    @Test
+    public void userAccountCreationRequest_illegalCharactersInUserName() {
+        try {
+            User user = new User();
+            user.setName("<");
+            user.setEmail(new InternetAddress());
+            CUT.userAccountCreationRequest(user);
             fail();
         }
         catch (WebApplicationException ex) {
