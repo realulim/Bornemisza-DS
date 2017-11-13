@@ -5,25 +5,29 @@
         <form onsubmit="{handleRegistration}">
             <div class="field">
                 <p class="control has-icons-left">
-                    <input name="reg_user" ref="reg_user" type="text" value="" placeholder="Your Username" required>
+                    <input name="reg_user" ref="reg_user" type="text" value="" placeholder="Your Username" 
+                           onkeypress="return inputLimiter(event,'NameCharacters')" required>
                     <span class="icon is-left"><i class="fa fa-user fa-fw"></i></span>
                 </p>
             </div>
             <div class="field">
                 <p class="control has-icons-left">
-                    <input name="reg_email" ref="reg_email" type="email" value="" placeholder="Your Email" required>
+                    <input name="reg_email" ref="reg_email" type="email" value="" placeholder="Your Email"
+                           onkeypress="return inputLimiter(event,'NameCharacters')" required>
                     <span class="icon is-left"><i class="fa fa-envelope fa-fw"></i></span>
                 </p>
             </div>
             <div class="field">
                 <p class="control has-icons-left">
-                    <input ref="reg_password1" type="password" value="" placeholder="Your Password" required>
+                    <input ref="reg_password1" type="password" value="" placeholder="Your Password"
+                           onkeypress="return inputLimiter(event,'NameCharacters')" required>
                     <span class="icon is-left"><i class="fa fa-lock fa-fw"></i></span>
                 </p>
             </div>
             <div class="field">
                 <p class="control has-icons-left">
-                    <input ref="reg_password2" type="password" value="" placeholder="Please confirm your Password" required>
+                    <input ref="reg_password2" type="password" value="" placeholder="Please confirm your Password"
+                           onkeypress="return inputLimiter(event,'NameCharacters')" required>
                     <span class="icon is-left"><i class="fa fa-lock fa-fw"></i></span>
                 </p>
             </div>
