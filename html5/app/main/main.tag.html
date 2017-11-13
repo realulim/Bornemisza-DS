@@ -93,7 +93,6 @@
 
     <script>
         var self = this
-        this.ctoken = sessionStorage.getItem("ctoken")
         this.mixin(ObservableMixin)
         this.loadingError = false
         this.justMarried = false
@@ -133,7 +132,6 @@
 
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
-            self.ctoken = sessionStorage.getItem("ctoken")
             self.update()
             setTimeout(function () {
                 self.justMarried = false
@@ -177,7 +175,7 @@
 
         this.getUuid = (event) => {
             event.preventDefault()
-            if (self.ctoken == null) {
+            if (sessionStorage.getItem("ctoken") == null) {
                 // the user probably came here via browser navigation, so send him to the login page
                 router.navigate("/index.html")
             }
@@ -205,7 +203,7 @@
         function makeSingleRequest() {
             self.observable.trigger(LOADING_IN_PROGRESS)
             self.worker = new Worker("/js/getUuidWorker.js")
-            self.worker.postMessage(self.ctoken)
+            self.worker.postMessage(sessionStorage.getItem("ctoken"))
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
@@ -221,7 +219,7 @@
         }
 
         function startLoopRequests() {
-            self.worker.postMessage(self.ctoken)
+            self.worker.postMessage(sessionStorage.getItem("ctoken"))
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
                     console.log("Error: " + event.data.error)
@@ -232,7 +230,7 @@
                 }
                 if (self.loopMode) {
                     // Still in loop mode? Get another UUID.
-                    self.worker.postMessage(self.ctoken)
+                    self.worker.postMessage(sessionStorage.getItem("ctoken"))
                 }
             }
         }
@@ -243,7 +241,7 @@
             var startTime = Date.now()
             self.worker = new Worker("/js/getUuidWorker.js")
             for (var i = 0; i < batchSize; i++) {
-                self.worker.postMessage(self.ctoken)
+                self.worker.postMessage(sessionStorage.getItem("ctoken"))
             }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
