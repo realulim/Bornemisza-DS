@@ -93,7 +93,7 @@
 
     <script>
         var self = this
-        this.ctoken = null
+        this.ctoken = sessionStorage.getItem("ctoken")
         this.mixin(ObservableMixin)
         this.loadingError = false
         this.justMarried = false
@@ -133,7 +133,7 @@
 
         this.observable.on(JUST_MARRIED, function (opts) {
             self.justMarried = true
-            self.ctoken = opts.ctoken
+            self.ctoken = sessionStorage.getItem("ctoken")
             self.update()
             setTimeout(function () {
                 self.justMarried = false
@@ -178,7 +178,7 @@
         this.getUuid = (event) => {
             event.preventDefault()
             if (self.ctoken == null) {
-                // just a fallback, this should never happen
+                // the user probably came here via browser navigation, so send him to the login page
                 router.navigate("/index.html")
             }
             if (self.singleMode) {
