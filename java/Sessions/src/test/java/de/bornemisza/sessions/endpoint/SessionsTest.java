@@ -13,12 +13,11 @@ import javax.ws.rs.core.Response;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import de.bornemisza.couchdb.entity.Session;
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.da.HttpSessionsPool;
 
@@ -102,76 +101,8 @@ public class SessionsTest {
         headers.put(HttpHeaders.SET_COOKIE, cookies);
         Response response = CUT.getNewSession(AUTH_HEADER);
         assertEquals(200, response.getStatus());
-        assertEquals(cookie, response.getHeaderString("C-Token"));
-    }
-
-    @Test
-    public void getActiveSession_technicalError() {
-        String msg = "Connection refused";
-        ConnectException cause = new ConnectException(msg);
-        HttpException wrapperException = new HttpException(msg, cause);
-        when(get.responseCode()).thenThrow(wrapperException);
-        try {
-            CUT.getActiveSession("MyCookie");
-            fail();
-        }
-        catch (RestException ex) {
-            Response resp = ex.getResponse();
-            assertEquals(500, resp.getStatus());
-            assertEquals(wrapperException.toString(), resp.getEntity());
-        }
-    }
-
-    @Test
-    public void getActiveSession_noCookie() {
-        try {
-            CUT.getActiveSession("null");
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(401, e.getResponse().getStatus());
-            assertEquals("No Cookie!", e.getResponse().getEntity());
-        }
-    }
-
-    @Test
-    public void getActiveSession_getFailed() {
-        int errorCode = 509;
-        String msg = "Bandwidth Limit Exceeded";
-        when(get.responseCode()).thenReturn(errorCode);
-        when(get.responseMessage()).thenReturn(msg);
-        try {
-            CUT.getActiveSession("MyCookie");
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(errorCode, e.getResponse().getStatus());
-            assertEquals(msg, e.getResponse().getEntity());
-        }
-    }
-
-    @Test
-    public void getActiveSession_noJson() {
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn("not Json");
-        try {
-            CUT.getActiveSession("MyCookie");
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(500, e.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void getActiveSession() {
-        String json = "{\"ok\":true,\"userCtx\":{\"name\":\"Fazil Ongudar\",\"roles\":[\"customer\",\"user\"]},\"info\":{\"authentication_db\":\"_users\",\"authentication_handlers\":[\"cookie\",\"default\"],\"authenticated\":\"cookie\"}}";
-        String cookie = "MyCookie";
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(json);
-        Session session = CUT.getActiveSession(cookie);
-        assertEquals("Fazil Ongudar", session.getPrincipal());
-        assertEquals(cookie, session.getCToken());
+        assertEquals(cookie, response.getHeaderString(HttpHeaders.SET_COOKIE));
+        assertEquals(cookie, response.getHeaderString(Sessions.CTOKEN));
     }
 
     @Test

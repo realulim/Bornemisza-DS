@@ -22,14 +22,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.javalite.http.Get;
-import org.javalite.http.HttpException;
-
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+
+import org.javalite.http.Get;
+import org.javalite.http.HttpException;
 
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
@@ -51,8 +51,6 @@ public class Uuids {
 
     private List<String> allHostnames = new ArrayList<>();
     private final Map<String, String> ipToHostname = new HashMap<>();
-
-    private static final String CTOKEN_HEADER = "C-Token";
 
     public Uuids() { }
 
@@ -116,13 +114,13 @@ public class Uuids {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUuids(@HeaderParam(CTOKEN_HEADER) String cToken,
+    public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
                              @DefaultValue("1")@QueryParam("count") int count) {
-        if (isVoid(cToken)) throw new RestException(
+        if (isVoid(cookie)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("No Cookie!").build());
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
-                .header(HttpHeaders.COOKIE, cToken);
+                .header(HttpHeaders.COOKIE, cookie);
         try {
             int responseCode = get.responseCode();
             if (responseCode != 200) {
