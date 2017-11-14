@@ -5,10 +5,10 @@ import io.restassured.response.Response;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.*;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import static org.junit.Assert.*;
 
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.rest.BasicAuthCredentials;
@@ -16,7 +16,7 @@ import de.bornemisza.rest.BasicAuthCredentials;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BornemiszaIT extends IntegrationTestBase {
 
-    private static String revision, cToken;
+    private static String revision, cookie, ctoken;
 
     @Test
     public void t00_userAccountCreationRequest() {
@@ -84,18 +84,19 @@ public class BornemiszaIT extends IntegrationTestBase {
     @Test
     public void t07_createSession() {
         requestSpecSessions.auth().preemptive().basic(userName, userPassword);
-        cToken = getNewSession().header("C-Token");
-        assertTrue(cToken.startsWith("AuthSession="));
-        assertFalse(cToken.startsWith("AuthSession=;"));
+        Response response = getNewSession();
+        cookie = response.header("Set-Cookie");
+        ctoken = response.header("C-Token");
+        assertTrue(cookie.startsWith("AuthSession="));
+        assertFalse(cookie.startsWith("AuthSession=;"));
+        assertNotEquals(cookie, ctoken);
     }
 
     @Test
     public void t08_getUuids() {
-        assertTrue(cToken.startsWith("AuthSession="));
         int count = 3;
-        Response response = getUuids(cToken, count, 200);
+        Response response = getUuids(cookie, ctoken, count, 200);
         JsonPath jsonPath = response.jsonPath();
-        cToken = response.getHeader("C-Token");
         List<String> uuids = jsonPath.getList("uuids");
         assertEquals(count, uuids.size());
         List<String> definedColors = Arrays.asList(new String[] { "LightSeaGreen", "Crimson", "Gold", "RoyalBlue", "LightSalmon"});
@@ -106,19 +107,25 @@ public class BornemiszaIT extends IntegrationTestBase {
     @Test
     public void t09_endSession() {
         Response response = endSession(200);
-        assertEquals("AuthSession=; Version=1; Path=/; HttpOnly", response.getHeader("Set-Cookie"));
+        assertEquals("AuthSession=; Version=1; Path=/; HttpOnly; Secure", response.getHeader("Set-Cookie"));
         assertNull(response.getHeader("C-Token"));
         assertEquals(0, response.getBody().prettyPrint().length());
     }
 
     @Test
     public void t10_getUuidsWithoutCookie() {
-        Response response = getUuidsWithoutCookie(1, 401);
-        assertEquals("No Cookie!", response.getBody().prettyPrint());
+        Response response = getUuidsWithoutCookie(ctoken, 1, 401);
+        assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
     }
 
     @Test
-    public void t10_changeEmailRequest() {
+    public void t11_getUuidsWithoutCToken() {
+        Response response = getUuidsWithoutCToken(cookie, 1, 401);
+        assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
+    }
+
+    @Test
+    public void t12_changeEmailRequest() {
         requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         deleteMails(newEmail);
         user.setEmail(newEmail);
@@ -127,7 +134,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t11_confirmEmail() {
+    public void t13_confirmEmail() {
         BasicAuthCredentials creds = new BasicAuthCredentials(userName, userPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
@@ -144,7 +151,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t12_changePassword() {
+    public void t14_changePassword() {
         requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
@@ -154,20 +161,20 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t13_removeUser() {
+    public void t15_removeUser() {
         requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(userName, 401);
     }
 
     @Test
-    public void t14_checkUserRemoved() {
+    public void t16_checkUserRemoved() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         getUser(userName, 404);
     }
 
     @Test
-    public void t15_removeNonExistingUser() {
+    public void t17_removeNonExistingUser() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }

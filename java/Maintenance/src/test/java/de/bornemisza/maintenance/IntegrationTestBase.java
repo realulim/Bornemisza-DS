@@ -1,6 +1,5 @@
 package de.bornemisza.maintenance;
 
-import de.bornemisza.rest.BasicAuthCredentials;
 import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -24,6 +23,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.rest.BasicAuthCredentials;
 
 public class IntegrationTestBase {
 
@@ -180,17 +180,29 @@ public class IntegrationTestBase {
                 .then().extract().response();
     }
 
-    protected Response getUuidsWithoutCookie(int count, int expectedStatusCode) {
+    protected Response getUuidsWithoutCookie(String ctoken, int count, int expectedStatusCode) {
         requestSpecSessions.accept(ContentType.JSON)
+                .header("C-Token", ctoken)
                 .queryParam("count", count);
         return given(requestSpecSessions)
                 .when().get("uuid")
                 .then().statusCode(expectedStatusCode).extract().response();
     }
 
-    protected Response getUuids(String cToken, int count, int expectedStatusCode) {
+    protected Response getUuidsWithoutCToken(String cookie, int count, int expectedStatusCode) {
         requestSpecSessions.accept(ContentType.JSON)
-                .header("C-Token", cToken)
+                .cookie(cookie)
+                .queryParam("count", count);
+        return given(requestSpecSessions)
+                .when().get("uuid")
+                .then().statusCode(expectedStatusCode).extract().response();
+    }
+
+    protected Response getUuids(String cookie, String ctoken, int count, int expectedStatusCode) {
+        if (cookie.contains(";")) cookie = cookie.substring(0, cookie.indexOf(";"));
+        requestSpecSessions.accept(ContentType.JSON)
+                .header("Cookie", cookie)
+                .header("C-Token", ctoken)
                 .queryParam("count", count);
         return given(requestSpecSessions)
                 .when().get("uuid")
