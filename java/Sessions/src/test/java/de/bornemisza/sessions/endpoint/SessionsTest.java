@@ -18,8 +18,10 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.da.HttpSessionsPool;
+import de.bornemisza.sessions.security.HashProvider;
 
 public class SessionsTest {
 
@@ -31,9 +33,14 @@ public class SessionsTest {
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
     private HttpSessionsPool pool;
+    private HashProvider hashProvider;
 
     @Before
     public void setUp() {
+        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
+        hashProvider = new HashProvider(lbConfig);
+
         post = mock(Post.class);
         when(post.param(anyString(), any())).thenReturn(post);
         when(post.headers()).thenReturn(headers);
@@ -47,7 +54,7 @@ public class SessionsTest {
         pool = mock(HttpSessionsPool.class);
         when(pool.getConnection()).thenReturn(http);
 
-        CUT = new Sessions(pool);
+        CUT = new Sessions(pool, hashProvider);
     }
 
     @Test
@@ -94,7 +101,7 @@ public class SessionsTest {
 
     @Test
     public void getNewSession() {
-        String cookie = "My Cookie";
+        String cookie = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure";
         when(post.responseCode()).thenReturn(200);
         List<String> cookies = new ArrayList<>();
         cookies.add(cookie);
@@ -102,7 +109,7 @@ public class SessionsTest {
         Response response = CUT.getNewSession(AUTH_HEADER);
         assertEquals(200, response.getStatus());
         assertEquals(cookie, response.getHeaderString(HttpHeaders.SET_COOKIE));
-        assertEquals(cookie, response.getHeaderString(Sessions.CTOKEN));
+        assertEquals(hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";"))), response.getHeaderString(Sessions.CTOKEN));
     }
 
     @Test

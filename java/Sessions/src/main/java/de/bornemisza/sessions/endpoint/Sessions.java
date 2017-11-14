@@ -2,7 +2,6 @@ package de.bornemisza.sessions.endpoint;
 
 import java.util.List;
 import java.util.Map;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
@@ -21,6 +20,7 @@ import org.javalite.http.Post;
 
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.sessions.da.HttpSessionsPool;
+import de.bornemisza.sessions.security.HashProvider;
 
 @Stateless
 @Path("/")
@@ -29,13 +29,18 @@ public class Sessions {
     @Inject
     HttpSessionsPool sessionsPool;
 
+    @Inject
+    HashProvider hashProvider;
+
     public static final String CTOKEN = "C-Token";
 
-    public Sessions() { }
+    public Sessions() {
+    }
 
     // Constructor for Unit Tests
-    public Sessions(HttpSessionsPool sessionsPool) {
+    public Sessions(HttpSessionsPool sessionsPool, HashProvider hashProvider) {
         this.sessionsPool = sessionsPool;
+        this.hashProvider = hashProvider;
     }
 
     @GET
@@ -67,9 +72,11 @@ public class Sessions {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("No Cookie!").build();
         }
         else {
+            String cookie = cookies.get(0);
+            String hmac = hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";")));
             return Response.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookies.get(0))
-                    .header(CTOKEN, cookies.get(0))
+                    .header(HttpHeaders.SET_COOKIE, cookie)
+                    .header(CTOKEN, hmac)
                     .build();
         }
     }

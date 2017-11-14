@@ -13,24 +13,26 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-import org.javalite.http.Get;
-import org.javalite.http.HttpException;
-import org.javalite.http.Post;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
+import org.javalite.http.Get;
+import org.javalite.http.HttpException;
+import org.javalite.http.Post;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
+import de.bornemisza.sessions.security.HashProvider;
 
 public class UuidsTest {
 
@@ -44,9 +46,17 @@ public class UuidsTest {
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
     private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
+    private HashProvider hashProvider;
+    private String cookie, hmac;
 
     @Before
     public void setUp() {
+        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
+        hashProvider = new HashProvider(lbConfig);
+        cookie = "MyCookie";
+        hmac = hashProvider.hmacDigest(cookie);
+
         post = mock(Post.class);
         when(post.param(anyString(), any())).thenReturn(post);
         when(post.headers()).thenReturn(headers);
@@ -69,7 +79,7 @@ public class UuidsTest {
         this.dnsResolver = mock(DnsResolver.class);
         when(dnsResolver.getHostAddress(anyString())).thenAnswer(new IpAddressAnswer());
 
-        CUT = new Uuids(pool, hazelcast, dnsResolver);
+        CUT = new Uuids(pool, hazelcast, dnsResolver, hashProvider);
     }
 
     class IpAddressAnswer implements Answer {
@@ -114,12 +124,24 @@ public class UuidsTest {
     @Test
     public void getUuids_noCookie() {
         try {
-            CUT.getUuids("", 3);
+            CUT.getUuids("", "", 3);
             fail();
         }
         catch (WebApplicationException e) {
             assertEquals(401, e.getResponse().getStatus());
-            assertEquals("No Cookie!", e.getResponse().getEntity());
+            assertEquals("Cookie or CToken missing!", e.getResponse().getEntity());
+        }
+    }
+
+    @Test
+    public void getUuids_hashMismatch() {
+        try {
+            CUT.getUuids(cookie, "this-is-not-a-hash-function", 1);
+            fail();
+        }
+        catch (WebApplicationException e) {
+            assertEquals(401, e.getResponse().getStatus());
+            assertEquals("Hash Mismatch!", e.getResponse().getEntity());
         }
     }
 
@@ -129,7 +151,7 @@ public class UuidsTest {
         ConnectException cause = new ConnectException(msg);
         HttpException wrapperException = new HttpException(msg, cause);
         when(get.responseCode()).thenThrow(wrapperException);
-        Response resp = CUT.getUuids("MyCookie", 3);
+        Response resp = CUT.getUuids(cookie, hmac, 3);
         assertEquals(500, resp.getStatus());
         assertEquals(wrapperException.toString(), resp.getEntity());
     }
@@ -140,7 +162,7 @@ public class UuidsTest {
         String msg = "Bandwidth Limit Exceeded";
         when(get.responseCode()).thenReturn(errorCode);
         when(get.responseMessage()).thenReturn(msg);
-        Response resp = CUT.getUuids("MyCookie", 3);
+        Response resp = CUT.getUuids(cookie, hmac, 3);
         assertEquals(errorCode, resp.getStatus());
         assertEquals(msg, resp.getEntity());
     }
@@ -154,14 +176,13 @@ public class UuidsTest {
                       "}";
         this.dnsResolver = mock(DnsResolver.class);
         when(dnsResolver.getHostAddress(anyString())).thenReturn(null);
-        CUT = new Uuids(pool, hazelcast, dnsResolver);
+        CUT = new Uuids(pool, hazelcast, dnsResolver, hashProvider);
 
-        String cookie = "MyCookie";
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(json);
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0.5" }));
         when(get.headers()).thenReturn(mapWithBackendHeader);
-        Response response = CUT.getUuids(cookie, 1);
+        Response response = CUT.getUuids(cookie, hmac, 1);
         assertEquals(200, response.getStatus());
         assertEquals(json, response.getEntity());
         assertEquals("Black", response.getHeaderString("DbServer")); // second color
@@ -176,12 +197,11 @@ public class UuidsTest {
                       "        \"6f4f195712bd76a67b2cba6737009adb\"\n" +
                       "    ]\n" +
                       "}";
-        String cookie = "MyCookie";
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(json);
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + 2 })); // second color
         when(get.headers()).thenReturn(mapWithBackendHeader);
-        Response response = CUT.getUuids(cookie, 3);
+        Response response = CUT.getUuids(cookie, hmac, 3);
         assertEquals(200, response.getStatus());
         assertEquals(json, response.getEntity());
         assertEquals("Gold", response.getHeaderString("AppServer")); // third color
@@ -200,7 +220,6 @@ public class UuidsTest {
                       "        \"6f4f195712bd76a67b2cba67478df2ac\"\n" +
                       "    ]\n" +
                       "}";
-        String cookie = "MyCookie";
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(json);
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0.5" })); // last color
@@ -209,11 +228,11 @@ public class UuidsTest {
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
         when(hazelcast.getCluster()).thenReturn(cluster);
-        CUT = new Uuids(pool, hazelcast, dnsResolver);
+        CUT = new Uuids(pool, hazelcast, dnsResolver, hashProvider);
 
         when(http.getBaseUrl()).thenReturn("http://db4.domain.de/foo"); // fifth DbServer
 
-        Response response = CUT.getUuids(cookie, 6);
+        Response response = CUT.getUuids(cookie, hmac, 6);
         assertEquals(200, response.getStatus());
         assertEquals(json, response.getEntity());
         assertEquals("Black", response.getHeaderString("AppServer")); // default color
@@ -228,18 +247,17 @@ public class UuidsTest {
                       "        \"c8fedfee503b1de6d52e3a52e10be656\"\n" +
                       "    ]\n" +
                       "}";
-        String cookie = "MyCookie";
         when(get.text()).thenReturn(json);
         when(get.headers()).thenReturn(mapWithBackendHeader);
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
             mapWithBackendHeader.clear();
             mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + j }));
-            Response response = CUT.getUuids(cookie, 1);
+            Response response = CUT.getUuids(cookie, hmac, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), response.getHeaderString("DbServer"));
         }
         mapWithBackendHeader.clear();
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + 6 })); // overflow
-        Response response = CUT.getUuids(cookie, 1);
+        Response response = CUT.getUuids(cookie, hmac, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
     }
 
