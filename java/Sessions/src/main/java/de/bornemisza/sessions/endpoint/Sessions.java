@@ -78,7 +78,7 @@ public class Sessions {
     public Response deleteCookieInBrowser() {
         return Response.ok()
                 .header("Cache-Control", "must-revalidate")
-                .header("Set-Cookie", "AuthSession=; Version=1; Path=/; HttpOnly")
+                .header("Set-Cookie", "AuthSession=; Version=1; Path=/; HttpOnly; Secure")
                 .build();
     }
 
