@@ -129,7 +129,7 @@ public class UuidsTest {
         }
         catch (WebApplicationException e) {
             assertEquals(401, e.getResponse().getStatus());
-            assertEquals("Cookie or CToken missing!", e.getResponse().getEntity());
+            assertEquals("Cookie or C-Token missing!", e.getResponse().getEntity());
         }
     }
 

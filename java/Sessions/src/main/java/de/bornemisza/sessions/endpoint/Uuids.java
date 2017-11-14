@@ -123,7 +123,7 @@ public class Uuids {
                              @HeaderParam(Sessions.CTOKEN) String ctoken,
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie) || isVoid(ctoken)) throw new RestException(
-                Response.status(Status.UNAUTHORIZED).entity("Cookie or CToken missing!").build());
+                Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN + " missing!").build());
         else if (! hashMatches(cookie, ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Hash Mismatch!").build());
         Http httpBase = basePool.getConnection();
