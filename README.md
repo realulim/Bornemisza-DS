@@ -2,10 +2,10 @@
 This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5-$10 variety.
 It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on.
 
-The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. It gets deployed as part of a larger system and has no life of its own. The smallest addressable units are application servers and database servers (shorthand notation: app nodes and db nodes) and they contain all the infrastructure necessary to discover and connect to each other.
+The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. It gets deployed as part of a larger platform and has no life of its own. Currently there are two platforms: application servers and database servers (shorthand notation: app nodes and db nodes). They are the smallest deployment units and contain all the infrastructure necessary to discover and connect to each other.
 
 ## Architectural Overview
-The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client uses a static interface name like `www.myservice.de` to connect to a REST API running on the app cluster. The interface name is made highly available by a router that connects to upstream via BGP, so that packets can always be routed to a working app node. Whenever an app node wants to access persistent data, it uses a client-side load balancing scheme to connect to one of the db nodes. The database is per-user and schema-free, which mitigates the otherwise common requirement of one database per microservice.
+The backend is comprised of the two clusters (app and db), whereas the frontend is a statically served HTML5 single page application, so that the UI runs entirely on the client. For any backend functionality, such as requests for data or business logic processing, the client uses a static interface name like `www.myservice.de` to connect to a REST API running on the app cluster. The interface name is made highly available by a routing daemon that talks to upstream via BGP, so that packets are always routed to a working app node. Whenever an app node wants to access persistent data, it uses a client-side load balancing scheme to connect to one of the db nodes. The database is per-user and schema-free in order to mitigate the otherwise common requirement of one database per microservice.
 
 ## Design Goals
 
@@ -38,7 +38,7 @@ The backend is comprised of the two clusters (app and db), whereas the frontend 
 
 #### Database: CouchDB
 - provides one database per user
-- knows all app servers and talks to no one else
+- knows all app nodes and talks to no one else
 - is clustered via Erlang over a private network
 
 #### Frontend: single page application
