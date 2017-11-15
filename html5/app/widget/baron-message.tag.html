@@ -4,9 +4,9 @@
 		<div class="modal-background"></div>
 		<div class="modal-card">
 			<header class="modal-card-head">
-				<p class="modal-card-title is-size-4 is-purple has-text-centered">{title}</p>
+				<p class="modal-card-title is-size-4 is-purple is-engraved has-text-centered">{title}</p>
 			</header>
-			<section class="modal-card-body is-size-6 is-purple">
+			<section class="modal-card-body is-size-5 is-purple">
 				<div class="content">
 					<yield/>
 				</div>
@@ -24,11 +24,12 @@
 
 		.modal-card {
 			color: var(--purple);
-			font-family: 'Philosopher', sans-serif;
-			bottom: 10vh;
-			width: 50vw;
-			height: 50vh;
+			font-family: 'Exo 2', sans-serif;
+			bottom: 15vh;
+			width: 434px;
+			height: 300;
 			border-radius: 20px;
+			overflow-y: auto;
 			-webkit-box-shadow: 0px 0px 145px 14px rgba(0, 0, 0, 0.63);
 			-moz-box-shadow: 0px 0px 145px 14px rgba(0, 0, 0, 0.63);
 			box-shadow: 0px 0px 145px 14px rgba(0, 0, 0, 0.63);

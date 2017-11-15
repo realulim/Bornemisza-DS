@@ -43,6 +43,9 @@ a:hover {
   font-weight: bold;
 }
 
+.is-engraved {
+  text-shadow: 1px 1px 1px #fff, 0 0 1px rgba(0,0,0,0.6);
+}
 
 /* Shake Animation */
 
