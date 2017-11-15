@@ -2,10 +2,11 @@
 
 export SaltLocal=/srv/salt
 export PillarLocal=/srv/pillar
-export SvnTrunk=https://github.com/realulim/Bornemisza/trunk
 export CFAPI=https://api.cloudflare.com/client/v4/zones
 
 # you have to change the following settings
+export SvnTrunk=https://github.com/realulim/Bornemisza/trunk
+
 export domain=bornemisza.de
 export entrypoint=www.bornemisza.de
 
