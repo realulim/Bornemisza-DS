@@ -22,8 +22,8 @@ import org.javalite.http.Post;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
-import de.bornemisza.security.HashProvider;
 import de.bornemisza.sessions.da.HttpSessionsPool;
+import de.bornemisza.sessions.security.HashProvider;
 
 public class SessionsTest {
 

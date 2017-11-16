@@ -32,10 +32,10 @@ import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 
 import de.bornemisza.rest.Http;
-import de.bornemisza.security.HashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
+import de.bornemisza.sessions.security.HashProvider;
 
 @Stateless
 @Path("/uuid")

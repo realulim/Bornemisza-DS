@@ -19,8 +19,8 @@ import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
 import de.bornemisza.rest.BasicAuthCredentials;
-import de.bornemisza.security.HashProvider;
 import de.bornemisza.sessions.da.HttpSessionsPool;
+import de.bornemisza.sessions.security.HashProvider;
 
 @Stateless
 @Path("/")
