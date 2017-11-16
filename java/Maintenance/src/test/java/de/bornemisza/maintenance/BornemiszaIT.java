@@ -87,6 +87,7 @@ public class BornemiszaIT extends IntegrationTestBase {
         Response response = getNewSession();
         cookie = response.header("Set-Cookie");
         ctoken = response.header("C-Token");
+        assertNotNull(cookie, ctoken);
         assertTrue(cookie.startsWith("AuthSession="));
         assertFalse(cookie.startsWith("AuthSession=;"));
         assertNotEquals(cookie, ctoken);
