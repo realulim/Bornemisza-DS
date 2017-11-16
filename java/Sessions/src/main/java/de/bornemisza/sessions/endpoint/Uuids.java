@@ -32,10 +32,10 @@ import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 
 import de.bornemisza.rest.Http;
+import de.bornemisza.security.HashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
-import de.bornemisza.sessions.security.HashProvider;
 
 @Stateless
 @Path("/uuid")
@@ -124,7 +124,7 @@ public class Uuids {
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie) || isVoid(ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN + " missing!").build());
-        else if (! hashMatches(cookie, ctoken)) throw new RestException(
+        else if (! hashProvider.hmacDigest(cookie).equals(ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Hash Mismatch!").build());
         Http httpBase = basePool.getConnection();
         Get get = httpBase.get("_uuids?count=" + count)
@@ -151,10 +151,6 @@ public class Uuids {
         if (value == null) return true;
         else if (value.length() == 0) return true;
         else return value.equals("null");
-    }
-
-    private boolean hashMatches(String cookie, String hmac) {
-        return hashProvider.hmacDigest(cookie).equals(hmac);
     }
 
     private String getDbServerColor(String ipAddressHeader) {

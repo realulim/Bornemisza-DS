@@ -13,6 +13,14 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import static org.mockito.Mockito.*;
+
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
@@ -20,19 +28,13 @@ import com.hazelcast.core.Member;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.*;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
+import de.bornemisza.security.HashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
-import de.bornemisza.sessions.security.HashProvider;
 
 public class UuidsTest {
 
