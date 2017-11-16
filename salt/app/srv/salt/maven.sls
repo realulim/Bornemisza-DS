@@ -61,7 +61,7 @@ restart-payara-on-new-libs:
       - copy-CouchDB-lib
       - copy-ReST-lib
 
-{% for MIC_SRV_NAME in ['Status', 'Users', 'Sessions', 'Maintenance'] %}
+{% for MIC_SRV_NAME in ['Status', 'Security', 'Users', 'Sessions', 'Maintenance'] %}
 
 checkout-{{ MIC_SRV_NAME }}-microservice:
   svn.export:
