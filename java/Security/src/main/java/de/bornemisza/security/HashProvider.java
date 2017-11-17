@@ -12,13 +12,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.ejb.Stateless;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 
-@Stateless
-public class HashProvider {
-    
+public abstract class HashProvider {
+
     @Resource(name="lbconfig/CouchAdminPool")
     LoadBalancerConfig lbConfig; // use database admin password as secret key
 
@@ -28,22 +26,18 @@ public class HashProvider {
     public HashProvider() {
     }
 
+    protected abstract LoadBalancerConfig getLoadBalancerConfig();
+
     @PostConstruct
-    private void init() {
+    protected void init() {
         try {
-            SecretKeySpec key = new SecretKeySpec(toBytes(lbConfig.getPassword()), algorithm);
+            SecretKeySpec key = new SecretKeySpec(toBytes(getLoadBalancerConfig().getPassword()), algorithm);
             mac = Mac.getInstance(algorithm);
             mac.init(key);
         }
         catch (InvalidKeyException | NoSuchAlgorithmException ex) {
             throw new RuntimeException("Problem generating secret key", ex);
         }
-    }
-
-    // Constructor for Unit Tests
-    public HashProvider(LoadBalancerConfig config) {
-        this.lbConfig = config;
-        init();
     }
 
     public String hmacDigest(String msg) {

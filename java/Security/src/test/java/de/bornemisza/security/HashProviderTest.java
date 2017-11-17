@@ -11,15 +11,16 @@ public class HashProviderTest {
 
     private HashProvider CUT;
     private String testMessage;
+    private LoadBalancerConfig loadBalancerConfig;
 
     public HashProviderTest() {
     }
 
     @Before
     public void setUp() {
-        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
-        when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
-        CUT = new HashProvider(lbConfig);
+        loadBalancerConfig = mock(LoadBalancerConfig.class);
+        when(loadBalancerConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
+        CUT = new HashProviderImpl();
         testMessage = "My Test " + System.currentTimeMillis();
     }
     
@@ -30,5 +31,19 @@ public class HashProviderTest {
             assertEquals(hmac, CUT.hmacDigest(testMessage));
         }
     }
-    
+
+    public final class HashProviderImpl extends HashProvider {
+
+        public HashProviderImpl() {
+            super();
+            init();
+        }
+
+        @Override
+        protected LoadBalancerConfig getLoadBalancerConfig() {
+            return loadBalancerConfig;
+        }
+        
+    }
+
 }
