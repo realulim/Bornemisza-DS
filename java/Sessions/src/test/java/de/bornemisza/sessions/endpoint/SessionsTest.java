@@ -23,7 +23,7 @@ import org.javalite.http.Post;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.da.HttpSessionsPool;
-import de.bornemisza.sessions.security.HashProvider;
+import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class SessionsTest {
 
@@ -35,13 +35,13 @@ public class SessionsTest {
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
     private HttpSessionsPool pool;
-    private HashProvider hashProvider;
+    private DbAdminPasswordBasedHashProvider hashProvider;
 
     @Before
     public void setUp() {
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
-        hashProvider = new HashProvider(lbConfig);
+        hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
 
         post = mock(Post.class);
         when(post.param(anyString(), any())).thenReturn(post);

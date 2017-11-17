@@ -34,7 +34,7 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
-import de.bornemisza.sessions.security.HashProvider;
+import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class UuidsTest {
 
@@ -48,14 +48,14 @@ public class UuidsTest {
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
     private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
-    private HashProvider hashProvider;
+    private DbAdminPasswordBasedHashProvider hashProvider;
     private String cookie, hmac;
 
     @Before
     public void setUp() {
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
-        hashProvider = new HashProvider(lbConfig);
+        hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         cookie = "MyCookie";
         hmac = hashProvider.hmacDigest(cookie);
 

@@ -35,7 +35,7 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
-import de.bornemisza.sessions.security.HashProvider;
+import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 @Stateless
 @Path("/uuid")
@@ -51,7 +51,7 @@ public class Uuids {
     DnsResolver dnsResolver;
 
     @Inject
-    HashProvider hashProvider;
+    DbAdminPasswordBasedHashProvider hashProvider;
 
     private List<String> allHostnames = new ArrayList<>();
     private final Map<String, String> ipToHostname = new HashMap<>();
@@ -59,7 +59,7 @@ public class Uuids {
     public Uuids() { }
 
     // Constructor for Unit Tests
-    public Uuids(HttpBasePool basePool, HazelcastInstance hazelcast, DnsResolver dnsResolver, HashProvider hashProvider) {
+    public Uuids(HttpBasePool basePool, HazelcastInstance hazelcast, DnsResolver dnsResolver, DbAdminPasswordBasedHashProvider hashProvider) {
         this.basePool = basePool;
         this.hazelcast = hazelcast;
         this.dnsResolver = dnsResolver;

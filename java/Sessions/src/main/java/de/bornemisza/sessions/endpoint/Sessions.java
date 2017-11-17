@@ -20,7 +20,7 @@ import org.javalite.http.Post;
 
 import de.bornemisza.rest.BasicAuthCredentials;
 import de.bornemisza.sessions.da.HttpSessionsPool;
-import de.bornemisza.sessions.security.HashProvider;
+import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 @Stateless
 @Path("/")
@@ -30,7 +30,7 @@ public class Sessions {
     HttpSessionsPool sessionsPool;
 
     @Inject
-    HashProvider hashProvider;
+    DbAdminPasswordBasedHashProvider hashProvider;
 
     public static final String CTOKEN = "C-Token";
 
@@ -38,7 +38,7 @@ public class Sessions {
     }
 
     // Constructor for Unit Tests
-    public Sessions(HttpSessionsPool sessionsPool, HashProvider hashProvider) {
+    public Sessions(HttpSessionsPool sessionsPool, DbAdminPasswordBasedHashProvider hashProvider) {
         this.sessionsPool = sessionsPool;
         this.hashProvider = hashProvider;
     }
