@@ -2,6 +2,7 @@ package de.bornemisza.sessions.endpoint;
 
 import java.util.List;
 import java.util.Map;
+
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
@@ -18,7 +19,7 @@ import javax.ws.rs.core.Response.Status;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
-import de.bornemisza.rest.BasicAuthCredentials;
+import de.bornemisza.security.auth.BasicAuthCredentials;
 import de.bornemisza.sessions.da.HttpSessionsPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 

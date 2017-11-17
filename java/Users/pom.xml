@@ -23,6 +23,12 @@
         </dependency>
         <dependency>
             <groupId>de.bornemisza</groupId>
+            <artifactId>Security</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.bornemisza</groupId>
             <artifactId>LoadBalancer</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
@@ -30,12 +36,6 @@
         <dependency>
             <groupId>de.bornemisza</groupId>
             <artifactId>CouchDB</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.bornemisza</groupId>
-            <artifactId>ReST</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
