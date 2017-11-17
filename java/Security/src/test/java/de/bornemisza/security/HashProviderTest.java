@@ -4,23 +4,16 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import static org.mockito.Mockito.*;
-
-import de.bornemisza.loadbalancer.LoadBalancerConfig;
-
 public class HashProviderTest {
 
     private HashProvider CUT;
     private String testMessage;
-    private LoadBalancerConfig loadBalancerConfig;
 
     public HashProviderTest() {
     }
 
     @Before
     public void setUp() {
-        loadBalancerConfig = mock(LoadBalancerConfig.class);
-        when(loadBalancerConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
         CUT = new HashProviderImpl();
         testMessage = "My Test " + System.currentTimeMillis();
     }
@@ -41,8 +34,8 @@ public class HashProviderTest {
         }
 
         @Override
-        protected LoadBalancerConfig getLoadBalancerConfig() {
-            return loadBalancerConfig;
+        protected char[] getServerSecret() {
+            return "My Secret Password".toCharArray();
         }
 
     }

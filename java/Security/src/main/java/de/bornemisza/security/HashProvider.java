@@ -9,16 +9,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import de.bornemisza.loadbalancer.LoadBalancerConfig;
-
 public abstract class HashProvider {
-
-    @Resource(name="lbconfig/CouchAdminPool")
-    LoadBalancerConfig lbConfig; // use database admin password as secret key
 
     private static final String algorithm = "HmacSHA256";
     private Mac mac;
@@ -26,12 +20,12 @@ public abstract class HashProvider {
     public HashProvider() {
     }
 
-    protected abstract LoadBalancerConfig getLoadBalancerConfig();
+    protected abstract char[] getServerSecret();
 
     @PostConstruct
     protected void init() {
         try {
-            SecretKeySpec key = new SecretKeySpec(toBytes(getLoadBalancerConfig().getPassword()), algorithm);
+            SecretKeySpec key = new SecretKeySpec(toBytes(getServerSecret()), algorithm);
             mac = Mac.getInstance(algorithm);
             mac.init(key);
         }
