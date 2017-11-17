@@ -25,7 +25,9 @@ public abstract class HashProvider {
     @PostConstruct
     protected void init() {
         try {
-            SecretKeySpec key = new SecretKeySpec(toBytes(getServerSecret()), algorithm);
+            char[] serverSecret = getServerSecret();
+            SecretKeySpec key = new SecretKeySpec(toBytes(serverSecret), algorithm);
+            Arrays.fill(serverSecret, '*');
             mac = Mac.getInstance(algorithm);
             mac.init(key);
         }
