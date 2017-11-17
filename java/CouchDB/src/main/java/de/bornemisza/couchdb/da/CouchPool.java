@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.hazelcast.core.HazelcastInstance;
+
 import org.ektorp.CouchDbInstance;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
-
-import com.hazelcast.core.HazelcastInstance;
 
 import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
@@ -60,10 +60,6 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
         }
     }
 
-    public MyCouchDbConnector getConnector() {
-        return getConnector(null, null);
-    }
-
     public MyCouchDbConnector getConnector(String userName, char[] password) {
         List<String> dbServerQueue = getDbServerQueue();
         for (String hostname : dbServerQueue) {
@@ -83,16 +79,11 @@ public abstract class CouchPool extends Pool<CouchDbConnection> {
     }
 
     private HttpClient createHttpClient(CouchDbConnection conn, String userName, char[] password) {
-        if (userName == null) return new StdHttpClient.Builder()
-                    .url(conn.getBaseUrl())
-                    .username(conn.getUserName())
-                    .password(conn.getPassword())
-                    .build();
-        else return new StdHttpClient.Builder()
-                    .url(conn.getBaseUrl())
-                    .username(userName)
-                    .password(String.valueOf(password))
-                    .build();
+        return new StdHttpClient.Builder()
+                .url(conn.getBaseUrl())
+                .username(userName)
+                .password(String.valueOf(password))
+                .build();
     }
 
     @Override
