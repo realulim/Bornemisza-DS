@@ -1,8 +1,9 @@
 package de.bornemisza.security;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
@@ -23,7 +24,7 @@ public class HashProviderTest {
         CUT = new HashProviderImpl();
         testMessage = "My Test " + System.currentTimeMillis();
     }
-    
+
     @Test
     public void digestIsPredictable() throws Exception {
         String hmac = CUT.hmacDigest(testMessage);
@@ -43,7 +44,7 @@ public class HashProviderTest {
         protected LoadBalancerConfig getLoadBalancerConfig() {
             return loadBalancerConfig;
         }
-        
+
     }
 
 }
