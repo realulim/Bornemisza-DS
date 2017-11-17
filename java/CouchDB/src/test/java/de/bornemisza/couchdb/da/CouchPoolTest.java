@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ektorp.CouchDbConnector;
+import org.ektorp.DbAccessException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -88,7 +90,7 @@ public class CouchPoolTest {
 
         int previousSize = allTestConnections.size();
 
-        CUT.getConnector("admin", "secret".toCharArray());
+        CUT.getConnector();
 
         assertEquals(previousSize + 1, allTestConnections.size()); // new connection was added
     }
@@ -97,7 +99,7 @@ public class CouchPoolTest {
     public void getConnection_noBackendsAvailable() {
         dbServerUtilisation.clear();
         try {
-        CUT.getConnector("admin", "secret".toCharArray());
+            CUT.getConnector();
             fail();
         }
         catch (IllegalStateException e) {
@@ -117,9 +119,27 @@ public class CouchPoolTest {
         dbServerUtilisation.put(hostname, startUsageCount);
         int additionalUsageCount = wheel.nextInt(10);
         for (int i = 0; i < additionalUsageCount; i++) {
-            assertNotNull(CUT.getConnector("admin", "secret".toCharArray()));
+            assertNotNull(CUT.getConnector());
         }
         assertEquals(startUsageCount + additionalUsageCount, dbServerUtilisation.get(hostname));
+    }
+
+    @Test
+    public void getConnector_nullCredentials() {
+        CouchDbConnection conn = getConnectionMock();
+        String hostname = "hostname.domain.de";
+        allTestConnections.clear();
+        allTestConnections.put(hostname, conn);
+        CUT.getDbServers().clear();
+        CUT.getDbServers().add(hostname);
+        dbServerUtilisation.clear();
+        dbServerUtilisation.put(hostname, 1);
+ 
+        CUT.getConnector(null, null);
+        verify(conn).getBaseUrl();
+        verify(conn).getDatabaseName();
+        verify(conn).getUserName();
+        verify(conn).getPassword();
     }
 
     @Test
