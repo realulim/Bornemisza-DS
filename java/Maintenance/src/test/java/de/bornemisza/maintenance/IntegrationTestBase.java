@@ -23,7 +23,7 @@ import org.junit.runner.Description;
 import static org.junit.Assert.*;
 
 import de.bornemisza.couchdb.entity.User;
-import de.bornemisza.security.auth.BasicAuthCredentials;
+import de.bornemisza.rest.security.BasicAuthCredentials;
 
 public class IntegrationTestBase {
 
