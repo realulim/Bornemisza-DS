@@ -30,7 +30,7 @@ copy-thirdparty-libs:
     - group: root
     - dir_mode: 755
 
-{% for LIB_NAME in ['LoadBalancer', 'CouchDB', 'ReST', 'Security'] %}
+{% for LIB_NAME in ['LoadBalancer', 'CouchDB', 'ReST'] %}
 
 checkout-{{ LIB_NAME }}-lib:
   svn.export:
