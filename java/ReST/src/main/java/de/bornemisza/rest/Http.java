@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import static java.net.URLEncoder.encode;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
@@ -35,6 +38,8 @@ public class Http {
      * default.
      */
     public static final int READ_TIMEOUT = 5000;
+
+    private ObjectMapper jsonMapper = new ObjectMapper();
 
     private final String baseUrl;
     private final String hostname;
@@ -342,6 +347,26 @@ public class Http {
             throw new HttpException("failed to generate content from map", e);
         }
         return stringBuilder.toString();
+    }
+
+    public String urlEncode(String toEncode) {
+        try {
+            return encode(toEncode, "utf-8");
+        }
+        catch (UnsupportedEncodingException ex) {
+            throw new HttpException("failed to urlencode", ex);
+        }
+    }
+
+    public String toJson(Object obj) throws HttpException {
+        String json;
+        try {
+            json = jsonMapper.writeValueAsString(obj);
+        }
+        catch (JsonProcessingException ex) {
+            throw new HttpException("Problem marshalling JSON!", ex);
+        }
+        return json;
     }
 
 }
