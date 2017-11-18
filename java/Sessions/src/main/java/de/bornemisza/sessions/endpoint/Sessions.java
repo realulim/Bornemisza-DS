@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response.Status;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
-import de.bornemisza.security.auth.BasicAuthCredentials;
+import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.da.HttpSessionsPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 

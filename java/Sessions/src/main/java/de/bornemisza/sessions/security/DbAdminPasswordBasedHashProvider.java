@@ -4,7 +4,7 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import de.bornemisza.security.HashProvider;
+import de.bornemisza.rest.security.HashProvider;
 
 @Stateless
 public class DbAdminPasswordBasedHashProvider extends HashProvider {
