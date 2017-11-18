@@ -36,7 +36,7 @@ public class BornemiszaIT extends IntegrationTestBase {
         Response response = clickApiLink(apiLink, 200);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
-        assertNull(jsonPath.getString("password"));
+//        assertNull(jsonPath.getString("password"));
 
         /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
         response = clickApiLink(apiLink, 404);
@@ -79,6 +79,7 @@ public class BornemiszaIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         revision = jsonPath.getString("_rev");
         assertTrue(revision.length() > 10);
+        assertNull(jsonPath.getString("password"));
     }
 
     @Test
