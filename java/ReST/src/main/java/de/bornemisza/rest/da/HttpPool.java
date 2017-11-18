@@ -45,7 +45,7 @@ public abstract class HttpPool extends Pool<HttpConnection> {
         try {
             String db = lbConfig.getInstanceName();
             db = (db == null ? "" : db.replaceFirst ("^/*", ""));
-            return new HttpConnection(hostname, new Http(new URL("https://" + hostname + "/" + db)));
+            return new HttpConnection(db, new Http(new URL("https://" + hostname + "/" + db)));
         }
         catch (MalformedURLException ex) {
             throw new RuntimeException("Cannot create Http: " + ex.toString());
