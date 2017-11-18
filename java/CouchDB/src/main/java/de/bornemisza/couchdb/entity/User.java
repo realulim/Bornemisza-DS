@@ -1,6 +1,5 @@
 package de.bornemisza.couchdb.entity;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.mail.internet.InternetAddress;
