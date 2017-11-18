@@ -37,6 +37,7 @@ public class Http {
     public static final int READ_TIMEOUT = 5000;
 
     private final String baseUrl;
+    private final String hostname;
 
     /**
      * @param baseUrl not null
@@ -47,10 +48,15 @@ public class Http {
             url = url + "/";
         }
         this.baseUrl = url;
+        this.hostname = baseUrl.getHost();
     }
 
     public String getBaseUrl() {
         return this.baseUrl;
+    }
+
+    public String getHostName() {
+        return this.hostname;
     }
 
     /**
