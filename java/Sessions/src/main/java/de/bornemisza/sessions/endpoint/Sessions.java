@@ -55,7 +55,7 @@ public class Sessions {
         catch (CredentialNotFoundException ex) {
             throw new RestException(Response.Status.UNAUTHORIZED);
         }
-        Post post = sessionsPool.getConnection().post("")
+        Post post = sessionsPool.getConnection().getHttp().post("")
             .param("name", creds.getUserName())
             .param("password", creds.getPassword());
         try {

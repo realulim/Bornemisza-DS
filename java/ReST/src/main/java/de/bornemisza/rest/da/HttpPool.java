@@ -12,8 +12,9 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.loadbalancer.da.Pool;
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.HttpConnection;
 
-public abstract class HttpPool extends Pool<Http> {
+public abstract class HttpPool extends Pool<HttpConnection> {
 
     private String serviceName;
 
@@ -28,32 +29,32 @@ public abstract class HttpPool extends Pool<Http> {
     }
 
     @Override
-    protected Map<String, Http> createConnections() {
+    protected Map<String, HttpConnection> createConnections() {
         LoadBalancerConfig lbConfig = getLoadBalancerConfig();
         this.serviceName = lbConfig.getServiceName();
-        Map<String, Http> connections = new HashMap<>();
+        Map<String, HttpConnection> connections = new HashMap<>();
         for (String hostname : this.dnsProvider.getHostnamesForService(serviceName)) {
-            Http conn = createConnection(lbConfig, hostname);
+            HttpConnection conn = createConnection(lbConfig, hostname);
             connections.put(hostname, conn);
         }
         return connections;
     }
 
     @Override
-    protected Http createConnection(LoadBalancerConfig lbConfig, String hostname) {
+    protected HttpConnection createConnection(LoadBalancerConfig lbConfig, String hostname) {
         try {
             String db = lbConfig.getInstanceName();
             db = (db == null ? "" : db.replaceFirst ("^/*", ""));
-            return new Http(new URL("https://" + hostname + "/" + db));
+            return new HttpConnection(hostname, new Http(new URL("https://" + hostname + "/" + db)));
         }
         catch (MalformedURLException ex) {
             throw new RuntimeException("Cannot create Http: " + ex.toString());
         }
     }
 
-    public Http getConnection() {
+    public HttpConnection getConnection() {
         for (String hostname : getDbServerQueue()) {
-            Http conn = allConnections.get(hostname);
+            HttpConnection conn = allConnections.get(hostname);
             if (conn == null) {
                 // in case a new SRV-Record popped up, but we haven't created a Connection for it yet
                 conn = createConnection(getLoadBalancerConfig(), hostname);

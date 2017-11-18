@@ -126,7 +126,7 @@ public class Uuids {
                 Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN + " missing!").build());
         else if (! hashProvider.hmacDigest(cookie).equals(ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Hash Mismatch!").build());
-        Http httpBase = basePool.getConnection();
+        Http httpBase = basePool.getConnection().getHttp();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cookie);
         try {

@@ -22,6 +22,7 @@ import org.javalite.http.Post;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.sessions.da.HttpSessionsPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
@@ -54,7 +55,9 @@ public class SessionsTest {
         when(http.get(anyString())).thenReturn(get);
 
         pool = mock(HttpSessionsPool.class);
-        when(pool.getConnection()).thenReturn(http);
+        HttpConnection conn = mock(HttpConnection.class);
+        when(conn.getHttp()).thenReturn(http);
+        when(pool.getConnection()).thenReturn(conn);
 
         CUT = new Sessions(pool, hashProvider);
     }

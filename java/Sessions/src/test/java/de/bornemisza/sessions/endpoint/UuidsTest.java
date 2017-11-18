@@ -31,6 +31,7 @@ import org.javalite.http.Post;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.HttpBasePool;
@@ -40,6 +41,7 @@ public class UuidsTest {
 
     private Uuids CUT;
     private Http http;
+    private HttpConnection conn;
     private Post post;
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
@@ -71,7 +73,9 @@ public class UuidsTest {
         when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
 
         pool = mock(HttpBasePool.class);
-        when(pool.getConnection()).thenReturn(http);
+        conn = mock(HttpConnection.class);
+        when(conn.getHttp()).thenReturn(http);
+        when(pool.getConnection()).thenReturn(conn);
 
         hazelcast = mock(HazelcastInstance.class);
         Set<Member> members = createMembers(5);
@@ -95,11 +99,11 @@ public class UuidsTest {
     }
 
     private Set<Member> createMembers(int count) {
-        Map<String, Http> allConnections = new HashMap<>();
+        Map<String, HttpConnection> allConnections = new HashMap<>();
         Set<Member> members = new HashSet<>();
         for (int i = 1; i <= count; i++) {
             String hostname = "db" + i + ".domain.de";
-            allConnections.put(hostname, http);
+            allConnections.put(hostname, conn);
             ipAddresses.add("192.168.0." + i);
 
             Member member = mock(Member.class);

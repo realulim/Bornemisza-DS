@@ -8,6 +8,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
 import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
@@ -17,7 +18,7 @@ import com.hazelcast.core.ITopic;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
-import de.bornemisza.rest.Http;
+import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.PseudoHazelcastMap;
 import static de.bornemisza.loadbalancer.Config.*;
 
@@ -35,7 +36,7 @@ public class HttpPoolTest {
         }
 
         @Override
-        protected Map<String, Http> createConnections() {
+        protected Map<String, HttpConnection> createConnections() {
             return allTestConnections;
         }
 
@@ -47,16 +48,16 @@ public class HttpPoolTest {
 
     private TestableHttpPool CUT;
     private HazelcastInstance hazelcast;
-    private Map<String, Http> allTestConnections;
+    private Map<String, HttpConnection> allTestConnections;
     private IMap dbServerUtilisation;
 
     @Before
     public void setUp() {
         hazelcast = mock(HazelcastInstance.class);
         allTestConnections = new HashMap<>();
-        allTestConnections.put("host1", mock(Http.class));
-        allTestConnections.put("host2", mock(Http.class));
-        allTestConnections.put("host3", mock(Http.class));
+        allTestConnections.put("host1", mock(HttpConnection.class));
+        allTestConnections.put("host2", mock(HttpConnection.class));
+        allTestConnections.put("host3", mock(HttpConnection.class));
 
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
