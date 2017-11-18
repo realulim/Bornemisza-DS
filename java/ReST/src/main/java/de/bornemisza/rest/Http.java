@@ -8,6 +8,8 @@ import static java.net.URLEncoder.encode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.bornemisza.rest.entity.CouchDbDocument;
+import java.io.IOException;
 
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
@@ -359,14 +361,21 @@ public class Http {
     }
 
     public String toJson(Object obj) throws HttpException {
-        String json;
         try {
-            json = jsonMapper.writeValueAsString(obj);
+            return jsonMapper.writeValueAsString(obj);
         }
         catch (JsonProcessingException ex) {
             throw new HttpException("Problem marshalling JSON!", ex);
         }
-        return json;
+    }
+
+    public <T extends Object> T fromJson(String json, Class<T> type) throws HttpException {
+        try {
+            return jsonMapper.readValue(json, type);
+        }
+        catch (IOException ex) {
+            throw new HttpException("Problem unmarshalling JSON!", ex);
+        }
     }
 
 }
