@@ -1,5 +1,6 @@
 package de.bornemisza.rest;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Map;
@@ -8,8 +9,6 @@ import static java.net.URLEncoder.encode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.bornemisza.rest.entity.CouchDbDocument;
-import java.io.IOException;
 
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
