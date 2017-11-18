@@ -3,16 +3,16 @@ package de.bornemisza.maintenance;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
 
-import de.bornemisza.couchdb.da.CouchPool;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import de.bornemisza.rest.da.HttpPool;
 
 @Stateless
-public class CouchAdminPool extends CouchPool {
+public class CouchUsersPool extends HttpPool {
 
-    @Resource(name="lbconfig/CouchAdminPool")
+    @Resource(name = "lbconfig/CouchUsersPool")
     LoadBalancerConfig lbConfig;
 
-    public CouchAdminPool() {
+    public CouchUsersPool() {
         super();
     }
 

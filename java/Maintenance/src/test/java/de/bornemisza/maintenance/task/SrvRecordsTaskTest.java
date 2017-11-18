@@ -10,8 +10,9 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import static org.junit.Assert.*;
+
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -19,18 +20,18 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
-import de.bornemisza.maintenance.CouchAdminPool;
+import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
+import de.bornemisza.rest.HttpConnection;
 
 public class SrvRecordsTaskTest {
 
     private IMap utilisationMap;
     private List<String> dnsHostnames;
     private ITopic clusterMaintenanceTopic;
-    private CouchAdminPool couchPool;
+    private CouchUsersPool httpPool;
     private HealthChecks healthChecks;
     private ArgumentCaptor<ClusterEvent> captor;
 
@@ -48,7 +49,7 @@ public class SrvRecordsTaskTest {
         }
         assertEquals(dnsHostnames.size(), utilisationMap.size());
 
-        couchPool = mock(CouchAdminPool.class);
+        httpPool = mock(CouchUsersPool.class);
         healthChecks = mock(HealthChecks.class);
         captor = ArgumentCaptor.forClass(ClusterEvent.class);
 
@@ -60,10 +61,10 @@ public class SrvRecordsTaskTest {
 
     @Test
     public void hostAppeared_newHost() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, couchPool, healthChecks);
+        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
 
         String newHostname = getHostname(999);
-        when(couchPool.getAllConnections()).thenReturn(new HashMap<>()); // no existing connection
+        when(httpPool.getAllConnections()).thenReturn(new HashMap<>()); // no existing connection
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.add(newHostname); // simulated new SRV-Record
 
@@ -75,13 +76,13 @@ public class SrvRecordsTaskTest {
 
     @Test
     public void hostAppeared_healthyHost() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, couchPool, healthChecks);
+        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
 
         String newHostname = getHostname(999);
-        Map<String, CouchDbConnection> connections = new HashMap<>();
-        connections.put(newHostname, mock(CouchDbConnection.class));
-        when(couchPool.getAllConnections()).thenReturn(connections);
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(true);
+        Map<String, HttpConnection> connections = new HashMap<>();
+        connections.put(newHostname, mock(HttpConnection.class));
+        when(httpPool.getAllConnections()).thenReturn(connections);
+        when(healthChecks.isCouchDbReady(any(HttpConnection.class))).thenReturn(true);
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.add(newHostname); // simulated new SRV-Record
 
@@ -93,13 +94,13 @@ public class SrvRecordsTaskTest {
 
     @Test
     public void hostAppeared_unhealthyHost() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, couchPool, healthChecks);
+        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
 
         String newHostname = getHostname(999);
-        Map<String, CouchDbConnection> connections = new HashMap<>();
-        connections.put(newHostname, mock(CouchDbConnection.class));
-        when(couchPool.getAllConnections()).thenReturn(connections);
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class))).thenReturn(false);
+        Map<String, HttpConnection> connections = new HashMap<>();
+        connections.put(newHostname, mock(HttpConnection.class));
+        when(httpPool.getAllConnections()).thenReturn(connections);
+        when(healthChecks.isCouchDbReady(any(HttpConnection.class))).thenReturn(false);
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.add(newHostname); // simulated new SRV-Record
 
@@ -109,7 +110,7 @@ public class SrvRecordsTaskTest {
 
     @Test
     public void hostDisappeared() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, couchPool, healthChecks);
+        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
 
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         String removedHostname = getHostname(3);

@@ -14,15 +14,14 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
-
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 
-import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
-import de.bornemisza.maintenance.CouchAdminPool;
+import de.bornemisza.maintenance.CouchUsersPool;
+import de.bornemisza.rest.HttpConnection;
 
 @Stateless
 public class HealthCheckTask {
@@ -34,7 +33,7 @@ public class HealthCheckTask {
     HazelcastInstance hazelcast;
 
     @Inject
-    CouchAdminPool couchPool;
+    CouchUsersPool httpPool;
 
     @Inject
     HealthChecks healthChecks;
@@ -46,8 +45,8 @@ public class HealthCheckTask {
     }
 
     // Constructor for Unit Tests
-    public HealthCheckTask(CouchAdminPool couchPool, ITopic<ClusterEvent> topic, HealthChecks healthChecks) {
-        this.couchPool = couchPool;
+    public HealthCheckTask(CouchUsersPool httpPool, ITopic<ClusterEvent> topic, HealthChecks healthChecks) {
+        this.httpPool = httpPool;
         this.clusterMaintenanceTopic = topic;
         this.healthChecks = healthChecks;
     }
@@ -63,8 +62,8 @@ public class HealthCheckTask {
 
     @Timeout
     public void healthChecks() {
-        Map<String, CouchDbConnection> connections = couchPool.getAllConnections();
-        for (Map.Entry<String, CouchDbConnection> entry : connections.entrySet()) {
+        Map<String, HttpConnection> connections = httpPool.getAllConnections();
+        for (Map.Entry<String, HttpConnection> entry : connections.entrySet()) {
             String hostname = entry.getKey();
             if (healthChecks.isCouchDbReady(entry.getValue())) {
                 if (FAILING_HOSTS.contains(hostname)) {

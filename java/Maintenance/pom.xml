@@ -22,6 +22,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>de.bornemisza</groupId>
             <artifactId>LoadBalancer</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -40,9 +46,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>3.8</version>
+            <groupId>org.javalite</groupId>
+            <artifactId>javalite-common</artifactId>
+            <version>1.4.13</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

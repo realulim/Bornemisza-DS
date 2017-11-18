@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import static org.junit.Assert.*;
+
+import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -13,11 +14,11 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import de.bornemisza.couchdb.entity.CouchDbConnection;
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
-import de.bornemisza.maintenance.CouchAdminPool;
+import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
+import de.bornemisza.rest.HttpConnection;
 
 public class HealthCheckTaskTest {
 
@@ -39,18 +40,18 @@ public class HealthCheckTaskTest {
 
         hostname = "db-1.domain.de";
         IMap connections = new PseudoHazelcastMap();
-        connections.put(hostname, mock(CouchDbConnection.class));
+        connections.put(hostname, mock(HttpConnection.class));
         
-        CouchAdminPool couchPool = mock(CouchAdminPool.class);
-        when(couchPool.getAllConnections()).thenReturn(connections);
+        CouchUsersPool httpPool = mock(CouchUsersPool.class);
+        when(httpPool.getAllConnections()).thenReturn(connections);
         healthChecks = mock(HealthChecks.class);
 
-        CUT = new HealthCheckTask(couchPool, clusterMaintenanceTopic, healthChecks);
+        CUT = new HealthCheckTask(httpPool, clusterMaintenanceTopic, healthChecks);
     }
 
     @Test
     public void healthChecks() {
-        when(healthChecks.isCouchDbReady(any(CouchDbConnection.class)))
+        when(healthChecks.isCouchDbReady(any(HttpConnection.class)))
                 .thenReturn(true)
                 .thenReturn(false)
                 .thenReturn(false)
