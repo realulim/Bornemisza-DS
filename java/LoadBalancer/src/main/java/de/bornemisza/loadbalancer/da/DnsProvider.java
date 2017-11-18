@@ -21,6 +21,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
+import javax.naming.directory.Attribute;
 
 public class DnsProvider {
 
@@ -70,7 +71,9 @@ public class DnsProvider {
     List<SrvRecord> retrieveSrvRecordsAndSort(String service) throws NamingException {
         if (ctx == null) ctx = new InitialDirContext(env);
         Attributes attrs = ctx.getAttributes(service, new String[] {"SRV"});
-        NamingEnumeration<?> servers = attrs.get("srv").getAll();
+        Attribute att = attrs.get("srv");
+        if (att == null) throw new NamingException("Malformed SRV-Record: " + attrs.toString());
+        NamingEnumeration<?> servers = att.getAll();
         Set<SrvRecord> sortedRecords = new TreeSet<>();
         while (servers.hasMore()) {
             SrvRecord record = SrvRecord.fromString((String) servers.next());
