@@ -7,13 +7,13 @@ import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.http.HttpHeaders;
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
 
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.Database;
 import de.bornemisza.rest.entity.KeyValueViewResult;
 import de.bornemisza.rest.entity.KeyValueViewResult.Row;
@@ -27,9 +27,6 @@ import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UpdateConflictException;
 
 public class UsersService {
-
-    @Inject
-    CouchAdminPool adminPool;
 
     @Inject
     HttpAdminPool usersPool;
