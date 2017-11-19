@@ -22,7 +22,7 @@ import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 
-import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
 

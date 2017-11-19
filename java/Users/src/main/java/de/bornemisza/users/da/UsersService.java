@@ -8,17 +8,16 @@ import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpHeaders;
-
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
 
-import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.entity.Database;
 import de.bornemisza.rest.entity.KeyValueViewResult;
 import de.bornemisza.rest.entity.KeyValueViewResult.Row;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;

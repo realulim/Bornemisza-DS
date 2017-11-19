@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import static org.junit.Assert.*;
 
-import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

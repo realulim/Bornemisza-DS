@@ -16,7 +16,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import de.bornemisza.couchdb.entity.User;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
