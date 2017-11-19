@@ -7,10 +7,9 @@ import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
 
+
 import org.apache.http.HttpHeaders;
-
 import org.ektorp.DbInfo;
-
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
@@ -19,6 +18,8 @@ import org.javalite.http.Put;
 import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.entity.KeyValueViewResult;
+import de.bornemisza.rest.entity.KeyValueViewResult.Row;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -72,10 +73,29 @@ public class UsersService {
         }
     }
 
-    public boolean existsEmail(InternetAddress email) {
-        MyCouchDbConnector conn = adminPool.getConnector();
-        UserRepository repo = new UserRepository(conn);
-        return repo.findByEmail(email.getAddress()).size() > 0;
+    public boolean existsEmail(InternetAddress email) throws BusinessException, TechnicalException {
+        Http http = usersPool.getConnection().getHttp();
+        Get get = http.get(http.getBaseUrl() + "_design/User/_view/by_email")
+                .basic(usersPool.getUserName(), String.valueOf(usersPool.getPassword()))
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        try {
+            int responseCode = get.responseCode();
+            if (responseCode != 200) {
+                throw new BusinessException(Type.UNEXPECTED, responseCode + ": " + get.responseMessage());
+            }
+            else {
+                String json = get.text();
+                KeyValueViewResult viewResult = http.fromJson(json, KeyValueViewResult.class);
+                String emailStr = email.getAddress();
+                for (Row row : viewResult.getRows()) {
+                    if (emailStr.equals(row.getKey())) return true;
+                }
+                return false;
+            }
+        }
+        catch (HttpException ex) {
+            throw new TechnicalException(ex.toString());
+        }
     }
 
     public User createUser(User user) throws BusinessException, TechnicalException, UpdateConflictException {
