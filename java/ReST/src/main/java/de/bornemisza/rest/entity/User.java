@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class User extends CouchDbDocument {
+public class User extends Document {
 
     public static String USERNAME_PREFIX = "org.couchdb.user:"; // CouchDB wants this
 

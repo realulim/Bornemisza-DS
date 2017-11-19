@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_NULL)
-public class CouchDbDocument implements Serializable {
+public class Document implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private String id;
