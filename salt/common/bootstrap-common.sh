@@ -23,6 +23,7 @@ if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	printf "ip: %s\n" "$IP" | tee -a $PillarLocal/basics.sls
 	SSLDOMAIN=$(printf "%s" "$domain")
 	printf "ssldomain: %s\n" "$SSLDOMAIN" | tee -a $PillarLocal/basics.sls
+	printf "cfns: %s\n" "$cfns" | tee -a $PillarLocal/basics.sls
 fi
 
 # determine my private IP
@@ -36,8 +37,8 @@ if ! grep -q service: $PillarLocal/basics.sls ; then
 fi
 
 # cluster sizes need to be rewritten on every run
-APPCLUSTERSIZE=$(host -t srv _app._tcp.$domain.|wc -l)
-DBCLUSTERSIZE=$(host -t srv _db._tcp.$domain.|wc -l)
+APPCLUSTERSIZE=$(host -t srv _app._tcp.$domain. $cfns|wc -l)
+DBCLUSTERSIZE=$(host -t srv _db._tcp.$domain. $cfns|wc -l)
 printf "appclustersize: %s\ndbclustersize: %s\n" "$APPCLUSTERSIZE" "$DBCLUSTERSIZE" | tee $PillarLocal/cluster.sls
 
 # ask for Cloudflare API key

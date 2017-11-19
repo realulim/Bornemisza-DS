@@ -3,7 +3,7 @@
 IFS=$'\n'
 domain={{ pillar['ssldomain'] }}
 
-records=$(host -t srv _app._tcp.$domain.|cut -d" " -f8|xargs -L1 host|cut -d" " -f4)
+records=$(host -t srv _app._tcp.$domain. $cfns|cut -d" " -f8|xargs -L1 host|cut -d" " -f4)
 
 lines=$(grep '-' /srv/pillar/appserverips.sls|cut -d" " -f4)
 

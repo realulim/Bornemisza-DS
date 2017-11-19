@@ -9,6 +9,7 @@ export SvnTrunk=https://github.com/realulim/Bornemisza/trunk
 
 export domain=bornemisza.de
 export entrypoint=www.bornemisza.de
+export cfns=oswald.ns.cloudflare.com
 
 export app_publicIpInterface=eth0
 export app_privateIpInterface=eth1
