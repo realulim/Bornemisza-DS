@@ -6,12 +6,6 @@ maven:
   pkg:
     - installed
 
-download-ektorp-lib:
-  cmd.run:
-    - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.ektorp:org.ektorp:1.4.4:jar
-    - unless:
-      - ls /root/.m2/repository/org/ektorp/org.ektorp/1.4.4
-
 download-javalite-lib:
   cmd.run:
     - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.javalite:javalite-common:1.4.13:jar
@@ -22,7 +16,7 @@ copy-thirdparty-libs:
   cmd.run:
     - name: mvn dependency:copy-dependencies -DoutputDirectory={{ PAYARA_LIBS }}
     - cwd: /srv/salt/files/maven
-    - creates: {{ PAYARA_LIBS }}/org.ektorp-1.4.4.jar
+    - creates: {{ PAYARA_LIBS }}/javalite-common-1.4.13.jar
 
 {{ MIC_DIR }}:
   file.directory:
