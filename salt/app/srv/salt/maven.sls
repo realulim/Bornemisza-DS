@@ -30,7 +30,7 @@ copy-thirdparty-libs:
     - group: root
     - dir_mode: 755
 
-{% for LIB_NAME in ['LoadBalancer', 'CouchDB', 'ReST'] %}
+{% for LIB_NAME in ['LoadBalancer', 'ReST'] %}
 
 checkout-{{ LIB_NAME }}-lib:
   svn.export:
@@ -58,7 +58,6 @@ restart-payara-on-new-libs:
     - onchanges:
       - copy-thirdparty-libs
       - copy-LoadBalancer-lib
-      - copy-CouchDB-lib
       - copy-ReST-lib
 
 {% for MIC_SRV_NAME in ['Status', 'Users', 'Sessions', 'Maintenance'] %}
