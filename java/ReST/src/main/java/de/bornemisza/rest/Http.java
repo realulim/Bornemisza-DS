@@ -1,6 +1,5 @@
 package de.bornemisza.rest;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Map;
