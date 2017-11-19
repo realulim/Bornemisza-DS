@@ -49,15 +49,26 @@ public class UsersService {
         Logger.getLogger(adminConn.getHostname()).info(msg);
     }
 
-    public boolean existsUser(String userName) {
-        MyCouchDbConnector conn = adminPool.getConnector();
-        UserRepository repo = new UserRepository(conn);
-        userName = User.USERNAME_PREFIX + userName;
+    public boolean existsUser(String userName) throws BusinessException, TechnicalException {
+        User user = new User();
+        user.setName(userName);
+        Http http = usersPool.getConnection().getHttp();
+        Get get = http.get(http.getBaseUrl() + http.urlEncode(user.getId()))
+                .basic(usersPool.getUserName(), String.valueOf(usersPool.getPassword()))
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
-            return repo.get(userName) != null;
+            int responseCode = get.responseCode();
+            switch (responseCode) {
+                case 404:
+                    return false;
+                case 200:
+                    return true;
+                default:
+                    throw new BusinessException(Type.UNEXPECTED, responseCode + ": " + get.responseMessage());
+            }
         }
-        catch (org.ektorp.DocumentNotFoundException e) {
-            return false;
+        catch (HttpException ex) {
+            throw new TechnicalException(ex.toString());
         }
     }
 

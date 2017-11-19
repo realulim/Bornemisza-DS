@@ -48,7 +48,7 @@ public class UsersFacade {
         this.changeEmailRequestMap_uuid = hazelcast.getMap(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST + JAXRSConfiguration.MAP_UUID_SUFFIX);
     }
 
-    public void addUser(User user) {
+    public void addUser(User user) throws BusinessException, TechnicalException {
         if (usersService.existsUser(user.getName())) {
             throw new BusinessException(Type.USER_ALREADY_EXISTS, user.getName() + " already exists!");
         }
