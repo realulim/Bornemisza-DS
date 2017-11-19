@@ -11,10 +11,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
-
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.JAXRSConfiguration;
@@ -64,7 +60,7 @@ public class UsersFacade {
         }
     }
 
-    public User confirmUser(String uuid) throws BusinessException, TechnicalException {
+    public User confirmUser(String uuid) throws BusinessException, TechnicalException, UnauthorizedException {
         User user = newUserAccountMap_uuid.remove(uuid);
         if (user == null) {
             throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
@@ -76,10 +72,6 @@ public class UsersFacade {
         catch (UpdateConflictException e) {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());
             return null;
-        }
-        catch (DbAccessException ex) {
-            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
-            else throw new TechnicalException(ex.toString());
         }
     }
 
@@ -110,13 +102,12 @@ public class UsersFacade {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());
             return null;
         }
-        catch (DbAccessException | CredentialNotFoundException ex) {
-            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
-            else throw new TechnicalException(ex.toString());
+        catch (CredentialNotFoundException ex) {
+            throw new UnauthorizedException(ex.getMessage());
         }
     }
 
-    public User getUser(String userName, String authHeader) throws UnauthorizedException, TechnicalException {
+    public User getUser(String userName, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.getUser(userName, creds);
@@ -124,28 +115,26 @@ public class UsersFacade {
         catch (DocumentNotFoundException e) {
             return null;
         }
-        catch (DbAccessException | CredentialNotFoundException ex) {
-            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
-            else throw new TechnicalException(ex.toString());
+        catch (CredentialNotFoundException ex) {
+            throw new UnauthorizedException(ex.getMessage());
         }
     }
 
-    public User changePassword(User user, String rev, String authHeader) throws UnauthorizedException, TechnicalException {
+    public User changePassword(User user, String rev, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            return usersService.changePassword(user, rev, creds);
+            return usersService.changePassword(user, creds);
         }
         catch (UpdateConflictException e) {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user.getName() + "\n" + e.getMessage());
             return null;
         }
-        catch (DbAccessException | CredentialNotFoundException ex) {
-            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
-            else throw new TechnicalException(ex.toString());
+        catch (CredentialNotFoundException ex) {
+            throw new UnauthorizedException(ex.getMessage());
         }
     }
 
-    public boolean deleteUser(String userName, String rev, String authHeader) throws UnauthorizedException, TechnicalException {
+    public boolean deleteUser(String userName, String rev, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             usersService.deleteUser(userName, rev, creds);
@@ -155,9 +144,8 @@ public class UsersFacade {
             Logger.getAnonymousLogger().warning("Update Conflict: " + userName + "\n" + e.getMessage());
             return false;
         }
-        catch (DbAccessException | CredentialNotFoundException ex) {
-            if (ex.getMessage().startsWith("401")) throw new UnauthorizedException(ex.getMessage());
-            else throw new TechnicalException(ex.toString());
+        catch (CredentialNotFoundException ex) {
+            throw new UnauthorizedException(ex.getMessage());
         }
     }
 

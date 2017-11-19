@@ -16,10 +16,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import org.ektorp.DbAccessException;
-import org.ektorp.DocumentNotFoundException;
-import org.ektorp.UpdateConflictException;
-
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -114,29 +110,15 @@ public class UsersFacadeTest {
     @Test
     public void confirmUser_userExists() {
         when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(new User());
-        when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException());
+        when(usersService.createUser(any(User.class))).thenThrow(new UpdateConflictException(""));
         assertNull(CUT.confirmUser(UUID.randomUUID().toString()));
-    }
-
-    @Test
-    public void confirmUser_unauthorized() {
-        String msg = "401 - Unauthorized";
-        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(new User());
-        when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
-        try {
-            CUT.confirmUser(UUID.randomUUID().toString());
-            fail();
-        }
-        catch (UnauthorizedException ex) {
-            assertTrue(ex.getMessage().contains(msg));
-        }
     }
 
     @Test
     public void confirmUser_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
         when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(new User());
-        when(usersService.createUser(any(User.class))).thenThrow(new DbAccessException(msg));
+        when(usersService.createUser(any(User.class))).thenThrow(new TechnicalException(msg));
         try {
             CUT.confirmUser(UUID.randomUUID().toString());
             fail();
@@ -173,17 +155,15 @@ public class UsersFacadeTest {
 
     @Test
     public void confirmEmail_unauthorized() {
-        String msg = "401 - Unauthorized";
         User user = new User();
         user.setName("Ike");
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
-        when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
+            CUT.confirmEmail(UUID.randomUUID().toString(), "BrokenAuthHeader");
             fail();
         }
         catch (UnauthorizedException ex) {
-            assertTrue(ex.getMessage().contains(msg));
+            assertTrue(ex.getMessage().startsWith("401 AuthHeader"));
         }
     }
 
@@ -195,7 +175,7 @@ public class UsersFacadeTest {
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
-        when(usersService.updateUser(any(User.class), any())).thenThrow(new DbAccessException(msg));
+        when(usersService.updateUser(any(User.class), any())).thenThrow(new TechnicalException(msg));
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
             fail();
@@ -223,7 +203,7 @@ public class UsersFacadeTest {
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
         when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
-        when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException());
+        when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException(""));
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }
 
@@ -235,21 +215,19 @@ public class UsersFacadeTest {
 
     @Test
     public void getUser_unauthorized() {
-        String msg = "401 - Unauthorized";
-        when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.getUser("Silly Willy", AUTH_HEADER);
+            CUT.getUser("Silly Willy", "BrokenAuthHeader");
             fail();
         }
         catch (UnauthorizedException ex) {
-            assertTrue(ex.getMessage().contains(msg));
+            assertTrue(ex.getMessage().startsWith("401 AuthHeader"));
         }
     }
 
     @Test
     public void getUser_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        when(usersService.getUser(anyString(), any())).thenThrow(new DbAccessException(msg));
+        when(usersService.getUser(anyString(), any())).thenThrow(new TechnicalException(msg));
         try {
             CUT.getUser("Silly Willy", AUTH_HEADER);
             fail();
@@ -263,27 +241,25 @@ public class UsersFacadeTest {
     public void changePassword_updateConflict() {
         User user = new User();
         user.setName("Bogumil");
-        when(usersService.changePassword(any(User.class), anyString(), any())).thenThrow(new UpdateConflictException());
+        when(usersService.changePassword(any(User.class), any())).thenThrow(new UpdateConflictException(""));
         assertNull(CUT.changePassword(new User(), "rev123", AUTH_HEADER));
     }
 
     @Test
     public void changePassword_unauthorized() {
-        String msg = "401 - Unauthorized";
-        when(usersService.changePassword(any(User.class), anyString(), any())).thenThrow(new DbAccessException(msg));
         try {
-            CUT.changePassword(new User(), "rev123", AUTH_HEADER);
+            CUT.changePassword(new User(), "rev123", "BrokenAuthHeader");
             fail();
         }
         catch (UnauthorizedException ex) {
-            assertTrue(ex.getMessage().contains(msg));
+            assertTrue(ex.getMessage().startsWith("401 AuthHeader"));
         }
     }
 
     @Test
     public void changePassword_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        when(usersService.changePassword(any(User.class), anyString(), any())).thenThrow(new DbAccessException(msg));
+        when(usersService.changePassword(any(User.class), any())).thenThrow(new TechnicalException(msg));
         try {
             CUT.changePassword(new User(), "rev123", AUTH_HEADER);
             fail();
@@ -295,27 +271,25 @@ public class UsersFacadeTest {
 
     @Test
     public void deleteUser_noSuchUser() {
-        doThrow(new UpdateConflictException()).when(usersService).deleteUser(anyString(), anyString(), any());
+        doThrow(new UpdateConflictException("")).when(usersService).deleteUser(anyString(), anyString(), any());
         assertFalse(CUT.deleteUser("Ike", "3454353", AUTH_HEADER));
     }
 
     @Test
     public void deleteUser_unauthorized() {
-        String msg = "401 - Unauthorized";
-        doThrow(new DbAccessException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
         try {
-            CUT.deleteUser("Silly Willy", "rev123", AUTH_HEADER);
+            CUT.deleteUser("Silly Willy", "rev123", "BrokenAuthHeader");
             fail();
         }
         catch (UnauthorizedException ex) {
-            assertTrue(ex.getMessage().contains(msg));
+            assertTrue(ex.getMessage().startsWith("401 AuthHeader"));
         }
     }
 
     @Test
     public void deleteUser_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        doThrow(new DbAccessException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
+        doThrow(new TechnicalException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
         try {
             CUT.deleteUser("Silly Willy", "rev123", AUTH_HEADER);
             fail();
