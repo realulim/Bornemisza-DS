@@ -3,7 +3,6 @@ package de.bornemisza.users.endpoint;
 import java.util.UUID;
 
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -15,6 +14,7 @@ import static org.mockito.Mockito.*;
 
 import com.hazelcast.topic.TopicOverloadException;
 
+import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -125,7 +125,7 @@ public class UsersTest {
         try {
             User user = new User();
             user.setName("<");
-            user.setEmail(new InternetAddress());
+            user.setEmail(new EmailAddress());
             CUT.userAccountCreationRequest(user);
             fail();
         }
@@ -137,7 +137,7 @@ public class UsersTest {
     @Test
     public void userAccountCreationRequest_technicalException() throws AddressException {
         User user = new User();
-        user.setEmail(new InternetAddress("foo@bar.de"));
+        user.setEmail(new EmailAddress("foo@bar.de"));
         doThrow(new TopicOverloadException("Topic overloaded")).when(facade).addUser(user);
         try {
             CUT.userAccountCreationRequest(user);
@@ -152,7 +152,7 @@ public class UsersTest {
     public void userAccountCreationRequest_userAlreadyExists() throws AddressException {
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress("foo@bar.de"));
+        user.setEmail(new EmailAddress("foo@bar.de"));
         doThrow(new BusinessException(Type.USER_ALREADY_EXISTS, user.getName())).when(facade).addUser(user);
         try {
             CUT.userAccountCreationRequest(user);
@@ -167,7 +167,7 @@ public class UsersTest {
     public void userAccountCreationRequest_unknownBusinessException() throws AddressException {
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress("foo@bar.de"));
+        user.setEmail(new EmailAddress("foo@bar.de"));
         doThrow(new BusinessException(Type.UUID_NOT_FOUND, user.getName())).when(facade).addUser(user);
         try {
             CUT.userAccountCreationRequest(user);
@@ -182,7 +182,7 @@ public class UsersTest {
     public void userAccountCreationRequest() throws AddressException {
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress("foo@bar.de"));
+        user.setEmail(new EmailAddress("foo@bar.de"));
         Response response = CUT.userAccountCreationRequest(user);
         assertEquals(202, response.getStatus());
     }
@@ -289,7 +289,7 @@ public class UsersTest {
         String emailStr = "foo@bar.de";
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress(emailStr));
+        user.setEmail(new EmailAddress(emailStr));
         when(facade.getUser(anyString(), any())).thenReturn(user);
         doThrow(new TopicOverloadException("Topic overloaded")).when(facade).changeEmail(user);
         try {
@@ -306,7 +306,7 @@ public class UsersTest {
         String emailStr = "foo@bar.de";
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress(emailStr));
+        user.setEmail(new EmailAddress(emailStr));
         when(facade.getUser(anyString(), any())).thenReturn(user);
         Response response = CUT.changeEmailRequest(user.getName(), emailStr, AUTH_HEADER);
         assertEquals(202, response.getStatus());

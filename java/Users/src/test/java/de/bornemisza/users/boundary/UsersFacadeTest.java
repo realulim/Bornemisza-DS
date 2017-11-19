@@ -3,7 +3,6 @@ package de.bornemisza.users.boundary;
 import java.util.UUID;
 
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
+import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -67,7 +67,7 @@ public class UsersFacadeTest {
     public void addUser_emailAlreadyExists() throws AddressException {
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress("foo@bar.de"));
+        user.setEmail(new EmailAddress("foo@bar.de"));
         when(usersService.existsUser(user.getName())).thenReturn(false);
         when(usersService.existsEmail(user.getEmail())).thenReturn(true);
         try {
@@ -174,7 +174,7 @@ public class UsersFacadeTest {
         user.setName("Ike");
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
-        when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
+        when(usersService.existsEmail(any(EmailAddress.class))).thenReturn(false);
         when(usersService.updateUser(any(User.class), any())).thenThrow(new TechnicalException(msg));
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
@@ -189,10 +189,10 @@ public class UsersFacadeTest {
     public void confirmEmail_updateConflict_emailAlreadyExists() throws AddressException {
         User user = new User();
         user.setName("Ike");
-        user.setEmail(new InternetAddress("foo@bar.de"));
+        user.setEmail(new EmailAddress("foo@bar.de"));
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
-        when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(true);
+        when(usersService.existsEmail(any(EmailAddress.class))).thenReturn(true);
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }
 
@@ -202,7 +202,7 @@ public class UsersFacadeTest {
         user.setName("Ike");
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
         when(usersService.getUser(anyString(), any())).thenReturn(new User());
-        when(usersService.existsEmail(any(InternetAddress.class))).thenReturn(false);
+        when(usersService.existsEmail(any(EmailAddress.class))).thenReturn(false);
         when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException(""));
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }

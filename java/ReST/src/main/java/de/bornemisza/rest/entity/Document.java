@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -47,6 +48,7 @@ public class Document implements Serializable {
         this.revision = revision;
     }
 
+    @JsonIgnore
     public boolean isNew() {
         return revision == null;
     }
@@ -59,6 +61,7 @@ public class Document implements Serializable {
         this.conflicts = conflicts;
     }
 
+    @JsonIgnore
     public boolean hasConflict() {
         return conflicts != null && !conflicts.isEmpty();
     }

@@ -21,6 +21,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 
+import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.MailSender;
@@ -42,7 +43,7 @@ public abstract class AbstractConfirmationMailListenerTestbase {
     @Before
     public void setUp() throws AddressException {
         user = new User();
-        InternetAddress recipient = new InternetAddress("user@localhost.de");
+        EmailAddress recipient = new EmailAddress("user@localhost.de");
         user.setName("Fazil Ongudar");
         user.setEmail(recipient);
         System.setProperty("FQDN", "www.bornemisza.de");
@@ -129,7 +130,7 @@ public abstract class AbstractConfirmationMailListenerTestbase {
         User userWithDifferentMailAddress = new User();
         userWithDifferentMailAddress.setName(user.getName());
         userWithDifferentMailAddress.setPassword(user.getPassword());
-        InternetAddress otherRecipient = new InternetAddress("user@otheraddress.de");
+        EmailAddress otherRecipient = new EmailAddress("user@otheraddress.de");
         userWithDifferentMailAddress.setEmail(otherRecipient);
 
         when(uuidMap.get(previousValue)).thenReturn(user);

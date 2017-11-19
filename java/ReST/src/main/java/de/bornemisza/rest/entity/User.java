@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import javax.mail.internet.InternetAddress;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -35,7 +35,8 @@ public class User extends Document implements Serializable {
     private char[] password;
 
     @JsonProperty(value = "email")
-    private InternetAddress email;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private EmailAddress email;
 
     @JsonProperty(value = "roles")
     private List<String> roles;
@@ -65,11 +66,11 @@ public class User extends Document implements Serializable {
         this.password = password;
     }
 
-    public InternetAddress getEmail() {
+    public EmailAddress getEmail() {
         return email;
     }
 
-    public void setEmail(InternetAddress email) {
+    public void setEmail(EmailAddress email) {
         this.email = email;
     }
 

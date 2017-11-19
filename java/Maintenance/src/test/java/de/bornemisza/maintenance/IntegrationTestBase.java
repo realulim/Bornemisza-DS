@@ -22,6 +22,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import static org.junit.Assert.*;
 
+import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 
@@ -34,7 +35,7 @@ public class IntegrationTestBase {
     protected User user;
 
     protected String adminUserName, adminPassword, userName, userPassword, newUserPassword;
-    protected InternetAddress newEmail;
+    protected EmailAddress newEmail;
 
     @Rule
     public TestRule watcher = new TestWatcher() {
@@ -55,7 +56,7 @@ public class IntegrationTestBase {
         userName = "Fazil Ongudar";
         userPassword = "secret";
         newUserPassword = "changed";
-        newEmail = new InternetAddress("fazil.changed@restmail.net");
+        newEmail = new EmailAddress("fazil.changed@restmail.net");
 
         requestSpecUsers = new RequestSpecBuilder()
                 .setBaseUri(URI.create(configuredUri + "users/"))
@@ -69,7 +70,7 @@ public class IntegrationTestBase {
                 .build();
         user = new User();
         user.setName(userName);
-        user.setEmail(new InternetAddress("fazil.ongudar@restmail.net"));
+        user.setEmail(new EmailAddress("fazil.ongudar@restmail.net"));
         List<String> roles = Arrays.asList(new String[]{"customer", "user"});
         user.setRoles(roles);
     }

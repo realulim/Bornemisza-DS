@@ -7,7 +7,6 @@ import java.util.function.Function;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -22,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
@@ -110,7 +110,7 @@ public class Users {
         if (isVoid(userName)) {
             throw new RestException(Status.BAD_REQUEST);
         }
-        InternetAddress email = validateEmail(emailStr);
+        EmailAddress email = validateEmail(emailStr);
         User user = getUser(userName, authHeader);
         user.setEmail(email);
         Consumer changeEmailRequestConsumer = new Consumer<UsersFacade>() {
@@ -212,10 +212,10 @@ public class Users {
         }
     }
 
-    private InternetAddress validateEmail(String emailStr) throws RestException {
-        InternetAddress newEmail;
+    private EmailAddress validateEmail(String emailStr) throws RestException {
+        EmailAddress newEmail;
         try {
-            newEmail = isVoid(emailStr) ? null : new InternetAddress(emailStr);
+            newEmail = isVoid(emailStr) ? null : new EmailAddress(emailStr);
         }
         catch (AddressException ae) {
             newEmail = null;
