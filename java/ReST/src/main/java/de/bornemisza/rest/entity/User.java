@@ -9,12 +9,11 @@ import javax.mail.internet.InternetAddress;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 public class User extends Document implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -36,7 +35,6 @@ public class User extends Document implements Serializable {
     private char[] password;
 
     @JsonProperty(value = "email")
-    @JsonSerialize(using = ToStringSerializer.class)
     private InternetAddress email;
 
     @JsonProperty(value = "roles")
