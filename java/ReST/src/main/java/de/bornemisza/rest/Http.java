@@ -372,7 +372,7 @@ public class Http {
         try {
             return jsonMapper.readValue(json, type);
         }
-        catch (IOException ex) {
+        catch (Exception ex) {
             throw new HttpException("Problem unmarshalling JSON!", ex);
         }
     }
