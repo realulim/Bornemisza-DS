@@ -7,17 +7,16 @@ import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
 
-
 import org.apache.http.HttpHeaders;
-import org.ektorp.DbInfo;
+
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
 
-import de.bornemisza.couchdb.entity.MyCouchDbConnector;
 import de.bornemisza.couchdb.entity.User;
 import de.bornemisza.rest.Http;
+import de.bornemisza.rest.entity.Database;
 import de.bornemisza.rest.entity.KeyValueViewResult;
 import de.bornemisza.rest.entity.KeyValueViewResult.Row;
 import de.bornemisza.rest.security.BasicAuthCredentials;
@@ -43,11 +42,23 @@ public class UsersService {
 
     @PostConstruct
     public void init() {
-        MyCouchDbConnector adminConn = adminPool.getConnector();
-        if (adminConn == null) throw new IllegalStateException("No Database reachable at all!");
-        DbInfo dbInfo = adminConn.getDbInfo();
-        String msg = "DB: " + dbInfo.getDbName() + ", Documents: " + dbInfo.getDocCount() + ", Disk Size: " + dbInfo.getDiskSize();
-        Logger.getLogger(adminConn.getHostname()).info(msg);
+        Http http = usersPool.getConnection().getHttp();
+        Get get = http.get(http.getBaseUrl())
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        try {
+            int responseCode = get.responseCode();
+            if (responseCode != 200) {
+                throw new BusinessException(Type.UNEXPECTED, responseCode + ": " + get.responseMessage());
+            }
+            else {
+                Database db = http.fromJson(get.text(), Database.class);
+                String msg = "DB: " + db.getDbName() + ", Documents: " + db.getDocCount() + ", Disk Size: " + db.getDiskSize();
+                Logger.getLogger(http.getHostName()).info(msg);
+            }
+        }
+        catch (HttpException ex) {
+            throw new TechnicalException(ex.toString());
+        }
     }
 
     public boolean existsUser(String userName) throws BusinessException, TechnicalException {
