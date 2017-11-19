@@ -2,6 +2,7 @@
 
 IFS=$'\n'
 domain={{ pillar['ssldomain'] }}
+cfns={{ pillar['cfns'] }}
 
 records=$(host -t srv _app._tcp.$domain. $cfns|cut -d" " -f8|xargs -L1 host|cut -d" " -f4)
 

@@ -3,6 +3,7 @@
 IFS=$'\n'
 domain={{ pillar['ssldomain'] }}
 service={{ pillar['service'] }}
+cfns={{ pillar['cfns'] }}
 
 records=$(host -t srv _${service}._tcp.$domain. $cfns|cut -d" " -f8)
 lines=$(grep '-' /srv/pillar/"${service}"servers.sls|cut -d" " -f4)
