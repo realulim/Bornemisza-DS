@@ -1,4 +1,4 @@
-package de.bornemisza.maintenance;
+package de.bornemisza.users.da;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;

@@ -20,7 +20,7 @@ import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
 import de.bornemisza.rest.security.BasicAuthCredentials;
-import de.bornemisza.sessions.da.HttpSessionsPool;
+import de.bornemisza.sessions.da.CouchSessionsPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 @Stateless
@@ -28,7 +28,7 @@ import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 public class Sessions {
 
     @Inject
-    HttpSessionsPool sessionsPool;
+    CouchSessionsPool sessionsPool;
 
     @Inject
     DbAdminPasswordBasedHashProvider hashProvider;
@@ -39,7 +39,7 @@ public class Sessions {
     }
 
     // Constructor for Unit Tests
-    public Sessions(HttpSessionsPool sessionsPool, DbAdminPasswordBasedHashProvider hashProvider) {
+    public Sessions(CouchSessionsPool sessionsPool, DbAdminPasswordBasedHashProvider hashProvider) {
         this.sessionsPool = sessionsPool;
         this.hashProvider = hashProvider;
     }

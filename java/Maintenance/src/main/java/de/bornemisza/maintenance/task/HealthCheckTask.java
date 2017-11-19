@@ -33,7 +33,7 @@ public class HealthCheckTask {
     HazelcastInstance hazelcast;
 
     @Inject
-    CouchUsersPool httpPool;
+    CouchUsersPool usersPool;
 
     @Inject
     HealthChecks healthChecks;
@@ -46,7 +46,7 @@ public class HealthCheckTask {
 
     // Constructor for Unit Tests
     public HealthCheckTask(CouchUsersPool httpPool, ITopic<ClusterEvent> topic, HealthChecks healthChecks) {
-        this.httpPool = httpPool;
+        this.usersPool = httpPool;
         this.clusterMaintenanceTopic = topic;
         this.healthChecks = healthChecks;
     }
@@ -62,7 +62,7 @@ public class HealthCheckTask {
 
     @Timeout
     public void healthChecks() {
-        Map<String, HttpConnection> connections = httpPool.getAllConnections();
+        Map<String, HttpConnection> connections = usersPool.getAllConnections();
         for (Map.Entry<String, HttpConnection> entry : connections.entrySet()) {
             String hostname = entry.getKey();
             if (healthChecks.isCouchDbReady(entry.getValue())) {

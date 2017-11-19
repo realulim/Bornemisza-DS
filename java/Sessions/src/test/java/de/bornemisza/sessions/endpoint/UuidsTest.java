@@ -34,7 +34,7 @@ import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
-import de.bornemisza.sessions.da.HttpBasePool;
+import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class UuidsTest {
@@ -46,7 +46,7 @@ public class UuidsTest {
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
     private HazelcastInstance hazelcast;
-    private HttpBasePool pool;
+    private CouchPool pool;
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
     private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
@@ -72,7 +72,7 @@ public class UuidsTest {
         when(http.get(anyString())).thenReturn(get);
         when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
 
-        pool = mock(HttpBasePool.class);
+        pool = mock(CouchPool.class);
         conn = mock(HttpConnection.class);
         when(conn.getHttp()).thenReturn(http);
         when(pool.getConnection()).thenReturn(conn);

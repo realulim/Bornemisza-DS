@@ -29,7 +29,10 @@ import de.bornemisza.users.boundary.UpdateConflictException;
 public class UsersService {
 
     @Inject
-    HttpAdminPool usersPool;
+    CouchUsersPoolAsAdmin usersPoolAsAdmin;
+
+    @Inject
+    CouchUsersPool usersPool;
 
     private static final String JSON_UTF8 = MediaType.APPLICATION_JSON_TYPE.withCharset("UTF-8").getType();
 
@@ -60,9 +63,9 @@ public class UsersService {
     public boolean existsUser(String userName) throws BusinessException, TechnicalException {
         User user = new User();
         user.setName(userName);
-        Http http = usersPool.getConnection().getHttp();
+        Http http = usersPoolAsAdmin.getConnection().getHttp();
         Get get = http.get(http.getBaseUrl() + http.urlEncode(user.getId()))
-                .basic(usersPool.getUserName(), String.valueOf(usersPool.getPassword()))
+                .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
             int responseCode = get.responseCode();
@@ -81,9 +84,9 @@ public class UsersService {
     }
 
     public boolean existsEmail(InternetAddress email) throws BusinessException, TechnicalException {
-        Http http = usersPool.getConnection().getHttp();
+        Http http = usersPoolAsAdmin.getConnection().getHttp();
         Get get = http.get(http.getBaseUrl() + "_design/User/_view/by_email")
-                .basic(usersPool.getUserName(), String.valueOf(usersPool.getPassword()))
+                .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
             int responseCode = get.responseCode();
@@ -106,9 +109,9 @@ public class UsersService {
     }
 
     public User createUser(User user) throws BusinessException, TechnicalException, UpdateConflictException {
-        Http http = usersPool.getConnection().getHttp();
+        Http http = usersPoolAsAdmin.getConnection().getHttp();
         Put put = http.put(http.getBaseUrl() + http.urlEncode(user.getId()), http.toJson(user))
-                .basic(usersPool.getUserName(), String.valueOf(usersPool.getPassword()))
+                .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
         try {
@@ -123,7 +126,7 @@ public class UsersService {
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        User createdUser = readUser(user.getId(), new BasicAuthCredentials(usersPool.getUserName(), String.valueOf(usersPool.getPassword())));
+        User createdUser = readUser(user.getId(), new BasicAuthCredentials(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword())));
         Logger.getLogger(http.getHostName()).info("Added user: " + createdUser);
         return createdUser;
     }

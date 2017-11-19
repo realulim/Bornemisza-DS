@@ -34,7 +34,7 @@ import org.javalite.http.HttpException;
 import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.DnsResolver;
-import de.bornemisza.sessions.da.HttpBasePool;
+import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 @Stateless
@@ -42,7 +42,7 @@ import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 public class Uuids {
 
     @Inject
-    HttpBasePool basePool;
+    CouchPool couchPool;
 
     @Inject
     HazelcastInstance hazelcast;
@@ -59,8 +59,8 @@ public class Uuids {
     public Uuids() { }
 
     // Constructor for Unit Tests
-    public Uuids(HttpBasePool basePool, HazelcastInstance hazelcast, DnsResolver dnsResolver, DbAdminPasswordBasedHashProvider hashProvider) {
-        this.basePool = basePool;
+    public Uuids(CouchPool couchPool, HazelcastInstance hazelcast, DnsResolver dnsResolver, DbAdminPasswordBasedHashProvider hashProvider) {
+        this.couchPool = couchPool;
         this.hazelcast = hazelcast;
         this.dnsResolver = dnsResolver;
         this.hashProvider = hashProvider;
@@ -89,7 +89,7 @@ public class Uuids {
         Collections.sort(members, new MemberComparator());
         String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
         int myIndex = 0;
-        allHostnames = new ArrayList(basePool.getAllConnections().keySet());
+        allHostnames = new ArrayList(couchPool.getAllConnections().keySet());
         Collections.sort(allHostnames);
         for (String hostname : allHostnames) {
             String ip = dnsResolver.getHostAddress("internal." + hostname);
@@ -126,7 +126,7 @@ public class Uuids {
                 Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN + " missing!").build());
         else if (! hashProvider.hmacDigest(cookie).equals(ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Hash Mismatch!").build());
-        Http httpBase = basePool.getConnection().getHttp();
+        Http httpBase = couchPool.getConnection().getHttp();
         Get get = httpBase.get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, cookie);
         try {

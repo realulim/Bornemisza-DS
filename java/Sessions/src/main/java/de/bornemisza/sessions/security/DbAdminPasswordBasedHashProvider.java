@@ -9,7 +9,7 @@ import de.bornemisza.rest.security.HashProvider;
 @Stateless
 public class DbAdminPasswordBasedHashProvider extends HashProvider {
     
-    @Resource(name="lbconfig/CouchAdminPool")
+    @Resource(name="lbconfig/CouchUsersAsAdmin")
     LoadBalancerConfig lbConfig;
 
     public DbAdminPasswordBasedHashProvider() {

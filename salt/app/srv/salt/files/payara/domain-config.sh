@@ -12,17 +12,17 @@
 {{ ASADMIN_CMD }} create-password-alias couchdb-admin-password
 
 # create custom JNDI resource for CouchDB _users database
-{{ ASADMIN_CMD }} delete-custom-resource lbconfig/CouchUsersPool
-{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/_users --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/CouchUsersPool
+{{ ASADMIN_CMD }} delete-custom-resource lbconfig/CouchUsers
+{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/_users --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/CouchUsers
 
-{{ ASADMIN_CMD }} delete-custom-resource lbconfig/CouchAdminPool
-{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/CouchAdminPool
+{{ ASADMIN_CMD }} delete-custom-resource lbconfig/CouchUsersAsAdmin
+{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/_users:username=admin:password='\$\{ALIAS\=couchdb-admin-password\}' --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/CouchUsersAsAdmin
 
-{{ ASADMIN_CMD }} delete-custom-resource lbconfig/HttpBase
-{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/ --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/HttpBase
+{{ ASADMIN_CMD }} delete-custom-resource lbconfig/Couch
+{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/ --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/Couch
 
-{{ ASADMIN_CMD }} delete-custom-resource lbconfig/HttpSessions
-{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/_session --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/HttpSessions
+{{ ASADMIN_CMD }} delete-custom-resource lbconfig/CouchSessions
+{{ ASADMIN_CMD }} create-custom-resource --property service=_db._tcp."$3".:db=/_session --restype de.bornemisza.loadbalancer.LoadBalancerConfig --factoryclass de.bornemisza.loadbalancer.LoadBalancerConfigFactory lbconfig/CouchSessions
 
 # create SMTP resource
 {{ ASADMIN_CMD }} delete-javamail-resource mail/Outgoing

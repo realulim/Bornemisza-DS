@@ -23,7 +23,7 @@ import org.javalite.http.Post;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpConnection;
-import de.bornemisza.sessions.da.HttpSessionsPool;
+import de.bornemisza.sessions.da.CouchSessionsPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class SessionsTest {
@@ -35,7 +35,7 @@ public class SessionsTest {
     private Post post;
     private Get get;
     private final Map<String, List<String>> headers = new HashMap<>();
-    private HttpSessionsPool pool;
+    private CouchSessionsPool pool;
     private DbAdminPasswordBasedHashProvider hashProvider;
 
     @Before
@@ -54,7 +54,7 @@ public class SessionsTest {
         when(get.header(anyString(), any())).thenReturn(get);
         when(http.get(anyString())).thenReturn(get);
 
-        pool = mock(HttpSessionsPool.class);
+        pool = mock(CouchSessionsPool.class);
         HttpConnection conn = mock(HttpConnection.class);
         when(conn.getHttp()).thenReturn(http);
         when(pool.getConnection()).thenReturn(conn);

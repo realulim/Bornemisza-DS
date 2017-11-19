@@ -7,12 +7,12 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.da.HttpPool;
 
 @Stateless
-public class HttpSessionsPool extends HttpPool {
+public class CouchPool extends HttpPool {
 
-    @Resource(name = "lbconfig/HttpSessions")
+    @Resource(name = "lbconfig/Couch")
     LoadBalancerConfig lbConfig;
 
-    public HttpSessionsPool() {
+    public CouchPool() {
         super();
     }
 
