@@ -6,23 +6,27 @@ maven:
   pkg:
     - installed
 
-download-javalite-lib:
-  cmd.run:
-    - name: /usr/bin/mvn dependency:get -DrepoUrl=http://repo1.maven.org/maven2 -Dartifact=org.javalite:javalite-common:1.4.13:jar
-    - unless:
-      - ls /root/.m2/repository/org/javalite/javalite-common/1.4.13
-
-copy-thirdparty-libs:
+copy-maven-libs:
   cmd.run:
     - name: mvn dependency:copy-dependencies -DoutputDirectory={{ PAYARA_LIBS }}
     - cwd: /srv/salt/files/maven
-    - creates: {{ PAYARA_LIBS }}/javalite-common-1.4.13.jar
+    - creates: {{ PAYARA_LIBS }}/jersey-media-json-jackson-2.26.jar
 
 {{ MIC_DIR }}:
   file.directory:
     - user: root
     - group: root
     - dir_mode: 755
+
+install-javalite-http:
+  svn.export:
+    - name: https://github.com/realulim/javalite-http/trunk
+    - target: {{ MIC_DIR }}/javalite-http
+    - unless: ls {{ MIC_DIR }}/javalite-http
+  cmd.run:
+    - name: bash -c 'mvn package install && cp {{ MIC_DIR }}/javalite-http/target/javalite-http.jar {{ PAYARA_LIBS }}'
+    - cwd: {{ MIC_DIR }}/javalite-http
+    - creates {{ MIC_DIR }}/javalite-http/target/javalite-http.jar
 
 {% for LIB_NAME in ['LoadBalancer', 'ReST'] %}
 
@@ -50,7 +54,8 @@ restart-payara-on-new-libs:
   cmd.run:
     - name: systemctl restart payara
     - onchanges:
-      - copy-thirdparty-libs
+      - install-javalite-http
+      - copy-maven-libs
       - copy-LoadBalancer-lib
       - copy-ReST-lib
 
