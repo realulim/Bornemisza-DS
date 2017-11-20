@@ -26,7 +26,7 @@ install-javalite-http:
   cmd.run:
     - name: bash -c 'mvn package install && cp {{ MIC_DIR }}/javalite-http/target/javalite-http.jar {{ PAYARA_LIBS }}'
     - cwd: {{ MIC_DIR }}/javalite-http
-    - creates {{ MIC_DIR }}/javalite-http/target/javalite-http.jar
+    - creates: {{ MIC_DIR }}/javalite-http/target/javalite-http.jar
 
 {% for LIB_NAME in ['LoadBalancer', 'ReST'] %}
 
