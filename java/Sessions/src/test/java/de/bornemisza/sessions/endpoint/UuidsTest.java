@@ -26,15 +26,15 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
 import org.javalite.http.Get;
+import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.CouchPool;
+import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class UuidsTest {

@@ -29,12 +29,12 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
 import org.javalite.http.Get;
+import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 
-import de.bornemisza.rest.Http;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.CouchPool;
+import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 @Stateless

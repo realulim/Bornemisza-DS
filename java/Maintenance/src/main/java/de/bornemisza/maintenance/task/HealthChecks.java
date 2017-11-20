@@ -3,9 +3,9 @@ package de.bornemisza.maintenance.task;
 import javax.ejb.Stateless;
 
 import org.javalite.http.Get;
+import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 
-import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpConnection;
 
 @Stateless

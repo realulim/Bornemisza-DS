@@ -8,10 +8,11 @@ import java.util.logging.Logger;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import org.javalite.http.Http;
+
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.loadbalancer.da.Pool;
-import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpConnection;
 
 public abstract class HttpPool extends Pool<HttpConnection> {

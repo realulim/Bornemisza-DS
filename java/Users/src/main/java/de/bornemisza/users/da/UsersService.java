@@ -7,13 +7,15 @@ import javax.inject.Inject;
 import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
 
+import org.javalite.common.Util;
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
+import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
 
-import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpHeaders;
+import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Database;
 import de.bornemisza.rest.entity.KeyValueViewResult;
 import de.bornemisza.rest.entity.KeyValueViewResult.Row;
@@ -50,7 +52,7 @@ public class UsersService {
                 throw new BusinessException(Type.UNEXPECTED, responseCode + ": " + get.responseMessage());
             }
             else {
-                Database db = http.fromJson(get.text(), Database.class);
+                Database db = Json.fromJson(get.text(), Database.class);
                 String msg = "DB: " + db.getDbName() + ", Documents: " + db.getDocCount() + ", Disk Size: " + db.getDiskSize();
                 Logger.getLogger(http.getHostName()).info(msg);
             }
@@ -64,7 +66,7 @@ public class UsersService {
         User user = new User();
         user.setName(userName);
         Http http = usersPoolAsAdmin.getConnection().getHttp();
-        Get get = http.get(http.getBaseUrl() + http.urlEncode(user.getId()))
+        Get get = http.get(http.getBaseUrl() + Util.urlEncode(user.getId()))
                 .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
@@ -95,7 +97,7 @@ public class UsersService {
             }
             else {
                 String json = get.text();
-                KeyValueViewResult viewResult = http.fromJson(json, KeyValueViewResult.class);
+                KeyValueViewResult viewResult = Json.fromJson(json, KeyValueViewResult.class);
                 String emailStr = email.getAddress();
                 for (Row row : viewResult.getRows()) {
                     if (emailStr.equals(row.getKey())) return true;
@@ -110,7 +112,7 @@ public class UsersService {
 
     public User createUser(User user) throws BusinessException, TechnicalException, UpdateConflictException {
         Http http = usersPoolAsAdmin.getConnection().getHttp();
-        Put put = http.put(http.getBaseUrl() + http.urlEncode(user.getId()), http.toJson(user))
+        Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
                 .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
@@ -133,7 +135,7 @@ public class UsersService {
 
     public User updateUser(User user, BasicAuthCredentials creds) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
         Http http = usersPool.getConnection().getHttp();
-        Put put = http.put(http.getBaseUrl() + http.urlEncode(user.getId()), http.toJson(user))
+        Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
                 .basic(creds.getUserName(), creds.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
@@ -165,7 +167,7 @@ public class UsersService {
 
     private User readUser(String userId, BasicAuthCredentials creds) throws BusinessException, DocumentNotFoundException, TechnicalException, UnauthorizedException {
         Http http = usersPool.getConnection().getHttp();
-        Get get = http.get(http.getBaseUrl() + http.urlEncode(userId))
+        Get get = http.get(http.getBaseUrl() + Util.urlEncode(userId))
                 .basic(creds.getUserName(), creds.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
@@ -183,12 +185,12 @@ public class UsersService {
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        return http.fromJson(get.text(), User.class);
+        return Json.fromJson(get.text(), User.class);
     }
 
     public User changePassword(User user, BasicAuthCredentials creds) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
         Http http = usersPool.getConnection().getHttp();
-        Put put = http.put(http.getBaseUrl() + http.urlEncode(user.getId()), http.toJson(user))
+        Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
                 .basic(creds.getUserName(), creds.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
@@ -218,7 +220,7 @@ public class UsersService {
         User user = new User();
         user.setName(userName);
         Http http = usersPool.getConnection().getHttp();
-        Delete delete = http.delete(http.getBaseUrl() + http.urlEncode(user.getId()))
+        Delete delete = http.delete(http.getBaseUrl() + Util.urlEncode(user.getId()))
                 .basic(creds.getUserName(), creds.getPassword())
                 .header(HttpHeaders.IF_MATCH, rev);
         try {

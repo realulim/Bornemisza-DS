@@ -1,5 +1,7 @@
 package de.bornemisza.rest;
 
+import org.javalite.http.Http;
+
 public class HttpConnection {
 
     private final String databaseName;

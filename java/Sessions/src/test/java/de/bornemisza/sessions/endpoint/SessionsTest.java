@@ -17,11 +17,11 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.javalite.http.Get;
+import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import de.bornemisza.rest.Http;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.sessions.da.CouchSessionsPool;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
