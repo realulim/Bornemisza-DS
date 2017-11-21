@@ -36,7 +36,7 @@ public class BornemiszaIT extends IntegrationTestBase {
         Response response = clickApiLink(apiLink, 200);
         JsonPath jsonPath = response.jsonPath();
         assertEquals(user.getEmail().toString(), jsonPath.getString("email"));
-//        assertNull(jsonPath.getString("password"));
+        assertNull(jsonPath.getString("password"));
 
         /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
         response = clickApiLink(apiLink, 404);

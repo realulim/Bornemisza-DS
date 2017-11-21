@@ -129,6 +129,21 @@ public class UsersFacadeTest {
     }
 
     @Test
+    public void confirmUser() throws AddressException {
+        char[] password = new char[] {'s', 'r', 'm', 't'};
+        User user = new User();
+        user.setName("Fridolin");
+        user.setEmail(new EmailAddress("foo@bar.de"));
+        user.setPassword(password);
+        when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(user);
+        when(usersService.createUser(any(User.class))).thenReturn(user);
+
+        User createdUser = CUT.confirmUser(UUID.randomUUID().toString());
+        assertNotNull(createdUser);
+        assertNull(createdUser.getPassword());
+    }
+
+    @Test
     public void confirmEmail_uuidNotFound() {
         when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(null);
         try {
