@@ -17,9 +17,11 @@ import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.TechnicalException;
+import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UpdateConflictException;
 
 public class UsersServiceTest {
@@ -27,6 +29,7 @@ public class UsersServiceTest {
     private UsersService CUT;
     private User user;
     private final String userAsJson = "{\"_id\":\"org.couchdb.user:Fazil Ongudar\",\"_rev\":\"34-80e1f26cf8e78a926be87928eb08ed72\",\"type\":\"user\",\"name\":\"Fazil Ongudar\",\"email\":\"fazil.changed@restmail.net\",\"roles\":[\"customer\",\"user\"],\"password_scheme\":\"pbkdf2\",\"iterations\":10,\"derived_key\":\"cae17cd81a9a0cbf5605ff8770847b3507a5cde8\",\"salt\":\"5168306a0c38fa04decb1362bb9d98e5\"}";
+    private final BasicAuthCredentials creds = new BasicAuthCredentials("flo", "flospassword");
     private Get get;
     private Put put;
 
@@ -213,7 +216,70 @@ public class UsersServiceTest {
         assertNull(createdUser.getPassword());
         assertEquals(user.getName(), createdUser.getName());
         assertEquals(user.getEmail(), createdUser.getEmail());
-        System.out.println(createdUser.toString());
+    }
+
+    @Test
+    public void updateUser_technicalException() {
+        String errMsg = "Connection refused";
+        when(put.responseCode()).thenThrow(new HttpException(errMsg));
+        try {
+            CUT.updateUser(user, creds);
+            fail();
+        }
+        catch (TechnicalException e) {
+            assertTrue(e.getMessage().contains(errMsg));
+        }
+    }
+
+    @Test
+    public void updateUser_businessException(){
+        when(put.responseCode()).thenReturn(500);
+        try {
+            CUT.updateUser(user, creds);
+            fail();
+        }
+        catch (BusinessException e) {
+            assertEquals(Type.UNEXPECTED, e.getType());
+        }
+    }
+
+    @Test
+    public void updateUser_unauthorized() {
+        when(put.responseCode()).thenReturn(401);
+        String msg = "User unknown";
+        when(put.responseMessage()).thenReturn(msg);
+        try {
+            CUT.updateUser(user, creds);
+            fail();
+        }
+        catch (UnauthorizedException e) {
+            assertEquals(msg, e.getMessage());
+        }
+    }
+
+    @Test
+    public void updateUser_updateConflict() {
+        when(put.responseCode()).thenReturn(409);
+        String msg = "Newer Revision exists";
+        when(put.responseMessage()).thenReturn(msg);
+        try {
+            CUT.updateUser(user, creds);
+            fail();
+        }
+        catch (UpdateConflictException e) {
+            assertEquals(msg, e.getMessage());
+        }
+    }
+
+    @Test
+    public void updateUser() {
+        when(put.responseCode()).thenReturn(201);
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(userAsJson);
+        User updatedUser = CUT.updateUser(user, creds);
+        assertNull(updatedUser.getPassword());
+        assertEquals(user.getName(), updatedUser.getName());
+        assertEquals(user.getEmail(), updatedUser.getEmail());
     }
 
 }
