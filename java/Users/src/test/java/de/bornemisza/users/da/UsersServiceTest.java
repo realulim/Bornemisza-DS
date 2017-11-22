@@ -20,6 +20,7 @@ import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
+import de.bornemisza.users.boundary.DocumentNotFoundException;
 import de.bornemisza.users.boundary.TechnicalException;
 import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UpdateConflictException;
@@ -280,6 +281,69 @@ public class UsersServiceTest {
         assertNull(updatedUser.getPassword());
         assertEquals(user.getName(), updatedUser.getName());
         assertEquals(user.getEmail(), updatedUser.getEmail());
+    }
+
+    @Test
+    public void getUser_technicalException() {
+        String errMsg = "Connection refused";
+        when(get.responseCode()).thenThrow(new HttpException(errMsg));
+        try {
+            CUT.getUser(user.getName(), creds);
+            fail();
+        }
+        catch (TechnicalException e) {
+            assertTrue(e.getMessage().contains(errMsg));
+        }
+    }
+
+    @Test
+    public void getUser_businessException(){
+        when(get.responseCode()).thenReturn(500);
+        try {
+            CUT.getUser(user.getName(), creds);
+            fail();
+        }
+        catch (BusinessException e) {
+            assertEquals(Type.UNEXPECTED, e.getType());
+        }
+    }
+
+    @Test
+    public void getUser_unauthorized() {
+        when(get.responseCode()).thenReturn(401);
+        String msg = "User unknown";
+        when(get.responseMessage()).thenReturn(msg);
+        try {
+            CUT.getUser(user.getName(), creds);
+            fail();
+        }
+        catch (UnauthorizedException e) {
+            assertEquals(msg, e.getMessage());
+        }
+    }
+
+    @Test
+    public void getUser_notFound() {
+        when(get.responseCode()).thenReturn(404);
+        String msg = "User not found";
+        when(get.responseMessage()).thenReturn(msg);
+        try {
+            CUT.getUser(user.getName(), creds);
+            fail();
+        }
+        catch (DocumentNotFoundException e) {
+            assertEquals(msg, e.getMessage());
+        }
+    }
+
+    @Test
+    public void getUser() {
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(userAsJson);
+        User readUser = CUT.getUser(user.getName(), creds);
+        assertNull(readUser.getPassword());
+        assertEquals(user.getName(), readUser.getName());
+        assertEquals(user.getEmail(), readUser.getEmail());
     }
 
 }
