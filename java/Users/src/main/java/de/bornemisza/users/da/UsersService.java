@@ -41,6 +41,12 @@ public class UsersService {
     public UsersService() {
     }
 
+    // Constructor for Unit Tests
+    public UsersService(CouchUsersPoolAsAdmin pool1, CouchUsersPool pool2) {
+        this.usersPoolAsAdmin = pool1;
+        this.usersPool = pool2;
+    }
+
     @PostConstruct
     public void init() {
         Http http = usersPool.getConnection().getHttp();
