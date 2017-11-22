@@ -135,8 +135,12 @@ public class UsersFacadeTest {
         user.setName("Fridolin");
         user.setEmail(new EmailAddress("foo@bar.de"));
         user.setPassword(password);
+        User user2 = new User();
+        user2.setEmail(user.getEmail());
+        user2.setName(user.getName());
+        user2.setPassword(null); // CouchDB does this
         when(newUserAccountMap_uuid.remove(any(String.class))).thenReturn(user);
-        when(usersService.createUser(any(User.class))).thenReturn(user);
+        when(usersService.createUser(any(User.class))).thenReturn(user2);
 
         User createdUser = CUT.confirmUser(UUID.randomUUID().toString());
         assertNotNull(createdUser);
