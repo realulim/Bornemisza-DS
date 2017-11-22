@@ -237,7 +237,7 @@ public class UsersService {
             else if (responseCode == 409) {
                 throw new UpdateConflictException(delete.responseMessage());
             }
-            else if (responseCode < 200 || responseCode > 202) {
+            else if (responseCode < 200 || responseCode > 202 || responseCode == 201) {
                 throw new BusinessException(Type.UNEXPECTED, responseCode + ": " + delete.responseMessage());
             }
         }
