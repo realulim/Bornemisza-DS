@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -33,6 +34,36 @@ public class KeyValueViewResult {
 
     public List<Row> getRows() {
         return rows;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + this.totalRows;
+        hash = 17 * hash + this.offset;
+        hash = 17 * hash + Objects.hashCode(this.rows);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final KeyValueViewResult other = (KeyValueViewResult) obj;
+        if (this.totalRows != other.totalRows) {
+            return false;
+        }
+        if (this.offset != other.offset) {
+            return false;
+        }
+        return Objects.equals(this.rows, other.rows);
     }
 
     @Override
@@ -66,6 +97,39 @@ public class KeyValueViewResult {
 
         public String getValue() {
             return value;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 71 * hash + Objects.hashCode(this.id);
+            hash = 71 * hash + Objects.hashCode(this.key);
+            hash = 71 * hash + Objects.hashCode(this.value);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Row other = (Row) obj;
+            if (!Objects.equals(this.id, other.id)) {
+                return false;
+            }
+            if (!Objects.equals(this.key, other.key)) {
+                return false;
+            }
+            if (!Objects.equals(this.value, other.value)) {
+                return false;
+            }
+            return true;
         }
 
         @Override
