@@ -25,7 +25,6 @@ public class SessionsTest {
 
     private Sessions CUT;
     private SessionsFacade facade;
-    private final Map<String, List<String>> headers = new HashMap<>();
 
     @Before
     public void setUp() {
@@ -36,7 +35,7 @@ public class SessionsTest {
     @Test
     public void getNewSession_authHeaderMissing() {
         try {
-            when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way José"));
+            when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way Jose"));
             CUT.getNewSession(null);
             fail();
         }
