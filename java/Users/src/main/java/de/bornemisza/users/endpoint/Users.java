@@ -257,7 +257,7 @@ public class Users {
             confirmedUser = function.apply(facade);
         }
         catch (BusinessException e) {
-            Status status = e.getType() == UsersType.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
+            Status status = e.getType() instanceof UsersType && (UsersType)e.getType() == UsersType.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
             throw new RestException(
                     Response.status(status).entity(expiryMsg).build());
         }
