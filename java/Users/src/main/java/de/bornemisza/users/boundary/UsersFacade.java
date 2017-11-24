@@ -64,7 +64,7 @@ public class UsersFacade {
         }
     }
 
-    public User confirmUser(String uuid) throws BusinessException, TechnicalException, UnauthorizedException {
+    public User confirmUser(String uuid) throws BusinessException, TechnicalException {
         User user = newUserAccountMap_uuid.remove(uuid);
         if (user == null) {
             throw new BusinessException(UsersType.UUID_NOT_FOUND, uuid);
