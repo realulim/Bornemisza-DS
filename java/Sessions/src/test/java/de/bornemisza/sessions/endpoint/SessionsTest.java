@@ -35,7 +35,7 @@ public class SessionsTest {
     @Test
     public void getNewSession_authHeaderMissing() {
         try {
-            when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way Jose"));
+            when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way"));
             CUT.getNewSession(null);
             fail();
         }
