@@ -16,8 +16,10 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
