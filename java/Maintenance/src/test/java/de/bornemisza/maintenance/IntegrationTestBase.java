@@ -1,5 +1,6 @@
 package de.bornemisza.maintenance;
 
+import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -10,17 +11,16 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import static io.restassured.RestAssured.given;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import static org.junit.Assert.*;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
