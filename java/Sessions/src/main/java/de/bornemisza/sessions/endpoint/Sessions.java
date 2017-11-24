@@ -13,9 +13,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.sessions.boundary.SessionsFacade;
-import de.bornemisza.sessions.boundary.UnauthorizedException;
 
 @Stateless
 @Path("/")

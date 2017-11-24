@@ -24,9 +24,9 @@ import org.javalite.http.Post;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.boundary.BusinessException;
-import de.bornemisza.sessions.boundary.TechnicalException;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class SessionsServiceTest {

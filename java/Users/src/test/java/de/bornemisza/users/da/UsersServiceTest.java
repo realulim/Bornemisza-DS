@@ -1,34 +1,30 @@
 package de.bornemisza.users.da;
 
-
-
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
-
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.mockito.ArgumentCaptor;
-import static org.mockito.Mockito.*;
 
 import org.javalite.http.Delete;
 import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.exception.TechnicalException;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.boundary.DocumentNotFoundException;
-import de.bornemisza.users.boundary.TechnicalException;
-import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UpdateConflictException;
 
 public class UsersServiceTest {

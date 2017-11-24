@@ -23,9 +23,9 @@ import javax.ws.rs.core.Response.Status;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.users.boundary.BusinessException;
 import de.bornemisza.users.boundary.BusinessException.Type;
-import de.bornemisza.users.boundary.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
 
 @Stateless

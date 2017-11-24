@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
 
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.da.SessionsService;
 

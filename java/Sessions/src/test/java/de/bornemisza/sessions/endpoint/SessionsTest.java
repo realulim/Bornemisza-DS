@@ -8,17 +8,16 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.TechnicalException;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.sessions.boundary.SessionsFacade;
-import de.bornemisza.sessions.boundary.TechnicalException;
-import de.bornemisza.sessions.boundary.UnauthorizedException;
 
 public class SessionsTest {
 
