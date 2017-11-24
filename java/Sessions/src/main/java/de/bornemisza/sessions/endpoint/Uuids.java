@@ -120,10 +120,10 @@ public class Uuids {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
-                             @HeaderParam(Sessions.CTOKEN) String ctoken,
+                             @HeaderParam(Sessions.CTOKEN_HEADER) String ctoken,
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie) || isVoid(ctoken)) throw new RestException(
-                Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN + " missing!").build());
+                Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN_HEADER + " missing!").build());
         else if (! hashProvider.hmacDigest(cookie).equals(ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Hash Mismatch!").build());
         Http httpBase = couchPool.getConnection().getHttp();

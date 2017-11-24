@@ -3,9 +3,11 @@ package de.bornemisza.rest.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.bornemisza.rest.security.DoubleSubmitToken;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,14 +21,14 @@ public class Session extends Document {
     @JsonProperty(value = "type")
     private String type = "session";
 
-    @JsonProperty(value = "ctoken")
-    private String ctoken;
-
     @JsonProperty(value = "name")
     private String principal;
 
     @JsonProperty(value = "roles")
     private final List<String> roles = new ArrayList<>();
+
+    @JsonIgnore
+    private DoubleSubmitToken dsToken;
 
     public String getType() {
         return type;
@@ -36,21 +38,10 @@ public class Session extends Document {
         this.type = type;
     }
 
-    public String getCToken() {
-        return ctoken;
-    }
-
-    public void setCToken(String cToken) {
-        this.ctoken = cToken;
-    }
-
     public String getPrincipal() {
         return principal;
     }
 
-    /**
-     * @param name not null
-     */
     public void setPrincipal(String name) {
         this.principal = name;
     }
@@ -59,11 +50,16 @@ public class Session extends Document {
         return roles;
     }
 
-    /**
-     * @param role not null
-     */
     public void addRole(String role) {
         this.roles.add(role);
+    }
+
+    public DoubleSubmitToken getDoubleSubmitToken() {
+        return dsToken;
+    }
+
+    public void setDoubleSubmitToken(DoubleSubmitToken dsToken) {
+        this.dsToken = dsToken;
     }
 
 }

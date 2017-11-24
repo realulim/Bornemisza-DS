@@ -1,7 +1,5 @@
 package de.bornemisza.sessions.endpoint;
 
-import java.net.ConnectException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,66 +14,30 @@ import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.*;
 
-import org.javalite.http.Get;
-import org.javalite.http.Http;
-import org.javalite.http.HttpException;
-import org.javalite.http.Post;
-
-import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import de.bornemisza.rest.HttpConnection;
-import de.bornemisza.sessions.da.CouchSessionsPool;
-import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
+import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.security.DoubleSubmitToken;
+import de.bornemisza.sessions.boundary.SessionsFacade;
+import de.bornemisza.sessions.boundary.TechnicalException;
+import de.bornemisza.sessions.boundary.UnauthorizedException;
 
 public class SessionsTest {
 
     private final String AUTH_HEADER = "Basic RmF6aWwgT25ndWRhcjpjaGFuZ2Vk";
 
     private Sessions CUT;
-    private Http http;
-    private Post post;
-    private Get get;
+    private SessionsFacade facade;
     private final Map<String, List<String>> headers = new HashMap<>();
-    private CouchSessionsPool pool;
-    private DbAdminPasswordBasedHashProvider hashProvider;
 
     @Before
     public void setUp() {
-        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
-        when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
-        hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
-
-        post = mock(Post.class);
-        when(post.param(anyString(), any())).thenReturn(post);
-        when(post.headers()).thenReturn(headers);
-        http = mock(Http.class);
-        when(http.post(anyString())).thenReturn(post);
-
-        get = mock(Get.class);
-        when(get.header(anyString(), any())).thenReturn(get);
-        when(http.get(anyString())).thenReturn(get);
-
-        pool = mock(CouchSessionsPool.class);
-        HttpConnection conn = mock(HttpConnection.class);
-        when(conn.getHttp()).thenReturn(http);
-        when(pool.getConnection()).thenReturn(conn);
-
-        CUT = new Sessions(pool, hashProvider);
-    }
-
-    @Test
-    public void getNewSession_technicalError() {
-        String msg = "Connection refused";
-        ConnectException cause = new ConnectException(msg);
-        HttpException wrapperException = new HttpException(msg, cause);
-        when(post.responseCode()).thenThrow(wrapperException);
-        Response resp = CUT.getNewSession(AUTH_HEADER);
-        assertEquals(500, resp.getStatus());
-        assertEquals(wrapperException.toString(), resp.getEntity());
+        facade = mock(SessionsFacade.class);
+        CUT = new Sessions(facade);
     }
 
     @Test
     public void getNewSession_authHeaderMissing() {
         try {
+            when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way José"));
             CUT.getNewSession(null);
             fail();
         }
@@ -85,36 +47,42 @@ public class SessionsTest {
     }
 
     @Test
-    public void getNewSession_postFailed() {
-        int errorCode = 509;
-        String msg = "Bandwidth Limit Exceeded";
-        when(post.responseCode()).thenReturn(errorCode);
-        when(post.responseMessage()).thenReturn(msg);
-        Response response = CUT.getNewSession(AUTH_HEADER);
-        assertEquals(errorCode, response.getStatus());
-        assertEquals(msg, response.getEntity());
+    public void getNewSession_runtimeException() {
+        String msg = "Connection refused";
+        when(facade.createNewSession(AUTH_HEADER)).thenThrow(new TechnicalException(msg));
+        try {
+            CUT.getNewSession(AUTH_HEADER);
+            fail();
+        }
+        catch (RestException ex) {
+            assertTrue(ex.getResponse().getEntity().toString().contains(msg));
+        }
     }
 
     @Test
     public void getNewSession_noCookie() {
-        when(post.responseCode()).thenReturn(200);
-        headers.put(HttpHeaders.SET_COOKIE, new ArrayList<>());
-        Response response = CUT.getNewSession(AUTH_HEADER);
-        assertEquals(500, response.getStatus());
-        assertEquals("No Cookie!", response.getEntity());
+        when(facade.createNewSession(AUTH_HEADER)).thenReturn(null);
+        try {
+            CUT.getNewSession(AUTH_HEADER);
+            fail();
+        }
+        catch (RestException ex) {
+            assertEquals(404, ex.getResponse().getStatus());
+        }
     }
 
     @Test
     public void getNewSession() {
         String cookie = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure";
-        when(post.responseCode()).thenReturn(200);
-        List<String> cookies = new ArrayList<>();
-        cookies.add(cookie);
-        headers.put(HttpHeaders.SET_COOKIE, cookies);
+        String ctoken = "some-random-string";
+        DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, ctoken);
+        Session session = new Session();
+        session.setDoubleSubmitToken(dsToken);
+        when(facade.createNewSession(AUTH_HEADER)).thenReturn(session);
         Response response = CUT.getNewSession(AUTH_HEADER);
         assertEquals(200, response.getStatus());
         assertEquals(cookie, response.getHeaderString(HttpHeaders.SET_COOKIE));
-        assertEquals(hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";"))), response.getHeaderString(Sessions.CTOKEN));
+        assertEquals(ctoken, response.getHeaderString(Sessions.CTOKEN_HEADER));
     }
 
     @Test
