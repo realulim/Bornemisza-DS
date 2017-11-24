@@ -16,12 +16,12 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.users.JAXRSConfiguration;
-import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 
 public class UsersFacadeTest {
@@ -62,7 +62,7 @@ public class UsersFacadeTest {
             fail();
         }
         catch (BusinessException be) {
-            assertEquals(BusinessException.Type.USER_ALREADY_EXISTS, be.getType());
+            assertEquals(UsersType.USER_ALREADY_EXISTS, be.getType());
         }
     }
 
@@ -78,7 +78,7 @@ public class UsersFacadeTest {
             fail();
         }
         catch (BusinessException be) {
-            assertEquals(BusinessException.Type.EMAIL_ALREADY_EXISTS, be.getType());
+            assertEquals(UsersType.EMAIL_ALREADY_EXISTS, be.getType());
         }
     }
 
@@ -106,7 +106,7 @@ public class UsersFacadeTest {
             fail();
         }
         catch (BusinessException e) {
-            assertEquals(Type.UUID_NOT_FOUND, e.getType());
+            assertEquals(UsersType.UUID_NOT_FOUND, e.getType());
         }
     }
 
@@ -158,7 +158,7 @@ public class UsersFacadeTest {
             fail();
         }
         catch (BusinessException e) {
-            assertEquals(Type.UUID_NOT_FOUND, e.getType());
+            assertEquals(UsersType.UUID_NOT_FOUND, e.getType());
         }
     }
 
@@ -171,7 +171,7 @@ public class UsersFacadeTest {
             fail();
         }
         catch (BusinessException e) {
-            assertEquals(Type.USER_NOT_FOUND, e.getType());
+            assertEquals(UsersType.USER_NOT_FOUND, e.getType());
         }
     }
 

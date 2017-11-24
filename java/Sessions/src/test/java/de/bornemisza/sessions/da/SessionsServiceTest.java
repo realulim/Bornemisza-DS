@@ -8,25 +8,23 @@ import java.util.Map;
 
 import javax.ws.rs.core.HttpHeaders;
 
+import org.javalite.http.Http;
+import org.javalite.http.HttpException;
+import org.javalite.http.Post;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.javalite.http.Http;
-import org.javalite.http.HttpException;
-import org.javalite.http.Post;
-
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
-import de.bornemisza.sessions.boundary.BusinessException;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class SessionsServiceTest {

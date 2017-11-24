@@ -12,13 +12,13 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
 import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.JAXRSConfiguration;
-import de.bornemisza.users.boundary.BusinessException.Type;
 import de.bornemisza.users.da.UsersService;
 
 @Stateless
@@ -54,10 +54,10 @@ public class UsersFacade {
 
     public void addUser(User user) throws BusinessException, TechnicalException {
         if (usersService.existsUser(user.getName())) {
-            throw new BusinessException(Type.USER_ALREADY_EXISTS, user.getName() + " already exists!");
+            throw new BusinessException(UsersType.USER_ALREADY_EXISTS, user.getName() + " already exists!");
         }
         else if (usersService.existsEmail(user.getEmail())) {
-            throw new BusinessException(Type.EMAIL_ALREADY_EXISTS, user.getEmail().getAddress() + " already exists!");
+            throw new BusinessException(UsersType.EMAIL_ALREADY_EXISTS, user.getEmail().getAddress() + " already exists!");
         }
         else {
             newUserAccountTopic.publish(user);
@@ -67,7 +67,7 @@ public class UsersFacade {
     public User confirmUser(String uuid) throws BusinessException, TechnicalException, UnauthorizedException {
         User user = newUserAccountMap_uuid.remove(uuid);
         if (user == null) {
-            throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
+            throw new BusinessException(UsersType.UUID_NOT_FOUND, uuid);
         }
         newUserAccountMap_userId.delete(user.getId());
         try {
@@ -86,13 +86,13 @@ public class UsersFacade {
     public User confirmEmail(String uuid, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         User user = changeEmailRequestMap_uuid.remove(uuid);
         if (user == null) {
-            throw new BusinessException(Type.UUID_NOT_FOUND, uuid);
+            throw new BusinessException(UsersType.UUID_NOT_FOUND, uuid);
         }
         changeEmailRequestMap_userId.delete(user.getId());
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             User newUser = usersService.getUser(user.getName(), creds);
-            if (newUser == null) throw new BusinessException(Type.USER_NOT_FOUND, user.getName());
+            if (newUser == null) throw new BusinessException(UsersType.USER_NOT_FOUND, user.getName());
             newUser.setEmail(user.getEmail());
             newUser.setPassword(creds.getPassword().toCharArray()); // otherwise password will be reset by CouchDB
             if (usersService.existsEmail(newUser.getEmail())) {
