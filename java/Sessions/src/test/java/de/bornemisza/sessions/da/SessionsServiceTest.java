@@ -24,6 +24,7 @@ import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
@@ -82,6 +83,21 @@ public class SessionsServiceTest {
             fail();
         }
         catch (BusinessException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
+    public void createSession_unauthorized() {
+        int errorCode = 401;
+        String msg = "Password wrong";
+        when(post.responseCode()).thenReturn(errorCode);
+        when(post.responseMessage()).thenReturn(msg);
+        try {
+            CUT.createSession(creds);
+            fail();
+        }
+        catch (UnauthorizedException ex) {
             assertTrue(ex.getMessage().contains(msg));
         }
     }
