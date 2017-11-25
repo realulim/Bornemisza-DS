@@ -3,6 +3,7 @@ package de.bornemisza.users.endpoint;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -23,10 +24,12 @@ import javax.ws.rs.core.Response.Status;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
-import de.bornemisza.users.boundary.BusinessException;
-import de.bornemisza.users.boundary.BusinessException.Type;
-import de.bornemisza.users.boundary.UnauthorizedException;
+import de.bornemisza.rest.exception.BusinessException;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
+import de.bornemisza.users.boundary.UsersType;
+import static de.bornemisza.users.boundary.UsersType.EMAIL_ALREADY_EXISTS;
+import static de.bornemisza.users.boundary.UsersType.USER_ALREADY_EXISTS;
 
 @Stateless
 @Path("/")
@@ -232,14 +235,12 @@ public class Users {
             userAccountCreationRequestConsumer.accept(facade);
         }
         catch (BusinessException be) {
-            Response.Status status;
-            switch (be.getType()) {
-                case USER_ALREADY_EXISTS:
-                case EMAIL_ALREADY_EXISTS:
+            Response.Status status = Status.INTERNAL_SERVER_ERROR; // default
+            if (be.getType() instanceof UsersType) {
+                UsersType type = (UsersType)be.getType();
+                if (type == USER_ALREADY_EXISTS || type == EMAIL_ALREADY_EXISTS) {
                     status = Status.CONFLICT;
-                    break;
-                default:
-                    status = Status.INTERNAL_SERVER_ERROR;
+                }
             }
             throw new RestException(
                     Response.status(status).entity(be.getMessage()).build());
@@ -257,7 +258,7 @@ public class Users {
             confirmedUser = function.apply(facade);
         }
         catch (BusinessException e) {
-            Status status = e.getType() == Type.UUID_NOT_FOUND ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR;
+            Status status = ((e.getType() instanceof UsersType && (UsersType)e.getType() == UsersType.UUID_NOT_FOUND) ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR);
             throw new RestException(
                     Response.status(status).entity(expiryMsg).build());
         }

@@ -1,20 +1,18 @@
-package de.bornemisza.sessions.boundary;
+package de.bornemisza.rest.exception;
 
 import javax.ejb.ApplicationException;
 
 @ApplicationException
 public class BusinessException extends RuntimeException {
 
-    private final Type type;
+    private final BusinessExceptionType type;
 
-    public enum Type { UNEXPECTED };
-
-    public BusinessException(Type type, String msg) {
+    public BusinessException(BusinessExceptionType type, String msg) {
         super(msg);
         this.type = type;
     }
 
-    public Type getType() {
+    public BusinessExceptionType getType() {
         return type;
     }
 

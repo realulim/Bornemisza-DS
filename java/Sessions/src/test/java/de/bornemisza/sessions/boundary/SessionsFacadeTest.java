@@ -1,14 +1,15 @@
 package de.bornemisza.sessions.boundary;
 
+
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.da.SessionsService;
 

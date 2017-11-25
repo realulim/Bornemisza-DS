@@ -6,20 +6,19 @@ import javax.mail.internet.AddressException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import com.hazelcast.topic.TopicOverloadException;
+
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.*;
-
-import com.hazelcast.topic.TopicOverloadException;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
-import de.bornemisza.users.boundary.BusinessException;
-import de.bornemisza.users.boundary.BusinessException.Type;
-import de.bornemisza.users.boundary.UnauthorizedException;
+import de.bornemisza.rest.exception.BusinessException;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.users.boundary.UsersFacade;
+import de.bornemisza.users.boundary.UsersType;
 
 public class UsersTest {
 
@@ -153,7 +152,7 @@ public class UsersTest {
         User user = new User();
         user.setName("Ike");
         user.setEmail(new EmailAddress("foo@bar.de"));
-        doThrow(new BusinessException(Type.USER_ALREADY_EXISTS, user.getName())).when(facade).addUser(user);
+        doThrow(new BusinessException(UsersType.USER_ALREADY_EXISTS, user.getName())).when(facade).addUser(user);
         try {
             CUT.userAccountCreationRequest(user);
             fail();
@@ -168,7 +167,7 @@ public class UsersTest {
         User user = new User();
         user.setName("Ike");
         user.setEmail(new EmailAddress("foo@bar.de"));
-        doThrow(new BusinessException(Type.UUID_NOT_FOUND, user.getName())).when(facade).addUser(user);
+        doThrow(new BusinessException(UsersType.UUID_NOT_FOUND, user.getName())).when(facade).addUser(user);
         try {
             CUT.userAccountCreationRequest(user);
             fail();
@@ -214,7 +213,7 @@ public class UsersTest {
     public void confirmUser_requestExpired() {
         String uuid = UUID.randomUUID().toString();
         String errMsg = "User Account Creation Request does not exist - maybe expired?";
-        when(facade.confirmUser(uuid)).thenThrow(new BusinessException(Type.UUID_NOT_FOUND, errMsg));
+        when(facade.confirmUser(uuid)).thenThrow(new BusinessException(UsersType.UUID_NOT_FOUND, errMsg));
         try {
             CUT.confirmUser(uuid);
             fail();
@@ -316,7 +315,7 @@ public class UsersTest {
     public void confirmEmail_requestExpired() {
         String uuid = UUID.randomUUID().toString();
         String errMsg = "E-Mail Change Request does not exist - maybe expired?";
-        when(facade.confirmEmail(uuid, AUTH_HEADER)).thenThrow(new BusinessException(Type.UUID_NOT_FOUND, errMsg));
+        when(facade.confirmEmail(uuid, AUTH_HEADER)).thenThrow(new BusinessException(UsersType.UUID_NOT_FOUND, errMsg));
         try {
             CUT.confirmEmail(uuid, AUTH_HEADER);
             fail();
