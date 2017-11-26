@@ -10,8 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
@@ -21,12 +28,6 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
