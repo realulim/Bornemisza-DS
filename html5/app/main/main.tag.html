@@ -274,7 +274,7 @@
             self.chartCounter++
             self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor]+1||1
             self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor]+1||1
-            if (self.chartCounter > self.chartUpdateFrequency) {
+            if (self.chartCounter >= self.chartUpdateFrequency) {
                 // redraw charts every nth request
                 self.chartCounter = 0
                 self.observable.trigger(UPDATE_APPSERVERS_CHART, {
