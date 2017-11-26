@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.ws.rs.core.HttpHeaders;
 
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.BusinessException;

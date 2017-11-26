@@ -7,11 +7,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.DoubleSubmitToken;
@@ -23,8 +23,6 @@ public class Sessions {
 
     @Inject
     SessionsFacade facade;
-
-    public static final String CTOKEN_HEADER = "C-Token";
 
     public Sessions() {
     }
@@ -54,7 +52,7 @@ public class Sessions {
             DoubleSubmitToken dsToken = session.getDoubleSubmitToken();
             return Response.ok()
                 .header(HttpHeaders.SET_COOKIE, dsToken.getCookie())
-                .header(CTOKEN_HEADER, dsToken.getCtoken())
+                .header(HttpHeaders.CTOKEN, dsToken.getCtoken())
                 .build();
         }
     }

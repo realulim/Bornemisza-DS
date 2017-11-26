@@ -1,18 +1,14 @@
 package de.bornemisza.sessions.endpoint;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
@@ -80,7 +76,7 @@ public class SessionsTest {
         Response response = CUT.getNewSession(AUTH_HEADER);
         assertEquals(200, response.getStatus());
         assertEquals(cookie, response.getHeaderString(HttpHeaders.SET_COOKIE));
-        assertEquals(ctoken, response.getHeaderString(Sessions.CTOKEN_HEADER));
+        assertEquals(ctoken, response.getHeaderString(HttpHeaders.CTOKEN));
     }
 
     @Test

@@ -17,7 +17,6 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -32,6 +31,7 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
@@ -120,10 +120,10 @@ public class Uuids {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
-                             @HeaderParam(Sessions.CTOKEN_HEADER) String ctoken,
+                             @HeaderParam(HttpHeaders.CTOKEN) String ctoken,
                              @DefaultValue("1")@QueryParam("count") int count) {
         if (isVoid(cookie) || isVoid(ctoken)) throw new RestException(
-                Response.status(Status.UNAUTHORIZED).entity("Cookie or " + Sessions.CTOKEN_HEADER + " missing!").build());
+                Response.status(Status.UNAUTHORIZED).entity("Cookie or " + HttpHeaders.CTOKEN + " missing!").build());
         else if (! hashProvider.hmacDigest(cookie).equals(ctoken)) throw new RestException(
                 Response.status(Status.UNAUTHORIZED).entity("Hash Mismatch!").build());
         Http httpBase = couchPool.getConnection().getHttp();
