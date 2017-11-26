@@ -36,7 +36,7 @@ public class SessionsService {
         this.hashProvider = hashProvider;
     }
 
-    public Session createSession(BasicAuthCredentials creds) {
+    public Session createSession(BasicAuthCredentials creds) throws BusinessException, TechnicalException {
         Post post = sessionsPool.getConnection().getHttp().post("")
             .param("name", creds.getUserName())
             .param("password", creds.getPassword());

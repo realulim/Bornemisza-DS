@@ -5,6 +5,8 @@ import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
 
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.exception.BusinessException;
+import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.da.SessionsService;
@@ -23,7 +25,7 @@ public class SessionsFacade {
         this.sessionsService = sessionsService;
     }
 
-    public Session createNewSession(String authHeader) {
+    public Session createNewSession(String authHeader) throws BusinessException, TechnicalException {
         BasicAuthCredentials creds;
         try {
             creds = new BasicAuthCredentials(authHeader);
