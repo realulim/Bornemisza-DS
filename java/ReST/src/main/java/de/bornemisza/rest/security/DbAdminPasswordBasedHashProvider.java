@@ -1,23 +1,18 @@
-package de.bornemisza.sessions.security;
+package de.bornemisza.rest.security;
 
-import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.enterprise.context.Dependent;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import de.bornemisza.rest.security.HashProvider;
 
 @Stateless
+@Dependent
 public class DbAdminPasswordBasedHashProvider extends HashProvider {
+
+    private final LoadBalancerConfig lbConfig;
     
-    @Resource(name="lbconfig/CouchUsersAsAdmin")
-    LoadBalancerConfig lbConfig;
-
-    public DbAdminPasswordBasedHashProvider() {
-        super();
-    }
-
-    // Constructor for Unit Tests
     public DbAdminPasswordBasedHashProvider(LoadBalancerConfig lbConfig) {
+        super();
         this.lbConfig = lbConfig;
         super.init();
     }

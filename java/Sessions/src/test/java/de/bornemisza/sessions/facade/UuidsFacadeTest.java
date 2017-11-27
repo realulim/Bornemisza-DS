@@ -12,14 +12,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.Response;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import static org.mockito.Mockito.*;
-
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
@@ -28,16 +20,23 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.mockito.Mockito.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.rest.security.DoubleSubmitToken;
+import de.bornemisza.rest.security.HashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.boundary.UuidsFacade;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
-import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 public class UuidsFacadeTest {
 
@@ -52,15 +51,15 @@ public class UuidsFacadeTest {
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
     private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
-    private DbAdminPasswordBasedHashProvider hashProvider;
+    private final String password = "My secret Password";
     private String cookie, hmac;
     private DoubleSubmitToken dsToken;
 
     @Before
     public void setUp() {
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
-        when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
-        hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
+        when(lbConfig.getPassword()).thenReturn(password.toCharArray());
+        HashProvider hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         cookie = "MyCookie";
         hmac = hashProvider.hmacDigest(cookie);
         dsToken = new DoubleSubmitToken(cookie, hmac);
@@ -89,7 +88,9 @@ public class UuidsFacadeTest {
         this.dnsResolver = mock(DnsResolver.class);
         when(dnsResolver.getHostAddress(anyString())).thenAnswer(new IpAddressAnswer());
 
-        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, hashProvider);
+        lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn(password.toCharArray());
+        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, lbConfig);
     }
 
     class IpAddressAnswer implements Answer {
@@ -184,7 +185,9 @@ public class UuidsFacadeTest {
                       "}";
         this.dnsResolver = mock(DnsResolver.class);
         when(dnsResolver.getHostAddress(anyString())).thenReturn(null);
-        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, hashProvider);
+        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn(password.toCharArray());
+        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, lbConfig);
 
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(json);
@@ -236,7 +239,9 @@ public class UuidsFacadeTest {
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
         when(hazelcast.getCluster()).thenReturn(cluster);
-        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, hashProvider);
+        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn(password.toCharArray());
+        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, lbConfig);
 
         when(http.getBaseUrl()).thenReturn("http://db4.domain.de/foo"); // fifth DbServer
 

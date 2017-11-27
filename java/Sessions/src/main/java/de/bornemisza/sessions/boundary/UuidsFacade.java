@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -24,13 +25,14 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
-import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
 
 @Stateless
 public class UuidsFacade {
@@ -44,27 +46,29 @@ public class UuidsFacade {
     @Inject
     DnsResolver dnsResolver;
 
-    @Inject
+    @Resource(name="lbconfig/CouchUsersAsAdmin")
+    LoadBalancerConfig lbConfig;
+
     DbAdminPasswordBasedHashProvider hashProvider;
 
     private List<String> allHostnames = new ArrayList<>();
     private final Map<String, String> ipToHostname = new HashMap<>();
 
     public UuidsFacade() {
-        super();
     }
 
     // Constructor for Unit Tests
-    public UuidsFacade(CouchPool couchPool, HazelcastInstance hazelcast, DnsResolver dnsResolver, DbAdminPasswordBasedHashProvider hashProvider) {
+    public UuidsFacade(CouchPool couchPool, HazelcastInstance hazelcast, DnsResolver dnsResolver, LoadBalancerConfig lbConfig) {
         this.couchPool = couchPool;
         this.hazelcast = hazelcast;
         this.dnsResolver = dnsResolver;
-        this.hashProvider = hashProvider;
+        this.lbConfig = lbConfig;
         init();
     }
 
     @PostConstruct
     private void init() {
+        this.hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         updateColorsForCluster();
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
             @Override public void memberAdded(MembershipEvent me) { updateColorsForCluster(); }

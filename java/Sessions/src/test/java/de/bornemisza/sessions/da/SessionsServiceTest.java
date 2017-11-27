@@ -9,9 +9,9 @@ import java.util.Map;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -25,7 +25,8 @@ import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.BasicAuthCredentials;
-import de.bornemisza.sessions.security.DbAdminPasswordBasedHashProvider;
+import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
+import de.bornemisza.rest.security.HashProvider;
 
 public class SessionsServiceTest {
     
@@ -34,12 +35,13 @@ public class SessionsServiceTest {
     private SessionsService CUT;
     private Post post;
     private final Map<String, List<String>> headers = new HashMap<>();
-    private DbAdminPasswordBasedHashProvider hashProvider;
+    private HashProvider hashProvider;
 
     @Before
     public void setUp() {
+        String password = "My secret Password";
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
-        when(lbConfig.getPassword()).thenReturn("My Secret Password".toCharArray());
+        when(lbConfig.getPassword()).thenReturn(password.toCharArray());
         hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
 
         post = mock(Post.class);
@@ -53,7 +55,9 @@ public class SessionsServiceTest {
         when(conn.getHttp()).thenReturn(http);
         when(pool.getConnection()).thenReturn(conn);
 
-        CUT = new SessionsService(pool, hashProvider);
+        lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn(password.toCharArray());
+        CUT = new SessionsService(pool, lbConfig);
     }
 
     @Test

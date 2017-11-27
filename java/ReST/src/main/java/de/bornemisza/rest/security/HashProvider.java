@@ -8,7 +8,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -22,7 +21,6 @@ public abstract class HashProvider {
 
     protected abstract char[] getServerSecret();
 
-    @PostConstruct
     protected void init() {
         try {
             char[] serverSecret = getServerSecret();
