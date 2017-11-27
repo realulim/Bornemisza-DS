@@ -21,7 +21,11 @@ public class HashProviderTest {
     @Test
     public void digestIsPredictable() throws Exception {
         String hmac = CUT.hmacDigest(testMessage);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
+            assertEquals(hmac, CUT.hmacDigest(testMessage));
+        }
+        CUT = new HashProviderImpl();
+        for (int i = 0; i < 100; i++) {
             assertEquals(hmac, CUT.hmacDigest(testMessage));
         }
     }
