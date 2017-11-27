@@ -8,7 +8,8 @@ import static de.bornemisza.rest.security.Auth.Scheme.USERNAME_PASSWORD;
 public class Auth {
 
     private final Scheme scheme;
-    private final String userName, password, cookie, csrfToken;
+    private final String userName, cookie, csrfToken;
+    private String password;
 
     public enum Scheme { USERNAME_PASSWORD, COOKIE_CSRFTOKEN }
 
@@ -58,6 +59,10 @@ public class Auth {
      */
     public String getCsrfToken() {
         return this.csrfToken;
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
     }
 
     public void checkTokenValidity(HashProvider hashProvider) throws UnauthorizedException {

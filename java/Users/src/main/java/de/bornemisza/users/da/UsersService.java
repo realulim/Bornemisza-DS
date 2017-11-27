@@ -25,6 +25,7 @@ import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.UsersType;
 
@@ -134,15 +135,16 @@ public class UsersService {
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        User createdUser = readUser(user.getId(), new BasicAuthCredentials(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword())));
+        Auth auth = new Auth(new BasicAuthCredentials(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword())));
+        User createdUser = readUser(auth, user.getId());
         Logger.getLogger(http.getHostName()).info("Added user: " + createdUser);
         return createdUser;
     }
 
-    public User updateUser(User user, BasicAuthCredentials creds) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
+    public User updateUser(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
         Http http = usersPool.getConnection().getHttp();
         Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
-                .basic(creds.getUserName(), creds.getPassword())
+                .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
         try {
@@ -160,21 +162,21 @@ public class UsersService {
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        User updatedUser = readUser(user.getId(), creds);
+        User updatedUser = readUser(auth, user.getId());
         Logger.getLogger(http.getHostName()).info("Updated user: " + updatedUser);
         return updatedUser;
     }
 
-    public User getUser(String userName, BasicAuthCredentials creds) throws BusinessException, DocumentNotFoundException, UnauthorizedException {
+    public User getUser(Auth auth, String userName) throws BusinessException, DocumentNotFoundException, UnauthorizedException {
         User user = new User();
         user.setName(userName);
-        return readUser(user.getId(), creds);
+        return readUser(auth, user.getId());
     }
 
-    private User readUser(String userId, BasicAuthCredentials creds) throws BusinessException, DocumentNotFoundException, TechnicalException, UnauthorizedException {
+    private User readUser(Auth auth, String userId) throws BusinessException, DocumentNotFoundException, TechnicalException, UnauthorizedException {
         Http http = usersPool.getConnection().getHttp();
         Get get = http.get(http.getBaseUrl() + Util.urlEncode(userId))
-                .basic(creds.getUserName(), creds.getPassword())
+                .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
             int responseCode = get.responseCode();
@@ -194,10 +196,10 @@ public class UsersService {
         return Json.fromJson(get.text(), User.class);
     }
 
-    public User changePassword(User user, BasicAuthCredentials creds) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
+    public User changePassword(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
         Http http = usersPool.getConnection().getHttp();
         Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
-                .basic(creds.getUserName(), creds.getPassword())
+                .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
         try {
@@ -218,16 +220,16 @@ public class UsersService {
         Logger.getLogger(http.getHostName()).info("Changed password for user: " + user);
 
         // change credentials to reflect new password
-        creds.changePassword(String.valueOf(user.getPassword()));
-        return readUser(user.getId(), creds);
+        auth.changePassword(String.valueOf(user.getPassword()));
+        return readUser(auth, user.getId());
     }
 
-    public void deleteUser(String userName, String rev, BasicAuthCredentials creds) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
+    public void deleteUser(Auth auth, String userName, String rev) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
         User user = new User();
         user.setName(userName);
         Http http = usersPool.getConnection().getHttp();
         Delete delete = http.delete(http.getBaseUrl() + Util.urlEncode(user.getId()))
-                .basic(creds.getUserName(), creds.getPassword())
+                .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.IF_MATCH, rev);
         try {
             int responseCode = delete.responseCode();

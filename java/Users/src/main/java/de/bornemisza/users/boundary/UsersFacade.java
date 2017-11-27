@@ -17,6 +17,7 @@ import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.da.UsersService;
@@ -91,7 +92,8 @@ public class UsersFacade {
         changeEmailRequestMap_userId.delete(user.getId());
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            User newUser = usersService.getUser(user.getName(), creds);
+            Auth auth = new Auth(creds);
+            User newUser = usersService.getUser(auth, user.getName());
             if (newUser == null) throw new BusinessException(UsersType.USER_NOT_FOUND, user.getName());
             newUser.setEmail(user.getEmail());
             newUser.setPassword(creds.getPassword().toCharArray()); // otherwise password will be reset by CouchDB
@@ -100,7 +102,7 @@ public class UsersFacade {
                 Logger.getAnonymousLogger().warning("Update Conflict: " + newUser.getEmail().getAddress() + " already exists!");
                 return null;
             }
-            return usersService.updateUser(newUser, creds);
+            return usersService.updateUser(auth, newUser);
         }
         catch (UpdateConflictException e) {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user + "\n" + e.getMessage());
@@ -114,7 +116,7 @@ public class UsersFacade {
     public User getUser(String userName, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            return usersService.getUser(userName, creds);
+            return usersService.getUser(new Auth(creds), userName);
         }
         catch (DocumentNotFoundException e) {
             return null;
@@ -127,7 +129,7 @@ public class UsersFacade {
     public User changePassword(User user, String rev, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            return usersService.changePassword(user, creds);
+            return usersService.changePassword(new Auth(creds), user);
         }
         catch (UpdateConflictException e) {
             Logger.getAnonymousLogger().warning("Update Conflict: " + user.getName() + "\n" + e.getMessage());
@@ -141,7 +143,8 @@ public class UsersFacade {
     public boolean deleteUser(String userName, String rev, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
-            usersService.deleteUser(userName, rev, creds);
+            Auth auth = new Auth(creds);
+            usersService.deleteUser(auth, userName, rev);
             return true;
         }
         catch (UpdateConflictException e) {

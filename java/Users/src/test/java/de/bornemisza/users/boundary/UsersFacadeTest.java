@@ -21,6 +21,7 @@ import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.da.UsersService;
 
@@ -165,7 +166,7 @@ public class UsersFacadeTest {
     @Test
     public void confirmEmail_nonExistingUser() {
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(new User());
-        when(usersService.getUser(anyString(), any())).thenReturn(null);
+        when(usersService.getUser(any(Auth.class), anyString())).thenReturn(null);
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
             fail();
@@ -195,9 +196,9 @@ public class UsersFacadeTest {
         User user = new User();
         user.setName("Ike");
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
-        when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.getUser(any(Auth.class), anyString())).thenReturn(new User());
         when(usersService.existsEmail(any(EmailAddress.class))).thenReturn(false);
-        when(usersService.updateUser(any(User.class), any())).thenThrow(new TechnicalException(msg));
+        when(usersService.updateUser(any(Auth.class), any(User.class))).thenThrow(new TechnicalException(msg));
         try {
             CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER);
             fail();
@@ -213,7 +214,7 @@ public class UsersFacadeTest {
         user.setName("Ike");
         user.setEmail(new EmailAddress("foo@bar.de"));
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
-        when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.getUser(any(Auth.class), anyString())).thenReturn(new User());
         when(usersService.existsEmail(any(EmailAddress.class))).thenReturn(true);
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }
@@ -223,15 +224,15 @@ public class UsersFacadeTest {
         User user = new User();
         user.setName("Ike");
         when(changeEmailRequestMap_uuid.remove(any(String.class))).thenReturn(user);
-        when(usersService.getUser(anyString(), any())).thenReturn(new User());
+        when(usersService.getUser(any(Auth.class), anyString())).thenReturn(new User());
         when(usersService.existsEmail(any(EmailAddress.class))).thenReturn(false);
-        when(usersService.updateUser(any(User.class), any())).thenThrow(new UpdateConflictException(""));
+        when(usersService.updateUser(any(Auth.class), any(User.class))).thenThrow(new UpdateConflictException(""));
         assertNull(CUT.confirmEmail(UUID.randomUUID().toString(), AUTH_HEADER));
     }
 
     @Test
     public void getUser_noSuchUser() {
-        when(usersService.getUser(anyString(), any())).thenThrow(new DocumentNotFoundException("/some/path"));
+        when(usersService.getUser(any(Auth.class), anyString())).thenThrow(new DocumentNotFoundException("/some/path"));
         assertNull(CUT.getUser("Ike", AUTH_HEADER));
     }
 
@@ -249,7 +250,7 @@ public class UsersFacadeTest {
     @Test
     public void getUser_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        when(usersService.getUser(anyString(), any())).thenThrow(new TechnicalException(msg));
+        when(usersService.getUser(any(Auth.class), anyString())).thenThrow(new TechnicalException(msg));
         try {
             CUT.getUser("Silly Willy", AUTH_HEADER);
             fail();
@@ -263,7 +264,7 @@ public class UsersFacadeTest {
     public void changePassword_updateConflict() {
         User user = new User();
         user.setName("Bogumil");
-        when(usersService.changePassword(any(User.class), any())).thenThrow(new UpdateConflictException(""));
+        when(usersService.changePassword(any(Auth.class), any(User.class))).thenThrow(new UpdateConflictException(""));
         assertNull(CUT.changePassword(new User(), "rev123", AUTH_HEADER));
     }
 
@@ -281,7 +282,7 @@ public class UsersFacadeTest {
     @Test
     public void changePassword_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        when(usersService.changePassword(any(User.class), any())).thenThrow(new TechnicalException(msg));
+        when(usersService.changePassword(any(Auth.class), any(User.class))).thenThrow(new TechnicalException(msg));
         try {
             CUT.changePassword(new User(), "rev123", AUTH_HEADER);
             fail();
@@ -293,7 +294,7 @@ public class UsersFacadeTest {
 
     @Test
     public void deleteUser_noSuchUser() {
-        doThrow(new UpdateConflictException("")).when(usersService).deleteUser(anyString(), anyString(), any());
+        doThrow(new UpdateConflictException("")).when(usersService).deleteUser(any(Auth.class), anyString(), anyString());
         assertFalse(CUT.deleteUser("Ike", "3454353", AUTH_HEADER));
     }
 
@@ -311,7 +312,7 @@ public class UsersFacadeTest {
     @Test
     public void deleteUser_TechnicalException() {
         String msg = "java.net.SocketTimeoutException: connect timed out";
-        doThrow(new TechnicalException(msg)).when(usersService).deleteUser(anyString(), anyString(), any());
+        doThrow(new TechnicalException(msg)).when(usersService).deleteUser(any(Auth.class), anyString(), anyString());
         try {
             CUT.deleteUser("Silly Willy", "rev123", AUTH_HEADER);
             fail();
