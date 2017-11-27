@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response.Status;
 
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.sessions.boundary.UuidsFacade;
 
@@ -37,7 +38,8 @@ public class Uuids {
                              @HeaderParam(HttpHeaders.CTOKEN) String ctoken,
                              @DefaultValue("1")@QueryParam("count") int count) {
         try {
-            return facade.getUuids(new DoubleSubmitToken(cookie, ctoken), count);
+            Auth auth = new Auth(new DoubleSubmitToken(cookie, ctoken));
+            return facade.getUuids(auth, count);
         }
         catch (UnauthorizedException ex) {
             throw new RestException(

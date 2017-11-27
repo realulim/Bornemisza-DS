@@ -8,6 +8,7 @@ import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.sessions.da.SessionsService;
 
@@ -29,7 +30,7 @@ public class SessionsFacade {
         BasicAuthCredentials creds;
         try {
             creds = new BasicAuthCredentials(authHeader);
-            return sessionsService.createSession(creds);
+            return sessionsService.createSession(new Auth(creds));
         }
         catch (CredentialNotFoundException ex) {
             throw new UnauthorizedException(ex.getMessage());

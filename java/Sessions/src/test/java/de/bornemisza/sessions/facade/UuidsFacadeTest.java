@@ -30,6 +30,7 @@ import org.mockito.stubbing.Answer;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.rest.security.HashProvider;
@@ -53,7 +54,7 @@ public class UuidsFacadeTest {
     private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
     private final String password = "My secret Password";
     private String cookie, hmac;
-    private DoubleSubmitToken dsToken;
+    private Auth auth;
 
     @Before
     public void setUp() {
@@ -62,7 +63,8 @@ public class UuidsFacadeTest {
         HashProvider hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         cookie = "MyCookie";
         hmac = hashProvider.hmacDigest(cookie);
-        dsToken = new DoubleSubmitToken(cookie, hmac);
+        DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, hmac);
+        auth = new Auth(dsToken);
 
         post = mock(Post.class);
         when(post.param(anyString(), any())).thenReturn(post);
@@ -135,7 +137,7 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids_noCookie() {
         try {
-            CUT.getUuids(new DoubleSubmitToken("", ""), 3);
+            CUT.getUuids(new Auth(new DoubleSubmitToken("", "")), 3);
             fail();
         }
         catch (UnauthorizedException e) {
@@ -146,7 +148,7 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids_hashMismatch() {
         try {
-            CUT.getUuids(new DoubleSubmitToken(cookie, "this-is-not-a-hash-function"), 1);
+            CUT.getUuids(new Auth(new DoubleSubmitToken(cookie, "this-is-not-a-hash-function")), 1);
             fail();
         }
         catch (UnauthorizedException e) {
@@ -160,7 +162,7 @@ public class UuidsFacadeTest {
         ConnectException cause = new ConnectException(msg);
         HttpException wrapperException = new HttpException(msg, cause);
         when(get.responseCode()).thenThrow(wrapperException);
-        Response resp = CUT.getUuids(dsToken, 3);
+        Response resp = CUT.getUuids(auth, 3);
         assertEquals(500, resp.getStatus());
         assertEquals(wrapperException.toString(), resp.getEntity());
     }
@@ -171,7 +173,7 @@ public class UuidsFacadeTest {
         String msg = "Bandwidth Limit Exceeded";
         when(get.responseCode()).thenReturn(errorCode);
         when(get.responseMessage()).thenReturn(msg);
-        Response resp = CUT.getUuids(dsToken, 3);
+        Response resp = CUT.getUuids(auth, 3);
         assertEquals(errorCode, resp.getStatus());
         assertEquals(msg, resp.getEntity());
     }
@@ -193,7 +195,7 @@ public class UuidsFacadeTest {
         when(get.text()).thenReturn(json);
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0.5" }));
         when(get.headers()).thenReturn(mapWithBackendHeader);
-        Response response = CUT.getUuids(dsToken, 1);
+        Response response = CUT.getUuids(auth, 1);
         assertEquals(200, response.getStatus());
         assertEquals(json, response.getEntity());
         assertEquals("Black", response.getHeaderString("DbServer")); // second color
@@ -212,7 +214,7 @@ public class UuidsFacadeTest {
         when(get.text()).thenReturn(json);
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + 2 })); // second color
         when(get.headers()).thenReturn(mapWithBackendHeader);
-        Response response = CUT.getUuids(dsToken, 3);
+        Response response = CUT.getUuids(auth, 3);
         assertEquals(200, response.getStatus());
         assertEquals(json, response.getEntity());
         assertEquals("Gold", response.getHeaderString("AppServer")); // third color
@@ -245,7 +247,7 @@ public class UuidsFacadeTest {
 
         when(http.getBaseUrl()).thenReturn("http://db4.domain.de/foo"); // fifth DbServer
 
-        Response response = CUT.getUuids(dsToken, 6);
+        Response response = CUT.getUuids(auth, 6);
         assertEquals(200, response.getStatus());
         assertEquals(json, response.getEntity());
         assertEquals("Black", response.getHeaderString("AppServer")); // default color
@@ -265,12 +267,12 @@ public class UuidsFacadeTest {
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
             mapWithBackendHeader.clear();
             mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + j }));
-            Response response = CUT.getUuids(dsToken, 1);
+            Response response = CUT.getUuids(auth, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), response.getHeaderString("DbServer"));
         }
         mapWithBackendHeader.clear();
         mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + 6 })); // overflow
-        Response response = CUT.getUuids(dsToken, 1);
+        Response response = CUT.getUuids(auth, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
     }
 

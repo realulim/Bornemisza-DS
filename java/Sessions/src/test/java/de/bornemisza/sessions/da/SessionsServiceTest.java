@@ -24,13 +24,14 @@ import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.rest.security.HashProvider;
 
 public class SessionsServiceTest {
     
-    private final BasicAuthCredentials creds = new BasicAuthCredentials("Tommy H.", "supersecretpw");
+    private final Auth auth = new Auth(new BasicAuthCredentials("Tommy H.", "supersecretpw"));
 
     private SessionsService CUT;
     private Post post;
@@ -67,7 +68,7 @@ public class SessionsServiceTest {
         HttpException wrapperException = new HttpException(msg, cause);
         when(post.responseCode()).thenThrow(wrapperException);
         try {
-            CUT.createSession(creds);
+            CUT.createSession(auth);
             fail();
         }
         catch (TechnicalException ex) {
@@ -82,7 +83,7 @@ public class SessionsServiceTest {
         when(post.responseCode()).thenReturn(errorCode);
         when(post.responseMessage()).thenReturn(msg);
         try {
-            CUT.createSession(creds);
+            CUT.createSession(auth);
             fail();
         }
         catch (BusinessException ex) {
@@ -97,7 +98,7 @@ public class SessionsServiceTest {
         when(post.responseCode()).thenReturn(errorCode);
         when(post.responseMessage()).thenReturn(msg);
         try {
-            CUT.createSession(creds);
+            CUT.createSession(auth);
             fail();
         }
         catch (UnauthorizedException ex) {
@@ -109,7 +110,7 @@ public class SessionsServiceTest {
     public void createNewSession_noCookie() {
         when(post.responseCode()).thenReturn(200);
         headers.put(HttpHeaders.SET_COOKIE, new ArrayList<>());
-        assertNull(CUT.createSession(creds));
+        assertNull(CUT.createSession(auth));
     }
 
     @Test
@@ -120,7 +121,7 @@ public class SessionsServiceTest {
         List<String> cookies = new ArrayList<>();
         cookies.add(cookie);
         headers.put(HttpHeaders.SET_COOKIE, cookies);
-        Session session = CUT.createSession(creds);
+        Session session = CUT.createSession(auth);
         assertNotNull(session);
         assertEquals(cookie, session.getDoubleSubmitToken().getCookie());
         assertEquals(hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";"))), session.getDoubleSubmitToken().getCtoken());

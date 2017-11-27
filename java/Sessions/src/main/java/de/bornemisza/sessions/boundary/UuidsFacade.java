@@ -28,8 +28,8 @@ import org.javalite.http.HttpException;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
-import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
@@ -77,11 +77,11 @@ public class UuidsFacade {
         });
     }
 
-    public Response getUuids(DoubleSubmitToken dsToken, int count) throws UnauthorizedException {
-        dsToken.checkValidity(hashProvider);
+    public Response getUuids(Auth auth, int count) throws UnauthorizedException {
+        auth.checkTokenValidity(hashProvider);
         Http httpBase = couchPool.getConnection().getHttp();
         Get get = httpBase.get("_uuids?count=" + count)
-                .header(HttpHeaders.COOKIE, dsToken.getCookie());
+                .header(HttpHeaders.COOKIE, auth.getCookie());
         try {
             int responseCode = get.responseCode();
             if (responseCode != 200) {

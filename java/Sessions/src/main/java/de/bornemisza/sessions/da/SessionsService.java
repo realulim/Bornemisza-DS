@@ -17,7 +17,7 @@ import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
-import de.bornemisza.rest.security.BasicAuthCredentials;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.sessions.boundary.SessionsType;
@@ -47,10 +47,10 @@ public class SessionsService {
         init();
     }
 
-    public Session createSession(BasicAuthCredentials creds) throws BusinessException, TechnicalException {
+    public Session createSession(Auth auth) throws BusinessException, TechnicalException {
         Post post = sessionsPool.getConnection().getHttp().post("")
-            .param("name", creds.getUserName())
-            .param("password", creds.getPassword());
+            .param("name", auth.getUsername())
+            .param("password", auth.getPassword());
         try {
             int responseCode = post.responseCode();
             if (responseCode == 401) {
@@ -72,8 +72,7 @@ public class SessionsService {
             Session session = Json.fromJson(post.text(), Session.class);
             String cookie = cookies.get(0);
             String hmac = hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";")));
-            DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, hmac);
-            session.setDoubleSubmitToken(dsToken);
+            session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, hmac));
             return session;
         }
     }

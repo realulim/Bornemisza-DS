@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.exception.UnauthorizedException;
-import de.bornemisza.rest.security.BasicAuthCredentials;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.sessions.da.SessionsService;
 
 public class SessionsFacadeTest {
@@ -39,7 +39,7 @@ public class SessionsFacadeTest {
 
     @Test
     public void createNewSession() {
-        when(sessionsService.createSession(any(BasicAuthCredentials.class))).thenReturn(new Session());
+        when(sessionsService.createSession(any(Auth.class))).thenReturn(new Session());
         assertNotNull(CUT.createNewSession(AUTH_HEADER));
     }
 
