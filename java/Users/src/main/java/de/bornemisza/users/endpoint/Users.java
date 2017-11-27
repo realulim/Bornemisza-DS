@@ -37,7 +37,8 @@ public class Users {
     @Inject
     UsersFacade facade;
 
-    public Users() { }
+    public Users() {
+    }
 
     // Constructor for Unit Tests
     public Users(UsersFacade facade) {
@@ -48,7 +49,7 @@ public class Users {
     @Path("{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public User getUser(@PathParam("name") String userName,
-                        @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName) || hasIllegalCharacters(userName)) {
             throw new RestException(Status.BAD_REQUEST);
         }
@@ -63,8 +64,12 @@ public class Users {
             throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
-        if (user == null) throw new RestException(Status.NOT_FOUND);
-        else return user;
+        if (user == null) {
+            throw new RestException(Status.NOT_FOUND);
+        }
+        else {
+            return user;
+        }
     }
 
     @POST
@@ -128,7 +133,7 @@ public class Users {
     @Path("confirmation/email/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public User confirmEmail(@PathParam("uuid") String uuidStr,
-                             @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         validateUuid(uuidStr);
         Function confirmEmailFunction = new Function<UsersFacade, User>() {
             @Override
@@ -144,9 +149,9 @@ public class Users {
     @PUT
     @Path("{name}/password/{newpassword}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User changePassword(@PathParam("name") String userName, 
-                           @PathParam("newpassword") String password,
-                           @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public User changePassword(@PathParam("name") String userName,
+            @PathParam("newpassword") String password,
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName) || isVoid(password)) {
             throw new RestException(Status.BAD_REQUEST);
         }
@@ -161,15 +166,15 @@ public class Users {
         }
         if (user == null) {
             throw new RestException(
-                Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
+                    Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
         }
         return user;
     }
-    
+
     @DELETE
     @Path("{name}")
-    public void deleteUser(@PathParam("name") String userName, 
-                           @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+    public void deleteUser(@PathParam("name") String userName,
+            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) {
             throw new RestException(Status.NOT_FOUND);
         }
@@ -182,20 +187,28 @@ public class Users {
             throw new RestException(
                     Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
         }
-        if (! success) {
+        if (!success) {
             throw new RestException(
                     Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
         }
     }
 
     private boolean isVoid(String value) {
-        if (value == null) return true;
-        else if (value.length() == 0) return true;
-        else return value.equals("null");
+        if (value == null) {
+            return true;
+        }
+        else if (value.length() == 0) {
+            return true;
+        }
+        else {
+            return value.equals("null");
+        }
     }
 
     private boolean hasIllegalCharacters(String value) {
-        if (isVoid(value)) return false;
+        if (isVoid(value)) {
+            return false;
+        }
         String[] array = value.split("[<>\"&']", 2);
         return array.length > 1;
     }
@@ -236,7 +249,7 @@ public class Users {
         catch (BusinessException be) {
             Response.Status status = Status.INTERNAL_SERVER_ERROR; // default
             if (be.getType() instanceof UsersType) {
-                UsersType type = (UsersType)be.getType();
+                UsersType type = (UsersType) be.getType();
                 if (type == USER_ALREADY_EXISTS || type == EMAIL_ALREADY_EXISTS) {
                     status = Status.CONFLICT;
                 }
@@ -257,7 +270,7 @@ public class Users {
             confirmedUser = function.apply(facade);
         }
         catch (BusinessException e) {
-            Status status = ((e.getType() instanceof UsersType && (UsersType)e.getType() == UsersType.UUID_NOT_FOUND) ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR);
+            Status status = ((e.getType() instanceof UsersType && (UsersType) e.getType() == UsersType.UUID_NOT_FOUND) ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR);
             throw new RestException(
                     Response.status(status).entity(expiryMsg).build());
         }
