@@ -25,6 +25,7 @@ import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.boundary.UsersType;
 import static de.bornemisza.users.boundary.UsersType.EMAIL_ALREADY_EXISTS;
@@ -49,13 +50,20 @@ public class Users {
     @Path("{name}")
     @Produces(MediaType.APPLICATION_JSON)
     public User getUser(@PathParam("name") String userName,
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+                        @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader,
+                        @HeaderParam(HttpHeaders.COOKIE) String cookie,
+                        @HeaderParam(HttpHeaders.CTOKEN) String ctoken) {
         if (isVoid(userName) || hasIllegalCharacters(userName)) {
             throw new RestException(Status.BAD_REQUEST);
         }
         User user;
         try {
-            user = facade.getUser(userName, authHeader);
+            if (isVoid(authHeader)) {
+                user = facade.getUser(userName, new DoubleSubmitToken(cookie, ctoken));
+            }
+            else {
+                user = facade.getUser(userName, authHeader);
+            }
         }
         catch (UnauthorizedException ex) {
             throw new RestException(Status.UNAUTHORIZED);
@@ -112,13 +120,14 @@ public class Users {
     @Path("{name}/email")
     @Consumes(MediaType.TEXT_PLAIN)
     public Response changeEmailRequest(@PathParam("name") String userName,
-            String emailStr,
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+                                       String emailStr,
+                                       @HeaderParam(HttpHeaders.COOKIE) String cookie,
+                                       @HeaderParam(HttpHeaders.CTOKEN) String ctoken) {
         if (isVoid(userName)) {
             throw new RestException(Status.BAD_REQUEST);
         }
         EmailAddress email = validateEmail(emailStr);
-        User user = getUser(userName, authHeader);
+        User user = getUser(userName, null, cookie, ctoken);
         user.setEmail(email);
         Consumer changeEmailRequestConsumer = new Consumer<UsersFacade>() {
             @Override
@@ -133,7 +142,7 @@ public class Users {
     @Path("confirmation/email/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public User confirmEmail(@PathParam("uuid") String uuidStr,
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+                             @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         validateUuid(uuidStr);
         Function confirmEmailFunction = new Function<UsersFacade, User>() {
             @Override
@@ -150,12 +159,12 @@ public class Users {
     @Path("{name}/password/{newpassword}")
     @Produces(MediaType.APPLICATION_JSON)
     public User changePassword(@PathParam("name") String userName,
-            @PathParam("newpassword") String password,
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+                               @PathParam("newpassword") String password,
+                               @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName) || isVoid(password)) {
             throw new RestException(Status.BAD_REQUEST);
         }
-        User user = getUser(userName, authHeader);
+        User user = getUser(userName, authHeader, null, null);
         user.setPassword(password.toCharArray());
         try {
             user = facade.changePassword(user, user.getRevision(), authHeader);
@@ -174,11 +183,11 @@ public class Users {
     @DELETE
     @Path("{name}")
     public void deleteUser(@PathParam("name") String userName,
-            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
+                           @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) {
             throw new RestException(Status.NOT_FOUND);
         }
-        User user = getUser(userName, authHeader);
+        User user = getUser(userName, authHeader, null, null);
         boolean success;
         try {
             success = facade.deleteUser(userName, user.getRevision(), authHeader);

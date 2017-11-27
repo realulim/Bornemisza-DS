@@ -26,6 +26,7 @@ import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.rest.security.Auth;
+import de.bornemisza.rest.security.Auth.Scheme;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 import de.bornemisza.users.boundary.UsersType;
 
@@ -176,8 +177,13 @@ public class UsersService {
     private User readUser(Auth auth, String userId) throws BusinessException, DocumentNotFoundException, TechnicalException, UnauthorizedException {
         Http http = usersPool.getConnection().getHttp();
         Get get = http.get(http.getBaseUrl() + Util.urlEncode(userId))
-                .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        if (auth.getScheme() == Scheme.COOKIE_CSRFTOKEN) {
+            get = get.header(HttpHeaders.COOKIE, auth.getCookie());
+        }
+        else {
+            get = get.basic(auth.getUsername(), auth.getPassword());
+        }
         try {
             int responseCode = get.responseCode();
             if (responseCode == 401) {

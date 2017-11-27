@@ -1,6 +1,5 @@
 package de.bornemisza.maintenance;
 
-import static io.restassured.RestAssured.given;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -11,17 +10,19 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import static io.restassured.RestAssured.given;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import static org.junit.Assert.*;
 
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
@@ -91,8 +92,12 @@ public class IntegrationTestBase {
                 .extract().response();
     }
 
-    protected Response putEmail(User user, int expectedStatusCode) {
-        requestSpecUsers.contentType(ContentType.TEXT).body(user.getEmail().toString());
+    protected Response putEmail(String cookie, String ctoken, User user, int expectedStatusCode) {
+        if (cookie.contains(";")) cookie = cookie.substring(0, cookie.indexOf(";"));
+        requestSpecUsers.header(HttpHeaders.COOKIE, cookie)
+                .header(HttpHeaders.CTOKEN, ctoken)
+                .contentType(ContentType.TEXT)
+                .body(user.getEmail().toString());
         return given(requestSpecUsers)
                 .when().put("/" + user.getName() + "/email")
                 .then().statusCode(expectedStatusCode)
@@ -183,7 +188,7 @@ public class IntegrationTestBase {
 
     protected Response getUuidsWithoutCookie(String ctoken, int count, int expectedStatusCode) {
         requestSpecSessions.accept(ContentType.JSON)
-                .header("C-Token", ctoken)
+                .header(HttpHeaders.CTOKEN, ctoken)
                 .queryParam("count", count);
         return given(requestSpecSessions)
                 .when().get("uuid")
@@ -202,8 +207,8 @@ public class IntegrationTestBase {
     protected Response getUuids(String cookie, String ctoken, int count, int expectedStatusCode) {
         if (cookie.contains(";")) cookie = cookie.substring(0, cookie.indexOf(";"));
         requestSpecSessions.accept(ContentType.JSON)
-                .header("Cookie", cookie)
-                .header("C-Token", ctoken)
+                .header(HttpHeaders.COOKIE, cookie)
+                .header(HttpHeaders.CTOKEN, ctoken)
                 .queryParam("count", count);
         return given(requestSpecSessions)
                 .when().get("uuid")

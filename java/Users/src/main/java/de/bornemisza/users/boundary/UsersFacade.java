@@ -3,6 +3,7 @@ package de.bornemisza.users.boundary;
 import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.security.auth.login.CredentialNotFoundException;
@@ -11,6 +12,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.DocumentNotFoundException;
@@ -19,6 +21,8 @@ import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.BasicAuthCredentials;
+import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
+import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.da.UsersService;
 
@@ -31,20 +35,27 @@ public class UsersFacade {
     @Inject
     HazelcastInstance hazelcast;
 
+    @Resource(name="lbconfig/CouchUsersAsAdmin")
+    LoadBalancerConfig lbConfig;
+
+    DbAdminPasswordBasedHashProvider hashProvider;
+
     private ITopic<User> newUserAccountTopic, changeEmailRequestTopic;
     private IMap<String, User> newUserAccountMap_userId, newUserAccountMap_uuid, changeEmailRequestMap_userId, changeEmailRequestMap_uuid;
 
     public UsersFacade() { }
 
     // Constructor for Unit Tests
-    public UsersFacade(UsersService usersService, HazelcastInstance hz) {
+    public UsersFacade(UsersService usersService, HazelcastInstance hz, LoadBalancerConfig lbConfig) {
         this.usersService = usersService;
         this.hazelcast = hz;
+        this.lbConfig = lbConfig;
         init();
     }
 
     @PostConstruct
     public final void init() {
+        this.hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         this.newUserAccountTopic = hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT);
         this.newUserAccountMap_userId = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT + JAXRSConfiguration.MAP_USERID_SUFFIX);
         this.newUserAccountMap_uuid = hazelcast.getMap(JAXRSConfiguration.MAP_NEW_USER_ACCOUNT + JAXRSConfiguration.MAP_UUID_SUFFIX);
@@ -110,6 +121,16 @@ public class UsersFacade {
         }
         catch (CredentialNotFoundException ex) {
             throw new UnauthorizedException(ex.getMessage());
+        }
+    }
+
+    public User getUser(String userName, DoubleSubmitToken dsToken) throws BusinessException, TechnicalException, UnauthorizedException {
+        try {
+            dsToken.checkValidity(hashProvider);
+            return usersService.getUser(new Auth(dsToken), userName);
+        }
+        catch (DocumentNotFoundException e) {
+            return null;
         }
     }
 

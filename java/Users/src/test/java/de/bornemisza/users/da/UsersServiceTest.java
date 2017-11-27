@@ -1,5 +1,6 @@
 package de.bornemisza.users.da;
 
+
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.ws.rs.core.MediaType;
@@ -9,10 +10,10 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.HttpConnection;
@@ -26,6 +27,7 @@ import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.BasicAuthCredentials;
+import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.users.boundary.UsersType;
 
 public class UsersServiceTest {
@@ -33,7 +35,8 @@ public class UsersServiceTest {
     private UsersService CUT;
     private User user;
     private final String userAsJson = "{\"_id\":\"org.couchdb.user:Fazil Ongudar\",\"_rev\":\"34-80e1f26cf8e78a926be87928eb08ed72\",\"type\":\"user\",\"name\":\"Fazil Ongudar\",\"email\":\"fazil.changed@restmail.net\",\"roles\":[\"customer\",\"user\"],\"password_scheme\":\"pbkdf2\",\"iterations\":10,\"derived_key\":\"cae17cd81a9a0cbf5605ff8770847b3507a5cde8\",\"salt\":\"5168306a0c38fa04decb1362bb9d98e5\"}";
-    private final Auth auth = new Auth(new BasicAuthCredentials("flori", "floripassword"));
+    private final Auth basicAuth = new Auth(new BasicAuthCredentials("flori", "floripassword"));
+    private final Auth cookieAuth = new Auth(new DoubleSubmitToken("foo", "bar"));
     private Http http;
     private Get get;
     private Put put;
@@ -239,7 +242,7 @@ public class UsersServiceTest {
         String errMsg = "Connection refused";
         when(put.responseCode()).thenThrow(new HttpException(errMsg));
         try {
-            CUT.updateUser(auth, user);
+            CUT.updateUser(basicAuth, user);
             fail();
         }
         catch (TechnicalException e) {
@@ -251,7 +254,7 @@ public class UsersServiceTest {
     public void updateUser_businessException(){
         when(put.responseCode()).thenReturn(500);
         try {
-            CUT.updateUser(auth, user);
+            CUT.updateUser(basicAuth, user);
             fail();
         }
         catch (BusinessException e) {
@@ -265,7 +268,7 @@ public class UsersServiceTest {
         String msg = "User unknown";
         when(put.responseMessage()).thenReturn(msg);
         try {
-            CUT.updateUser(auth, user);
+            CUT.updateUser(basicAuth, user);
             fail();
         }
         catch (UnauthorizedException e) {
@@ -279,7 +282,7 @@ public class UsersServiceTest {
         String msg = "Newer Revision exists";
         when(put.responseMessage()).thenReturn(msg);
         try {
-            CUT.updateUser(auth, user);
+            CUT.updateUser(basicAuth, user);
             fail();
         }
         catch (UpdateConflictException e) {
@@ -292,7 +295,7 @@ public class UsersServiceTest {
         when(put.responseCode()).thenReturn(201);
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(userAsJson);
-        User updatedUser = CUT.updateUser(auth, user);
+        User updatedUser = CUT.updateUser(basicAuth, user);
         assertNull(updatedUser.getPassword());
         assertEquals(user.getName(), updatedUser.getName());
         assertEquals(user.getEmail(), updatedUser.getEmail());
@@ -303,7 +306,7 @@ public class UsersServiceTest {
         String errMsg = "Connection refused";
         when(get.responseCode()).thenThrow(new HttpException(errMsg));
         try {
-            CUT.getUser(auth, user.getName());
+            CUT.getUser(basicAuth, user.getName());
             fail();
         }
         catch (TechnicalException e) {
@@ -315,7 +318,7 @@ public class UsersServiceTest {
     public void getUser_businessException(){
         when(get.responseCode()).thenReturn(500);
         try {
-            CUT.getUser(auth, user.getName());
+            CUT.getUser(basicAuth, user.getName());
             fail();
         }
         catch (BusinessException e) {
@@ -329,7 +332,7 @@ public class UsersServiceTest {
         String msg = "User unknown";
         when(get.responseMessage()).thenReturn(msg);
         try {
-            CUT.getUser(auth, user.getName());
+            CUT.getUser(basicAuth, user.getName());
             fail();
         }
         catch (UnauthorizedException e) {
@@ -343,7 +346,7 @@ public class UsersServiceTest {
         String msg = "User not found";
         when(get.responseMessage()).thenReturn(msg);
         try {
-            CUT.getUser(auth, user.getName());
+            CUT.getUser(basicAuth, user.getName());
             fail();
         }
         catch (DocumentNotFoundException e) {
@@ -352,13 +355,25 @@ public class UsersServiceTest {
     }
 
     @Test
-    public void getUser() {
+    public void getUser_usernamePasswordScheme() {
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(userAsJson);
-        User readUser = CUT.getUser(auth, user.getName());
+        User readUser = CUT.getUser(basicAuth, user.getName());
         assertNull(readUser.getPassword());
         assertEquals(user.getName(), readUser.getName());
         assertEquals(user.getEmail(), readUser.getEmail());
+        verify(get).basic(basicAuth.getUsername(), basicAuth.getPassword());
+    }
+
+    @Test
+    public void getUser_cookieCsrfTokenScheme() {
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(userAsJson);
+        User readUser = CUT.getUser(cookieAuth, user.getName());
+        assertNull(readUser.getPassword());
+        assertEquals(user.getName(), readUser.getName());
+        assertEquals(user.getEmail(), readUser.getEmail());
+        verify(get).header(HttpHeaders.COOKIE, cookieAuth.getCookie());
     }
 
     @Test
@@ -366,7 +381,7 @@ public class UsersServiceTest {
         String errMsg = "Connection refused";
         when(put.responseCode()).thenThrow(new HttpException(errMsg));
         try {
-            CUT.changePassword(auth, user);
+            CUT.changePassword(basicAuth, user);
             fail();
         }
         catch (TechnicalException e) {
@@ -378,7 +393,7 @@ public class UsersServiceTest {
     public void changePassword_businessException(){
         when(put.responseCode()).thenReturn(500);
         try {
-            CUT.changePassword(auth, user);
+            CUT.changePassword(basicAuth, user);
             fail();
         }
         catch (BusinessException e) {
@@ -392,7 +407,7 @@ public class UsersServiceTest {
         String msg = "User unknown";
         when(put.responseMessage()).thenReturn(msg);
         try {
-            CUT.changePassword(auth, user);
+            CUT.changePassword(basicAuth, user);
             fail();
         }
         catch (UnauthorizedException e) {
@@ -406,7 +421,7 @@ public class UsersServiceTest {
         String msg = "Newer Revision exists";
         when(put.responseMessage()).thenReturn(msg);
         try {
-            CUT.changePassword(auth, user);
+            CUT.changePassword(basicAuth, user);
             fail();
         }
         catch (UpdateConflictException e) {
@@ -420,11 +435,11 @@ public class UsersServiceTest {
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(userAsJson);
 
-        String oldPassword = auth.getPassword();
+        String oldPassword = basicAuth.getPassword();
         String newPassword = "newpassword";
         user.setPassword(newPassword.toCharArray());
         Auth myAuth = mock(Auth.class);
-        when(myAuth.getUsername()).thenReturn(auth.getUsername());
+        when(myAuth.getUsername()).thenReturn(basicAuth.getUsername());
         when(myAuth.getPassword()).thenReturn(oldPassword).thenReturn(newPassword);
         ArgumentCaptor<String> userJsonCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -434,7 +449,7 @@ public class UsersServiceTest {
         assertTrue(userJsonCaptor.getValue().contains(String.valueOf(newPassword)));
 
         verify(myAuth).changePassword(newPassword);
-        verify(get).basic(auth.getUsername(), newPassword);
+        verify(get).basic(basicAuth.getUsername(), newPassword);
     }
 
     @Test
@@ -442,7 +457,7 @@ public class UsersServiceTest {
         String errMsg = "Connection refused";
         when(delete.responseCode()).thenThrow(new HttpException(errMsg));
         try {
-            CUT.deleteUser(auth, user.getName(), "rev123");
+            CUT.deleteUser(basicAuth, user.getName(), "rev123");
             fail();
         }
         catch (TechnicalException e) {
@@ -454,7 +469,7 @@ public class UsersServiceTest {
     public void deleteUser_businessException(){
         when(delete.responseCode()).thenReturn(201);
         try {
-            CUT.deleteUser(auth, user.getName(), "rev123");
+            CUT.deleteUser(basicAuth, user.getName(), "rev123");
             fail();
         }
         catch (BusinessException e) {
@@ -468,7 +483,7 @@ public class UsersServiceTest {
         String msg = "User unknown";
         when(delete.responseMessage()).thenReturn(msg);
         try {
-            CUT.deleteUser(auth, user.getName(), "rev123");
+            CUT.deleteUser(basicAuth, user.getName(), "rev123");
             fail();
         }
         catch (UnauthorizedException e) {
@@ -482,7 +497,7 @@ public class UsersServiceTest {
         String msg = "Newer Revision exists";
         when(delete.responseMessage()).thenReturn(msg);
         try {
-            CUT.deleteUser(auth, user.getName(), "rev123");
+            CUT.deleteUser(basicAuth, user.getName(), "rev123");
             fail();
         }
         catch (UpdateConflictException e) {
@@ -494,7 +509,7 @@ public class UsersServiceTest {
     public void deleteUser() {
         String rev = "rev123";
         when(delete.responseCode()).thenReturn(200);
-        CUT.deleteUser(auth, user.getName(), rev);
+        CUT.deleteUser(basicAuth, user.getName(), rev);
         assertEquals(rev, revCaptor.getValue());
     }
 

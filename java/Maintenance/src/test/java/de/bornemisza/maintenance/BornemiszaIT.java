@@ -107,36 +107,15 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t09_endSession() {
-        Response response = endSession(200);
-        assertEquals("AuthSession=; Version=1; Path=/; HttpOnly; Secure", response.getHeader("Set-Cookie"));
-        assertNull(response.getHeader("C-Token"));
-        assertEquals(0, response.getBody().prettyPrint().length());
-    }
-
-    @Test
-    public void t10_getUuidsWithoutCookie() {
-        Response response = getUuidsWithoutCookie(ctoken, 1, 401);
-        assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
-    }
-
-    @Test
-    public void t11_getUuidsWithoutCToken() {
-        Response response = getUuidsWithoutCToken(cookie, 1, 401);
-        assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
-    }
-
-    @Test
-    public void t12_changeEmailRequest() {
-        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
+    public void t09_changeEmailRequest() {
         deleteMails(newEmail);
         user.setEmail(newEmail);
-        Response response = putEmail(user, 202);
+        Response response = putEmail(cookie, ctoken, user, 202);
         assertEquals(0, response.getBody().prettyPrint().length());
     }
 
     @Test
-    public void t13_confirmEmail() {
+    public void t10_confirmEmail() {
         BasicAuthCredentials creds = new BasicAuthCredentials(userName, userPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
@@ -150,6 +129,26 @@ public class BornemiszaIT extends IntegrationTestBase {
         /* Request is removed from Map by either Expiry or previous Confirmation, so this must fail */
         response = clickApiLink(apiLink, 404, creds);
         assertEquals("E-Mail Change Request does not exist - maybe expired?", response.print());
+    }
+
+    @Test
+    public void t11_endSession() {
+        Response response = endSession(200);
+        assertEquals("AuthSession=; Version=1; Path=/; HttpOnly; Secure", response.getHeader("Set-Cookie"));
+        assertNull(response.getHeader("C-Token"));
+        assertEquals(0, response.getBody().prettyPrint().length());
+    }
+
+    @Test
+    public void t12_getUuidsWithoutCookie() {
+        Response response = getUuidsWithoutCookie(ctoken, 1, 401);
+        assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
+    }
+
+    @Test
+    public void t13_getUuidsWithoutCToken() {
+        Response response = getUuidsWithoutCToken(cookie, 1, 401);
+        assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
     }
 
     @Test

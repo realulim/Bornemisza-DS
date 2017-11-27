@@ -8,15 +8,16 @@ import javax.ws.rs.core.Response;
 
 import com.hazelcast.topic.TopicOverloadException;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.UnauthorizedException;
+import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.users.boundary.UsersFacade;
 import de.bornemisza.users.boundary.UsersType;
 
@@ -25,13 +26,14 @@ public class UsersTest {
     private UsersFacade facade;
 
     private Users CUT;
-    
+
     private static final String AUTH_HEADER = "Basic someAuthString";
+    private static final String COOKIE = "SomeCookie", CTOKEN = "SomeToken";
     private static final String SOCKET_TIMEOUT = "java.net.SocketTimeoutException: connect timed out";
 
     public UsersTest() {
     }
-    
+
     @Before
     public void setUp() {
         facade = mock(UsersFacade.class);
@@ -41,7 +43,7 @@ public class UsersTest {
     @Test
     public void getUser_userNameVoid() {
         try {
-            CUT.getUser("null", null);
+            CUT.getUser("null", null, null, null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -52,7 +54,7 @@ public class UsersTest {
     @Test
     public void getUser_illegalCharactersInUserName() {
         try {
-            CUT.getUser("<script>alert('hooboo');</script>", null);
+            CUT.getUser("<script>alert('hooboo');</script>", null, null, null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -62,9 +64,9 @@ public class UsersTest {
 
     @Test
     public void getUser_technicalException() {
-        when(facade.getUser(anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
+        when(facade.getUser(anyString(), anyString())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         try {
-            CUT.getUser("Ike", null);
+            CUT.getUser("Ike", AUTH_HEADER, null, null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -75,9 +77,9 @@ public class UsersTest {
 
     @Test
     public void getUser_userNotFound() {
-        when(facade.getUser(anyString(), any())).thenReturn(null);
+        when(facade.getUser(anyString(), anyString())).thenReturn(null);
         try {
-            CUT.getUser("Ike", null);
+            CUT.getUser("Ike", AUTH_HEADER, null, null);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -87,9 +89,9 @@ public class UsersTest {
 
     @Test
     public void getUser_unauthorized() {
-        when(facade.getUser(anyString(), any())).thenThrow(new UnauthorizedException("401"));
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenThrow(new UnauthorizedException("401"));
         try {
-            CUT.getUser("Ike", null);
+            CUT.getUser("Ike", null, "SomeCookie", "SomeToken");
             fail();
         }
         catch (WebApplicationException ex) {
@@ -254,7 +256,7 @@ public class UsersTest {
     @Test
     public void changeEmailRequest_userNameVoid() {
         try {
-            CUT.changeEmailRequest("", "foo@bar.de", AUTH_HEADER);
+            CUT.changeEmailRequest("", "foo@bar.de", COOKIE, CTOKEN);
         }
         catch (WebApplicationException ex) {
             assertEquals(400, ex.getResponse().getStatus());
@@ -264,7 +266,7 @@ public class UsersTest {
     @Test
     public void changeEmailRequest_nullEmail() {
         try {
-            CUT.changeEmailRequest("Ike", "null", AUTH_HEADER);
+            CUT.changeEmailRequest("Ike", "null", COOKIE, CTOKEN);
         }
         catch (WebApplicationException ex) {
             assertEquals(400, ex.getResponse().getStatus());
@@ -275,7 +277,7 @@ public class UsersTest {
     @Test
     public void changeEmailRequest_unparseableEmail() {
         try {
-            CUT.changeEmailRequest("Ike", "foobar@foo@.de", AUTH_HEADER);
+            CUT.changeEmailRequest("Ike", "foobar@foo@.de", COOKIE, CTOKEN);
         }
         catch (WebApplicationException ex) {
             assertEquals(400, ex.getResponse().getStatus());
@@ -289,14 +291,15 @@ public class UsersTest {
         User user = new User();
         user.setName("Ike");
         user.setEmail(new EmailAddress(emailStr));
-        when(facade.getUser(anyString(), any())).thenReturn(user);
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(user);
         doThrow(new TopicOverloadException("Topic overloaded")).when(facade).changeEmail(user);
         try {
-            CUT.changeEmailRequest(user.getName(), emailStr, AUTH_HEADER);
+            CUT.changeEmailRequest(user.getName(), emailStr, COOKIE, CTOKEN);
             fail();
         }
         catch (WebApplicationException ex) {
             assertEquals(500, ex.getResponse().getStatus());
+            verify(facade).changeEmail(user);
         }
     }
 
@@ -306,8 +309,8 @@ public class UsersTest {
         User user = new User();
         user.setName("Ike");
         user.setEmail(new EmailAddress(emailStr));
-        when(facade.getUser(anyString(), any())).thenReturn(user);
-        Response response = CUT.changeEmailRequest(user.getName(), emailStr, AUTH_HEADER);
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(user);
+        Response response = CUT.changeEmailRequest(user.getName(), emailStr, COOKIE, CTOKEN);
         assertEquals(202, response.getStatus());
     }
 
@@ -365,10 +368,10 @@ public class UsersTest {
     public void changePassword_technicalException() {
         User user = new User();
         user.setRevision("rev123");
-        when(facade.getUser(anyString(), any())).thenReturn(user);
+        when(facade.getUser(anyString(), anyString())).thenReturn(user);
         when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         try {
-            CUT.changePassword("Ike", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -379,10 +382,10 @@ public class UsersTest {
 
     @Test
     public void changePassword_newerRevisionAlreadyExists() {
-        when(facade.getUser(anyString(), any())).thenReturn(new User());
+        when(facade.getUser(anyString(), anyString())).thenReturn(new User());
         when(facade.changePassword(any(User.class), anyString(), any())).thenReturn(null);
         try {
-            CUT.changePassword("Ike", "newPassword", null);
+            CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -407,9 +410,9 @@ public class UsersTest {
         User user = new User();
         user.setRevision("rev123");
         when(facade.deleteUser(anyString(), anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
-        when(facade.getUser(anyString(), any())).thenReturn(user);
+        when(facade.getUser(anyString(), anyString())).thenReturn(user);
         try {
-            CUT.deleteUser("Ike", null);
+            CUT.deleteUser("Ike", AUTH_HEADER);
             fail();
         }
         catch (WebApplicationException ex) {
@@ -420,10 +423,10 @@ public class UsersTest {
 
     @Test
     public void deleteUser_newerRevisionAlreadyExists() {
-        when(facade.getUser(anyString(), any())).thenReturn(new User());
+        when(facade.getUser(anyString(), anyString())).thenReturn(new User());
         when(facade.deleteUser(anyString(), anyString(), any())).thenReturn(false);
         try {
-            CUT.deleteUser("Ike", null);
+            CUT.deleteUser("Ike", AUTH_HEADER);
             fail();
         }
         catch (WebApplicationException ex) {

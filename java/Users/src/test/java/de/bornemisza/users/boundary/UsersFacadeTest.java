@@ -8,12 +8,13 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.entity.EmailAddress;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
@@ -22,6 +23,7 @@ import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.exception.UpdateConflictException;
 import de.bornemisza.rest.security.Auth;
+import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.users.JAXRSConfiguration;
 import de.bornemisza.users.da.UsersService;
 
@@ -33,6 +35,9 @@ public class UsersFacadeTest {
     private HazelcastInstance hazelcast;
     private UsersFacade CUT;
     private final String AUTH_HEADER = "Basic RmF6aWwgT25ndWRhcjpjaGFuZ2Vk";
+    private final DoubleSubmitToken dsToken = new DoubleSubmitToken(
+            "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure", 
+            "dc09ed95c35268bd29798bfa2ac6ee0142d8e1030475663e1ea4db8cb1f20f0b");
 
     @Before
     public void setUp() {
@@ -50,7 +55,9 @@ public class UsersFacadeTest {
         when(hazelcast.getMap(eq(JAXRSConfiguration.MAP_CHANGE_EMAIL_REQUEST + JAXRSConfiguration.MAP_UUID_SUFFIX))).thenReturn(changeEmailRequestMap_uuid);
         when(hazelcast.getTopic(JAXRSConfiguration.TOPIC_NEW_USER_ACCOUNT)).thenReturn(newUserAccountTopic);
         when(hazelcast.getTopic(JAXRSConfiguration.TOPIC_CHANGE_EMAIL_REQUEST)).thenReturn(changeEmailRequestTopic);
-        CUT = new UsersFacade(usersService, hazelcast);
+        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn("My Super Password".toCharArray());
+        CUT = new UsersFacade(usersService, hazelcast, lbConfig);
     }
 
     @Test
@@ -234,16 +241,28 @@ public class UsersFacadeTest {
     public void getUser_noSuchUser() {
         when(usersService.getUser(any(Auth.class), anyString())).thenThrow(new DocumentNotFoundException("/some/path"));
         assertNull(CUT.getUser("Ike", AUTH_HEADER));
+        assertNull(CUT.getUser("Ike", dsToken));
     }
 
     @Test
-    public void getUser_unauthorized() {
+    public void getUser_unauthorized_usernamePasswordScheme() {
         try {
             CUT.getUser("Silly Willy", "BrokenAuthHeader");
             fail();
         }
         catch (UnauthorizedException ex) {
             assertTrue(ex.getMessage().startsWith("401 AuthHeader"));
+        }
+    }
+
+    @Test
+    public void getUser_unauthorized_cookieTokenScheme() {
+        try {
+            CUT.getUser("Silly Willy", new DoubleSubmitToken("Cookie", "notReallyTheHashedCookie"));
+            fail();
+        }
+        catch (UnauthorizedException ex) {
+            assertEquals("Hash Mismatch!", ex.getMessage());
         }
     }
 
