@@ -1,6 +1,7 @@
 package de.bornemisza.users.da;
 
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -13,6 +14,7 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Put;
+import org.javalite.http.Request;
 
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
@@ -124,18 +126,7 @@ public class UsersService {
                 .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
-        try {
-            int responseCode = put.responseCode();
-            if (responseCode == 409) {
-                throw new UpdateConflictException(put.responseMessage());
-            }
-            else if (responseCode < 201 || responseCode > 202) {
-                throw new BusinessException(UsersType.UNEXPECTED, responseCode + ": " + put.responseMessage());
-            }
-        }
-        catch (HttpException ex) {
-            throw new TechnicalException(ex.toString());
-        }
+        sendStatefulRequest(put, 201, 202);
         Auth auth = new Auth(new BasicAuthCredentials(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword())));
         User createdUser = readUser(auth, user.getId());
         Logger.getLogger(http.getHostName()).info("Added user: " + createdUser);
@@ -148,21 +139,7 @@ public class UsersService {
                 .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
-        try {
-            int responseCode = put.responseCode();
-            if (responseCode == 401) {
-                throw new UnauthorizedException(put.responseMessage());
-            }
-            else if (responseCode == 409) {
-                throw new UpdateConflictException(put.responseMessage());
-            }
-            else if (responseCode < 201 || responseCode > 202) {
-                throw new BusinessException(UsersType.UNEXPECTED, responseCode + ": " + put.responseMessage());
-            }
-        }
-        catch (HttpException ex) {
-            throw new TechnicalException(ex.toString());
-        }
+        sendStatefulRequest(put, 201, 202);
         User updatedUser = readUser(auth, user.getId());
         Logger.getLogger(http.getHostName()).info("Updated user: " + updatedUser);
         return updatedUser;
@@ -208,21 +185,7 @@ public class UsersService {
                 .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
-        try {
-            int responseCode = put.responseCode();
-            if (responseCode == 401) {
-                throw new UnauthorizedException(put.responseMessage());
-            }
-            else if (responseCode == 409) {
-                throw new UpdateConflictException(put.responseMessage());
-            }
-            else if (responseCode < 201 || responseCode > 202) {
-                throw new BusinessException(UsersType.UNEXPECTED, responseCode + ": " + put.responseMessage());
-            }
-        }
-        catch (HttpException ex) {
-            throw new TechnicalException(ex.toString());
-        }
+        sendStatefulRequest(put, 201, 202);
         Logger.getLogger(http.getHostName()).info("Changed password for user: " + user);
 
         // change credentials to reflect new password
@@ -237,22 +200,26 @@ public class UsersService {
         Delete delete = http.delete(http.getBaseUrl() + Util.urlEncode(user.getId()))
                 .basic(auth.getUsername(), auth.getPassword())
                 .header(HttpHeaders.IF_MATCH, rev);
+        sendStatefulRequest(delete, 200, 202);
+        Logger.getLogger(http.getHostName()).info("Removed user: " + userName);
+    }
+
+    private void sendStatefulRequest(Request request, int... successfulStatusCodes) {
         try {
-            int responseCode = delete.responseCode();
+            int responseCode = request.responseCode();
             if (responseCode == 401) {
-                throw new UnauthorizedException(delete.responseMessage());
+                throw new UnauthorizedException(request.responseMessage());
             }
             else if (responseCode == 409) {
-                throw new UpdateConflictException(delete.responseMessage());
+                throw new UpdateConflictException(request.responseMessage());
             }
-            else if (responseCode < 200 || responseCode > 202 || responseCode == 201) {
-                throw new BusinessException(UsersType.UNEXPECTED, responseCode + ": " + delete.responseMessage());
+            else if (IntStream.of(successfulStatusCodes).noneMatch(n -> n == responseCode)) {
+                throw new BusinessException(UsersType.UNEXPECTED, responseCode + ": " + request.responseMessage());
             }
         }
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        Logger.getLogger(http.getHostName()).info("Removed user: " + userName);
     }
 
 }
