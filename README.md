@@ -9,12 +9,12 @@ The backend is comprised of the two clusters (app and db), whereas the frontend 
 
 ## Design Goals
 
-#### 1. True horizontal scalability
+#### 1. Horizontal scalability
 - new nodes join the (app or db) cluster automatically
 - load distribution is adjusted when cluster membership changes
 - no single point of failure
 - all nodes are self-sufficient, no central service needed at runtime
-- decentralised management
+- management decentralised as well
 
 #### 2. Composability
 - create the system from small and well-understood tools
