@@ -104,26 +104,15 @@ public class UuidsFacade {
      * Manage colors within the Hazelcast and CouchDB clusters consistently.
      * Make sure that an AppServer cluster node always selects the same (and unused) color,
      * no matter how many other AppServer nodes are in the Hazelcast cluster.
-     * This is achieved by ordering the nodes according to their IP addresses.
+     * This is achieved by ordering the nodes according to their hostname.
+     * The downside is that this will likely not work, when cluster membership changes.
      */
     private void updateColorsForCluster() {
-        ipToHostname.clear();
+        updateDbServerLookupTables();
+        int myIndex = 0;
+        String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
         List<Member> members = new ArrayList(hazelcast.getCluster().getMembers());
         Collections.sort(members, new MemberComparator());
-        String myHostname = hazelcast.getCluster().getLocalMember().getSocketAddress().getHostName();
-        int myIndex = 0;
-        allHostnames = new ArrayList(couchPool.getAllConnections().keySet());
-        Collections.sort(allHostnames);
-        for (String hostname : allHostnames) {
-            String ip = dnsResolver.getHostAddress("internal." + hostname);
-            if (ip != null) {
-                ipToHostname.put(ip, hostname);
-            }
-            else {
-                // should never happen, but if it does, we'll live with the default color
-                Logger.getAnonymousLogger().severe("Cannot resolve internal." + hostname);
-            }
-        }
         for (Member member : members) {
             if (member.getSocketAddress().getHostName().equals(myHostname)) {
                 if (myIndex >= JAXRSConfiguration.COLORS.size()) {
@@ -137,6 +126,22 @@ public class UuidsFacade {
             }
             Logger.getAnonymousLogger().info("Assigning " + JAXRSConfiguration.MY_COLOR + " to " + myHostname);
             myIndex++;
+        }
+    }
+
+    private void updateDbServerLookupTables() {
+        ipToHostname.clear();
+        allHostnames = new ArrayList(couchPool.getAllConnections().keySet());
+        Collections.sort(allHostnames);
+        for (String hostname : allHostnames) {
+            String ip = dnsResolver.getHostAddress("internal." + hostname);
+            if (ip != null) {
+                ipToHostname.put(ip, hostname);
+            }
+            else {
+                // should never happen, but if it does, we'll live with the default color
+                Logger.getAnonymousLogger().severe("Cannot resolve internal." + hostname);
+            }
         }
     }
 
