@@ -14,7 +14,7 @@ The backend is comprised of the two clusters (app and db), whereas the frontend 
 - load distribution is adjusted when cluster membership changes
 - no single point of failure
 - all nodes are self-sufficient, no central service needed at runtime
-- the management layer must scale horizontally as well
+- decentralised management
 
 #### 2. Composability
 - create the system from small and well-understood tools
