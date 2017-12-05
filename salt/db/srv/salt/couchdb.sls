@@ -1,11 +1,7 @@
-#{% set COUCHDB_VERSION='2.1.1' %}
-#{% set COUCHDB_DIR='apache-couchdb-2.1.0' %}
-#{% set COUCHDB_TARGZ='apache-couchdb-2.1.0.tar.gz' %}
-#{% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
 {% set URL='http://' + pillar['privip'] + ':5984' %}
 {% set BACKDOORURL='http://localhost:5986' %}
-{% set VIEWS='/home/couchpotato/ddoc' %}
+{% set VIEWS='/home/couchdb/ddoc' %}
 
 /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo:
   file.managed:
@@ -20,11 +16,11 @@ install_couchdb_pkgs:
       - epel-release
       - couchdb
 
-couchpotato:
+couchdb:
   user.present:
     - fullname: CouchDB Administrator
     - shell: /bin/bash
-    - home: /home/couchpotato
+    - home: /home/couchdb
 
 set-permissions-couchdb:
   cmd.run:
@@ -34,8 +30,8 @@ set-permissions-couchdb:
 
 /var/lib/couchdb:
   file.directory:
-    - user: couchpotato
-    - group: couchpotato
+    - user: couchdb
+    - group: couchdb
     - recurse:
       - user
       - group
@@ -48,8 +44,8 @@ install-couchdb-systemd-unitfile:
 /opt/couchdb/etc/local.d/admins.ini:
   file.copy:
     - source: /srv/salt/files/couchdb/admins.ini
-    - user: couchpotato
-    - group: couchpotato
+    - user: couchdb
+    - group: couchdb
     - mode: 644
 
 configure-admin-password:
@@ -65,8 +61,8 @@ configure-couchdb:
   file.managed:
     - name: /opt/couchdb/etc/local.ini
     - source: salt://files/couchdb/local.ini
-    - user: couchpotato
-    - group: couchpotato
+    - user: couchdb
+    - group: couchdb
     - mode: 644
     - template: jinja
 
@@ -90,7 +86,7 @@ configure-couchdb:
 create-couchdb-log-symlink:
   file.symlink:
     - name: /opt/logs/couchdb.log
-    - target: /home/couchpotato/couchdb.log
+    - target: /home/couchdb/couchdb.log
 
 run-couchdb:
   service.running:
@@ -123,15 +119,15 @@ create-database-{{ db }}:
 
 {{ VIEWS }}:
   file.directory:
-    - user: couchpotato
-    - group: couchpotato
+    - user: couchdb
+    - group: couchdb
     - dir_mode: 755
 
 {{ VIEWS }}/User.json:
   file.managed:
     - source: salt://files/couchdb/ddocUser.json
-    - user: couchpotato
-    - group: couchpotato
+    - user: couchdb
+    - group: couchdb
 
 /opt/scripts/ddoc.sh:
   file.managed:
