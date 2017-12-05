@@ -1,3 +1,6 @@
+{%- set IP1=''.join(salt.dnsutil.A(pillar['cfns'], pillar['cfns2'])) -%}
+{%- set IP2=''.join(salt.dnsutil.A(pillar['cfns2'], pillar['cfns'])) -%}
+
 install_basics_pkgs:
   pkg.installed:
     - pkgs:
@@ -13,8 +16,6 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
-{%- set IP1=''.join(salt.dnsutil.A(pillar['cfns'], pillar['cfns2'])) -%}
-{%- set IP2=''.join(salt.dnsutil.A(pillar['cfns2'], pillar['cfns'])) -%}
 configure_resolvers:
   file.append:
     - name: /etc/sysconfig/network-scripts/ifcfg-eth0
