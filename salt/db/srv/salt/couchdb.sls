@@ -1,40 +1,49 @@
-{% set COUCHDB_VERSION='2.1.0' %}
-{% set COUCHDB_DIR='apache-couchdb-2.1.0' %}
-{% set COUCHDB_TARGZ='apache-couchdb-2.1.0.tar.gz' %}
-{% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
+#{% set COUCHDB_VERSION='2.1.1' %}
+#{% set COUCHDB_DIR='apache-couchdb-2.1.0' %}
+#{% set COUCHDB_TARGZ='apache-couchdb-2.1.0.tar.gz' %}
+#{% set COUCHDB_BINARY='/home/couchpotato/couchdb/bin/couchdb' %}
 {% set AUTH='-u `cat /srv/pillar/netrc`' %}
 {% set URL='http://' + pillar['privip'] + ':5984' %}
 {% set BACKDOORURL='http://localhost:5986' %}
 {% set VIEWS='/home/couchpotato/ddoc' %}
 
+/etc/yum.repos.d/bintray-apache-couchdb-rpm.repo:
+  file.managed:
+    - source: salt://files/couchdb/bintray-apache-couchdb-rpm.repo
+    - user: root
+    - group: root
+    - mode: 644
+
 install_couchdb_pkgs:
   pkg.installed:
     - pkgs:
-      - autoconf
-      - autoconf-archive
-      - automake
-      - erlang-asn1
-      - erlang-erl_interface
-      - erlang-erts
-      - erlang-eunit
-      - erlang-jiffy
-      - erlang-os_mon
-      - erlang-reltool
-      - erlang-snappy
-      - erlang-xmerl
-      - gcc-c++
-      - help2man
-      - jq
-      - js-devel
-      - libcurl-devel
-      - libicu-devel
-      - libtool
-      - perl-Test-Harness
-      - python-chardet
-      - python-progressbar
-      - python-requests
-      - python-six
-      - python-urllib3
+      - epel-release
+      - couchdb
+#      - autoconf
+#      - autoconf-archive
+#      - automake
+#      - erlang-asn1
+#      - erlang-erl_interface
+#      - erlang-erts
+#      - erlang-eunit
+#      - erlang-jiffy
+#      - erlang-os_mon
+#      - erlang-reltool
+#      - erlang-snappy
+#      - erlang-xmerl
+#      - gcc-c++
+#      - help2man
+#      - jq
+#      - js-devel
+#      - libcurl-devel
+#      - libicu-devel
+#      - libtool
+#      - perl-Test-Harness
+#      - python-chardet
+#      - python-progressbar
+#      - python-requests
+#      - python-six
+#      - python-urllib3
 
 couchpotato:
   user.present:
@@ -42,39 +51,40 @@ couchpotato:
     - shell: /bin/bash
     - home: /home/couchpotato
 
-download-couchdb:
-  cmd.run:
-    - name: bash -c 'mkdir tmp && cd tmp && wget http://mirror.synyx.de/apache/couchdb/source/{{ COUCHDB_VERSION }}/{{ COUCHDB_TARGZ }}'
-    - cwd: /home/couchpotato
-    - runas: couchpotato
-    - unless: ls ./tmp/{{ COUCHDB_TARGZ }}
+#download-couchdb:
+#  cmd.run:
+#    - name: bash -c 'mkdir tmp && cd tmp && wget http://mirror.synyx.de/apache/couchdb/source/{{ COUCHDB_VERSION }}/{{ COUCHDB_TARGZ }}'
+#    - cwd: /home/couchpotato
+#    - runas: couchpotato
+#    - unless: ls ./tmp/{{ COUCHDB_TARGZ }}
 
-build-couchdb:
-  cmd.run:
-    - name: bash -c 'tar -xzf {{ COUCHDB_TARGZ }} && cd {{ COUCHDB_DIR }} && ./configure && make release'
-    - cwd: /home/couchpotato/tmp
-    - runas: couchpotato
-    - unless: ls ./{{ COUCHDB_DIR }}/rel/couchdb
+#build-couchdb:
+#  cmd.run:
+#    - name: bash -c 'tar -xzf {{ COUCHDB_TARGZ }} && cd {{ COUCHDB_DIR }} && ./configure && make release'
+#    - cwd: /home/couchpotato/tmp
+#    - runas: couchpotato
+#    - unless: ls ./{{ COUCHDB_DIR }}/rel/couchdb
 
-install-couchdb:
-  cmd.run:
-    - name: bash -c 'cp -R rel/couchdb ~/ && find ~/couchdb -type d -exec chmod 0770 {} \; && chmod 0644 ~/couchdb/etc/*'
-    - cwd: /home/couchpotato/tmp/{{ COUCHDB_DIR }}
-    - runas: couchpotato
-    - unless: ls {{ COUCHDB_BINARY }}
+#install-couchdb:
+#  cmd.run:
+#    - name: bash -c 'cp -R rel/couchdb ~/ && find ~/couchdb -type d -exec chmod 0770 {} \; && chmod 0644 ~/couchdb/etc/*'
+#    - cwd: /home/couchpotato/tmp/{{ COUCHDB_DIR }}
+#    - runas: couchpotato
+#    - unless: ls {{ COUCHDB_BINARY }}
 
 set-permissions-couchdb:
   cmd.run:
-    - name: find /home/couchpotato/couchdb -type d -exec chmod 0770 {} \;
+    - name: find /opt/couchdb -type d -exec chmod 0770 {} \;
     - onchanges:
-      - install-couchdb
+#      - install-couchdb
+      - install_couchdb_pkgs
 
-install-couchdb-systemd-unitfile:
-   file.managed:
-    - name: /usr/lib/systemd/system/couchdb.service
-    - source: salt://files/couchdb/couchdb.service
+#install-couchdb-systemd-unitfile:
+#   file.managed:
+#    - name: /usr/lib/systemd/system/couchdb.service
+#    - source: salt://files/couchdb/couchdb.service
 
-/home/couchpotato/couchdb/etc/local.d/admins.ini:
+/opt/couchdb/etc/local.d/admins.ini:
   file.copy:
     - source: /srv/salt/files/couchdb/admins.ini
     - user: couchpotato
@@ -83,7 +93,7 @@ install-couchdb-systemd-unitfile:
 
 configure-admin-password:
   file.replace:
-    - name: /home/couchpotato/couchdb/etc/local.d/admins.ini
+    - name: /opt/couchdb/etc/local.d/admins.ini
     - pattern: |
         ;admin = mysecretpassword
     - repl: |
@@ -92,14 +102,14 @@ configure-admin-password:
 
 configure-couchdb:
   file.managed:
-    - name: /home/couchpotato/couchdb/etc/local.ini
+    - name: /opt/couchdb/etc/local.ini
     - source: salt://files/couchdb/local.ini
     - user: couchpotato
     - group: couchpotato
     - mode: 644
     - template: jinja
 
-/home/couchpotato/couchdb/etc/vm.args:
+/opt/couchdb/etc/vm.args:
   file.managed:
     - source: salt://files/couchdb/vm.args
     - template: jinja
@@ -128,9 +138,9 @@ run-couchdb:
     - init_delay: 5
     - listen:
       - file: /usr/lib/systemd/system/couchdb.service
-      - file: /home/couchpotato/couchdb/etc/local.d/admins.ini
-      - file: /home/couchpotato/couchdb/etc/local.ini
-      - file: /home/couchpotato/couchdb/etc/vm.args
+      - file: /opt/couchdb/etc/local.d/admins.ini
+      - file: /opt/couchdb/etc/local.ini
+      - file: /opt/couchdb/etc/vm.args
 
 join-couchdb-cluster:
   cmd.run:
