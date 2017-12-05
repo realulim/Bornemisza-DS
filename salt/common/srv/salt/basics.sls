@@ -16,19 +16,6 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
-configure_resolvers:
-  file.append:
-    - name: /etc/sysconfig/network
-    - text: |
-        DNS1={{ IP1 }}
-        DNS2={{ IP2 }}
-
-restart_network:
-  cmd.run:
-    - name: bash -c 'systemctl stop network && systemctl start network'
-    - onchanges:
-      - configure_resolvers
-
 /root/download:
   file.directory:
     - user: root
