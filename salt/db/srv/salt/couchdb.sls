@@ -79,10 +79,10 @@ set-permissions-couchdb:
 #      - install-couchdb
       - install_couchdb_pkgs
 
-#install-couchdb-systemd-unitfile:
-#   file.managed:
-#    - name: /usr/lib/systemd/system/couchdb.service
-#    - source: salt://files/couchdb/couchdb.service
+install-couchdb-systemd-unitfile:
+   file.managed:
+    - name: /usr/lib/systemd/system/couchdb.service
+    - source: salt://files/couchdb/couchdb.service
 
 /opt/couchdb/etc/local.d/admins.ini:
   file.copy:
