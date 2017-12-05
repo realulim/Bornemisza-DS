@@ -18,14 +18,14 @@ install_basics_groups:
 
 configure_resolvers:
   file.append:
-    - name: /etc/sysconfig/network-scripts/ifcfg-eth0
+    - name: /etc/sysconfig/network
     - text: |
         DNS1={{ IP1 }}
         DNS2={{ IP2 }}
 
 restart_network:
   cmd.run:
-    - name: systemctl restart network
+    - name: bash -c 'systemctl stop network && systemctl start network'
     - onchanges:
       - configure_resolvers
 
