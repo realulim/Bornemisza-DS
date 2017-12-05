@@ -13,6 +13,19 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
+configure_resolvers:
+  file.append:
+    - name: /etc/sysconfig/network-scripts/ifcfg-eth0:
+    - text: |
+        DNS1={{ pillar['cfns'] }}
+	DNS2={{ pillar['cfns2'] }}
+
+restart_network:
+  cmd.run:
+    - name: systemctl restart network
+    - onchanges:
+      - configure_resolvers
+
 /root/download:
   file.directory:
     - user: root
