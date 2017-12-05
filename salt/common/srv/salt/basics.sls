@@ -17,7 +17,7 @@ configure_resolvers:
 {%- set IP1=''.join(salt.dnsutil.A(pillar['cfns'], pillar['cfns2'])) -%}
 {%- set IP2=''.join(salt.dnsutil.A(pillar['cfns2'], pillar['cfns'])) -%}
   file.append:
-    - name: /etc/sysconfig/network-scripts/ifcfg-eth0:
+    - name: /etc/sysconfig/network-scripts/ifcfg-eth0
     - text: |
         DNS1={{ IP1 }}
 	DNS2={{ IP2 }}
