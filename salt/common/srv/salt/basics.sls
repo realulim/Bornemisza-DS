@@ -21,7 +21,7 @@ configure_resolvers:
     - name: /etc/sysconfig/network-scripts/ifcfg-eth0
     - text: |
         DNS1={{ IP1 }}
-	DNS2={{ IP2 }}
+        DNS2={{ IP2 }}
 
 restart_network:
   cmd.run:
