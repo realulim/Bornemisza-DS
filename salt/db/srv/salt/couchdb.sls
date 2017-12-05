@@ -3,6 +3,12 @@
 {% set BACKDOORURL='http://localhost:5986' %}
 {% set VIEWS='/home/couchdb/ddoc' %}
 
+couchdb:
+  user.present:
+    - fullname: CouchDB Administrator
+    - shell: /bin/bash
+    - home: /home/couchdb
+
 /etc/yum.repos.d/bintray-apache-couchdb-rpm.repo:
   file.managed:
     - source: salt://files/couchdb/bintray-apache-couchdb-rpm.repo
@@ -15,12 +21,6 @@ install_couchdb_pkgs:
     - pkgs:
       - epel-release
       - couchdb
-
-couchdb:
-  user.present:
-    - fullname: CouchDB Administrator
-    - shell: /bin/bash
-    - home: /home/couchdb
 
 set-permissions-couchdb:
   cmd.run:
