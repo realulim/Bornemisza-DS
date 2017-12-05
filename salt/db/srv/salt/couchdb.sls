@@ -36,6 +36,9 @@ set-permissions-couchdb:
   file.directory:
     - user: couchpotato
     - group: couchpotato
+    - recurse:
+      - user
+      - group
 
 install-couchdb-systemd-unitfile:
    file.managed:
