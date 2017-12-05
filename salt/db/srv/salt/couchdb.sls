@@ -19,31 +19,6 @@ install_couchdb_pkgs:
     - pkgs:
       - epel-release
       - couchdb
-#      - autoconf
-#      - autoconf-archive
-#      - automake
-#      - erlang-asn1
-#      - erlang-erl_interface
-#      - erlang-erts
-#      - erlang-eunit
-#      - erlang-jiffy
-#      - erlang-os_mon
-#      - erlang-reltool
-#      - erlang-snappy
-#      - erlang-xmerl
-#      - gcc-c++
-#      - help2man
-#      - jq
-#      - js-devel
-#      - libcurl-devel
-#      - libicu-devel
-#      - libtool
-#      - perl-Test-Harness
-#      - python-chardet
-#      - python-progressbar
-#      - python-requests
-#      - python-six
-#      - python-urllib3
 
 couchpotato:
   user.present:
@@ -51,33 +26,16 @@ couchpotato:
     - shell: /bin/bash
     - home: /home/couchpotato
 
-#download-couchdb:
-#  cmd.run:
-#    - name: bash -c 'mkdir tmp && cd tmp && wget http://mirror.synyx.de/apache/couchdb/source/{{ COUCHDB_VERSION }}/{{ COUCHDB_TARGZ }}'
-#    - cwd: /home/couchpotato
-#    - runas: couchpotato
-#    - unless: ls ./tmp/{{ COUCHDB_TARGZ }}
-
-#build-couchdb:
-#  cmd.run:
-#    - name: bash -c 'tar -xzf {{ COUCHDB_TARGZ }} && cd {{ COUCHDB_DIR }} && ./configure && make release'
-#    - cwd: /home/couchpotato/tmp
-#    - runas: couchpotato
-#    - unless: ls ./{{ COUCHDB_DIR }}/rel/couchdb
-
-#install-couchdb:
-#  cmd.run:
-#    - name: bash -c 'cp -R rel/couchdb ~/ && find ~/couchdb -type d -exec chmod 0770 {} \; && chmod 0644 ~/couchdb/etc/*'
-#    - cwd: /home/couchpotato/tmp/{{ COUCHDB_DIR }}
-#    - runas: couchpotato
-#    - unless: ls {{ COUCHDB_BINARY }}
-
 set-permissions-couchdb:
   cmd.run:
     - name: find /opt/couchdb -type d -exec chmod 0770 {} \;
     - onchanges:
-#      - install-couchdb
       - install_couchdb_pkgs
+
+/var/lib/couchdb:
+  file.directory:
+    - user: couchpotato
+    - group: couchpotato
 
 install-couchdb-systemd-unitfile:
    file.managed:
