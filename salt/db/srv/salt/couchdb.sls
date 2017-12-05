@@ -30,6 +30,11 @@ install_couchdb_pkgs:
       - libicu-devel
       - libtool
       - perl-Test-Harness
+      - python-chardet
+      - python-progressbar
+      - python-requests
+      - python-six
+      - python-urllib3
 
 couchpotato:
   user.present:
