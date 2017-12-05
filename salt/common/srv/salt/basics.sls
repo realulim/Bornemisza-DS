@@ -14,11 +14,13 @@ install_basics_groups:
     - name: "Development Tools"
 
 configure_resolvers:
+{%- set IP1=''.join(salt.dnsutil.A(pillar['cfns'], pillar['cfns2'])) -%}
+{%- set IP2=''.join(salt.dnsutil.A(pillar['cfns2'], pillar['cfns'])) -%}
   file.append:
     - name: /etc/sysconfig/network-scripts/ifcfg-eth0:
     - text: |
-        DNS1={{ pillar['cfns'] }}
-	DNS2={{ pillar['cfns2'] }}
+        DNS1={{ IP1 }}
+	DNS2={{ IP2 }}
 
 restart_network:
   cmd.run:
