@@ -4,6 +4,7 @@
 # $2 absolute path to password file
 # $3 the domain serviced by this Payara instance
 # $4 the fully qualified domain name of this Payara instance
+# $5 the DNS resolver to use when querying for services
 
 {%- set ASADMIN_CMD='$1 --interactive=false --user admin --passwordfile="$2"' %}
 
@@ -31,3 +32,8 @@
 # create FQDN system property
 {{ ASADMIN_CMD }} delete-system-property FQDN
 {{ ASADMIN_CMD }} create-system-properties FQDN="$4"
+
+# create DNSRESOLVER system property
+{{ ASADMIN_CMD }} delete-system-property DNSRESOLVER
+{{ ASADMIN_CMD }} create-system-properties DNSRESOLVER="$5"
+
