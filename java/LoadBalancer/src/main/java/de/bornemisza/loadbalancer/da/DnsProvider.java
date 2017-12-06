@@ -12,6 +12,7 @@ import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
@@ -21,8 +22,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
-import javax.naming.ConfigurationException;
-import javax.naming.directory.Attribute;
 
 public class DnsProvider {
 
