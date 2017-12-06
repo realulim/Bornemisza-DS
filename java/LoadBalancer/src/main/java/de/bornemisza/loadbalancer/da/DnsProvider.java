@@ -21,6 +21,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICacheManager;
 
 import de.bornemisza.loadbalancer.entity.SrvRecord;
+import javax.naming.ConfigurationException;
 import javax.naming.directory.Attribute;
 
 public class DnsProvider {
@@ -38,7 +39,8 @@ public class DnsProvider {
         this.cache = cacheManager.getCache("DatabaseServers");
 
         env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
-        env.put("java.naming.provider.url", "dns:");
+        env.put("java.naming.provider.url", "dns://" + System.getProperty("DNSRESOLVER") + "/" + getDomainName());
+        Logger.getAnonymousLogger().info("Using DNS Resolver: " + env.get("java.naming.provider.url"));
     }
 
     // Constructor for Unit Tests
@@ -85,6 +87,15 @@ public class DnsProvider {
         else {
             return new ArrayList<>(sortedRecords);
         }
+    }
+
+    private String getDomainName() {
+        String FQDN = System.getProperty("FQDN");
+        String[] tokens = FQDN.split("\\.");
+        int len = tokens.length;
+        if (len == 0) throw new RuntimeException("FQDN not configured!");
+        else if (len < 2) return FQDN;
+        else return tokens[len - 2] + "." + tokens[len - 1];
     }
 
 }

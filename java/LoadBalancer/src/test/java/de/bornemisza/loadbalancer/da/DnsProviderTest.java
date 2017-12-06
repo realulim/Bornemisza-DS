@@ -41,6 +41,8 @@ public class DnsProviderTest {
         DirContext dirContext = mock(DirContext.class);
         enumeration = createEnumerationMock(dirContext);
 
+        System.setProperty("DNSRESOLVER", "ns.someprovider.com");
+        System.setProperty("FQDN", "www.somedomain.com");
         this.CUT = new DnsProvider(hazelcast, dirContext);
     }
 
