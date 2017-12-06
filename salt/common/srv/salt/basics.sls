@@ -1,3 +1,6 @@
+{%- set IP1=''.join(salt.dnsutil.A(pillar['cfns'], pillar['cfns2'])) -%}
+{%- set IP2=''.join(salt.dnsutil.A(pillar['cfns2'], pillar['cfns'])) -%}
+
 install_basics_pkgs:
   pkg.installed:
     - pkgs:

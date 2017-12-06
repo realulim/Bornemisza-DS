@@ -24,6 +24,7 @@ if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	SSLDOMAIN=$(printf "%s" "$domain")
 	printf "ssldomain: %s\n" "$SSLDOMAIN" | tee -a $PillarLocal/basics.sls
 	printf "cfns: %s\n" "$cfns" | tee -a $PillarLocal/basics.sls
+	printf "cfns2: %s\n" "$cfns2" | tee -a $PillarLocal/basics.sls
 fi
 
 # determine my private IP
