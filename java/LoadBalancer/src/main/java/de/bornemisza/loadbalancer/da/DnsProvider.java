@@ -95,7 +95,7 @@ public class DnsProvider {
         int len = tokens.length;
         if (len == 0) throw new RuntimeException("FQDN not configured!");
         else if (len < 2) return FQDN;
-        else return tokens[len - 2] + "." + tokens[len - 1];
+        else return tokens[len - 2] + "." + tokens[len - 1] + ".";
     }
 
 }
