@@ -31,7 +31,7 @@ import de.bornemisza.rest.security.HashProvider;
 
 public class SessionsServiceTest {
     
-    private final Auth auth = new Auth(new BasicAuthCredentials("Tommy H.", "supersecretpw"));
+    private final Auth auth = new Auth(new BasicAuthCredentials("Tommy Heelfigure", "supersecretpw"));
 
     private SessionsService CUT;
     private Post post;
@@ -125,6 +125,7 @@ public class SessionsServiceTest {
         assertNotNull(session);
         assertEquals(cookie, session.getDoubleSubmitToken().getCookie());
         assertEquals(hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";"))), session.getDoubleSubmitToken().getCtoken());
+        assertEquals("userdb-546f6d6d79204865656c666967757265", session.getUserDb());
     }
 
 }

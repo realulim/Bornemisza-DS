@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.xml.bind.DatatypeConverter;
 
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
@@ -73,6 +74,9 @@ public class SessionsService {
             String cookie = cookies.get(0);
             String hmac = hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";")));
             session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, hmac));
+            byte[] userNameBytes = auth.getUsername().getBytes();
+            String hexEncodedUserName = DatatypeConverter.printHexBinary(userNameBytes).toLowerCase();
+            session.setUserDb("userdb-" + hexEncodedUserName);
             return session;
         }
     }
