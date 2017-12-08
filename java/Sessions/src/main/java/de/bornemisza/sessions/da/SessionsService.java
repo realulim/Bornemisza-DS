@@ -15,6 +15,7 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Session;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
@@ -74,9 +75,9 @@ public class SessionsService {
             String cookie = cookies.get(0);
             String hmac = hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";")));
             session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, hmac));
-            byte[] userNameBytes = auth.getUsername().getBytes();
-            String hexEncodedUserName = DatatypeConverter.printHexBinary(userNameBytes).toLowerCase();
-            session.setNameOfUserDatabase("userdb-" + hexEncodedUserName);
+            User user = new User();
+            user.setName(auth.getUsername());
+            session.setNameOfUserDatabase(user.getNameOfUserDatabase());
             return session;
         }
     }

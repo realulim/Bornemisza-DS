@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import javax.xml.bind.DatatypeConverter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -80,6 +81,12 @@ public class User extends Document implements Serializable {
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public String getNameOfUserDatabase() {
+        byte[] userNameBytes = name.getBytes();
+        String hexEncodedUserName = DatatypeConverter.printHexBinary(userNameBytes).toLowerCase();
+        return "userdb-" + hexEncodedUserName;
     }
 
     @Override
