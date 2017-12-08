@@ -125,7 +125,7 @@ public class SessionsServiceTest {
         assertNotNull(session);
         assertEquals(cookie, session.getDoubleSubmitToken().getCookie());
         assertEquals(hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";"))), session.getDoubleSubmitToken().getCtoken());
-        assertEquals("userdb-546f6d6d79204865656c666967757265", session.getUserDb());
+        assertEquals("userdb-546f6d6d79204865656c666967757265", session.getNameOfUserDatabase());
     }
 
 }

@@ -76,7 +76,7 @@ public class SessionsService {
             session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, hmac));
             byte[] userNameBytes = auth.getUsername().getBytes();
             String hexEncodedUserName = DatatypeConverter.printHexBinary(userNameBytes).toLowerCase();
-            session.setUserDb("userdb-" + hexEncodedUserName);
+            session.setNameOfUserDatabase("userdb-" + hexEncodedUserName);
             return session;
         }
     }

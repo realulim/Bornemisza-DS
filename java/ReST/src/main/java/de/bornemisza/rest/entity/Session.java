@@ -31,7 +31,7 @@ public class Session extends Document {
     private DoubleSubmitToken dsToken;
 
     @JsonIgnore
-    private String userDb;
+    private String nameOfUserDatabase;
 
     public String getType() {
         return type;
@@ -65,12 +65,12 @@ public class Session extends Document {
         this.dsToken = dsToken;
     }
 
-    public String getUserDb() {
-        return userDb;
+    public String getNameOfUserDatabase() {
+        return nameOfUserDatabase;
     }
 
-    public void setUserDb(String userDb) {
-        this.userDb = userDb;
+    public void setNameOfUserDatabase(String nameOfUserDatabase) {
+        this.nameOfUserDatabase = nameOfUserDatabase;
     }
 
 }
