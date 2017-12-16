@@ -30,6 +30,10 @@ public class UuidsResult implements Serializable {
         return uuids;
     }
 
+    public void setUuids(List<String> uuids) {
+        this.uuids = uuids;
+    }
+
     public String getBackendHeader() {
         return backendHeader;
     }
