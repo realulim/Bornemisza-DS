@@ -1,8 +1,9 @@
 package de.bornemisza.rest;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 
 import org.javalite.http.HttpException;
 
@@ -22,7 +23,7 @@ public class Json {
             return new ObjectMapper().readValue(json, type);
         }
         catch (IOException ex) {
-            throw new HttpException("Problem unmarshalling JSON!", ex);
+            throw new HttpException("Problem unmarshalling JSON: " + json, ex);
         }
     }
 
