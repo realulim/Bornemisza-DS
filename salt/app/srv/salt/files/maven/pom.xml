@@ -10,5 +10,10 @@
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>2.26</version>
         </dependency>
+	<dependency>
+            <groupId>com.inversoft</groupId>
+            <artifactId>prime-jwt</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
 </project>
