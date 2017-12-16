@@ -1,9 +1,8 @@
 package de.bornemisza.sessions.endpoint;
 
-
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import de.bornemisza.rest.exception.UnauthorizedException;
