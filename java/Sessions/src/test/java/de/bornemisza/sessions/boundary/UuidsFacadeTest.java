@@ -1,6 +1,5 @@
 package de.bornemisza.sessions.boundary;
 
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,10 +15,6 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
-import org.javalite.http.Get;
-import org.javalite.http.Http;
-import org.javalite.http.HttpException;
-import org.javalite.http.Post;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -29,6 +24,7 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
+import de.bornemisza.rest.entity.UuidsResult;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
@@ -37,20 +33,16 @@ import de.bornemisza.rest.security.HashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
+import de.bornemisza.sessions.da.UuidsService;
 
 public class UuidsFacadeTest {
 
     private UuidsFacade CUT;
-    private Http http;
-    private HttpConnection conn;
-    private Post post;
-    private Get get;
-    private final Map<String, List<String>> headers = new HashMap<>();
+    private UuidsService uuidsService;
     private HazelcastInstance hazelcast;
     private CouchPool pool;
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
-    private final Map<String, List<String>> mapWithBackendHeader = new HashMap<>();
     private final String password = "My secret Password";
     private String cookie, hmac;
     private Auth auth;
@@ -65,21 +57,7 @@ public class UuidsFacadeTest {
         DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, hmac);
         auth = new Auth(dsToken);
 
-        post = mock(Post.class);
-        when(post.param(anyString(), any())).thenReturn(post);
-        when(post.headers()).thenReturn(headers);
-        http = mock(Http.class);
-        when(http.post(anyString())).thenReturn(post);
-
-        get = mock(Get.class);
-        when(get.header(anyString(), any())).thenReturn(get);
-        when(http.get(anyString())).thenReturn(get);
-        when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
-
         pool = mock(CouchPool.class);
-        conn = mock(HttpConnection.class);
-        when(conn.getHttp()).thenReturn(http);
-        when(pool.getConnection()).thenReturn(conn);
 
         hazelcast = mock(HazelcastInstance.class);
         Set<Member> members = createMembers(5);
@@ -91,7 +69,9 @@ public class UuidsFacadeTest {
 
         lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
-        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, lbConfig);
+
+        uuidsService = mock(UuidsService.class);
+        CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
     }
 
     class IpAddressAnswer implements Answer {
@@ -109,7 +89,7 @@ public class UuidsFacadeTest {
         Set<Member> members = new HashSet<>();
         for (int i = 1; i <= count; i++) {
             String hostname = "db" + i + ".domain.de";
-            allConnections.put(hostname, conn);
+            allConnections.put(hostname, mock(HttpConnection.class));
             ipAddresses.add("192.168.0." + i);
 
             Member member = mock(Member.class);
@@ -156,121 +136,69 @@ public class UuidsFacadeTest {
     }
 
     @Test
-    public void getUuids_technicalError() {
-        String msg = "Connection refused";
-        ConnectException cause = new ConnectException(msg);
-        HttpException wrapperException = new HttpException(msg, cause);
-        when(get.responseCode()).thenThrow(wrapperException);
-        Response resp = CUT.getUuids(auth, 3);
-        assertEquals(500, resp.getStatus());
-        assertEquals(wrapperException.toString(), resp.getEntity());
-    }
-
-    @Test
-    public void getUuids_getFailed() {
-        int errorCode = 509;
-        String msg = "Bandwidth Limit Exceeded";
-        when(get.responseCode()).thenReturn(errorCode);
-        when(get.responseMessage()).thenReturn(msg);
-        Response resp = CUT.getUuids(auth, 3);
-        assertEquals(errorCode, resp.getStatus());
-        assertEquals(msg, resp.getEntity());
-    }
-
-    @Test
     public void getUuids_unresolvableHostname() {
-        String json = "{\n" +
-                      "    \"uuids\": [\n" +
-                      "        \"6f4f195712bd76a67b2cba6737009adb\"\n" +
-                      "    ]\n" +
-                      "}";
-        this.dnsResolver = mock(DnsResolver.class);
-        when(dnsResolver.getHostAddress(anyString())).thenReturn(null);
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
-        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, lbConfig);
+        UuidsResult uuidsResult = new UuidsResult();
+        uuidsResult.setBackendHeader("192.168.0.5");
+        uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
+        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+        CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(json);
-        mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0.5" }));
-        when(get.headers()).thenReturn(mapWithBackendHeader);
         Response response = CUT.getUuids(auth, 1);
         assertEquals(200, response.getStatus());
-        assertEquals(json, response.getEntity());
+        assertEquals(uuidsResult, response.getEntity());
         assertEquals("Black", response.getHeaderString("DbServer")); // second color
     }
 
     @Test
     public void getUuids() {
-        String json = "{\n" +
-                      "    \"uuids\": [\n" +
-                      "        \"6f4f195712bd76a67b2cba6737007f44\",\n" +
-                      "        \"6f4f195712bd76a67b2cba6737008c8a\",\n" +
-                      "        \"6f4f195712bd76a67b2cba6737009adb\"\n" +
-                      "    ]\n" +
-                      "}";
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(json);
-        mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + 2 })); // second color
-        when(get.headers()).thenReturn(mapWithBackendHeader);
+        UuidsResult uuidsResult = new UuidsResult();
+        uuidsResult.setBackendHeader("192.168.0." + 2); // second color
+        uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
+        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+
         Response response = CUT.getUuids(auth, 3);
         assertEquals(200, response.getStatus());
-        assertEquals(json, response.getEntity());
+        assertEquals(uuidsResult, response.getEntity());
         assertEquals("Gold", response.getHeaderString("AppServer")); // third color
         assertEquals("Crimson", response.getHeaderString("DbServer")); // second color
     }
 
     @Test
     public void getUuids_moreMembersThanColors() {
-        String json = "{\n" +
-                      "    \"uuids\": [\n" +
-                      "        \"6f4f195712bd76a67b2cba6737007f44\",\n" +
-                      "        \"6f4f195712bd76a67b2cba6737008c8a\",\n" +
-                      "        \"6f4f195712bd76a67b2cba6737009adb\",\n" +
-                      "        \"6f4f195712bd76a67b2cba6737010334\",\n" +
-                      "        \"6f4f195712bd76a67b2cba6737aa037b\",\n" +
-                      "        \"6f4f195712bd76a67b2cba67478df2ac\"\n" +
-                      "    ]\n" +
-                      "}";
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(json);
-        mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0.5" })); // last color
-        when(get.headers()).thenReturn(mapWithBackendHeader);
+        UuidsResult uuidsResult = new UuidsResult();
+        uuidsResult.setBackendHeader("192.168.0.5"); // last color
+        uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
+                                                          "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
+        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
 
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
         when(hazelcast.getCluster()).thenReturn(cluster);
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
-        CUT = new UuidsFacade(pool, hazelcast, dnsResolver, lbConfig);
-
-        when(http.getBaseUrl()).thenReturn("http://db4.domain.de/foo"); // fifth DbServer
+        CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
         Response response = CUT.getUuids(auth, 6);
         assertEquals(200, response.getStatus());
-        assertEquals(json, response.getEntity());
+        assertEquals(uuidsResult, response.getEntity());
         assertEquals("Black", response.getHeaderString("AppServer")); // default color
         assertEquals("LightSalmon", response.getHeaderString("DbServer")); // last color
     }
 
     @Test
     public void getUuids_moreDbServersThanColors() {
-        when(get.responseCode()).thenReturn(200);
-        String json = "{\n" +
-                      "    \"uuids\": [\n" +
-                      "        \"c8fedfee503b1de6d52e3a52e10be656\"\n" +
-                      "    ]\n" +
-                      "}";
-        when(get.text()).thenReturn(json);
-        when(get.headers()).thenReturn(mapWithBackendHeader);
+        UuidsResult uuidsResult = new UuidsResult();
+        uuidsResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
+        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
-            mapWithBackendHeader.clear();
-            mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + j }));
+            uuidsResult.setBackendHeader("192.168.0." + j);
             Response response = CUT.getUuids(auth, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), response.getHeaderString("DbServer"));
         }
-        mapWithBackendHeader.clear();
-        mapWithBackendHeader.put("X-Backend", Arrays.asList(new String[] { "192.168.0." + 6 })); // overflow
+        uuidsResult.setBackendHeader("192.168.0." + 6); // overflow
         Response response = CUT.getUuids(auth, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
     }

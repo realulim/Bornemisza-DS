@@ -28,7 +28,7 @@ public class UuidsService {
     @Inject
     CouchPool couchPool;
 
-    public UuidsResult getUuids(Auth auth, int count) {
+    public UuidsResult getUuids(Auth auth, int count) throws BusinessException, TechnicalException {
         Get get = couchPool.getConnection().getHttp().get("_uuids?count=" + count)
                 .header(HttpHeaders.COOKIE, auth.getCookie());
         try {

@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
@@ -21,21 +20,21 @@ import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
-import org.javalite.http.Get;
-import org.javalite.http.Http;
-import org.javalite.http.HttpException;
-
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import de.bornemisza.rest.HttpHeaders;
+import de.bornemisza.rest.entity.UuidsResult;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
+import de.bornemisza.sessions.da.UuidsService;
 
 @Stateless
 public class UuidsFacade {
+
+    @Inject
+    UuidsService uuidsService;
 
     @Inject
     CouchPool couchPool;
@@ -58,7 +57,8 @@ public class UuidsFacade {
     }
 
     // Constructor for Unit Tests
-    public UuidsFacade(CouchPool couchPool, HazelcastInstance hazelcast, DnsResolver dnsResolver, LoadBalancerConfig lbConfig) {
+    public UuidsFacade(UuidsService uuidsService, CouchPool couchPool, HazelcastInstance hazelcast, DnsResolver dnsResolver, LoadBalancerConfig lbConfig) {
+        this.uuidsService = uuidsService;
         this.couchPool = couchPool;
         this.hazelcast = hazelcast;
         this.dnsResolver = dnsResolver;
@@ -79,25 +79,11 @@ public class UuidsFacade {
 
     public Response getUuids(Auth auth, int count) throws UnauthorizedException {
         auth.checkTokenValidity(hashProvider);
-        Http httpBase = couchPool.getConnection().getHttp();
-        Get get = httpBase.get("_uuids?count=" + count)
-                .header(HttpHeaders.COOKIE, auth.getCookie());
-        try {
-            int responseCode = get.responseCode();
-            if (responseCode != 200) {
-                return Response.status(responseCode).entity(get.responseMessage()).build();
-            }
-        }
-        catch (HttpException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.toString()).build();
-        }
-        String header = "127.0.0.1";
-        List<String> backendHeaders = get.headers().get("X-Backend");
-        if (backendHeaders != null) header = backendHeaders.get(0);
+        UuidsResult uuidsResult = uuidsService.getUuids(auth, count);
         return Response.ok()
                 .header("AppServer", JAXRSConfiguration.MY_COLOR)
-                .header("DbServer", getDbServerColor(header))
-                .entity(get.text()).build();
+                .header("DbServer", getDbServerColor(uuidsResult.getBackendHeader()))
+                .entity(uuidsResult).build();
     }
 
     /**
