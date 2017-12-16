@@ -69,10 +69,7 @@ public class Auth {
         if (isVoid(cookie) || isVoid(csrfToken)) {
             throw new UnauthorizedException(HttpHeaders.COOKIE + " or " + HttpHeaders.CTOKEN + " missing!");
         }
-        else if (! hashProvider.hmacDigest(cookie).equals(csrfToken)) {
-            throw new UnauthorizedException("Hash Mismatch!");
-        }
-        
+        new DoubleSubmitToken(cookie, csrfToken).checkValidity(hashProvider);
     }
 
     private boolean isVoid(String value) {

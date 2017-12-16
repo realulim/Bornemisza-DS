@@ -11,10 +11,18 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.primeframework.jwt.Signer;
+import org.primeframework.jwt.Verifier;
+import org.primeframework.jwt.domain.JWT;
+import org.primeframework.jwt.hmac.HMACSigner;
+import org.primeframework.jwt.hmac.HMACVerifier;
+
 public abstract class HashProvider {
 
     private static final String algorithm = "HmacSHA256";
     private Mac mac;
+    private Signer signer;
+    private Verifier verifier;
 
     public HashProvider() {
     }
@@ -25,6 +33,9 @@ public abstract class HashProvider {
         try {
             char[] serverSecret = getServerSecret();
             SecretKeySpec key = new SecretKeySpec(toBytes(serverSecret), algorithm);
+            String secret = String.valueOf(serverSecret);
+            signer = HMACSigner.newSHA256Signer(secret);
+            verifier = HMACVerifier.newVerifier(secret);
             Arrays.fill(serverSecret, '*');
             mac = Mac.getInstance(algorithm);
             mac.init(key);
@@ -42,6 +53,18 @@ public abstract class HashProvider {
         catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Problem generating Hash", ex);
         }
+    }
+
+    public String encodeJasonWebToken(String userName, String cookie) {
+        JWT jwt = new JWT()
+                .setIssuer(System.getProperty("FQDN"))
+                .setSubject(userName)
+                .addClaim("Cookie", cookie);
+        return JWT.getEncoder().encode(jwt, signer);
+    }
+
+    public JWT decodeJasonWebToken(String encodedJWT) {
+        return JWT.getDecoder().decode(encodedJWT, verifier);
     }
 
     private String createHexString(byte[] bytes) {

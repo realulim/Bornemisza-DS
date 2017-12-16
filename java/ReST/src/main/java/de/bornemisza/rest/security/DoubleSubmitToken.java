@@ -1,5 +1,8 @@
 package de.bornemisza.rest.security;
 
+import org.primeframework.jwt.domain.JWT;
+import org.primeframework.jwt.domain.JWTException;
+
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.exception.UnauthorizedException;
 
@@ -17,6 +20,11 @@ public class DoubleSubmitToken {
         return cookie;
     }
 
+    public String getBaseCookie() {
+        if (cookie == null) return null;
+        else return cookie.contains(";") ? cookie.substring(0, cookie.indexOf(";")) : cookie;
+    }
+
     public String getCtoken() {
         return ctoken;
     }
@@ -25,10 +33,17 @@ public class DoubleSubmitToken {
         if (isVoid(cookie) || isVoid(ctoken)) {
             throw new UnauthorizedException(HttpHeaders.COOKIE + " or " + HttpHeaders.CTOKEN + " missing!");
         }
-        else if (! hashProvider.hmacDigest(cookie).equals(ctoken)) {
-            throw new UnauthorizedException("Hash Mismatch!");
+        try {
+            String baseCookie = getBaseCookie();
+            JWT decodedJasonWebToken = hashProvider.decodeJasonWebToken(ctoken);
+            Object cookieClaim = decodedJasonWebToken.claims.get("Cookie");
+            if (cookieClaim == null || !cookieClaim.toString().equals(baseCookie)) {
+                throw new UnauthorizedException("Hash Mismatch!");
+            }
         }
-        
+        catch (JWTException ex) {
+            throw new UnauthorizedException("JWT invalid: " + ex.toString());
+        }
     }
 
     protected boolean isVoid(String value) {
