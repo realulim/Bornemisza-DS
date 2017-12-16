@@ -1,4 +1,4 @@
-package de.bornemisza.sessions.facade;
+package de.bornemisza.sessions.boundary;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -20,12 +20,12 @@ import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
@@ -35,7 +35,6 @@ import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.rest.security.DoubleSubmitToken;
 import de.bornemisza.rest.security.HashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
-import de.bornemisza.sessions.boundary.UuidsFacade;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
 

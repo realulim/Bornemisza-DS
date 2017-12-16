@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.xml.bind.DatatypeConverter;
 
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
