@@ -2,6 +2,10 @@ package de.bornemisza.sessions.da;
 
 import java.net.ConnectException;
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.javalite.http.Get;
 import org.javalite.http.Http;
@@ -82,13 +86,29 @@ public class UuidsServiceTest {
     }
 
     @Test
+    public void getUuids_noBackendHeader() {
+        int count = 3;
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(getJson(count));
+
+        UuidsResult result = CUT.getUuids(auth, 3);
+        assertEquals(count, result.getUuids().size());
+        assertEquals("127.0.0.1", result.getBackendHeader());
+    }
+
+    @Test
     public void getUuids() {
+        String backendIp = "1.2.3.4";
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(getJson(0)).thenReturn(getJson(1)).thenReturn(getJson(2)).thenReturn(getJson(3));
+        Map<String, List<String>> backendHeaders = new HashMap<>();
+        backendHeaders.put("X-Backend", Arrays.asList(new String[] { backendIp }));
+        when(get.headers()).thenReturn(backendHeaders);
 
         for (int i = 0; i < 4; i++) {
             UuidsResult result = CUT.getUuids(auth, i);
             assertEquals(i, result.getUuids().size());
+            assertEquals(backendIp, result.getBackendHeader());
         }
     }
 

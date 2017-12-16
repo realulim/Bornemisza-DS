@@ -1,5 +1,7 @@
 package de.bornemisza.sessions.da;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.javalite.http.Get;
@@ -38,7 +40,12 @@ public class UuidsService {
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        return Json.fromJson(get.text(), UuidsResult.class);
+        String header = "127.0.0.1";
+        List<String> backendHeaders = get.headers().get("X-Backend");
+        if (backendHeaders != null) header = backendHeaders.get(0);
+        UuidsResult result = Json.fromJson(get.text(), UuidsResult.class);
+        result.setBackendHeader(header);
+        return result;
     }
 
 }

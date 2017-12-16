@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -22,8 +23,19 @@ public class UuidsResult implements Serializable {
     @JsonProperty(value = "uuids")
     private List<String> uuids;
 
+    @JsonIgnore
+    private String backendHeader;
+
     public List<String> getUuids() {
         return uuids;
+    }
+
+    public String getBackendHeader() {
+        return backendHeader;
+    }
+
+    public void setBackendHeader(String backendHeader) {
+        this.backendHeader = backendHeader;
     }
 
     @Override
