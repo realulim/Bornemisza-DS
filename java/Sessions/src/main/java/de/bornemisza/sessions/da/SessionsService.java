@@ -72,8 +72,9 @@ public class SessionsService {
         else {
             Session session = Json.fromJson(post.text(), Session.class);
             String cookie = cookies.get(0);
-            String hmac = hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";")));
-            session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, hmac));
+            String baseCookie = cookie.contains(";") ? cookie.substring(0, cookie.indexOf(";")) : cookie;
+            String encodedJWT = hashProvider.encodeJasonWebToken(auth.getUsername(), baseCookie);
+            session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, encodedJWT));
             User user = new User();
             user.setName(auth.getUsername());
             session.setNameOfUserDatabase(user.getNameOfUserDatabase());

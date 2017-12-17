@@ -9,9 +9,9 @@ import java.util.Map;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -117,14 +117,16 @@ public class SessionsServiceTest {
     public void createSession() {
         String cookie = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure";
         when(post.responseCode()).thenReturn(200);
-        when(post.text()).thenReturn("{\"ok\":true,\"name\":\"Fazil Ongudar\",\"roles\":[\"customer\",\"user\"]}");
+        when(post.text()).thenReturn("{\"ok\":true,\"name\":\"" + auth.getUsername() + "\",\"roles\":[\"customer\",\"user\"]}");
         List<String> cookies = new ArrayList<>();
         cookies.add(cookie);
         headers.put(HttpHeaders.SET_COOKIE, cookies);
         Session session = CUT.createSession(auth);
         assertNotNull(session);
         assertEquals(cookie, session.getDoubleSubmitToken().getCookie());
-        assertEquals(hashProvider.hmacDigest(cookie.substring(0, cookie.indexOf(";"))), session.getDoubleSubmitToken().getCtoken());
+        assertTrue(cookie.startsWith(session.getDoubleSubmitToken().getBaseCookie()));
+        String baseCookie = session.getDoubleSubmitToken().getBaseCookie();
+        assertEquals(hashProvider.encodeJasonWebToken(auth.getUsername(), baseCookie), session.getDoubleSubmitToken().getCtoken());
         assertEquals("userdb-546f6d6d79204865656c666967757265", session.getNameOfUserDatabase());
     }
 

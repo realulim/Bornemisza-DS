@@ -44,7 +44,7 @@ public class UuidsFacadeTest {
     private DnsResolver dnsResolver;
     private final List<String> ipAddresses = new ArrayList<>();
     private final String password = "My secret Password";
-    private String cookie, hmac;
+    private String cookie, jwt;
     private Auth auth;
 
     @Before
@@ -53,8 +53,8 @@ public class UuidsFacadeTest {
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
         HashProvider hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         cookie = "MyCookie";
-        hmac = hashProvider.hmacDigest(cookie);
-        DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, hmac);
+        jwt = hashProvider.encodeJasonWebToken("Fazil Ongudar", cookie);
+        DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, jwt);
         auth = new Auth(dsToken);
 
         pool = mock(CouchPool.class);
@@ -127,11 +127,11 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids_hashMismatch() {
         try {
-            CUT.getUuids(new Auth(new DoubleSubmitToken(cookie, "this-is-not-a-hash-function")), 1);
+            CUT.getUuids(new Auth(new DoubleSubmitToken(cookie, "this-is-not-a-jwt")), 1);
             fail();
         }
         catch (UnauthorizedException e) {
-            assertEquals("Hash Mismatch!", e.getMessage());
+            assertTrue(e.getMessage().startsWith("JWT invalid"));
         }
     }
 
