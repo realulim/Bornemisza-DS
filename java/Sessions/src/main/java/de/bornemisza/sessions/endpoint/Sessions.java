@@ -41,13 +41,12 @@ public class Sessions {
             session = facade.createNewSession(authHeader);
         }
         catch (UnauthorizedException ex) {
-            throw new RestException(Status.UNAUTHORIZED);
+            return Response.status(Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         }
         catch (RuntimeException ex) {
-            throw new RestException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.toString()).build());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.toString()).build();
         }
-        if (session == null) throw new RestException(Status.NOT_FOUND);
+        if (session == null) return Response.status(Status.NOT_FOUND).build();
         else {
             DoubleSubmitToken dsToken = session.getDoubleSubmitToken();
             return Response.ok()

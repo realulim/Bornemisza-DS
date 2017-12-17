@@ -42,8 +42,7 @@ public class Uuids {
             return facade.getUuids(auth, count);
         }
         catch (UnauthorizedException ex) {
-            throw new RestException(
-                Response.status(Status.UNAUTHORIZED).entity(ex.getMessage()).build());
+            return Response.status(Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         }
     }
 

@@ -30,39 +30,25 @@ public class SessionsTest {
 
     @Test
     public void getNewSession_authHeaderMissing() {
-        try {
-            when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way"));
-            CUT.getNewSession(null);
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(401, e.getResponse().getStatus());
-        }
+        when(facade.createNewSession(null)).thenThrow(new UnauthorizedException("No way"));
+        Response response = CUT.getNewSession(null);
+        assertEquals(401, response.getStatus());
     }
 
     @Test
     public void getNewSession_runtimeException() {
         String msg = "Connection refused";
         when(facade.createNewSession(AUTH_HEADER)).thenThrow(new TechnicalException(msg));
-        try {
-            CUT.getNewSession(AUTH_HEADER);
-            fail();
-        }
-        catch (RestException ex) {
-            assertTrue(ex.getResponse().getEntity().toString().contains(msg));
-        }
+        Response response = CUT.getNewSession(AUTH_HEADER);
+        assertEquals(500, response.getStatus());
+        assertTrue(response.getEntity().toString().contains(msg));
     }
 
     @Test
     public void getNewSession_noCookie() {
         when(facade.createNewSession(AUTH_HEADER)).thenReturn(null);
-        try {
-            CUT.getNewSession(AUTH_HEADER);
-            fail();
-        }
-        catch (RestException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-        }
+        Response response = CUT.getNewSession(AUTH_HEADER);
+        assertEquals(404, response.getStatus());
     }
 
     @Test

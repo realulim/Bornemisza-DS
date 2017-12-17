@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.sessions.boundary.UuidsFacade;
+import javax.ws.rs.core.Response;
 
 public class UuidsTest {
     
@@ -26,13 +27,8 @@ public class UuidsTest {
     @Test
     public void getUuids_unauthorized() {
         when(facade.getUuids(any(Auth.class), anyInt())).thenThrow(new UnauthorizedException("meh"));
-        try {
-            CUT.getUuids("someCookie", "someToken", 1);
-            fail();
-        }
-        catch (RestException ex) {
-            assertEquals(401, ex.getResponse().getStatus());
-        }
+        Response response = CUT.getUuids("someCookie", "someToken", 1);
+        assertEquals(401, response.getStatus());
     }
     
 }
