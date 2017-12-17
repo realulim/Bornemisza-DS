@@ -1,6 +1,5 @@
 package de.bornemisza.rest.security;
 
-import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import static de.bornemisza.rest.security.Auth.Scheme.COOKIE_CSRFTOKEN;
 import static de.bornemisza.rest.security.Auth.Scheme.USERNAME_PASSWORD;
@@ -66,16 +65,7 @@ public class Auth {
     }
 
     public String checkTokenValidity(HashProvider hashProvider) throws UnauthorizedException {
-        if (isVoid(cookie) || isVoid(csrfToken)) {
-            throw new UnauthorizedException(HttpHeaders.COOKIE + " or " + HttpHeaders.CTOKEN + " missing!");
-        }
         return new DoubleSubmitToken(cookie, csrfToken).checkValidity(hashProvider);
-    }
-
-    private boolean isVoid(String value) {
-        if (value == null) return true;
-        else if (value.length() == 0) return true;
-        else return value.equals("null");
     }
 
 }
