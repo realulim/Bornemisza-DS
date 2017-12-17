@@ -34,11 +34,9 @@ public class HashProviderTest {
     @Test
     public void encodeDecodeJasonWebToken() {
         String userName = "Drombo van Cleefy";
-        String cookie = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930";
-        String encodedJWT = CUT.encodeJasonWebToken(userName, cookie);
+        String encodedJWT = CUT.encodeJasonWebToken(userName);
         JWT jwt = CUT.decodeJasonWebToken(encodedJWT);
         assertEquals(userName, jwt.subject);
-        assertEquals(cookie, jwt.claims.get("Cookie"));
     }
 
     public final class HashProviderImpl extends HashProvider {

@@ -115,7 +115,7 @@ public class SessionsServiceTest {
 
     @Test
     public void createSession() {
-        String cookie = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure";
+        String cookie = "AuthSession=RmF6aWwgT25ndWRhcjo1QTM2Nzc5Rg==; Version=1; Path=/; HttpOnly; Secure";
         when(post.responseCode()).thenReturn(200);
         when(post.text()).thenReturn("{\"ok\":true,\"name\":\"" + auth.getUsername() + "\",\"roles\":[\"customer\",\"user\"]}");
         List<String> cookies = new ArrayList<>();
@@ -124,9 +124,8 @@ public class SessionsServiceTest {
         Session session = CUT.createSession(auth);
         assertNotNull(session);
         assertEquals(cookie, session.getDoubleSubmitToken().getCookie());
-        assertTrue(cookie.startsWith(session.getDoubleSubmitToken().getBaseCookie()));
-        String baseCookie = session.getDoubleSubmitToken().getBaseCookie();
-        assertEquals(hashProvider.encodeJasonWebToken(auth.getUsername(), baseCookie), session.getDoubleSubmitToken().getCtoken());
+        assertTrue(cookie.contains(session.getDoubleSubmitToken().getBaseCookie()));
+        assertEquals(hashProvider.encodeJasonWebToken(auth.getUsername()), session.getDoubleSubmitToken().getCtoken());
         assertEquals("userdb-546f6d6d79204865656c666967757265", session.getNameOfUserDatabase());
     }
 

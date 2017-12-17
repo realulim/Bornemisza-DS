@@ -55,11 +55,10 @@ public abstract class HashProvider {
         }
     }
 
-    public String encodeJasonWebToken(String userName, String cookie) {
+    public String encodeJasonWebToken(String userName) {
         JWT jwt = new JWT()
                 .setIssuer(System.getProperty("FQDN"))
-                .setSubject(userName)
-                .addClaim("Cookie", cookie);
+                .setSubject(userName);
         return JWT.getEncoder().encode(jwt, signer);
     }
 

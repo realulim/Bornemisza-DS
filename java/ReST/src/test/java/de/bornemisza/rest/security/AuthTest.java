@@ -25,7 +25,7 @@ public class AuthTest {
     @Test(expected=UnauthorizedException.class)
     public void checkTokenValidity_cookieVoid() {
         String cookie = "";
-        String cToken = hashProvider.encodeJasonWebToken("Hirono Nikasati", cookie);
+        String cToken = hashProvider.encodeJasonWebToken("Hirono Nikasati");
         DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, cToken);
         CUT = new Auth(dsToken);
         CUT.checkTokenValidity(hashProvider);
@@ -41,8 +41,8 @@ public class AuthTest {
 
     @Test
     public void checkTokenValidity() {
-        String cookie = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930";
-        String cToken = hashProvider.encodeJasonWebToken("Hirono Nikasati", cookie);
+        String cookie = "AuthSession=RmF6aWwgT25ndWRhcjo1QTM2Nzc5Rg==";
+        String cToken = hashProvider.encodeJasonWebToken("Fazil Ongudar");
         DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, cToken);
         CUT = new Auth(dsToken);
         CUT.checkTokenValidity(hashProvider);

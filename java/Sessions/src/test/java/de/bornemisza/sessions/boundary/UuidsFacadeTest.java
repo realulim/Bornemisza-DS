@@ -52,8 +52,8 @@ public class UuidsFacadeTest {
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
         HashProvider hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
-        cookie = "MyCookie";
-        jwt = hashProvider.encodeJasonWebToken("Fazil Ongudar", cookie);
+        cookie = "AuthSession=RmF6aWwgT25ndWRhcjo1QTM2Nzc5Rg==";
+        jwt = hashProvider.encodeJasonWebToken("Fazil Ongudar");
         DoubleSubmitToken dsToken = new DoubleSubmitToken(cookie, jwt);
         auth = new Auth(dsToken);
 

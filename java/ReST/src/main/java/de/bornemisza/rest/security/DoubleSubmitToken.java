@@ -1,5 +1,6 @@
 package de.bornemisza.rest.security;
 
+import org.glassfish.jersey.internal.util.Base64;
 import org.primeframework.jwt.domain.JWT;
 import org.primeframework.jwt.domain.JWTException;
 
@@ -22,6 +23,9 @@ public class DoubleSubmitToken {
 
     public String getBaseCookie() {
         if (cookie == null) return null;
+        else if (cookie.startsWith("AuthSession=")) {
+            return cookie.contains(";") ? cookie.substring(cookie.indexOf("=") + 1, cookie.indexOf(";")) : cookie.substring(cookie.indexOf("=") + 1);
+        }
         else return cookie.contains(";") ? cookie.substring(0, cookie.indexOf(";")) : cookie;
     }
 
@@ -42,12 +46,16 @@ public class DoubleSubmitToken {
         }
         try {
             String baseCookie = getBaseCookie();
+            String decoded = Base64.decodeAsString(baseCookie);
+            if (! decoded.contains(":")) throw new UnauthorizedException("Cookie invalid!");
+            String cookiePrincipal = decoded.substring(0, decoded.indexOf(":"));
+            
             JWT decodedJasonWebToken = hashProvider.decodeJasonWebToken(ctoken);
-            Object cookieClaim = decodedJasonWebToken.claims.get("Cookie");
-            if (cookieClaim == null || !cookieClaim.toString().equals(baseCookie)) {
+            if (decodedJasonWebToken.subject == null) throw new UnauthorizedException("JWT invalid!");
+            if (! decodedJasonWebToken.subject.equals(cookiePrincipal)) {
                 throw new UnauthorizedException("Hash Mismatch!");
             }
-            return decodedJasonWebToken.subject;
+            return cookiePrincipal;
         }
         catch (JWTException ex) {
             throw new UnauthorizedException("JWT invalid: " + ex.toString());
