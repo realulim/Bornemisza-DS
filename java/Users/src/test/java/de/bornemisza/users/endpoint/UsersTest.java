@@ -101,38 +101,23 @@ public class UsersTest {
 
     @Test
     public void userAccountCreationRequest_nullUser() {
-        try {
-            CUT.userAccountCreationRequest(null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        Response response = CUT.userAccountCreationRequest(null);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void userAccountCreationRequest_nullEmail() {
-        try {
-            CUT.userAccountCreationRequest(new User());
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        Response response = CUT.userAccountCreationRequest(new User());
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void userAccountCreationRequest_illegalCharactersInUserName() {
-        try {
-            User user = new User();
-            user.setName("<");
-            user.setEmail(new EmailAddress());
-            CUT.userAccountCreationRequest(user);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        User user = new User();
+        user.setName("<");
+        user.setEmail(new EmailAddress());
+        Response response = CUT.userAccountCreationRequest(user);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
@@ -140,13 +125,8 @@ public class UsersTest {
         User user = new User();
         user.setEmail(new EmailAddress("foo@bar.de"));
         doThrow(new TopicOverloadException("Topic overloaded")).when(facade).addUser(user);
-        try {
-            CUT.userAccountCreationRequest(user);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-        }
+        Response response = CUT.userAccountCreationRequest(user);
+        assertEquals(500, response.getStatus());
     }
 
     @Test
@@ -155,13 +135,8 @@ public class UsersTest {
         user.setName("Ike");
         user.setEmail(new EmailAddress("foo@bar.de"));
         doThrow(new BusinessException(UsersType.USER_ALREADY_EXISTS, user.getName())).when(facade).addUser(user);
-        try {
-            CUT.userAccountCreationRequest(user);
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(409, e.getResponse().getStatus());
-        }
+        Response response = CUT.userAccountCreationRequest(user);
+        assertEquals(409, response.getStatus());
     }
 
     @Test
@@ -170,13 +145,8 @@ public class UsersTest {
         user.setName("Ike");
         user.setEmail(new EmailAddress("foo@bar.de"));
         doThrow(new BusinessException(UsersType.UUID_NOT_FOUND, user.getName())).when(facade).addUser(user);
-        try {
-            CUT.userAccountCreationRequest(user);
-            fail();
-        }
-        catch (WebApplicationException e) {
-            assertEquals(500, e.getResponse().getStatus());
-        }
+        Response response = CUT.userAccountCreationRequest(user);
+        assertEquals(500, response.getStatus());
     }
 
     @Test
@@ -293,14 +263,9 @@ public class UsersTest {
         user.setEmail(new EmailAddress(emailStr));
         when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(user);
         doThrow(new TopicOverloadException("Topic overloaded")).when(facade).changeEmail(user);
-        try {
-            CUT.changeEmailRequest(user.getName(), emailStr, COOKIE, CTOKEN);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-            verify(facade).changeEmail(user);
-        }
+        Response response = CUT.changeEmailRequest(user.getName(), emailStr, COOKIE, CTOKEN);
+        assertEquals(500, response.getStatus());
+        verify(facade).changeEmail(user);
     }
 
     @Test

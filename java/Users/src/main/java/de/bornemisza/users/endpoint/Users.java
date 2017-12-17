@@ -84,12 +84,10 @@ public class Users {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response userAccountCreationRequest(User user) {
         if (user == null || user.getEmail() == null) {
-            throw new RestException(
-                    Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build());
+            return Response.status(Status.BAD_REQUEST).entity("No User or E-Mail missing!").build();
         }
         else if (hasIllegalCharacters(user.getName())) {
-            throw new RestException(
-                    Response.status(Status.BAD_REQUEST).entity("Illegal Characters in User Name!").build());
+            return Response.status(Status.BAD_REQUEST).entity("Illegal Characters in User Name!").build();
         }
         Consumer userAccountCreationRequestConsumer = new Consumer<UsersFacade>() {
             @Override
@@ -123,9 +121,7 @@ public class Users {
                                        String emailStr,
                                        @HeaderParam(HttpHeaders.COOKIE) String cookie,
                                        @HeaderParam(HttpHeaders.CTOKEN) String ctoken) {
-        if (isVoid(userName)) {
-            throw new RestException(Status.BAD_REQUEST);
-        }
+        if (isVoid(userName)) return Response.status(Status.BAD_REQUEST).build();
         EmailAddress email = validateEmail(emailStr);
         User user = getUser(userName, null, cookie, ctoken);
         user.setEmail(email);
@@ -263,12 +259,10 @@ public class Users {
                     status = Status.CONFLICT;
                 }
             }
-            throw new RestException(
-                    Response.status(status).entity(be.getMessage()).build());
+            return Response.status(status).entity(be.getMessage()).build();
         }
         catch (RuntimeException ex) {
-            throw new RestException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
         return Response.accepted().build();
     }
