@@ -74,11 +74,13 @@ public class DoubleSubmitTokenTest {
 
     @Test
     public void checkValidity() {
+        String principal = "Umate Kerinogo";
         CUT = new DoubleSubmitToken(cookie, cToken);
         JWT jwt = new JWT();
-        jwt.addClaim("Cookie", CUT.getBaseCookie());
+        jwt.setSubject(principal).addClaim("Cookie", CUT.getBaseCookie());
         when(hashProvider.decodeJasonWebToken(anyString())).thenReturn(jwt);
-        CUT.checkValidity(hashProvider);
+        String userName = CUT.checkValidity(hashProvider);
+        assertEquals(principal, userName);
     }
 
 }

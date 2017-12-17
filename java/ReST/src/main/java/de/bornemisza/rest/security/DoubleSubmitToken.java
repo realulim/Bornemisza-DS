@@ -29,7 +29,14 @@ public class DoubleSubmitToken {
         return ctoken;
     }
 
-    public void checkValidity(HashProvider hashProvider) throws UnauthorizedException {
+    /**
+     * Check whether a request with this double submit token should be considered valid and authorized.
+     * 
+     * @param hashProvider the HashProvider to use for verification
+     * @return the subject/principal that the ctoken was issued to
+     * @throws UnauthorizedException if cookie and ctoken don't match or can't be verified
+     */
+    public String checkValidity(HashProvider hashProvider) throws UnauthorizedException {
         if (isVoid(cookie) || isVoid(ctoken)) {
             throw new UnauthorizedException(HttpHeaders.COOKIE + " or " + HttpHeaders.CTOKEN + " missing!");
         }
@@ -40,6 +47,7 @@ public class DoubleSubmitToken {
             if (cookieClaim == null || !cookieClaim.toString().equals(baseCookie)) {
                 throw new UnauthorizedException("Hash Mismatch!");
             }
+            return decodedJasonWebToken.subject;
         }
         catch (JWTException ex) {
             throw new UnauthorizedException("JWT invalid: " + ex.toString());

@@ -65,11 +65,11 @@ public class Auth {
         this.password = newPassword;
     }
 
-    public void checkTokenValidity(HashProvider hashProvider) throws UnauthorizedException {
+    public String checkTokenValidity(HashProvider hashProvider) throws UnauthorizedException {
         if (isVoid(cookie) || isVoid(csrfToken)) {
             throw new UnauthorizedException(HttpHeaders.COOKIE + " or " + HttpHeaders.CTOKEN + " missing!");
         }
-        new DoubleSubmitToken(cookie, csrfToken).checkValidity(hashProvider);
+        return new DoubleSubmitToken(cookie, csrfToken).checkValidity(hashProvider);
     }
 
     private boolean isVoid(String value) {
