@@ -13,10 +13,10 @@ public class DoubleSubmitTokenTest {
 
     private DoubleSubmitToken CUT;
     private HashProvider hashProvider;
-    private final String cookie = "AuthSession=RmF6aWwgT25ndWRhcjo1QTM2Nzc5Rg==";
+    private final String cookie = "AuthSession=RmF6aWwgT25ndWRhcjo1QTM2RENDOTq5wOKqrLBx9hoE7O2faOEOl98vUA";
     private final String cookieWithoutKey = "RmF6aWwgT25ndWRhcjo1QTM2Nzc5Rg==";
     private final String cookieWithoutPrincipal = "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure";
-    private final String cToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJIaXJvbm8gTmlrYXNhdGkiLCJDb29raWUiOiJBdXRoU2Vzc2lvbj1iODY2ZjZlMi1iZTAyLTRlYTAtOTllNi0zNGY5ODk2Mjk5MzAifQ.pErlMn2UFY6kL8Ft_DR9InZOC-EeD2-z3_ZdG6uMKRI";
+    private final String cToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ3d3cuYm9ybmVtaXN6YS5kZSIsInN1YiI6IkZhemlsIE9uZ3VkYXIifQ.MJ6UDeTiOJai5DprYOBLntfh09uFI7GfeRS6klbk8Ic";
 
     public DoubleSubmitTokenTest() {
     }

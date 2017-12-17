@@ -36,8 +36,8 @@ public class UsersFacadeTest {
     private UsersFacade CUT;
     private final String AUTH_HEADER = "Basic RmF6aWwgT25ndWRhcjpjaGFuZ2Vk";
     private final DoubleSubmitToken dsToken = new DoubleSubmitToken(
-            "AuthSession=b866f6e2-be02-4ea0-99e6-34f989629930; Version=1; Path=/; HttpOnly; Secure", 
-            "dc09ed95c35268bd29798bfa2ac6ee0142d8e1030475663e1ea4db8cb1f20f0b");
+            "AuthSession=RmF6aWwgT25ndWRhcjo1QTM2RENDOTq5wOKqrLBx9hoE7O2faOEOl98vUA; Version=1; Path=/; HttpOnly; Secure", 
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ3d3cuYm9ybmVtaXN6YS5kZSIsInN1YiI6IkZhemlsIE9uZ3VkYXIifQ.MJ6UDeTiOJai5DprYOBLntfh09uFI7GfeRS6klbk8Ic");
 
     @Before
     public void setUp() {
@@ -258,11 +258,11 @@ public class UsersFacadeTest {
     @Test
     public void getUser_unauthorized_cookieTokenScheme() {
         try {
-            CUT.getUser("Silly Willy", new DoubleSubmitToken("Cookie", "notReallyTheHashedCookie"));
+            CUT.getUser("Silly Willy", new DoubleSubmitToken("AuthSession=RmF6aWwgT25ndWRhcjo1QTM2Nzc5Rg==", "notReallyJWT"));
             fail();
         }
         catch (UnauthorizedException ex) {
-            assertEquals("Hash Mismatch!", ex.getMessage());
+            assertTrue(ex.getMessage().startsWith("JWT invalid:"));
         }
     }
 
