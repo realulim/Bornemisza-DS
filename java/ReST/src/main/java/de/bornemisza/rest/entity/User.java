@@ -83,7 +83,7 @@ public class User extends Document implements Serializable {
         this.roles = roles;
     }
 
-    public String getNameOfUserDatabase() {
+    public String getUserDatabase() {
         byte[] userNameBytes = name.getBytes();
         String hexEncodedUserName = DatatypeConverter.printHexBinary(userNameBytes).toLowerCase();
         return "userdb-" + hexEncodedUserName;
