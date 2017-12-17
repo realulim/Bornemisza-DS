@@ -26,7 +26,7 @@ public class UuidsService {
     @Inject
     CouchPool couchPool;
 
-    @Resource(name="lbconfig/CouchUsers")
+    @Resource(name="lbconfig/CouchUsersAsAdmin")
     LoadBalancerConfig lbConfig;
 
     DbAdminPasswordBasedHashProvider hashProvider;
