@@ -15,6 +15,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.entity.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
@@ -51,7 +52,10 @@ public class UuidsServiceTest {
         when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
         auth = mock(Auth.class);
 
-        CUT = new UuidsService(pool);
+        LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
+        when(lbConfig.getPassword()).thenReturn("My secret Password".toCharArray());
+
+        CUT = new UuidsService(pool, lbConfig);
     }
 
     @Test
@@ -61,7 +65,7 @@ public class UuidsServiceTest {
         when(get.responseCode()).thenReturn(errorCode);
         when(get.responseMessage()).thenReturn(msg);
         try {
-            CUT.getUuids(auth, 3);
+            CUT.getUuids(3);
             fail();
         }
         catch (BusinessException ex) {
@@ -77,7 +81,7 @@ public class UuidsServiceTest {
         HttpException wrapperException = new HttpException(msg, cause);
         when(get.responseCode()).thenThrow(wrapperException);
         try {
-            CUT.getUuids(auth, 3);
+            CUT.getUuids(3);
             fail();
         }
         catch (TechnicalException ex) {
@@ -91,7 +95,7 @@ public class UuidsServiceTest {
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(getJson(count));
 
-        UuidsResult result = CUT.getUuids(auth, 3);
+        UuidsResult result = CUT.getUuids(3);
         assertEquals(count, result.getUuids().size());
         assertEquals("127.0.0.1", result.getBackendHeader());
     }
@@ -106,7 +110,7 @@ public class UuidsServiceTest {
         when(get.headers()).thenReturn(backendHeaders);
 
         for (int i = 0; i < 4; i++) {
-            UuidsResult result = CUT.getUuids(auth, i);
+            UuidsResult result = CUT.getUuids(i);
             assertEquals(i, result.getUuids().size());
             assertEquals(backendIp, result.getBackendHeader());
         }

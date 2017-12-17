@@ -79,7 +79,7 @@ public class UuidsFacade {
 
     public Response getUuids(Auth auth, int count) throws UnauthorizedException {
         auth.checkTokenValidity(hashProvider);
-        UuidsResult uuidsResult = uuidsService.getUuids(auth, count);
+        UuidsResult uuidsResult = uuidsService.getUuids(count);
         return Response.ok()
                 .header("AppServer", JAXRSConfiguration.MY_COLOR)
                 .header("DbServer", getDbServerColor(uuidsResult.getBackendHeader()))

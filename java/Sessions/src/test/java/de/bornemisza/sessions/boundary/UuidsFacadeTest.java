@@ -142,7 +142,7 @@ public class UuidsFacadeTest {
         UuidsResult uuidsResult = new UuidsResult();
         uuidsResult.setBackendHeader("192.168.0.5");
         uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
-        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
         Response response = CUT.getUuids(auth, 1);
@@ -156,7 +156,7 @@ public class UuidsFacadeTest {
         UuidsResult uuidsResult = new UuidsResult();
         uuidsResult.setBackendHeader("192.168.0." + 2); // second color
         uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
-        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
 
         Response response = CUT.getUuids(auth, 3);
         assertEquals(200, response.getStatus());
@@ -171,7 +171,7 @@ public class UuidsFacadeTest {
         uuidsResult.setBackendHeader("192.168.0.5"); // last color
         uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
                                                           "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
-        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
 
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
@@ -191,7 +191,7 @@ public class UuidsFacadeTest {
     public void getUuids_moreDbServersThanColors() {
         UuidsResult uuidsResult = new UuidsResult();
         uuidsResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
-        when(uuidsService.getUuids(any(Auth.class), anyInt())).thenReturn(uuidsResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
 
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
             uuidsResult.setBackendHeader("192.168.0." + j);
