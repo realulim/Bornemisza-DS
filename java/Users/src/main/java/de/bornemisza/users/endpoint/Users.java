@@ -154,48 +154,41 @@ public class Users {
     @PUT
     @Path("{name}/password/{newpassword}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User changePassword(@PathParam("name") String userName,
+    public Response changePassword(@PathParam("name") String userName,
                                @PathParam("newpassword") String password,
                                @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (isVoid(userName) || isVoid(password)) {
-            throw new RestException(Status.BAD_REQUEST);
-        }
+        if (isVoid(userName) || isVoid(password)) return Response.status(Status.BAD_REQUEST).build();
         User user = getUser(userName, authHeader, null, null);
         user.setPassword(password.toCharArray());
         try {
             user = facade.changePassword(user, user.getRevision(), authHeader);
         }
         catch (RuntimeException ex) {
-            throw new RestException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+           return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
         if (user == null) {
-            throw new RestException(
-                    Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
+            return Response.status(Status.CONFLICT).entity("Newer Revision exists!").build();
         }
-        return user;
+        return Response.ok().entity(user).build();
     }
 
     @DELETE
     @Path("{name}")
-    public void deleteUser(@PathParam("name") String userName,
+    public Response deleteUser(@PathParam("name") String userName,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        if (isVoid(userName)) {
-            throw new RestException(Status.NOT_FOUND);
-        }
+        if (isVoid(userName)) return Response.status(Status.NOT_FOUND).build();
         User user = getUser(userName, authHeader, null, null);
         boolean success;
         try {
             success = facade.deleteUser(userName, user.getRevision(), authHeader);
         }
         catch (RuntimeException ex) {
-            throw new RestException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
         if (!success) {
-            throw new RestException(
-                    Response.status(Status.CONFLICT).entity("Newer Revision exists!").build());
+            return Response.status(Status.CONFLICT).entity("Newer Revision exists!").build();
         }
+        return Response.noContent().build();
     }
 
     private boolean isVoid(String value) {

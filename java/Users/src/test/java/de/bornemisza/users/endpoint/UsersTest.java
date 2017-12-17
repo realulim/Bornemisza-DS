@@ -309,24 +309,14 @@ public class UsersTest {
 
     @Test
     public void changePassword_userNameVoid() {
-        try {
-            CUT.changePassword("", "newPassword", null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        Response response = CUT.changePassword("", "newPassword", null);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void changePassword_passwordVoid() {
-        try {
-            CUT.changePassword("Ike", null, null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        Response response = CUT.changePassword("Ike", null, null);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
@@ -335,39 +325,24 @@ public class UsersTest {
         user.setRevision("rev123");
         when(facade.getUser(anyString(), anyString())).thenReturn(user);
         when(facade.changePassword(any(User.class), anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
-        try {
-            CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
-        }
+        Response response = CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
     }
 
     @Test
     public void changePassword_newerRevisionAlreadyExists() {
         when(facade.getUser(anyString(), anyString())).thenReturn(new User());
         when(facade.changePassword(any(User.class), anyString(), any())).thenReturn(null);
-        try {
-            CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(409, ex.getResponse().getStatus());
-            assertEquals("Newer Revision exists!", ex.getResponse().getEntity().toString());
-        }
+        Response response = CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
+        assertEquals(409, response.getStatus());
+        assertEquals("Newer Revision exists!", response.getEntity().toString());
     }
 
     @Test
     public void deleteUser_nameVoid() {
-        try {
-            CUT.deleteUser("null", null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-        }
+        Response response = CUT.deleteUser("null", null);
+        assertEquals(404, response.getStatus());
     }
 
     @Test
@@ -376,28 +351,18 @@ public class UsersTest {
         user.setRevision("rev123");
         when(facade.deleteUser(anyString(), anyString(), any())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
         when(facade.getUser(anyString(), anyString())).thenReturn(user);
-        try {
-            CUT.deleteUser("Ike", AUTH_HEADER);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
-        }
+        Response response = CUT.deleteUser("Ike", AUTH_HEADER);
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
     }
 
     @Test
     public void deleteUser_newerRevisionAlreadyExists() {
         when(facade.getUser(anyString(), anyString())).thenReturn(new User());
         when(facade.deleteUser(anyString(), anyString(), any())).thenReturn(false);
-        try {
-            CUT.deleteUser("Ike", AUTH_HEADER);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(409, ex.getResponse().getStatus());
-            assertEquals("Newer Revision exists!", ex.getResponse().getEntity().toString());
-        }
+        Response response = CUT.deleteUser("Ike", AUTH_HEADER);
+        assertEquals(409, response.getStatus());
+        assertEquals("Newer Revision exists!", response.getEntity().toString());
     }
 
 }
