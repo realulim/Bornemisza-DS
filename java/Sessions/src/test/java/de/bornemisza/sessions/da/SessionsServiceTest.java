@@ -126,7 +126,6 @@ public class SessionsServiceTest {
         assertEquals(cookie, session.getDoubleSubmitToken().getCookie());
         assertTrue(cookie.contains(session.getDoubleSubmitToken().getBaseCookie()));
         assertEquals(hashProvider.encodeJasonWebToken(auth.getUsername()), session.getDoubleSubmitToken().getCtoken());
-        assertEquals("userdb-546f6d6d79204865656c666967757265", session.getNameOfUserDatabase());
     }
 
 }

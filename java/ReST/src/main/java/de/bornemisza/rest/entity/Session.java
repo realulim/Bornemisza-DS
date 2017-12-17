@@ -30,9 +30,6 @@ public class Session extends Document {
     @JsonIgnore
     private DoubleSubmitToken dsToken;
 
-    @JsonIgnore
-    private String nameOfUserDatabase;
-
     public String getType() {
         return type;
     }
@@ -63,14 +60,6 @@ public class Session extends Document {
 
     public void setDoubleSubmitToken(DoubleSubmitToken dsToken) {
         this.dsToken = dsToken;
-    }
-
-    public String getNameOfUserDatabase() {
-        return nameOfUserDatabase;
-    }
-
-    public void setNameOfUserDatabase(String nameOfUserDatabase) {
-        this.nameOfUserDatabase = nameOfUserDatabase;
     }
 
 }

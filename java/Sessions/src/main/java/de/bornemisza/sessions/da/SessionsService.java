@@ -14,7 +14,6 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Session;
-import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
@@ -74,9 +73,6 @@ public class SessionsService {
             String cookie = cookies.get(0);
             String encodedJWT = hashProvider.encodeJasonWebToken(auth.getUsername());
             session.setDoubleSubmitToken(new DoubleSubmitToken(cookie, encodedJWT));
-            User user = new User();
-            user.setName(auth.getUsername());
-            session.setNameOfUserDatabase(user.getNameOfUserDatabase());
             return session;
         }
     }
