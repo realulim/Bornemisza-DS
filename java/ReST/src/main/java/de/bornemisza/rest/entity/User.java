@@ -130,7 +130,7 @@ public class User extends Document implements Serializable {
 
     @Override
     public String toString() {
-        return "Document{" + "id=" + getId() + ", rev=" + getRevision() + ", conflicts=" + getConflicts() + "}" +
+        return "Document{" + "id=" + getId() + ", rev=" + getRevision() + ", conflicts=" + getConflicts() + "}\n" +
                "User{" + "type=" + type + ", name=" + name + ", password=******" + ", email=" + email + ", roles=" + roles + '}';
     }
 
