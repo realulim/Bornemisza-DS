@@ -101,12 +101,14 @@ public class Users {
     @GET
     @Path("confirmation/user/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User confirmUser(@PathParam("uuid") String uuidStr) {
+    public Response confirmUser(@PathParam("uuid") String uuidStr) {
         validateUuid(uuidStr);
-        Function confirmUserFunction = new Function<UsersFacade, User>() {
+        Function confirmUserFunction = new Function<UsersFacade, Response>() {
             @Override
-            public User apply(UsersFacade facade) {
-                return facade.confirmUser(uuidStr);
+            public Response apply(UsersFacade facade) {
+                User user = facade.confirmUser(uuidStr);
+                if (user == null) return Response.status(Status.CONFLICT).build();
+                else return Response.ok().entity(user).build();
             }
         };
         String expiryMsg = "User Account Creation Request does not exist - maybe expired?";
@@ -137,13 +139,15 @@ public class Users {
     @GET
     @Path("confirmation/email/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User confirmEmail(@PathParam("uuid") String uuidStr,
+    public Response confirmEmail(@PathParam("uuid") String uuidStr,
                              @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         validateUuid(uuidStr);
-        Function confirmEmailFunction = new Function<UsersFacade, User>() {
+        Function confirmEmailFunction = new Function<UsersFacade, Response>() {
             @Override
-            public User apply(UsersFacade facade) {
-                return facade.confirmEmail(uuidStr, authHeader);
+            public Response apply(UsersFacade facade) {
+                User user = facade.confirmEmail(uuidStr, authHeader);
+                if (user == null) return Response.status(Status.CONFLICT).build();
+                else return Response.ok().entity(user).build();
             }
         };
         String expiryMsg = "E-Mail Change Request does not exist - maybe expired?";
@@ -260,25 +264,17 @@ public class Users {
         return Response.accepted().build();
     }
 
-    private User executeConfirmation(Function<UsersFacade, User> function, String expiryMsg, String conflictMsg) {
-        User confirmedUser = null;
+    private Response executeConfirmation(Function<UsersFacade, Response> function, String expiryMsg, String conflictMsg) {
         try {
-            confirmedUser = function.apply(facade);
+            return function.apply(facade);
         }
         catch (BusinessException e) {
             Status status = ((e.getType() instanceof UsersType && (UsersType) e.getType() == UsersType.UUID_NOT_FOUND) ? Status.NOT_FOUND : Status.INTERNAL_SERVER_ERROR);
-            throw new RestException(
-                    Response.status(status).entity(expiryMsg).build());
+            return Response.status(status).entity(expiryMsg).build();
         }
         catch (RuntimeException ex) {
-            throw new RestException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
-        if (confirmedUser == null) {
-            throw new RestException(
-                    Response.status(Status.CONFLICT).entity(conflictMsg).build());
-        }
-        return confirmedUser;
     }
 
 }

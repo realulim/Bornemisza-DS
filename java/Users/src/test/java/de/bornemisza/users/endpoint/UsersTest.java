@@ -186,41 +186,26 @@ public class UsersTest {
         String uuid = UUID.randomUUID().toString();
         String errMsg = "User Account Creation Request does not exist - maybe expired?";
         when(facade.confirmUser(uuid)).thenThrow(new BusinessException(UsersType.UUID_NOT_FOUND, errMsg));
-        try {
-            CUT.confirmUser(uuid);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-            assertEquals(errMsg, ex.getResponse().getEntity());
-        }
+        Response response = CUT.confirmUser(uuid);
+        assertEquals(404, response.getStatus());
+        assertEquals(errMsg, response.getEntity());
     }
 
     @Test
     public void confirmUser_technicalException() throws AddressException {
         String uuid = UUID.randomUUID().toString();
         when(facade.confirmUser(uuid)).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
-        try {
-            CUT.confirmUser(uuid);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
-        }
+        Response response = CUT.confirmUser(uuid);
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
     }
 
     @Test
     public void confirmUser_userAlreadyExists() throws AddressException {
         String uuid = UUID.randomUUID().toString();
         when(facade.confirmUser(uuid)).thenReturn(null);
-        try {
-            CUT.confirmUser(uuid);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(409, ex.getResponse().getStatus());
-        }
+        Response response = CUT.confirmUser(uuid);
+        assertEquals(409, response.getStatus());
     }
 
     @Test
@@ -284,27 +269,17 @@ public class UsersTest {
         String uuid = UUID.randomUUID().toString();
         String errMsg = "E-Mail Change Request does not exist - maybe expired?";
         when(facade.confirmEmail(uuid, AUTH_HEADER)).thenThrow(new BusinessException(UsersType.UUID_NOT_FOUND, errMsg));
-        try {
-            CUT.confirmEmail(uuid, AUTH_HEADER);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-            assertEquals(errMsg, ex.getResponse().getEntity());
-        }
+        Response response = CUT.confirmEmail(uuid, AUTH_HEADER);
+        assertEquals(404, response.getStatus());
+        assertEquals(errMsg, response.getEntity());
     }
 
     @Test
     public void confirmEmail_newerRevisionExists() throws AddressException {
         String uuid = UUID.randomUUID().toString();
         when(facade.confirmEmail(uuid, AUTH_HEADER)).thenReturn(null);
-        try {
-            CUT.confirmEmail(uuid, AUTH_HEADER);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(409, ex.getResponse().getStatus());
-        }
+        Response response = CUT.confirmEmail(uuid, AUTH_HEADER);
+        assertEquals(409, response.getStatus());
     }
 
     @Test
