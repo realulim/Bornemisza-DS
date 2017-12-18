@@ -102,7 +102,9 @@ public class Users {
     @Path("confirmation/user/{uuid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response confirmUser(@PathParam("uuid") String uuidStr) {
-        validateUuid(uuidStr);
+        if (! validateUuid(uuidStr)) {
+            return Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build();
+        }
         Function confirmUserFunction = new Function<UsersFacade, Response>() {
             @Override
             public Response apply(UsersFacade facade) {
@@ -125,6 +127,9 @@ public class Users {
                                        @HeaderParam(HttpHeaders.CTOKEN) String ctoken) {
         if (isVoid(userName)) return Response.status(Status.BAD_REQUEST).build();
         EmailAddress email = validateEmail(emailStr);
+        if (email == null) {
+            return Response.status(Status.BAD_REQUEST).entity("E-Mail missing or unparseable!").build();
+        }
         User user = getUser(userName, null, cookie, ctoken);
         user.setEmail(email);
         Consumer changeEmailRequestConsumer = new Consumer<UsersFacade>() {
@@ -141,7 +146,9 @@ public class Users {
     @Produces(MediaType.APPLICATION_JSON)
     public Response confirmEmail(@PathParam("uuid") String uuidStr,
                              @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
-        validateUuid(uuidStr);
+        if (! validateUuid(uuidStr)) {
+            return Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build();
+        }
         Function confirmEmailFunction = new Function<UsersFacade, Response>() {
             @Override
             public Response apply(UsersFacade facade) {
@@ -215,7 +222,7 @@ public class Users {
         return array.length > 1;
     }
 
-    private void validateUuid(String uuidStr) throws RestException {
+    private boolean validateUuid(String uuidStr) throws RestException {
         UUID uuid;
         try {
             uuid = isVoid(uuidStr) ? null : UUID.fromString(uuidStr);
@@ -223,25 +230,17 @@ public class Users {
         catch (IllegalArgumentException iae) {
             uuid = null;
         }
-        if (uuid == null) {
-            throw new RestException(
-                    Response.status(Status.BAD_REQUEST).entity("UUID missing or unparseable!").build());
-        }
+        if (uuid == null) return false;
+        else return true;
     }
 
     private EmailAddress validateEmail(String emailStr) throws RestException {
-        EmailAddress newEmail;
         try {
-            newEmail = isVoid(emailStr) ? null : new EmailAddress(emailStr);
+            return isVoid(emailStr) ? null : new EmailAddress(emailStr);
         }
         catch (AddressException ae) {
-            newEmail = null;
+            return null;
         }
-        if (newEmail == null) {
-            throw new RestException(
-                    Response.status(Status.BAD_REQUEST).entity("E-Mail missing or unparseable!").build());
-        }
-        return newEmail;
     }
 
     private Response executeRequest(Consumer userAccountCreationRequestConsumer) {

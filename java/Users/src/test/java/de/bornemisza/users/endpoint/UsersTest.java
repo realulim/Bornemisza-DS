@@ -160,25 +160,15 @@ public class UsersTest {
 
     @Test
     public void confirmUser_nullUuid() {
-        try {
-            CUT.confirmUser(null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        Response response = CUT.confirmUser(null);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void confirmUser_unparseableUuid() {
-        try {
-            CUT.confirmUser("this-is-not-a-uuid");
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-            assertEquals("UUID missing or unparseable!", ex.getResponse().getEntity().toString());
-        }
+        Response response = CUT.confirmUser("this-is-not-a-uuid");
+        assertEquals(400, response.getStatus());
+        assertEquals("UUID missing or unparseable!", response.getEntity().toString());
     }
 
     @Test
