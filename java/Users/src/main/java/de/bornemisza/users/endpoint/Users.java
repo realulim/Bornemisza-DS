@@ -222,7 +222,7 @@ public class Users {
         return array.length > 1;
     }
 
-    private boolean validateUuid(String uuidStr) throws RestException {
+    private boolean validateUuid(String uuidStr) {
         UUID uuid;
         try {
             uuid = isVoid(uuidStr) ? null : UUID.fromString(uuidStr);
@@ -234,7 +234,7 @@ public class Users {
         else return true;
     }
 
-    private EmailAddress validateEmail(String emailStr) throws RestException {
+    private EmailAddress validateEmail(String emailStr) {
         try {
             return isVoid(emailStr) ? null : new EmailAddress(emailStr);
         }
