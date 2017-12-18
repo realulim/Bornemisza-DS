@@ -46,7 +46,7 @@ public class Uuids {
             Auth auth = new Auth(new DoubleSubmitToken(cookie, ctoken));
             UuidsResult result = facade.getUuids(auth, count);
             ResponseBuilder response = Response.status(result.getStatus());
-            response.entity(result.getUuids());
+            response.entity(result);
             for (Map.Entry<String, List<String>> entry : result.getHeaders().entrySet()) {
                 for (String value : entry.getValue()) {
                     response.header(entry.getKey(), value);
