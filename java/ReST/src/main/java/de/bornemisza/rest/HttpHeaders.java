@@ -340,5 +340,7 @@ public final class HttpHeaders {
     // Custom Headers
     public static final String CTOKEN = "C-Token";
     public static final String BACKEND = "Backend";
+    public static final String APPSERVER = "AppServer";
+    public static final String DBSERVER = "DbServer";
 
 }
