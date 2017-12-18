@@ -1,5 +1,6 @@
 package de.bornemisza.sessions.boundary;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,6 +22,9 @@ import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import de.bornemisza.rest.HttpHeaders;
+import de.bornemisza.rest.entity.User;
+import de.bornemisza.rest.entity.Uuid;
 import de.bornemisza.rest.entity.UuidsResult;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
@@ -78,11 +82,21 @@ public class UuidsFacade {
     }
 
     public Response getUuids(Auth auth, int count) throws UnauthorizedException {
-        auth.checkTokenValidity(hashProvider);
+        String userName = auth.checkTokenValidity(hashProvider);
         UuidsResult uuidsResult = uuidsService.getUuids(count);
+        List<Uuid> uuids = new ArrayList<>();
+        String color = getDbServerColor(uuidsResult.getFirstHeaderValue(HttpHeaders.BACKEND));
+        for (String uuidStr : uuidsResult.getUuids()) {
+            Uuid uuid = new Uuid();
+            uuid.setColor(color);
+            uuid.setDate(LocalDate.now());
+            uuid.setValue(uuidStr);
+            uuids.add(uuid);
+        }
+        //uuidsService.saveUuids(auth, User.db(userName), uuids);
         return Response.ok()
                 .header("AppServer", JAXRSConfiguration.MY_COLOR)
-                .header("DbServer", getDbServerColor(uuidsResult.getBackendHeader()))
+                .header("DbServer", color)
                 .entity(uuidsResult).build();
     }
 

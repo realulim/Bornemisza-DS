@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.UuidsResult;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
@@ -140,7 +141,7 @@ public class UuidsFacadeTest {
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
         UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.setBackendHeader("192.168.0.5");
+        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5");
         uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
@@ -154,7 +155,7 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids() {
         UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.setBackendHeader("192.168.0." + 2); // second color
+        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
         uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
 
@@ -168,7 +169,7 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids_moreMembersThanColors() {
         UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.setBackendHeader("192.168.0.5"); // last color
+        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5"); // last color
         uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
                                                           "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
@@ -194,11 +195,13 @@ public class UuidsFacadeTest {
         when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
 
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
-            uuidsResult.setBackendHeader("192.168.0." + j);
+            uuidsResult.setHeaders(new HashMap<>());
+            uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + j);
             Response response = CUT.getUuids(auth, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), response.getHeaderString("DbServer"));
         }
-        uuidsResult.setBackendHeader("192.168.0." + 6); // overflow
+        uuidsResult.setHeaders(new HashMap<>());
+        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 6); // overflow
         Response response = CUT.getUuids(auth, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
     }

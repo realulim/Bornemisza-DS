@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -12,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class UuidsResult implements Serializable {
+public class UuidsResult extends RestResult implements Serializable {
     
     private static final long serialVersionUID = 1L;
 
@@ -23,9 +22,6 @@ public class UuidsResult implements Serializable {
     @JsonProperty(value = "uuids")
     private List<String> uuids;
 
-    @JsonIgnore
-    private String backendHeader;
-
     public List<String> getUuids() {
         return uuids;
     }
@@ -34,18 +30,10 @@ public class UuidsResult implements Serializable {
         this.uuids = uuids;
     }
 
-    public String getBackendHeader() {
-        return backendHeader;
-    }
-
-    public void setBackendHeader(String backendHeader) {
-        this.backendHeader = backendHeader;
-    }
-
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 23 * hash + Objects.hashCode(this.uuids);
+        int hash = 3;
+        hash = 73 * hash + Objects.hashCode(this.uuids);
         return hash;
     }
 
@@ -61,15 +49,13 @@ public class UuidsResult implements Serializable {
             return false;
         }
         final UuidsResult other = (UuidsResult) obj;
-        if (!Objects.equals(this.uuids, other.uuids)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.uuids, other.uuids);
     }
 
     @Override
     public String toString() {
-        return "UuidsResult{" + "uuids=" + uuids + '}';
+        return "RestResult{" + "headers=" + headers + ", status=" + status + "}\n" +
+               "UuidsResult{" + "uuids=" + uuids + "}";
     }
 
 }
