@@ -13,7 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
@@ -23,9 +23,10 @@ import com.hazelcast.core.MembershipListener;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
-import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.entity.Uuid;
 import de.bornemisza.rest.entity.UuidsResult;
+import de.bornemisza.rest.exception.BusinessException;
+import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
@@ -81,7 +82,7 @@ public class UuidsFacade {
         });
     }
 
-    public Response getUuids(Auth auth, int count) throws UnauthorizedException {
+    public UuidsResult getUuids(Auth auth, int count) throws UnauthorizedException, BusinessException, TechnicalException {
         String userName = auth.checkTokenValidity(hashProvider);
         UuidsResult uuidsResult = uuidsService.getUuids(count);
         List<Uuid> uuids = new ArrayList<>();
@@ -93,11 +94,11 @@ public class UuidsFacade {
             uuid.setValue(uuidStr);
             uuids.add(uuid);
         }
-        //uuidsService.saveUuids(auth, User.db(userName), uuids);
-        return Response.ok()
-                .header("AppServer", JAXRSConfiguration.MY_COLOR)
-                .header("DbServer", color)
-                .entity(uuidsResult).build();
+//        uuidsService.saveUuids(auth, User.db(userName), uuids);
+        uuidsResult.addHeader(HttpHeaders.APPSERVER, JAXRSConfiguration.MY_COLOR);
+        uuidsResult.addHeader(HttpHeaders.DBSERVER, color);
+        uuidsResult.setStatus(Status.OK);
+        return uuidsResult;
     }
 
     /**

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.core.Response;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
@@ -140,39 +139,39 @@ public class UuidsFacadeTest {
     public void getUuids_unresolvableHostname() {
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
-        UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5");
-        uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
+        UuidsResult dbResult = new UuidsResult();
+        dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5");
+        dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
+        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
-        Response response = CUT.getUuids(auth, 1);
-        assertEquals(200, response.getStatus());
-        assertEquals(uuidsResult, response.getEntity());
-        assertEquals("Black", response.getHeaderString("DbServer")); // second color
+        UuidsResult facadeResult = CUT.getUuids(auth, 1);
+        assertEquals(200, facadeResult.getStatus().getStatusCode());
+        assertEquals(dbResult.getUuids(), facadeResult.getUuids());
+        assertEquals("Black", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // second color
     }
 
     @Test
     public void getUuids() {
-        UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
-        uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
+        UuidsResult dbResult = new UuidsResult();
+        dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
+        dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
+        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
 
-        Response response = CUT.getUuids(auth, 3);
-        assertEquals(200, response.getStatus());
-        assertEquals(uuidsResult, response.getEntity());
-        assertEquals("Gold", response.getHeaderString("AppServer")); // third color
-        assertEquals("Crimson", response.getHeaderString("DbServer")); // second color
+        UuidsResult facadeResult = CUT.getUuids(auth, 3);
+        assertEquals(200, facadeResult.getStatus().getStatusCode());
+        assertEquals(dbResult.getUuids(), facadeResult.getUuids());
+        assertEquals("Gold", facadeResult.getFirstHeaderValue(HttpHeaders.APPSERVER)); // third color
+        assertEquals("Crimson", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // second color
     }
 
     @Test
     public void getUuids_moreMembersThanColors() {
-        UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5"); // last color
-        uuidsResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
+        UuidsResult dbResult = new UuidsResult();
+        dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5"); // last color
+        dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
                                                           "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
 
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
@@ -181,11 +180,11 @@ public class UuidsFacadeTest {
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
-        Response response = CUT.getUuids(auth, 6);
-        assertEquals(200, response.getStatus());
-        assertEquals(uuidsResult, response.getEntity());
-        assertEquals("Black", response.getHeaderString("AppServer")); // default color
-        assertEquals("LightSalmon", response.getHeaderString("DbServer")); // last color
+        UuidsResult facadeResult = CUT.getUuids(auth, 6);
+        assertEquals(200, facadeResult.getStatus().getStatusCode());
+        assertEquals(dbResult.getUuids(), facadeResult.getUuids());
+        assertEquals("Black", facadeResult.getFirstHeaderValue(HttpHeaders.APPSERVER)); // default color
+        assertEquals("LightSalmon", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // last color
     }
 
     @Test
@@ -197,13 +196,13 @@ public class UuidsFacadeTest {
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
             uuidsResult.setHeaders(new HashMap<>());
             uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + j);
-            Response response = CUT.getUuids(auth, 1);
-            assertEquals(JAXRSConfiguration.COLORS.get(j - 1), response.getHeaderString("DbServer"));
+            UuidsResult facadeResult = CUT.getUuids(auth, 1);
+            assertEquals(JAXRSConfiguration.COLORS.get(j - 1), facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
         }
         uuidsResult.setHeaders(new HashMap<>());
         uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 6); // overflow
-        Response response = CUT.getUuids(auth, 1);
-        assertEquals(JAXRSConfiguration.DEFAULT_COLOR, response.getHeaderString("DbServer"));
+        UuidsResult facadeResult = CUT.getUuids(auth, 1);
+        assertEquals(JAXRSConfiguration.DEFAULT_COLOR, facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
     }
 
 }
