@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class Document implements Serializable {
+public class Document extends RestResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

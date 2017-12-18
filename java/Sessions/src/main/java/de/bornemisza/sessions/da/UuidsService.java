@@ -1,14 +1,17 @@
 package de.bornemisza.sessions.da;
 
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 
 import org.javalite.http.Get;
 import org.javalite.http.HttpException;
-import org.javalite.http.Put;
+import org.javalite.http.Post;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
@@ -58,28 +61,35 @@ public class UuidsService {
             throw new TechnicalException(ex.toString());
         }
         String header = "127.0.0.1";
-        List<String> backendHeaders = get.headers().get("X-Backend");
+        List<String> backendHeaders = get.headers().get(HttpHeaders.BACKEND);
         if (backendHeaders != null) header = backendHeaders.get(0);
         UuidsResult result = Json.fromJson(get.text(), UuidsResult.class);
-        result.setBackendHeader(header);
+        result.addHeader(HttpHeaders.BACKEND, header);
         return result;
     }
 
-    public void saveUuids(Auth auth, String userDatabase, List<Uuid> uuids) {
-        for (Uuid uuid : uuids) {
-            String json = Json.toJson(uuid);
-            Put put = couchPool.getConnection().getHttp().put(userDatabase, json)
-                    .header(HttpHeaders.COOKIE, auth.getCookie());
-            try {
-                int responseCode = put.responseCode();
-                if (responseCode != 201) {
-                    throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + put.responseMessage());
-                }
-            }
-            catch (HttpException ex) {
-                throw new TechnicalException(ex.toString());
-            }
-        }
-    }
+//    public void saveUuids(Auth auth, String userDatabase, List<Uuid> uuids) {
+//        for (Uuid uuid : uuids) {
+//            String json = Json.toJson(uuid);
+//            Post post = couchPool.getConnection().getHttp().post(userDatabase, json)
+//                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+//                    .header(HttpHeaders.COOKIE, auth.getCookie());
+//            try {
+//                int responseCode = post.responseCode();
+//                if (responseCode < 201 || responseCode > 202) {
+//                    throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + post.responseMessage());
+//                }
+//            }
+//            catch (HttpException ex) {
+//                throw new TechnicalException(ex.toString());
+//            }
+//            Map<String, List<String>> headers = post.headers();
+//            List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
+//            if (cookies != null && !cookies.isEmpty()) {
+//                String cookie = cookies.get(0);
+//Logger.getAnonymousLogger().info("Set-Cookie: " + cookie);
+//            }
+//        }
+//    }
 
 }
