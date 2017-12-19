@@ -45,14 +45,7 @@ public class Uuids {
         try {
             Auth auth = new Auth(new DoubleSubmitToken(cookie, ctoken));
             UuidsResult result = facade.getUuids(auth, count);
-            ResponseBuilder response = Response.status(result.getStatus());
-            response.entity(result);
-            for (Map.Entry<String, List<String>> entry : result.getHeaders().entrySet()) {
-                for (String value : entry.getValue()) {
-                    response.header(entry.getKey(), value);
-                }
-            }
-            return response.build();
+            return result.toResponse();
         }
         catch (UnauthorizedException ex) {
             return Response.status(Status.UNAUTHORIZED).entity(ex.getMessage()).build();

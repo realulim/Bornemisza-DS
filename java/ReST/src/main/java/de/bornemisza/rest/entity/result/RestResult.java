@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * This class models a response from calling a ReST endpoint.
  */
 public class RestResult implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
 
     public RestResult() {
@@ -57,6 +59,17 @@ public class RestResult implements Serializable {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Response toResponse() {
+        ResponseBuilder response = Response.status(status);
+        response.entity(this);
+        for (Map.Entry<String, List<String>> entry : getHeaders().entrySet()) {
+            for (String value : entry.getValue()) {
+                response.header(entry.getKey(), value);
+            }
+        }
+        return response.build();
     }
 
     @Override

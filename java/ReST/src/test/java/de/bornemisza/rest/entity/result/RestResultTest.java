@@ -1,6 +1,5 @@
-package de.bornemisza.rest.entity;
+package de.bornemisza.rest.entity.result;
 
-import de.bornemisza.rest.entity.result.RestResult;
 import java.util.Arrays;
 
 import org.junit.Before;
@@ -8,6 +7,11 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import de.bornemisza.rest.HttpHeaders;
+import de.bornemisza.rest.entity.EmailAddress;
+import de.bornemisza.rest.entity.User;
+import javax.mail.internet.AddressException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 public class RestResultTest {
     
@@ -33,6 +37,21 @@ public class RestResultTest {
         CUT.addHeader(key, values);
         assertEquals(firstValue, CUT.getFirstHeaderValue(key));
         assertEquals(Arrays.asList(values), CUT.getHeaders().get(key));
+    }
+
+    @Test
+    public void toResponse() throws AddressException {
+        String backendValue = "1.2.3.4";
+        Status statusValue = Status.CREATED;
+        User CUT = new User();
+        CUT.setName("Fazil Ongudar");
+        CUT.setEmail(new EmailAddress("fazil@ongudar.de"));
+        CUT.addHeader(HttpHeaders.BACKEND, backendValue);
+        CUT.setStatus(statusValue);
+        Response response = CUT.toResponse();
+        assertEquals(CUT, response.getEntity());
+        assertEquals(backendValue, response.getHeaders().getFirst(HttpHeaders.BACKEND));
+        assertEquals(statusValue.getStatusCode(), response.getStatus());
     }
 
 }
