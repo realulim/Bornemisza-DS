@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
-import de.bornemisza.rest.entity.UuidsResult;
+import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.sessions.boundary.SessionsType;

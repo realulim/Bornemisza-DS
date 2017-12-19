@@ -1,5 +1,6 @@
 package de.bornemisza.rest.entity;
 
+import de.bornemisza.rest.entity.result.RestResult;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package de.bornemisza.rest.entity;
+package de.bornemisza.rest.entity.result;
 
 import java.io.Serializable;
 import java.util.ArrayList;

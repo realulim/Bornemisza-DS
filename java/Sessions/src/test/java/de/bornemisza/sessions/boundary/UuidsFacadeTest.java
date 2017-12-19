@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
-import de.bornemisza.rest.entity.UuidsResult;
+import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;

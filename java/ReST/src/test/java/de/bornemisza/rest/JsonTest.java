@@ -10,7 +10,7 @@ import org.junit.Test;
 import de.bornemisza.rest.entity.Database;
 import de.bornemisza.rest.entity.Document;
 import de.bornemisza.rest.entity.EmailAddress;
-import de.bornemisza.rest.entity.KeyValueViewResult;
+import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.Session;
 import de.bornemisza.rest.entity.User;
 

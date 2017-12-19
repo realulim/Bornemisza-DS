@@ -1,5 +1,6 @@
 package de.bornemisza.rest.entity;
 
+import de.bornemisza.rest.entity.result.RestResult;
 import java.util.Arrays;
 
 import org.junit.Before;
