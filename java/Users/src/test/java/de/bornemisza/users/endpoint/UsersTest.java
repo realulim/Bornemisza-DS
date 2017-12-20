@@ -42,61 +42,46 @@ public class UsersTest {
 
     @Test
     public void getUser_userNameVoid() {
-        try {
-            CUT.getUser("null", null, null, null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
+        Response response = CUT.getUser("null", null, null);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void getUser_illegalCharactersInUserName() {
-        try {
-            CUT.getUser("<script>alert('hooboo');</script>", null, null, null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(400, ex.getResponse().getStatus());
-        }
-    }
-
-    @Test
-    public void getUser_technicalException() {
-        when(facade.getUser(anyString(), anyString())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
-        try {
-            CUT.getUser("Ike", AUTH_HEADER, null, null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(500, ex.getResponse().getStatus());
-            assertEquals(SOCKET_TIMEOUT, ex.getResponse().getEntity());
-        }
-    }
-
-    @Test
-    public void getUser_userNotFound() {
-        when(facade.getUser(anyString(), anyString())).thenReturn(null);
-        try {
-            CUT.getUser("Ike", AUTH_HEADER, null, null);
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(404, ex.getResponse().getStatus());
-        }
+        Response response = CUT.getUser("<script>alert('hooboo');</script>", null, null);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
     public void getUser_unauthorized() {
         when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenThrow(new UnauthorizedException("401"));
-        try {
-            CUT.getUser("Ike", null, "SomeCookie", "SomeToken");
-            fail();
-        }
-        catch (WebApplicationException ex) {
-            assertEquals(401, ex.getResponse().getStatus());
-        }
+        Response response = CUT.getUser("Ike", "SomeCookie", "SomeToken");
+        assertEquals(401, response.getStatus());
+    }
+
+    @Test
+    public void getUser_technicalException() {
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
+        Response response = CUT.getUser("Ike", "cookie", "ctoken");
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
+    }
+
+    @Test
+    public void getUser_userNotFound() {
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(null);
+        Response response = CUT.getUser("Ike", "cookie", "ctoken");
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void getUser() {
+        User user = new User();
+        user.setName("Ike");
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(user);
+        Response response = CUT.getUser("Ike", "cookie", "ctoken");
+        assertEquals(200, response.getStatus());
+        assertEquals(user, response.getEntity());
     }
 
     @Test
@@ -231,6 +216,34 @@ public class UsersTest {
     }
 
     @Test
+    public void changeEmailRequest_getUser_unauthorized() throws AddressException {
+        String emailStr = "foo@bar.de";
+        String userName = "Ike";
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenThrow(new UnauthorizedException("401"));
+        Response response = CUT.changeEmailRequest(userName, emailStr, COOKIE, CTOKEN);
+        assertEquals(401, response.getStatus());
+    }
+
+    @Test
+    public void changeEmailRequest_getUser_technicalException() {
+        String emailStr = "foo@bar.de";
+        String userName = "Ike";
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
+        Response response = CUT.changeEmailRequest(userName, emailStr, COOKIE, CTOKEN);
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
+    }
+
+    @Test
+    public void changeEmailRequest_getUser_userNotFound() {
+        String emailStr = "foo@bar.de";
+        String userName = "Ike";
+        when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(null);
+        Response response = CUT.changeEmailRequest(userName, emailStr, COOKIE, CTOKEN);
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
     public void changeEmailRequest_technicalException() throws AddressException {
         String emailStr = "foo@bar.de";
         User user = new User();
@@ -252,6 +265,13 @@ public class UsersTest {
         when(facade.getUser(anyString(), any(DoubleSubmitToken.class))).thenReturn(user);
         Response response = CUT.changeEmailRequest(user.getName(), emailStr, COOKIE, CTOKEN);
         assertEquals(202, response.getStatus());
+    }
+
+    @Test
+    public void confirmEmail_invalidUuid() {
+        String uuid = "invalid-UUID";
+        Response response = CUT.confirmEmail(uuid, AUTH_HEADER);
+        assertEquals(400, response.getStatus());
     }
 
     @Test
@@ -305,6 +325,28 @@ public class UsersTest {
     }
 
     @Test
+    public void changePassword_getUser_unauthorized() throws AddressException {
+        when(facade.getUser(anyString(), anyString())).thenThrow(new UnauthorizedException("401"));
+        Response response = CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
+        assertEquals(401, response.getStatus());
+    }
+
+    @Test
+    public void changePassword_getUser_technicalException() {
+        when(facade.getUser(anyString(), anyString())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
+        Response response = CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
+    }
+
+    @Test
+    public void changePassword_getUser_userNotFound() {
+        when(facade.getUser(anyString(), anyString())).thenReturn(null);
+        Response response = CUT.changePassword("Ike", "newPassword", AUTH_HEADER);
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
     public void deleteUser_nameVoid() {
         Response response = CUT.deleteUser("null", null);
         assertEquals(404, response.getStatus());
@@ -328,6 +370,28 @@ public class UsersTest {
         Response response = CUT.deleteUser("Ike", AUTH_HEADER);
         assertEquals(409, response.getStatus());
         assertEquals("Newer Revision exists!", response.getEntity().toString());
+    }
+
+    @Test
+    public void deleteUser_getUser_unauthorized() throws AddressException {
+        when(facade.getUser(anyString(), anyString())).thenThrow(new UnauthorizedException("401"));
+        Response response = CUT.deleteUser("Ike", AUTH_HEADER);
+        assertEquals(401, response.getStatus());
+    }
+
+    @Test
+    public void deleteUser_getUser_technicalException() {
+        when(facade.getUser(anyString(), anyString())).thenThrow(new RuntimeException(SOCKET_TIMEOUT));
+        Response response = CUT.deleteUser("Ike", AUTH_HEADER);
+        assertEquals(500, response.getStatus());
+        assertEquals(SOCKET_TIMEOUT, response.getEntity());
+    }
+
+    @Test
+    public void deleteUser_getUser_userNotFound() {
+        when(facade.getUser(anyString(), anyString())).thenReturn(null);
+        Response response = CUT.deleteUser("Ike", AUTH_HEADER);
+        assertEquals(404, response.getStatus());
     }
 
 }

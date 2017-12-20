@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import static org.junit.Assert.*;
 
+import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.security.BasicAuthCredentials;
 
@@ -73,17 +74,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t06_readUser() {
-        requestSpecUsers.auth().preemptive().basic(userName, userPassword);
-        Response response = getUser(userName, 200);
-        JsonPath jsonPath = response.jsonPath();
-        revision = jsonPath.getString("_rev");
-        assertTrue(revision.length() > 10);
-        assertNull(jsonPath.getString("password"));
-    }
-
-    @Test
-    public void t07_createSession() {
+    public void t06_createSession() {
         requestSpecSessions.auth().preemptive().basic(userName, userPassword);
         Response response = getNewSession();
         cookie = response.header("Set-Cookie");
@@ -92,6 +83,16 @@ public class BornemiszaIT extends IntegrationTestBase {
         assertTrue(cookie.startsWith("AuthSession="));
         assertFalse(cookie.startsWith("AuthSession=;"));
         assertNotEquals(cookie, ctoken);
+    }
+
+    @Test
+    public void t07_readUser() {
+        requestSpecUsers.header(HttpHeaders.COOKIE, cookie).header(HttpHeaders.CTOKEN, ctoken);
+        Response response = getUser(userName, 200);
+        JsonPath jsonPath = response.jsonPath();
+        revision = jsonPath.getString("_rev");
+        assertTrue(revision.length() > 10);
+        assertNull(jsonPath.getString("password"));
     }
 
     @Test
@@ -170,12 +171,6 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t16_checkUserRemoved() {
-        requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
-        getUser(userName, 404);
-    }
-
-    @Test
-    public void t17_removeNonExistingUser() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }

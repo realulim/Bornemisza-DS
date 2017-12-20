@@ -49,34 +49,28 @@ public class Users {
     @GET
     @Path("{name}")
     @Produces(MediaType.APPLICATION_JSON)
-    public User getUser(@PathParam("name") String userName,
-                        @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader,
+    public Response getUser(@PathParam("name") String userName,
                         @HeaderParam(HttpHeaders.COOKIE) String cookie,
                         @HeaderParam(HttpHeaders.CTOKEN) String ctoken) {
         if (isVoid(userName) || hasIllegalCharacters(userName)) {
-            throw new RestException(Status.BAD_REQUEST);
+            return Response.status(Status.BAD_REQUEST).build();
         }
         User user;
         try {
-            if (isVoid(authHeader)) {
-                user = facade.getUser(userName, new DoubleSubmitToken(cookie, ctoken));
-            }
-            else {
-                user = facade.getUser(userName, authHeader);
-            }
+            user = facade.getUser(userName, new DoubleSubmitToken(cookie, ctoken));
         }
         catch (UnauthorizedException ex) {
-            throw new RestException(Status.UNAUTHORIZED);
+            return Response.status(Status.UNAUTHORIZED).build();
         }
         catch (RuntimeException ex) {
-            throw new RestException(
-                    Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build());
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
         }
         if (user == null) {
-            throw new RestException(Status.NOT_FOUND);
+            return Response.status(Status.NOT_FOUND).build();
         }
         else {
-            return user;
+            user.setStatus(Status.OK);
+            return user.toResponse();
         }
     }
 
@@ -130,7 +124,19 @@ public class Users {
         if (email == null) {
             return Response.status(Status.BAD_REQUEST).entity("E-Mail missing or unparseable!").build();
         }
-        User user = getUser(userName, null, cookie, ctoken);
+        User user;
+        try {
+            user = facade.getUser(userName, new DoubleSubmitToken(cookie, ctoken));
+        }
+        catch (UnauthorizedException ex) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+        catch (RuntimeException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+        if (user == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         user.setEmail(email);
         Consumer changeEmailRequestConsumer = new Consumer<UsersFacade>() {
             @Override
@@ -169,7 +175,19 @@ public class Users {
                                @PathParam("newpassword") String password,
                                @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName) || isVoid(password)) return Response.status(Status.BAD_REQUEST).build();
-        User user = getUser(userName, authHeader, null, null);
+        User user;
+        try {
+            user = facade.getUser(userName, authHeader);
+        }
+        catch (UnauthorizedException ex) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+        catch (RuntimeException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+        if (user == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         user.setPassword(password.toCharArray());
         try {
             user = facade.changePassword(user, user.getRevision(), authHeader);
@@ -188,7 +206,19 @@ public class Users {
     public Response deleteUser(@PathParam("name") String userName,
                            @HeaderParam(HttpHeaders.AUTHORIZATION) String authHeader) {
         if (isVoid(userName)) return Response.status(Status.NOT_FOUND).build();
-        User user = getUser(userName, authHeader, null, null);
+        User user;
+        try {
+            user = facade.getUser(userName, authHeader);
+        }
+        catch (UnauthorizedException ex) {
+            return Response.status(Status.UNAUTHORIZED).build();
+        }
+        catch (RuntimeException ex) {
+            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+        }
+        if (user == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
         boolean success;
         try {
             success = facade.deleteUser(userName, user.getRevision(), authHeader);
