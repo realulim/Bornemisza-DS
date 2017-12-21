@@ -2,6 +2,8 @@ package de.bornemisza.sessions.da;
 
 import java.net.ConnectException;
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Map;
 import org.javalite.http.Get;
 import org.javalite.http.Http;
 import org.javalite.http.HttpException;
+import org.javalite.http.Post;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -18,9 +21,12 @@ import static org.mockito.Mockito.*;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
+import de.bornemisza.rest.entity.Uuid;
+import de.bornemisza.rest.entity.result.RestResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
+import de.bornemisza.rest.security.Auth;
 import de.bornemisza.sessions.boundary.SessionsType;
 
 public class UuidsServiceTest {
@@ -33,7 +39,9 @@ public class UuidsServiceTest {
     private Http http;
     private HttpConnection conn;
     private Get get;
+    private Post post;
     private final Map<String, List<String>> headers = new HashMap<>();
+    private Auth auth;
 
     public UuidsServiceTest() {
     }
@@ -50,7 +58,14 @@ public class UuidsServiceTest {
         when(get.header(anyString(), any())).thenReturn(get);
         when(get.headers()).thenReturn(headers);
         when(http.get(anyString())).thenReturn(get);
-        when(http.getBaseUrl()).thenReturn("http://db1.domain.de/foo"); // second DbServer
+
+        post = mock(Post.class);
+        when(post.header(anyString(), anyString())).thenReturn(post);
+        when(post.headers()).thenReturn(headers);
+        when(http.post(anyString(), anyString())).thenReturn(post);
+
+        auth = mock(Auth.class);
+        when(auth.getCookie()).thenReturn("SomeCookie");
 
         LoadBalancerConfig lbConfig = mock(LoadBalancerConfig.class);
         when(lbConfig.getPassword()).thenReturn("My secret Password".toCharArray());
@@ -117,6 +132,48 @@ public class UuidsServiceTest {
         }
     }
 
+    @Test
+    public void saveUuids_technicalError() {
+        String msg = "Connection refused";
+        ConnectException cause = new ConnectException(msg);
+        HttpException wrapperException = new HttpException(msg, cause);
+        when(post.responseCode()).thenThrow(wrapperException);
+        try {
+            CUT.saveUuids(auth, "userDatabase", createUuids());
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertEquals(wrapperException.toString(), ex.getMessage());
+        }
+    }
+
+    @Test
+    public void saveUuids_businessError() {
+        int statusCode = 509;
+        String msg = "Bandwidth Limit Exceeded";
+        when(post.responseCode()).thenReturn(statusCode);
+        when(post.responseMessage()).thenReturn(msg);
+        try {
+            CUT.saveUuids(auth, "userDatabase", createUuids());
+            fail();
+        }
+        catch (BusinessException ex) {
+            assertEquals(SessionsType.UNEXPECTED, ex.getType());
+            assertTrue(ex.getMessage().contains(statusCode + ":"));
+        }
+    }
+
+    @Test
+    public void saveUuids() {
+        int statusCode = 201;
+        String cookie = "NewCookie";
+        headers.put(HttpHeaders.SET_COOKIE, Arrays.asList(new String[] { cookie }));
+        when(post.responseCode()).thenReturn(statusCode);
+        RestResult result = CUT.saveUuids(auth, "userDatabase", createUuids());
+        assertEquals(headers, result.getHeaders());
+        assertEquals(cookie, result.getNewCookie());
+    }
+
     private String getJson(int count) {
         String json = "{\n" +
                       "    \"uuids\": [\n";
@@ -128,6 +185,18 @@ public class UuidsServiceTest {
         json +=       "    ]\n" +
                       "}";
         return json;
+    }
+
+    private List<Uuid> createUuids() {
+        List<Uuid> uuids = new ArrayList<>();
+        for (String uuidStr : Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007", "f4c278d2b6f17060430c8f28d2ec26cc", "430c8f4c278d2b6f17060f28d2ec83d4" })) {
+            Uuid uuid = new Uuid();
+            uuid.setValue(uuidStr);
+            uuid.setColor("yellow");
+            uuid.setDate(LocalDate.now());
+            uuids.add(uuid);
+        }
+        return uuids;
     }
 
 }
