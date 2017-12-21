@@ -86,19 +86,22 @@ public class UuidsFacade {
     public UuidsResult getUuids(Auth auth, int count) throws UnauthorizedException, BusinessException, TechnicalException {
         String userName = auth.checkTokenValidity(hashProvider);
         UuidsResult uuidsResult = uuidsService.getUuids(count);
-        List<Uuid> uuids = new ArrayList<>();
+
         String color = getDbServerColor(uuidsResult.getFirstHeaderValue(HttpHeaders.BACKEND));
+        LocalDate today = LocalDate.now();
+        List<Uuid> uuids = new ArrayList<>();
         for (String uuidStr : uuidsResult.getUuids()) {
             Uuid uuid = new Uuid();
-            uuid.setColor(color);
-            uuid.setDate(LocalDate.now());
             uuid.setValue(uuidStr);
+            uuid.setColor(color);
+            uuid.setDate(today);
             uuids.add(uuid);
         }
-//        uuidsService.saveUuids(auth, User.db(userName), uuids);
+        String newCookie = uuidsService.saveUuids(auth, User.db(userName), uuids).getNewCookie();
         uuidsResult.addHeader(HttpHeaders.APPSERVER, JAXRSConfiguration.MY_COLOR);
         uuidsResult.addHeader(HttpHeaders.DBSERVER, color);
         uuidsResult.setStatus(Status.OK);
+        if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);
         return uuidsResult;
     }
 

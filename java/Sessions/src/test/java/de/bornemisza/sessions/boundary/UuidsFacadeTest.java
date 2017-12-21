@@ -25,6 +25,8 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.result.UuidsResult;
+import de.bornemisza.rest.exception.BusinessException;
+import de.bornemisza.rest.exception.TechnicalException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
@@ -143,6 +145,7 @@ public class UuidsFacadeTest {
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5");
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
         UuidsResult facadeResult = CUT.getUuids(auth, 1);
@@ -157,6 +160,7 @@ public class UuidsFacadeTest {
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
 
         UuidsResult facadeResult = CUT.getUuids(auth, 3);
         assertEquals(200, facadeResult.getStatus().getStatusCode());
@@ -172,6 +176,7 @@ public class UuidsFacadeTest {
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
                                                           "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
 
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
@@ -189,20 +194,28 @@ public class UuidsFacadeTest {
 
     @Test
     public void getUuids_moreDbServersThanColors() {
-        UuidsResult uuidsResult = new UuidsResult();
-        uuidsResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(uuidsResult);
+        UuidsResult dbResult = new UuidsResult();
+        dbResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
+        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
 
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
-            uuidsResult.setHeaders(new HashMap<>());
-            uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + j);
+            dbResult = createDbResult(j);
+            when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
             UuidsResult facadeResult = CUT.getUuids(auth, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
         }
-        uuidsResult.setHeaders(new HashMap<>());
-        uuidsResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 6); // overflow
+        dbResult = createDbResult(6); // overflow
+        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
         UuidsResult facadeResult = CUT.getUuids(auth, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
+    }
+
+    private UuidsResult createDbResult(int j) throws BusinessException, TechnicalException {
+        UuidsResult dbResult = new UuidsResult();
+        dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + j);
+        dbResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
+        return dbResult;
     }
 
 }

@@ -1,8 +1,5 @@
 package de.bornemisza.sessions.endpoint;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -13,7 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import de.bornemisza.rest.HttpHeaders;

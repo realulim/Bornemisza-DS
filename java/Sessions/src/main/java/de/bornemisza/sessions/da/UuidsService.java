@@ -1,8 +1,8 @@
 package de.bornemisza.sessions.da;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -17,6 +17,7 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Uuid;
+import de.bornemisza.rest.entity.result.RestResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
@@ -60,36 +61,32 @@ public class UuidsService {
         catch (HttpException ex) {
             throw new TechnicalException(ex.toString());
         }
-        String header = "127.0.0.1";
-        List<String> backendHeaders = get.headers().get(HttpHeaders.BACKEND);
-        if (backendHeaders != null) header = backendHeaders.get(0);
+        Map<String, List<String>> headers = get.headers();
         UuidsResult result = Json.fromJson(get.text(), UuidsResult.class);
-        result.addHeader(HttpHeaders.BACKEND, header);
+        result.addHeaderFrom(HttpHeaders.BACKEND, headers);
+        result.setNewCookie(headers);
         return result;
     }
 
-//    public void saveUuids(Auth auth, String userDatabase, List<Uuid> uuids) {
-//        for (Uuid uuid : uuids) {
-//            String json = Json.toJson(uuid);
-//            Post post = couchPool.getConnection().getHttp().post(userDatabase, json)
-//                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-//                    .header(HttpHeaders.COOKIE, auth.getCookie());
-//            try {
-//                int responseCode = post.responseCode();
-//                if (responseCode < 201 || responseCode > 202) {
-//                    throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + post.responseMessage());
-//                }
-//            }
-//            catch (HttpException ex) {
-//                throw new TechnicalException(ex.toString());
-//            }
-//            Map<String, List<String>> headers = post.headers();
-//            List<String> cookies = headers.get(HttpHeaders.SET_COOKIE);
-//            if (cookies != null && !cookies.isEmpty()) {
-//                String cookie = cookies.get(0);
-//Logger.getAnonymousLogger().info("Set-Cookie: " + cookie);
-//            }
-//        }
-//    }
+    public RestResult saveUuids(Auth auth, String userDatabase, List<Uuid> uuids) {
+        Map<String, List<String>> headers = new HashMap<>();
+        for (Uuid uuid : uuids) {
+            String json = Json.toJson(uuid);
+            Post post = couchPool.getConnection().getHttp().post(userDatabase, json)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.COOKIE, auth.getCookie());
+            try {
+                int responseCode = post.responseCode();
+                if (responseCode < 201 || responseCode > 202) {
+                    throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + post.responseMessage());
+                }
+            }
+            catch (HttpException ex) {
+                throw new TechnicalException(ex.toString());
+            }
+            headers = post.headers();
+        }
+        return new RestResult(headers);
+    }
 
 }

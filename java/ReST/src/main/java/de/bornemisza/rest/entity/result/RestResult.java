@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.bornemisza.rest.HttpHeaders;
 
 /**
  * This class models a response from calling a ReST endpoint.
@@ -23,6 +24,10 @@ public class RestResult implements Serializable {
 
     public RestResult() {
         // JAXB needs this
+    }
+
+    public RestResult(Map<String, List<String>> headers) {
+        this.headers.putAll(headers);
     }
 
     @JsonIgnore
@@ -40,17 +45,34 @@ public class RestResult implements Serializable {
         return headerValues == null || headerValues.isEmpty() ? null : headerValues.get(0);
     }
 
-    public void setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
+    public void setNewCookie(Map<String, List<String>> randomHeaders) {
+        if (randomHeaders != null && !randomHeaders.isEmpty()) {
+            List<String> cookies = randomHeaders.get(HttpHeaders.SET_COOKIE);
+            if (cookies != null) addHeader(HttpHeaders.SET_COOKIE, cookies.get(0));
+        }
+    }
+
+    public String getNewCookie() {
+        if (this.headers.isEmpty()) return null;
+        List<String> cookies = this.headers.get(HttpHeaders.SET_COOKIE);
+        if (cookies == null || cookies.isEmpty()) return null;
+        else return cookies.get(0);
     }
 
     public void addHeader(String key, String... values) {
         List<String> headerValues = this.headers.get(key);
         if (headerValues == null) {
             headerValues = new ArrayList<>();
-            headers.put(key, headerValues);
+            this.headers.put(key, headerValues);
         }
         headerValues.addAll(Arrays.asList(values));
+    }
+
+    public void addHeaderFrom(String key, Map<String, List<String>> randomHeaders) {
+        List<String> headerValues = randomHeaders.get(key);
+        if (headerValues != null) {
+            this.headers.put(key, new ArrayList(headerValues));
+        }
     }
 
     public Status getStatus() {

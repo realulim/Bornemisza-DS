@@ -90,14 +90,15 @@ public class UuidsServiceTest {
     }
 
     @Test
-    public void getUuids_noBackendHeader() {
+    public void getUuids_noHeaders() {
         int count = 3;
         when(get.responseCode()).thenReturn(200);
         when(get.text()).thenReturn(getJson(count));
+        when(get.headers()).thenReturn(new HashMap<>());
 
         UuidsResult result = CUT.getUuids(3);
         assertEquals(count, result.getUuids().size());
-        assertEquals("127.0.0.1", result.getFirstHeaderValue(HttpHeaders.BACKEND));
+        assertNull(result.getFirstHeaderValue(HttpHeaders.BACKEND));
     }
 
     @Test
