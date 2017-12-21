@@ -45,6 +45,14 @@ public class UuidsTest {
     }
 
     @Test
+    public void getUuids_illegalCount() {
+        Response response = CUT.getUuids("someCookie", "someToken", 0);
+        assertEquals(400, response.getStatus());
+        response = CUT.getUuids("someCookie", "someToken", -1);
+        assertEquals(400, response.getStatus());
+    }
+
+    @Test
     public void getUuids_businessException() {
         when(facade.getUuids(any(Auth.class), anyInt())).thenThrow(new BusinessException(SessionsType.UNEXPECTED, "Bandwidth Limit Exceeded"));
         Response response = CUT.getUuids("someCookie", "someToken", 1);

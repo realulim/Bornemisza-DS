@@ -38,6 +38,7 @@ public class Uuids {
     public Response getUuids(@HeaderParam(HttpHeaders.COOKIE) String cookie,
                              @HeaderParam(HttpHeaders.CTOKEN) String ctoken,
                              @DefaultValue("1")@QueryParam("count") int count) {
+        if (count < 1) return Response.status(Status.BAD_REQUEST).build();
         try {
             Auth auth = new Auth(new DoubleSubmitToken(cookie, ctoken));
             UuidsResult result = facade.getUuids(auth, count);
