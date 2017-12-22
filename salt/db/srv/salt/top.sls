@@ -1,7 +1,6 @@
 base:
   '*':
     - basics
-    - hosts
     - dns
     - letsencrypt
     - couchdb

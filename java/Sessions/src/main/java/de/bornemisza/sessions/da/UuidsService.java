@@ -71,8 +71,7 @@ public class UuidsService {
     public RestResult saveUuids(Auth auth, String userDatabase, List<Uuid> uuids) {
         Map<String, List<String>> headers = new HashMap<>();
         for (Uuid uuid : uuids) {
-            String json = Json.toJson(uuid);
-            Post post = couchPool.getConnection().getHttp().post(userDatabase, json)
+            Post post = couchPool.getConnection().getHttp().post(userDatabase, Json.toJson(uuid))
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.COOKIE, auth.getCookie());
             try {
