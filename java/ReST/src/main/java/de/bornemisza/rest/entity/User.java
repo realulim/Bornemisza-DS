@@ -25,10 +25,8 @@ public class User extends Document implements Serializable {
     public User() {
         // JAXB needs this
         super();
+        this.type = "user";
     }
-
-    @JsonProperty(value = "type")
-    private String type = "user";
 
     @JsonProperty(value = "name")
     private String name;
@@ -42,14 +40,6 @@ public class User extends Document implements Serializable {
 
     @JsonProperty(value = "roles")
     private List<String> roles;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public String getName() {
         return name;
@@ -92,12 +82,11 @@ public class User extends Document implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 67 * hash + Objects.hashCode(this.type);
-        hash = 67 * hash + Objects.hashCode(this.name);
-        hash = 67 * hash + Arrays.hashCode(this.password);
-        hash = 67 * hash + Objects.hashCode(this.email);
-        hash = 67 * hash + Objects.hashCode(this.roles);
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.name);
+        hash = 61 * hash + Arrays.hashCode(this.password);
+        hash = 61 * hash + Objects.hashCode(this.email);
+        hash = 61 * hash + Objects.hashCode(this.roles);
         return hash;
     }
 
@@ -113,9 +102,6 @@ public class User extends Document implements Serializable {
             return false;
         }
         final User other = (User) obj;
-        if (!Objects.equals(this.type, other.type)) {
-            return false;
-        }
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
@@ -125,13 +111,15 @@ public class User extends Document implements Serializable {
         if (!Objects.equals(this.email, other.email)) {
             return false;
         }
-        return Objects.equals(this.roles, other.roles);
+        if (!Objects.equals(this.roles, other.roles)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "Document{" + "id=" + getId() + ", rev=" + getRevision() + ", conflicts=" + getConflicts() + "}\n" +
-               "User{" + "type=" + type + ", name=" + name + ", password=******" + ", email=" + email + ", roles=" + roles + '}';
+        return super.toString() + " => " + "User{" + "name=" + name + ", password=" + password + ", email=" + email + ", roles=" + roles + "}";
     }
 
 }

@@ -26,8 +26,16 @@ public class Document extends RestResult implements Serializable {
     @JsonProperty(value = "_conflicts")
     private List<String> conflicts;
 
+    @JsonProperty(value = "type")
+    protected String type;
+
     public String getId() {
         return id;
+    }
+
+    public Document() {
+        // JAXB needs this
+        this.type = "document";
     }
 
     public void setId(String s) {
@@ -67,12 +75,21 @@ public class Document extends RestResult implements Serializable {
         return conflicts != null && !conflicts.isEmpty();
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 43 * hash + Objects.hashCode(this.id);
-        hash = 43 * hash + Objects.hashCode(this.revision);
-        hash = 43 * hash + Objects.hashCode(this.conflicts);
+        int hash = 3;
+        hash = 79 * hash + Objects.hashCode(this.id);
+        hash = 79 * hash + Objects.hashCode(this.revision);
+        hash = 79 * hash + Objects.hashCode(this.conflicts);
+        hash = 79 * hash + Objects.hashCode(this.type);
         return hash;
     }
 
@@ -94,7 +111,15 @@ public class Document extends RestResult implements Serializable {
         if (!Objects.equals(this.revision, other.revision)) {
             return false;
         }
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
         return Objects.equals(this.conflicts, other.conflicts);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " => " + "Document{" + "id=" + id + ", revision=" + revision + ", conflicts=" + conflicts + ", type=" + type + '}';
     }
 
 }

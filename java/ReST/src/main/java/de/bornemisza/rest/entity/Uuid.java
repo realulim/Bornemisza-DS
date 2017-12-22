@@ -17,6 +17,8 @@ public class Uuid extends Document implements Serializable {
 
     public Uuid() {
         // JAXB needs this
+        super();
+        this.type = "uuid";
     }
 
     @JsonProperty(value = "value")

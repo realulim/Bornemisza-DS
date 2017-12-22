@@ -16,10 +16,8 @@ public class Session extends Document {
     public Session() {
         // JAXB needs this
         super();
+        this.type = "session";
     }
-
-    @JsonProperty(value = "type")
-    private String type = "session";
 
     @JsonProperty(value = "name")
     private String principal;
@@ -29,14 +27,6 @@ public class Session extends Document {
 
     @JsonIgnore
     private DoubleSubmitToken dsToken;
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public String getPrincipal() {
         return principal;
