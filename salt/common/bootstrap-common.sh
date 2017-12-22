@@ -17,7 +17,7 @@ fi
 # determine my hostname, domain and public ip
 if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	VARNAME=$1_publicIpInterface
-	HOSTNAME=$(domainname -f)
+	HOSTNAME=$(hostname)
 	printf "hostname: %s\n" "$HOSTNAME" | tee -a $PillarLocal/basics.sls
 	IP=$(ip addr show "${!VARNAME}"|grep "inet "|cut -d"/" -f1|cut -d" " -f6)
 	printf "ip: %s\n" "$IP" | tee -a $PillarLocal/basics.sls

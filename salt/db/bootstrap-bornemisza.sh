@@ -43,7 +43,7 @@ fi
 
 # letsencrypt needs to know the ssl endpoint for creating its certificate
 if ! grep -q sslhost: $PillarLocal/basics.sls ; then
-	SSLHOST=$(domainname -f)
+	SSLHOST=$(hostname)
 	printf "sslhost: %s\n" "$SSLHOST" | tee -a $PillarLocal/basics.sls	
 fi
 
