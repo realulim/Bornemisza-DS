@@ -50,6 +50,7 @@ public class UsersServiceTest {
     public void setUp() throws AddressException {
         CouchUsersPoolAsAdmin adminPool = mock(CouchUsersPoolAsAdmin.class);
         CouchUsersPool usersPool = mock(CouchUsersPool.class);
+        CouchPool couchPool = mock(CouchPool.class);
 
         user = new User();
         user.setName("Fazil Ongudar");
@@ -75,11 +76,12 @@ public class UsersServiceTest {
         when(delete.basic(anyString(), anyString())).thenReturn(delete);
         when(http.delete(anyString())).thenReturn(delete);
 
+        when(couchPool.getConnection()).thenReturn(new HttpConnection("myDb", http));
         when(usersPool.getConnection()).thenReturn(new HttpConnection("myDb", http));
         when(adminPool.getConnection()).thenReturn(new HttpConnection("myDb", http));
         when(adminPool.getUserName()).thenReturn("admin");
         when(adminPool.getPassword()).thenReturn("admin-pw".toCharArray());
-        CUT = new UsersService(adminPool, usersPool);
+        CUT = new UsersService(adminPool, usersPool, couchPool, 50);
     }
 
     @Test
@@ -227,10 +229,24 @@ public class UsersServiceTest {
     }
 
     @Test
+    public void createUser_userDatabaseDoesNotBecomeAvailable() {
+        when(put.responseCode()).thenReturn(201);
+        when(get.responseCode()).thenReturn(200).thenReturn(404);
+        when(get.text()).thenReturn(userAsJson);
+        try {
+            CUT.createUser(user);
+        }
+        catch (TechnicalException ex) {
+            assertTrue(ex.toString().contains("was not created"));
+        }
+    }
+
+    @Test
     public void createUser() {
         when(put.responseCode()).thenReturn(201);
-        when(get.responseCode()).thenReturn(200);
+        when(get.responseCode()).thenReturn(200).thenReturn(404).thenReturn(404).thenThrow(new HttpException("meh")).thenReturn(404).thenReturn(200);
         when(get.text()).thenReturn(userAsJson);
+
         User createdUser = CUT.createUser(user);
         assertNull(createdUser.getPassword());
         assertEquals(user.getName(), createdUser.getName());

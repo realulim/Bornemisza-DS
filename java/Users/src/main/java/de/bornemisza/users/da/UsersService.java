@@ -19,9 +19,9 @@ import org.javalite.http.Request;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Database;
+import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.KeyValueViewResult.Row;
-import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.DocumentNotFoundException;
 import de.bornemisza.rest.exception.TechnicalException;
@@ -40,15 +40,21 @@ public class UsersService {
     @Inject
     CouchUsersPool usersPool;
 
+    @Inject
+    CouchPool couchPool;
+
     private static final String JSON_UTF8 = MediaType.APPLICATION_JSON_TYPE.withCharset("UTF-8").getType();
+    private int maxWaitTimeForUserDatabaseInMillis = 10000;
 
     public UsersService() {
     }
 
     // Constructor for Unit Tests
-    public UsersService(CouchUsersPoolAsAdmin pool1, CouchUsersPool pool2) {
+    public UsersService(CouchUsersPoolAsAdmin pool1, CouchUsersPool pool2, CouchPool pool3, int timeout) {
         this.usersPoolAsAdmin = pool1;
         this.usersPool = pool2;
+        this.couchPool = pool3;
+        this.maxWaitTimeForUserDatabaseInMillis = timeout;
     }
 
     @PostConstruct
@@ -130,7 +136,42 @@ public class UsersService {
         Auth auth = new Auth(new BasicAuthCredentials(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword())));
         User createdUser = readUser(auth, user.getId());
         Logger.getLogger(http.getHostName()).info("Added user: " + createdUser);
+        String userDb = User.db(createdUser.getName());
+        waitForDatabaseToBecomeAvailable(userDb);
+        createStandardViews(userDb);
         return createdUser;
+    }
+
+    private void waitForDatabaseToBecomeAvailable(String userDb) {
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < maxWaitTimeForUserDatabaseInMillis) {
+            // wait no more than 10 seconds
+            Http http = couchPool.getConnection().getHttp();
+            Get get = http.get((http.getBaseUrl()) + userDb).header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()));
+            try {
+                int responseCode = get.responseCode();
+                if (responseCode == 200) {
+                    long duration = System.currentTimeMillis() - start;
+                    Logger.getLogger(http.getHostName()).info("Created database: " + userDb + " (Duration: " + duration + "ms)");
+                    return;
+                }
+            }
+            catch (HttpException ex) {
+                Logger.getLogger(http.getHostName()).warning("While waiting for " + userDb + ": " + ex.toString());
+            }
+        }
+        throw new TechnicalException("User Database " + userDb + " was not created!");
+    }
+
+    private void createStandardViews(String userDb) {
+        Http http = couchPool.getConnection().getHttp();
+        Put put = http.put(http.getBaseUrl() + userDb + "/_design/Uuid", Views.getUuidSumByColor(userDb))
+                .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.CONTENT_TYPE, JSON_UTF8);
+        sendStatefulRequest(put, 201, 202);
+        Logger.getLogger(http.getHostName()).info("Added view: uuid_sum_by_color");
     }
 
     public User updateUser(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
