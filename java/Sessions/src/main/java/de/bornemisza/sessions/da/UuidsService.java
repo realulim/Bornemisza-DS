@@ -88,4 +88,6 @@ public class UuidsService {
         return new RestResult(headers);
     }
 
+    // curl -u `cat /srv/pillar/netrc` http://10.4.6.112:5984/userdb-556c72696368204d617972696e67/_design/Uuid/_view/uuid_sum_by_color?group=true
+
 }
