@@ -215,6 +215,16 @@ public class IntegrationTestBase {
                 .then().statusCode(expectedStatusCode).extract().response();
     }
 
+    protected Response loadColors(String cookie, String ctoken, int expectedStatusCode) {
+        if (cookie.contains(";")) cookie = cookie.substring(0, cookie.indexOf(";"));
+        requestSpecSessions.accept(ContentType.JSON)
+                .header(HttpHeaders.COOKIE, cookie)
+                .header(HttpHeaders.CTOKEN, ctoken);
+        return given(requestSpecSessions)
+                .when().get("uuid/colors/stats")
+                .then().statusCode(expectedStatusCode).extract().response();
+    }
+
     protected Response endSession(int expectedStatusCode) {
         requestSpecSessions.accept(ContentType.JSON);
         return given(requestSpecSessions)

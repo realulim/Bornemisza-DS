@@ -4,6 +4,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -108,7 +109,18 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t09_changeEmailRequest() {
+    public void t09_loadColors() {
+        Response response = loadColors(cookie, ctoken, 200);
+        JsonPath jsonPath = response.jsonPath();
+        List<Map<String, String>> rows = jsonPath.getList("rows");
+        assertEquals(1, rows.size());
+        Map<String, String> row = rows.get(0);
+        assertEquals("LightSeaGreen", row.get("key"));
+        assertEquals("3", row.get("value"));
+    }
+
+    @Test
+    public void t10_changeEmailRequest() {
         deleteMails(newEmail);
         user.setEmail(newEmail);
         Response response = putEmail(cookie, ctoken, user, 202);
@@ -116,7 +128,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t10_confirmEmail() {
+    public void t11_confirmEmail() {
         BasicAuthCredentials creds = new BasicAuthCredentials(userName, userPassword);
         long start = System.currentTimeMillis();
         String confirmationLink = retrieveConfirmationLink(newEmail);
@@ -133,7 +145,7 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t11_endSession() {
+    public void t12_endSession() {
         Response response = endSession(200);
         assertEquals("AuthSession=; Version=1; Path=/; HttpOnly; Secure", response.getHeader("Set-Cookie"));
         assertNull(response.getHeader("C-Token"));
@@ -141,19 +153,19 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t12_getUuidsWithoutCookie() {
+    public void t13_getUuidsWithoutCookie() {
         Response response = getUuidsWithoutCookie(ctoken, 1, 401);
         assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
     }
 
     @Test
-    public void t13_getUuidsWithoutCToken() {
+    public void t14_getUuidsWithoutCToken() {
         Response response = getUuidsWithoutCToken(cookie, 1, 401);
         assertEquals("Cookie or C-Token missing!", response.getBody().prettyPrint());
     }
 
     @Test
-    public void t14_changePassword() {
+    public void t15_changePassword() {
         requestSpecUsers.auth().preemptive().basic(userName, userPassword);
         Response response = changePassword(userName, newUserPassword, 200);
         JsonPath jsonPath = response.getBody().jsonPath();
@@ -163,14 +175,14 @@ public class BornemiszaIT extends IntegrationTestBase {
     }
 
     @Test
-    public void t15_removeUser() {
+    public void t16_removeUser() {
         requestSpecUsers.auth().preemptive().basic(userName, newUserPassword);
         deleteUser(userName, 204);
         getUser(userName, 401);
     }
 
     @Test
-    public void t16_checkUserRemoved() {
+    public void t17_checkUserRemoved() {
         requestSpecUsers.auth().preemptive().basic(adminUserName, adminPassword);
         deleteUser(userName, 404);
     }
