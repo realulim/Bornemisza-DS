@@ -22,6 +22,7 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.Uuid;
+import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.RestResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
@@ -108,7 +109,7 @@ public class UuidsServiceTest {
     public void getUuids_noHeaders() {
         int count = 3;
         when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(getJson(count));
+        when(get.text()).thenReturn(getUuidResultAsJson(count));
         when(get.headers()).thenReturn(new HashMap<>());
 
         UuidsResult result = CUT.getUuids(3);
@@ -120,7 +121,7 @@ public class UuidsServiceTest {
     public void getUuids() {
         String backendIp = "1.2.3.4";
         when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(getJson(0)).thenReturn(getJson(1)).thenReturn(getJson(2)).thenReturn(getJson(3));
+        when(get.text()).thenReturn(getUuidResultAsJson(0)).thenReturn(getUuidResultAsJson(1)).thenReturn(getUuidResultAsJson(2)).thenReturn(getUuidResultAsJson(3));
         Map<String, List<String>> backendHeaders = new HashMap<>();
         backendHeaders.put(HttpHeaders.BACKEND, Arrays.asList(new String[] { backendIp }));
         when(get.headers()).thenReturn(backendHeaders);
@@ -174,7 +175,60 @@ public class UuidsServiceTest {
         assertEquals(cookie, result.getNewCookie());
     }
 
-    private String getJson(int count) {
+    @Test
+    public void loadColors_unauthorized() {
+        int errorCode = 401;
+        String msg = "Unauthorized";
+        when(get.responseCode()).thenReturn(errorCode);
+        when(get.responseMessage()).thenReturn(msg);
+        try {
+            CUT.loadColors(auth, "userDatabase");
+            fail();
+        }
+        catch (BusinessException ex) {
+            assertEquals(SessionsType.UNEXPECTED, ex.getType());
+            assertTrue(ex.getMessage().contains(errorCode + ":"));
+        }
+    }
+
+    @Test
+    public void loadColors_technicalError() {
+        String msg = "Connection refused";
+        ConnectException cause = new ConnectException(msg);
+        HttpException wrapperException = new HttpException(msg, cause);
+        when(get.responseCode()).thenThrow(wrapperException);
+        try {
+            CUT.loadColors(auth, "userDatabase");
+            fail();
+        }
+        catch (TechnicalException ex) {
+            assertEquals(wrapperException.toString(), ex.getMessage());
+        }
+    }
+
+    @Test
+    public void loadColors() {
+        String cookie = "Cookie";
+        int crimsonCount = 2846;
+        when(get.responseCode()).thenReturn(200);
+        when(get.text()).thenReturn(getColorsResultAsJson(crimsonCount));
+        headers.put(HttpHeaders.SET_COOKIE, Arrays.asList(new String[] { cookie }));
+        KeyValueViewResult result = CUT.loadColors(auth, "userDatabase");
+        assertEquals(headers, result.getHeaders());
+        assertEquals(cookie, result.getNewCookie());
+        assertEquals(3, result.getRows().size());
+        assertEquals(crimsonCount + "", result.getRows().get(1).getValue());
+    }
+
+    private String getColorsResultAsJson(int crimsonCount) {
+        return  " {\"rows\":[\n" +
+                "        {\"key\":\"Black\",\"value\":145},\n" +
+                "        {\"key\":\"Crimson\",\"value\":" + crimsonCount + "},\n" +
+                "        {\"key\":\"LightSeaGreen\",\"value\":8087}\n" +
+                " ]}\n";
+    }
+
+    private String getUuidResultAsJson(int count) {
         String json = "{\n" +
                       "    \"uuids\": [\n";
         for (int i = 0; i < count; i++) {

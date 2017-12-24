@@ -17,6 +17,7 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
 import de.bornemisza.rest.entity.Uuid;
+import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.RestResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
@@ -88,11 +89,22 @@ public class UuidsService {
         return new RestResult(headers);
     }
 
-// curl -u `cat /srv/pillar/netrc` http://1.2.3.4:5984/userdb-7494393479324fddsv98sv9/_design/Uuid/_view/uuid_sum_by_color?group=true
-//{"rows":[
-//{"key":"Black","value":1},
-//{"key":"Crimson","value":2861},
-//{"key":"LightSeaGreen","value":8087}
-//]}
+    public KeyValueViewResult loadColors(Auth auth, String userDatabase) {
+        Get get = couchPool.getConnection().getHttp().get(userDatabase + "/_design/Uuid/_view/uuid_sum_by_color?group=true")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .header(HttpHeaders.COOKIE, auth.getCookie());
+        try {
+            int responseCode = get.responseCode();
+            if (responseCode != 200) {
+                throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + get.responseMessage());
+            }
+        }
+        catch (HttpException ex) {
+            throw new TechnicalException(ex.toString());
+        }
+        KeyValueViewResult result = Json.fromJson(get.text(), KeyValueViewResult.class);
+        result.setNewCookie(get.headers());
+        return result;
+    }
 
 }
