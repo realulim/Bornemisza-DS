@@ -25,6 +25,7 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.User;
 import de.bornemisza.rest.entity.Uuid;
+import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
@@ -103,6 +104,16 @@ public class UuidsFacade {
         uuidsResult.setStatus(Status.OK);
         if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);
         return uuidsResult;
+    }
+
+    public KeyValueViewResult loadColors(Auth auth) throws UnauthorizedException, BusinessException, TechnicalException {
+        String userName = auth.checkTokenValidity(hashProvider);
+        String userDatabase = User.db(userName);
+        KeyValueViewResult result = uuidsService.loadColors(auth, userDatabase);
+        result.setStatus(Status.OK);
+        String newCookie = result.getNewCookie();
+        if (newCookie != null) result.addHeader(HttpHeaders.SET_COOKIE, newCookie);
+        return result;
     }
 
     /**

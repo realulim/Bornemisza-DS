@@ -24,6 +24,8 @@ import static org.mockito.Mockito.*;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
+import de.bornemisza.rest.Json;
+import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
@@ -200,18 +202,37 @@ public class UuidsFacadeTest {
         when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
 
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
-            dbResult = createDbResult(j);
+            dbResult = createUuidsResult(j);
             when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
             UuidsResult facadeResult = CUT.getUuids(auth, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
         }
-        dbResult = createDbResult(6); // overflow
+        dbResult = createUuidsResult(6); // overflow
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
         UuidsResult facadeResult = CUT.getUuids(auth, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
     }
 
-    private UuidsResult createDbResult(int j) throws BusinessException, TechnicalException {
+    @Test
+    public void loadColors() {
+        KeyValueViewResult dbResult = createColorsResult();
+        when(uuidsService.loadColors(any(Auth.class), anyString())).thenReturn(dbResult);
+
+        KeyValueViewResult facadeResult = CUT.loadColors(auth);
+        assertEquals(200, facadeResult.getStatus().getStatusCode());
+        assertEquals(dbResult, facadeResult);
+    }
+
+    private KeyValueViewResult createColorsResult() {
+        String json =   " {\"rows\":[\n" +
+                        "        {\"key\":\"Black\",\"value\":145},\n" +
+                        "        {\"key\":\"Crimson\",\"value\":2846},\n" +
+                        "        {\"key\":\"LightSeaGreen\",\"value\":8087}\n" +
+                        " ]}\n";
+        return Json.fromJson(json, KeyValueViewResult.class);
+    }
+
+    private UuidsResult createUuidsResult(int j) throws BusinessException, TechnicalException {
         UuidsResult dbResult = new UuidsResult();
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + j);
         dbResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
