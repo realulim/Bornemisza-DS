@@ -76,7 +76,7 @@ done
 chmod -R 400 $PillarLocal
 
 # collect all pillar secrets in order to exclude them from Salt's output
-SECRET_KEYS=(CFEMAIL CFKEY couchdb-admin-password cookie stats-password)
+SECRET_KEYS=(CFEMAIL CFKEY couchdb-admin-password couchdb-httpd-auth-secret erlang-cookie stats-password)
 EXCL_STR=$(getsecrets "${SECRET_KEYS[@]}")
 
 # create server
