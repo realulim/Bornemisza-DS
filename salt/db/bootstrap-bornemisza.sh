@@ -30,7 +30,7 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 	if [ -z "$COUCH_SECRET" ]; then
 		COUCH_SECRET=$(generatepw)
 	fi
-	printf "couchdb-httpd-auth-secret: %s\n" "$COUCH_SECRET" > $PillarLocal/couchdb.sls
+	printf "couchdb-httpd-auth-secret: %s\n" "$COUCH_SECRET" >> $PillarLocal/couchdb.sls
 	printf "\n"
 
 	read -rs -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
