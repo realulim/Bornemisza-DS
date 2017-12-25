@@ -63,7 +63,7 @@ configure-httpd-auth-secret:
     - pattern: |
         ;secret = mysecret
     - repl: |
-        admin = {{ pillar['couchdb-httpd-auth-secret'] }}
+        secret = {{ pillar['couchdb-httpd-auth-secret'] }}
     - show_changes: False
 
 configure-couchdb:
