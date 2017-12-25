@@ -57,6 +57,15 @@ configure-admin-password:
         admin = {{ pillar['couchdb-admin-password'] }}
     - show_changes: False
 
+configure-httpd-auth-secret:
+  file.replace:
+    - name: /opt/couchdb/etc/local.d/admins.ini
+    - pattern: |
+        ;secret = mysecret
+    - repl: |
+        admin = {{ pillar['couchdb-httpd-auth-secret'] }}
+    - show_changes: False
+
 configure-couchdb:
   file.managed:
     - name: /opt/couchdb/etc/local.ini

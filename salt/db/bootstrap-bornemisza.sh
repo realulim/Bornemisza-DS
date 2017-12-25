@@ -26,11 +26,18 @@ if [ ! -e $PillarLocal/couchdb.sls ]; then
 	printf "couchdb-admin-password: %s\n" "$COUCH_PW" > $PillarLocal/couchdb.sls
 	printf "\n"
 
+	read -rs -p 'CouchDB Httpd Auth Secret [leave empty to generate random string]: ' COUCH_SECRET
+	if [ -z "$COUCH_SECRET" ]; then
+		COUCH_SECRET=$(generatepw)
+	fi
+	printf "couchdb-httpd-auth-secret: %s\n" "$COUCH_SECRET" > $PillarLocal/couchdb.sls
+	printf "\n"
+
 	read -rs -p 'Erlang Cookie [leave empty to generate random string]: ' COOKIE
 	if [ -z "$COOKIE" ]; then
 		COOKIE=$(generatepw)
 	fi
-	printf "cookie: %s\n" "$COOKIE" >> $PillarLocal/couchdb.sls
+	printf "erlang-cookie: %s\n" "$COOKIE" >> $PillarLocal/couchdb.sls
 	printf "\n"
 
 	read -r -p 'IP Address of Node already in Cluster [leave empty if this is the first node]: ' CLUSTERIP
