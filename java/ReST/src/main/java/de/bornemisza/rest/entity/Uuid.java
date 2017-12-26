@@ -2,6 +2,7 @@ package de.bornemisza.rest.entity;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -21,8 +22,8 @@ public class Uuid extends Document implements Serializable {
         this.type = "uuid";
     }
 
-    @JsonProperty(value = "value")
-    private String value;
+    @JsonProperty(value = "values")
+    private List<String> values;
 
     @JsonProperty(value = "color")
     private String color;
@@ -30,12 +31,12 @@ public class Uuid extends Document implements Serializable {
     @JsonProperty(value = "date")
     private LocalDate date;
 
-    public String getValue() {
-        return value;
+    public List<String> getValues() {
+        return values;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setValues(List<String> values) {
+        this.values = values;
     }
 
     public String getColor() {
@@ -57,7 +58,7 @@ public class Uuid extends Document implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + Objects.hashCode(this.value);
+        hash = 71 * hash + Objects.hashCode(this.values);
         hash = 71 * hash + Objects.hashCode(this.color);
         hash = 71 * hash + Objects.hashCode(this.date);
         return hash;
@@ -75,7 +76,7 @@ public class Uuid extends Document implements Serializable {
             return false;
         }
         final Uuid other = (Uuid) obj;
-        if (!Objects.equals(this.value, other.value)) {
+        if (!Objects.equals(this.values, other.values)) {
             return false;
         }
         if (!Objects.equals(this.color, other.color)) {
@@ -87,7 +88,7 @@ public class Uuid extends Document implements Serializable {
     @Override
     public String toString() {
         return "Document{" + "id=" + getId() + ", rev=" + getRevision() + ", conflicts=" + getConflicts() + "}" +
-               "Uuid{" + "value=" + value + ", color=" + color + ", date=" + date + '}';
+               "Uuid{" + "values=" + values + ", color=" + color + ", date=" + date + '}';
     }
 
 }

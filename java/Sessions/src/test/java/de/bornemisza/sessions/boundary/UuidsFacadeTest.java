@@ -25,6 +25,7 @@ import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.Json;
+import de.bornemisza.rest.entity.Uuid;
 import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
@@ -147,7 +148,7 @@ public class UuidsFacadeTest {
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5");
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
         UuidsResult facadeResult = CUT.getUuids(auth, 1);
@@ -162,7 +163,7 @@ public class UuidsFacadeTest {
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
         UuidsResult facadeResult = CUT.getUuids(auth, 3);
         assertEquals(200, facadeResult.getStatus().getStatusCode());
@@ -178,7 +179,7 @@ public class UuidsFacadeTest {
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
                                                           "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
@@ -199,7 +200,7 @@ public class UuidsFacadeTest {
         UuidsResult dbResult = new UuidsResult();
         dbResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), anyList())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
             dbResult = createUuidsResult(j);

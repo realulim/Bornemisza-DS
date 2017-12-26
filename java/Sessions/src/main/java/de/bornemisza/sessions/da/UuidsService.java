@@ -1,6 +1,5 @@
 package de.bornemisza.sessions.da;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,24 +68,20 @@ public class UuidsService {
         return result;
     }
 
-    public RestResult saveUuids(Auth auth, String userDatabase, List<Uuid> uuids) {
-        Map<String, List<String>> headers = new HashMap<>();
-        for (Uuid uuid : uuids) {
-            Post post = couchPool.getConnection().getHttp().post(userDatabase, Json.toJson(uuid))
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                    .header(HttpHeaders.COOKIE, auth.getCookie());
-            try {
-                int responseCode = post.responseCode();
-                if (responseCode < 201 || responseCode > 202) {
-                    throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + post.responseMessage());
-                }
+    public RestResult saveUuids(Auth auth, String userDatabase, Uuid uuidDocument) {
+        Post post = couchPool.getConnection().getHttp().post(userDatabase, Json.toJson(uuidDocument))
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.COOKIE, auth.getCookie());
+        try {
+            int responseCode = post.responseCode();
+            if (responseCode < 201 || responseCode > 202) {
+                throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + post.responseMessage());
             }
-            catch (HttpException ex) {
-                throw new TechnicalException(ex.toString());
-            }
-            headers = post.headers();
         }
-        return new RestResult(headers);
+        catch (HttpException ex) {
+            throw new TechnicalException(ex.toString());
+        }
+        return new RestResult(post.headers());
     }
 
     public KeyValueViewResult loadColors(Auth auth, String userDatabase) {

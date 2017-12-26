@@ -2,6 +2,7 @@ package de.bornemisza.maintenance;
 
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import de.bornemisza.rest.security.BasicAuthCredentials;
 public class BornemiszaIT extends IntegrationTestBase {
 
     private static String revision, cookie, ctoken;
+    private static final SecureRandom wheel = new SecureRandom();
+    private static final int uuidCount = wheel.nextInt(100) + 1;
 
     @Test
     public void t00_userAccountCreationRequest() {
@@ -98,11 +101,10 @@ public class BornemiszaIT extends IntegrationTestBase {
 
     @Test
     public void t08_getUuids() {
-        int count = 3;
-        Response response = getUuids(cookie, ctoken, count, 200);
+        Response response = getUuids(cookie, ctoken, uuidCount, 200);
         JsonPath jsonPath = response.jsonPath();
         List<String> uuids = jsonPath.getList("uuids");
-        assertEquals(count, uuids.size());
+        assertEquals(uuidCount, uuids.size());
         List<String> definedColors = Arrays.asList(new String[] { "LightSeaGreen", "Crimson", "Gold", "RoyalBlue", "LightSalmon"});
         assertTrue(definedColors.contains(response.getHeader("AppServer")));
         assertTrue(definedColors.contains(response.getHeader("DbServer")));
@@ -116,7 +118,8 @@ public class BornemiszaIT extends IntegrationTestBase {
         assertEquals(1, rows.size());
         Map<String, String> row = rows.get(0);
         assertEquals("LightSeaGreen", row.get("key"));
-        assertEquals("3", row.get("value"));
+        assertEquals(uuidCount + "", row.get("value"));
+        System.out.println(row);
     }
 
     @Test

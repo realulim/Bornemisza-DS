@@ -3,7 +3,6 @@ package de.bornemisza.sessions.da;
 import java.net.ConnectException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +139,7 @@ public class UuidsServiceTest {
         HttpException wrapperException = new HttpException(msg, cause);
         when(post.responseCode()).thenThrow(wrapperException);
         try {
-            CUT.saveUuids(auth, "userDatabase", createUuids());
+            CUT.saveUuids(auth, "userDatabase", createUuid());
             fail();
         }
         catch (TechnicalException ex) {
@@ -155,7 +154,7 @@ public class UuidsServiceTest {
         when(post.responseCode()).thenReturn(statusCode);
         when(post.responseMessage()).thenReturn(msg);
         try {
-            CUT.saveUuids(auth, "userDatabase", createUuids());
+            CUT.saveUuids(auth, "userDatabase", createUuid());
             fail();
         }
         catch (BusinessException ex) {
@@ -170,7 +169,7 @@ public class UuidsServiceTest {
         String cookie = "NewCookie";
         headers.put(HttpHeaders.SET_COOKIE, Arrays.asList(new String[] { cookie }));
         when(post.responseCode()).thenReturn(statusCode);
-        RestResult result = CUT.saveUuids(auth, "userDatabase", createUuids());
+        RestResult result = CUT.saveUuids(auth, "userDatabase", createUuid());
         assertEquals(headers, result.getHeaders());
         assertEquals(cookie, result.getNewCookie());
     }
@@ -241,16 +240,12 @@ public class UuidsServiceTest {
         return json;
     }
 
-    private List<Uuid> createUuids() {
-        List<Uuid> uuids = new ArrayList<>();
-        for (String uuidStr : Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007", "f4c278d2b6f17060430c8f28d2ec26cc", "430c8f4c278d2b6f17060f28d2ec83d4" })) {
-            Uuid uuid = new Uuid();
-            uuid.setValue(uuidStr);
-            uuid.setColor("yellow");
-            uuid.setDate(LocalDate.now());
-            uuids.add(uuid);
-        }
-        return uuids;
+    private Uuid createUuid() {
+        Uuid uuid = new Uuid();
+        uuid.setValues(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007", "f4c278d2b6f17060430c8f28d2ec26cc", "430c8f4c278d2b6f17060f28d2ec83d4" }));
+        uuid.setColor("yellow");
+        uuid.setDate(LocalDate.now());
+        return uuid;
     }
 
 }

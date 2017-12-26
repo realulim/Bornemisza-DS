@@ -7,7 +7,7 @@ public class Views {
                 "          \"_id\": \"_design/" + userDb + "\",\n" +
                 "          \"views\": {\n" +
                 "            \"uuid_sum_by_color\": {\n" +
-                "              \"map\": \"function(doc) { if (typeof doc.type !== 'undefined' && doc.type === 'uuid') { emit(doc.color, 1) } }\",\n" +
+                "              \"map\": \"function(doc) { if (typeof doc.type !== 'undefined' && doc.type === 'uuid') { emit(doc.color, doc.values.length) } }\",\n" +
                 "              \"reduce\": \"function(key, values, rereduce) { return sum(values) }\"\n" +
                 "            }\n" +
                 "          },\n" +
