@@ -144,10 +144,10 @@ public class UsersService {
 
     private void waitForDatabaseToBecomeAvailable(String userDb) {
         long start = System.currentTimeMillis();
+        String lastError = "";
         while (System.currentTimeMillis() - start < maxWaitTimeForUserDatabaseInMillis) {
-            // wait no more than 10 seconds
             Http http = couchPool.getConnection().getHttp();
-            Get get = http.get((http.getBaseUrl()) + userDb).header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+            Get get = http.get(http.getBaseUrl() + userDb).header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
                     .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()));
             try {
                 int responseCode = get.responseCode();
@@ -156,12 +156,17 @@ public class UsersService {
                     Logger.getLogger(http.getHostName()).info("Created database: " + userDb + " (Duration: " + duration + "ms)");
                     return;
                 }
+                else {
+                    lastError = responseCode + ": " + get.text() + " " + http.getBaseUrl() + userDb;
+                }
             }
             catch (HttpException ex) {
                 Logger.getLogger(http.getHostName()).warning("While waiting for " + userDb + ": " + ex.toString());
             }
         }
-        throw new TechnicalException("User Database " + userDb + " was not created!");
+        String msg = "User Database " + userDb + " was not created: " + lastError;
+        Logger.getAnonymousLogger().severe(msg);
+        throw new TechnicalException(msg);
     }
 
     private void createStandardViews(String userDb) {
