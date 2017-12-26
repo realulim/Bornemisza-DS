@@ -251,6 +251,10 @@
                     // Still in loop mode? Get another UUID.
                     self.worker.postMessage(sessionStorage.ctoken)
                 }
+                else {
+                    self.worker.terminate()
+                    self.worker = null
+                }
             }
         }
 
