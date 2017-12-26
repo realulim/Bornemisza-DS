@@ -5,4 +5,5 @@ var config = {
 	urlUuid: 'https://{{ pillar['sslhost'] }}/sessions/uuid',
 	urlUsers: 'https://{{ pillar['sslhost'] }}/users/',
 	urlConfirmUser: 'https://{{ pillar['sslhost'] }}/users/confirmation/user'
+	urlLoadColors: 'https://{{ pillar['sslhost'] }}/sessions/uuid/colors/stats'
 }

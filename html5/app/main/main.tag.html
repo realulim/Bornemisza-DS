@@ -103,6 +103,7 @@
         this.singleMode = true
         this.loopMode = false
         this.batchMode = false
+        this.storedMode = false
         this.worker = null
 
         // measurements
@@ -115,11 +116,11 @@
 
         // manage charts
         this.chartCounter = 0
-        this.appServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
-        this.dbServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0 }
+        this.appServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0, "Black": 0 }
+        this.dbServerColors = { "LightSeaGreen": 0, "Crimson": 0, "Gold": 0, "RoyalBlue": 0, "LightSalmon": 0, "Black": 0 }
         this.chartUpdateFrequency = 0
 
-        this.on('unmount', function() {
+        this.on('unmount', function () {
             this.observable.off(JUST_MARRIED)
             this.observable.off(LOADING_ERROR)
             this.observable.off(START_SINGLE)
@@ -128,6 +129,8 @@
             this.observable.off(STOP_LOOP)
             this.observable.off(START_BATCH)
             this.observable.off(STOP_BATCH)
+            this.observable.off(START_STORED)
+            this.observable.off(STOP_STORED)
         })
 
         this.observable.on(JUST_MARRIED, function (opts) {
@@ -165,6 +168,19 @@
         this.observable.on(STOP_BATCH, function () {
             self.batchMode = false
         })
+        this.observable.on(START_STORED, function () {
+            self.storedMode = true
+            self.chartUpdateFrequency = 0
+            sessionStorage.setItem("appServerColors", JSON.stringify(self.appServerColors))
+            sessionStorage.setItem("dbServerColors", JSON.stringify(self.dbServerColors))
+        })
+        this.observable.on(STOP_STORED, function () {
+            if (self.storedMode) {
+                self.appServerColors = JSON.parse(sessionStorage.appServerColors)
+                self.dbServerColors = JSON.parse(sessionStorage.dbServerColors)
+            }
+            self.storedMode = false
+        })
 
         this.hideAllMessages = () => {
             this.justMarried = false
@@ -195,6 +211,9 @@
                     self.worker = null
                 }
             }
+            else if (self.storedMode) {
+                getStoredRequests()
+            }
             else {
                 console.log("Unknown Mode...")
             }
@@ -203,7 +222,7 @@
         function makeSingleRequest() {
             self.observable.trigger(LOADING_IN_PROGRESS)
             self.worker = new Worker("/js/getUuidWorker.js")
-            self.worker.postMessage(sessionStorage.getItem("ctoken"))
+            self.worker.postMessage(sessionStorage.ctoken)
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
@@ -219,7 +238,7 @@
         }
 
         function startLoopRequests() {
-            self.worker.postMessage(sessionStorage.getItem("ctoken"))
+            self.worker.postMessage(sessionStorage.ctoken)
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
                     console.log("Error: " + event.data.error)
@@ -230,7 +249,7 @@
                 }
                 if (self.loopMode) {
                     // Still in loop mode? Get another UUID.
-                    self.worker.postMessage(sessionStorage.getItem("ctoken"))
+                    self.worker.postMessage(sessionStorage.ctoken)
                 }
             }
         }
@@ -241,7 +260,7 @@
             var startTime = Date.now()
             self.worker = new Worker("/js/getUuidWorker.js")
             for (var i = 0; i < batchSize; i++) {
-                self.worker.postMessage(sessionStorage.getItem("ctoken"))
+                self.worker.postMessage(sessionStorage.ctoken)
             }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
@@ -272,24 +291,28 @@
             self.dbServerColor = event.data.dbServerColor
             self.uuidCount++
             self.chartCounter++
-            self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor]+1||1
-            self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor]+1||1
+            self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor] + 1 || 1
+            self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor] + 1 || 1
             if (self.chartCounter >= self.chartUpdateFrequency) {
                 // redraw charts every nth request
                 self.chartCounter = 0
-                self.observable.trigger(UPDATE_APPSERVERS_CHART, {
-                    data: {
-                        labels: createLabels(self.appServerColors),
-                        series: createSeries(self.appServerColors)
-                    }
-                })
-                self.observable.trigger(UPDATE_DBSERVERS_CHART, {
-                    data: {
-                        labels: createLabels(self.dbServerColors),
-                        series: createSeries(self.dbServerColors)
-                    }
-                })
+                redrawCharts()
             }
+        }
+
+        function redrawCharts() {
+            self.observable.trigger(UPDATE_APPSERVERS_CHART, {
+                data: {
+                    labels: createLabels(self.appServerColors),
+                    series: createSeries(self.appServerColors)
+                }
+            })
+            self.observable.trigger(UPDATE_DBSERVERS_CHART, {
+                data: {
+                    labels: createLabels(self.dbServerColors),
+                    series: createSeries(self.dbServerColors)
+                }
+            })
         }
 
         function createLabels(colors) {
@@ -299,7 +322,7 @@
             }
             return labels
         }
-        
+
         function createSeries(colors) {
             var series = []
             for (var key in colors) {
@@ -307,5 +330,34 @@
             }
             return series
         }
+
+        function getStoredRequests() {
+            self.observable.trigger(LOADING_IN_PROGRESS)
+            qwest.get(config.urlLoadColors, {}, {
+                timeout: 30000,
+                headers: {
+                    "C-Token": sessionStorage.ctoken
+                }
+            })
+                .then(function (xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
+                    let rows = JSON.parse(xhr.responseText).rows
+                    for (var idx in rows) {
+                        let key = rows[idx].key
+                        self.appServerColors[key] = rows[idx].value
+                        self.dbServerColors[key] = rows[idx].value
+                    }
+                    redrawCharts()
+                    self.uuid = ""
+                    self.appServerColor = ""
+                    self.dbServerColor = ""
+                    self.update()
+                })
+                .catch(function (error, xhr, response) {
+                    self.observable.trigger(LOADING_DONE)
+                    self.observable.trigger(LOADING_ERROR, { error: xhr.response })
+                })
+        }
+
     </script>
 </main>

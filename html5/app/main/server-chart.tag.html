@@ -37,31 +37,37 @@
                 stroke-width: 60px;
             }
         }
+
         @media screen and (max-width: 1400px) {
             .ct-bar {
                 stroke-width: 50px;
             }
         }
+
         @media screen and (max-width: 1200px) {
             .ct-bar {
                 stroke-width: 40px;
             }
         }
+
         @media screen and (max-width: 1000px) {
             .ct-bar {
                 stroke-width: 30px;
             }
         }
+
         @media screen and (max-width: 768px) {
             .ct-bar {
                 stroke-width: 70px;
             }
         }
+
         @media screen and (max-width: 640px) {
             .ct-bar {
                 stroke-width: 45px;
             }
         }
+
         @media screen and (max-width: 400px) {
             .ct-bar {
                 stroke-width: 15px;
@@ -87,6 +93,10 @@
         .ct-series-e .ct-bar {
             stroke: lightsalmon;
         }
+
+        .ct-series-f .ct-bar {
+            stroke: black;
+        }
     </style>
 
     <script>
@@ -97,7 +107,7 @@
         this.event = opts.event
         this.chartId = opts.chartid
 
-        this.on('unmount', function() {
+        this.on('unmount', function () {
             this.observable.off(self.event)
         })
 

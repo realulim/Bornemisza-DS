@@ -2,16 +2,28 @@
 
     <div class="box">
         <div onclick="{modeSingle}" class="item is-unselectable">
-            <span class="icon"><i ref="singleRadio" class="fa fa-dot-circle-o"></i></span>
+            <span class="icon">
+                <i ref="singleRadio" class="fa fa-dot-circle-o"></i>
+            </span>
             <span class="name">Single</span>
         </div>
         <div onclick="{modeLoop}" class="item is-unselectable">
-            <span class="icon"><i ref="loopRadio" class="fa fa-circle-o"></i></span>
+            <span class="icon">
+                <i ref="loopRadio" class="fa fa-circle-o"></i>
+            </span>
             <span class="name">Loop</span>
         </div>
         <div onclick="{modeBatch}" class="item is-unselectable">
-            <span class="icon"><i ref="batchRadio" class="fa fa-circle-o"></i></span>
+            <span class="icon">
+                <i ref="batchRadio" class="fa fa-circle-o"></i>
+            </span>
             <span class="name">Batch</span>
+        </div>
+        <div onclick="{modeStored}" class="item is-unselectable">
+            <span class="icon">
+                <i ref="storedRadio" class="fa fa-circle-o"></i>
+            </span>
+            <span class="name">Stored</span>
         </div>
     </div>
 
@@ -56,58 +68,77 @@
         this.mixin(ObservableMixin)
         var self = this
 
-        this.on('unmount', function() {
+        this.on('unmount', function () {
             this.observable.off(START_SINGLE)
             this.observable.off(START_LOOP)
             this.observable.off(START_BATCH)
+            this.observable.off(START_STORED)
         })
 
         this.observable.on(START_SINGLE, function (opts) {
+            deselectAllRadioButtons()
             self.refs.singleRadio.classList.remove("fa-circle-o")
             self.refs.singleRadio.classList.add("fa-dot-circle-o")
-            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
-            self.refs.loopRadio.classList.add("fa-circle-o")
-            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
-            self.refs.batchRadio.classList.add("fa-circle-o")
             self.update()
         })
 
         this.observable.on(START_LOOP, function (opts) {
+            deselectAllRadioButtons()
             self.refs.loopRadio.classList.remove("fa-circle-o")
             self.refs.loopRadio.classList.add("fa-dot-circle-o")
-            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
-            self.refs.singleRadio.classList.add("fa-circle-o")
-            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
-            self.refs.batchRadio.classList.add("fa-circle-o")
             self.update()
         })
 
         this.observable.on(START_BATCH, function (opts) {
+            deselectAllRadioButtons()
             self.refs.batchRadio.classList.remove("fa-circle-o")
             self.refs.batchRadio.classList.add("fa-dot-circle-o")
-            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
-            self.refs.singleRadio.classList.add("fa-circle-o")
-            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
-            self.refs.loopRadio.classList.add("fa-circle-o")
+            self.update()
+        })
+
+        this.observable.on(START_STORED, function (opts) {
+            deselectAllRadioButtons()
+            self.refs.storedRadio.classList.remove("fa-circle-o")
+            self.refs.storedRadio.classList.add("fa-dot-circle-o")
             self.update()
         })
 
         this.modeSingle = () => {
-            self.observable.trigger(STOP_LOOP)
-            self.observable.trigger(STOP_BATCH)
+            stopAllModes()
             self.observable.trigger(START_SINGLE)
         }
 
         this.modeLoop = () => {
-            self.observable.trigger(STOP_SINGLE)
-            self.observable.trigger(STOP_BATCH)
+            stopAllModes()
             self.observable.trigger(START_LOOP)
         }
 
         this.modeBatch = () => {
+            stopAllModes()
+            self.observable.trigger(START_BATCH)
+        }
+
+        this.modeStored = () => {
+            stopAllModes()
+            self.observable.trigger(START_STORED)
+        }
+
+        function stopAllModes() {
             self.observable.trigger(STOP_SINGLE)
             self.observable.trigger(STOP_LOOP)
-            self.observable.trigger(START_BATCH)
+            self.observable.trigger(STOP_BATCH)
+            self.observable.trigger(STOP_STORED)
+        }
+
+        function deselectAllRadioButtons() {
+            self.refs.singleRadio.classList.remove("fa-dot-circle-o")
+            self.refs.singleRadio.classList.add("fa-circle-o")
+            self.refs.loopRadio.classList.remove("fa-dot-circle-o")
+            self.refs.loopRadio.classList.add("fa-circle-o")
+            self.refs.batchRadio.classList.remove("fa-dot-circle-o")
+            self.refs.batchRadio.classList.add("fa-circle-o")
+            self.refs.storedRadio.classList.remove("fa-dot-circle-o")
+            self.refs.storedRadio.classList.add("fa-circle-o")
         }
     </script>
 
