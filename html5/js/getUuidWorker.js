@@ -2,11 +2,11 @@ importScripts("https://cdnjs.cloudflare.com/ajax/libs/qwest/4.5.0/qwest.min.js")
 importScripts("/js/config.js");
 
 onmessage = function (event) {
-	makeAjaxRequest(event.data);
+	makeAjaxRequest(event.data[0], event.data[1]);
 };
 
-function makeAjaxRequest(ctoken) {
-	qwest.get(config.urlUuid, {}, {
+function makeAjaxRequest(ctoken, count) {
+	qwest.get(config.urlUuid + "?count=" + count, {}, {
 		headers: {
 			"C-Token": ctoken
 		}

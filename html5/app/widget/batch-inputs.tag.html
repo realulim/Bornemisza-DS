@@ -1,0 +1,62 @@
+<batch-inputs>
+
+    <div class="box field">
+        <div class="control has-icons-left">
+            <input class="input batchInput batchInputTop" ref="batchSize" type="text" value="{batchSize}" placeholder="Batch Size" 
+                   onkeypress="return inputLimiter(event,'Numbers')" required>
+            <span class="icon is-left">
+                <i class="fa fa-lock fa-fw"></i>
+            </span>
+        </div>
+        <div class="control has-icons-left">
+                <input class="input batchInput batchInputBottom" ref="batchSize" type="text" value="{batchCount}" placeholder="Batch Count" 
+                       onkeypress="return inputLimiter(event,'Numbers')" required>
+                <span class="icon is-left">
+                    <i class="fa fa-lock fa-fw"></i>
+                </span>
+        </div>
+    </div>
+
+    <style>
+        .box {
+            background-color: var(--lightslate);
+            border-radius: 5px;
+            padding: 0;
+            margin-top: 5px;
+        }
+
+        .batchInput {
+            background-color: var(--lightslate);
+            border: 1px solid var(--lightslate);
+            transition: all 0.8s ease;
+            -moz-transition: all 0.8s ease;
+            -webkit-transition: all 0.8s ease;
+            -o-transition: all 0.8s ease;
+            -ms-transition: all 0.8s ease;
+        }
+
+        .batchInputTop {
+            border-radius: 5px 5px 0px 0px;
+        }
+
+        .batchInputBottom {
+            border-radius: 0px 0px 5px 5px;
+        }
+
+        .batchInput:hover {
+            background-color: #d1e6ec;
+            border: 1px solid #888
+        }
+
+        .batchInput:focus {
+            background-color: #d1e6ec;
+            border: 1px solid black;
+        }
+    </style>
+
+    <script>
+        this.batchSize = 1000
+        this.batchCount = 1000
+    </script>
+
+</batch-inputs>

@@ -17,7 +17,7 @@
     </div>
 
     <div if="{measurementAvailable}" class="is-size-5 msg msg-baron fade-in">
-        Last: {duration} ms ({requests} req/s), Average: {avgDuration} ms ({avgRequests} req/s)
+        Last: {duration} ms ({requests} req/s, {uuids} uuids/s), Average: {avgDuration} ms ({avgRequests} req/s, {avgUuids} uuids/s)
         <a onclick="{hideAllMessages}" class="delete is-small msg-baron-close"></a>
     </div>
     <div if="{justMarried}" class="is-size-5 msg msg-good fade-in-out">
@@ -112,6 +112,7 @@
         this.avgDuration = 0
         this.requests = 0
         this.avgRequests = 0
+        this.avgUuids = 0
         this.measurementAvailable = false
 
         // manage charts
@@ -222,14 +223,14 @@
         function makeSingleRequest() {
             self.observable.trigger(LOADING_IN_PROGRESS)
             self.worker = new Worker("/js/getUuidWorker.js")
-            self.worker.postMessage(sessionStorage.ctoken)
+            self.worker.postMessage([sessionStorage.ctoken, 1])
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
                     self.observable.trigger(LOADING_ERROR, { error: event.data.error })
                 }
                 else {
-                    gatherResults(event)
+                    gatherResults(event, 1)
                     self.update()
                 }
                 self.worker.terminate()
@@ -238,18 +239,18 @@
         }
 
         function startLoopRequests() {
-            self.worker.postMessage(sessionStorage.ctoken)
+            self.worker.postMessage([sessionStorage.ctoken, 1])
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
                     console.log("Error: " + event.data.error)
                 }
                 else {
-                    gatherResults(event)
+                    gatherResults(event, 1)
                     self.update()
                 }
                 if (self.loopMode) {
                     // Still in loop mode? Get another UUID.
-                    self.worker.postMessage(sessionStorage.ctoken)
+                    self.worker.postMessage([sessionStorage.ctoken, 1])
                 }
                 else {
                     self.worker.terminate()
@@ -261,24 +262,28 @@
         function startBatchRequests() {
             var uuidStart = self.uuidCount
             var batchSize = 1000
+            var batchCount = 1000
+            var batchTotal = batchSize * batchCount
             var startTime = Date.now()
             self.worker = new Worker("/js/getUuidWorker.js")
-            for (var i = 0; i < batchSize; i++) {
-                self.worker.postMessage(sessionStorage.ctoken)
+            for (var i = 0; i < batchCount; i++) {
+                self.worker.postMessage([sessionStorage.ctoken, batchSize])
             }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
                     console.log("Error: " + event.data.error)
-                    batchSize--
+                    batchTotal -= batchSize
                 }
                 else {
-                    gatherResults(event)
+                    gatherResults(event, batchSize)
                 }
-                if ((self.uuidCount - uuidStart) >= batchSize) {
+                if ((self.uuidCount - uuidStart) >= batchTotal) {
                     self.duration = (Date.now() - startTime)
-                    self.requests = Math.round(batchSize / (self.duration / 1000))
+                    self.requests = Math.round(batchCount / (self.duration / 1000))
+                    self.uuids = Math.round(batchTotal / (self.duration / 1000))
                     self.avgDuration = Math.round(((self.avgDuration * self.measurementsTaken) + self.duration) / (self.measurementsTaken + 1))
                     self.avgRequests = Math.round(((self.avgRequests * self.measurementsTaken) + self.requests) / (self.measurementsTaken + 1))
+                    self.avgUuids = Math.round(((self.avgUuids * self.measurementsTaken) + self.uuids) / (self.measurementsTaken + 1))
                     self.measurementsTaken++
                     self.measurementAvailable = true
                     // Only update the screen after the batch is complete
@@ -289,14 +294,14 @@
             }
         }
 
-        function gatherResults(event) {
+        function gatherResults(event, batchSize) {
             self.uuid = event.data.uuid
             self.appServerColor = event.data.appServerColor
             self.dbServerColor = event.data.dbServerColor
-            self.uuidCount++
-            self.chartCounter++
-            self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor] + 1 || 1
-            self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor] + 1 || 1
+            self.uuidCount += batchSize
+            self.chartCounter += batchSize
+            self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor] + batchSize || 1
+            self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor] + batchSize || 1
             if (self.chartCounter >= self.chartUpdateFrequency) {
                 // redraw charts every nth request
                 self.chartCounter = 0
