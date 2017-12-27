@@ -23,6 +23,7 @@ var START_STORED = "Start Stored Requests Mode";
 var STOP_STORED = "Stop Stored Requests Mode";
 var UPDATE_APPSERVERS_CHART = "Update Application Servers Chart";
 var UPDATE_DBSERVERS_CHART = "Update Database Servers Chart";
+var BATCH_PARAMS_CHANGED = "Batch Size and/or Count Parameters changed"
 
 // Functions
 function setBackground(color) {

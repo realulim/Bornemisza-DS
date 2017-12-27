@@ -2,15 +2,17 @@
 
     <div class="box field">
         <div class="control has-icons-left">
-            <input class="input batchInput batchInputTop" ref="batchSize" type="text" value="{batchSize}" placeholder="Batch Size" 
-                   onkeypress="return inputLimiter(event,'Numbers')" required>
+            <input class="input batchInput batchInputTop"
+                   name="batchSize" ref="batchSize" type="text" value="1000" placeholder="Batch Size"
+                   onkeypress="return inputLimiter(event,'Numbers')" onchange="{inputChanged}" required>
             <span class="icon is-left">
                 <i class="fa fa-arrows-v fa-fw"></i>
             </span>
         </div>
         <div class="control has-icons-left">
-                <input class="input batchInput batchInputBottom" ref="batchSize" type="text" value="{batchCount}" placeholder="Batch Count" 
-                       onkeypress="return inputLimiter(event,'Numbers')" required>
+                <input class="input batchInput batchInputBottom" 
+                       name="batchCount" ref="batchCount" type="text" value="1000" placeholder="Batch Count"
+                       onkeypress="return inputLimiter(event,'Numbers')" onchange="{inputChanged}" required>
                 <span class="icon is-left">
                     <i class="fa fa-th fa-fw"></i>
                 </span>
@@ -65,8 +67,15 @@
     </style>
 
     <script>
+        var self = this
+        this.mixin(ObservableMixin)
         this.batchSize = 1000
         this.batchCount = 1000
+
+        this.inputChanged = (event) => {
+            self.observable.trigger(BATCH_PARAMS_CHANGED, { batchSize: self.refs.batchSize.value, batchCount: self.refs.batchCount.value })
+        }
+
     </script>
 
 </batch-inputs>

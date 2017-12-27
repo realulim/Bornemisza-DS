@@ -100,6 +100,8 @@
         this.uuidCount = 0
         this.appServerColor = false
         this.dbServerColor = false
+        this.batchSize = 1000
+        this.batchCount = 1000
         this.singleMode = true
         this.loopMode = false
         this.batchMode = false
@@ -124,6 +126,7 @@
         this.on('unmount', function () {
             this.observable.off(JUST_MARRIED)
             this.observable.off(LOADING_ERROR)
+            this.observable.off(BATCH_PARAMS_CHANGED)
             this.observable.off(START_SINGLE)
             this.observable.off(STOP_SINGLE)
             this.observable.off(START_LOOP)
@@ -145,6 +148,11 @@
         this.observable.on(LOADING_ERROR, function (opts) {
             console.log(LOADING_ERROR + ": " + opts.error)
             self.loadingError = true
+            self.update()
+        })
+        this.observable.on(BATCH_PARAMS_CHANGED, function (opts) {
+            self.batchSize = parseInt(opts.batchSize)
+            self.batchCount = parseInt(opts.batchCount)
             self.update()
         })
 
@@ -261,25 +269,23 @@
 
         function startBatchRequests() {
             var uuidStart = self.uuidCount
-            var batchSize = 1000
-            var batchCount = 1000
-            var batchTotal = batchSize * batchCount
+            var batchTotal = self.batchSize * self.batchCount
             var startTime = Date.now()
             self.worker = new Worker("/js/getUuidWorker.js")
-            for (var i = 0; i < batchCount; i++) {
-                self.worker.postMessage([sessionStorage.ctoken, batchSize])
+            for (var i = 0; i < self.batchCount; i++) {
+                self.worker.postMessage([sessionStorage.ctoken, self.batchSize])
             }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
                     console.log("Error: " + event.data.error)
-                    batchTotal -= batchSize
+                    batchTotal -= self.batchSize
                 }
                 else {
-                    gatherResults(event, batchSize)
+                    gatherResults(event, self.batchSize)
                 }
                 if ((self.uuidCount - uuidStart) >= batchTotal) {
                     self.duration = (Date.now() - startTime)
-                    self.requests = Math.round(batchCount / (self.duration / 1000))
+                    self.requests = Math.round(self.batchCount / (self.duration / 1000))
                     self.uuids = Math.round(batchTotal / (self.duration / 1000))
                     self.avgDuration = Math.round(((self.avgDuration * self.measurementsTaken) + self.duration) / (self.measurementsTaken + 1))
                     self.avgRequests = Math.round(((self.avgRequests * self.measurementsTaken) + self.requests) / (self.measurementsTaken + 1))
