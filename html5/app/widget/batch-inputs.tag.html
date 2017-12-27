@@ -5,19 +5,29 @@
             <input class="input batchInput batchInputTop" ref="batchSize" type="text" value="{batchSize}" placeholder="Batch Size" 
                    onkeypress="return inputLimiter(event,'Numbers')" required>
             <span class="icon is-left">
-                <i class="fa fa-lock fa-fw"></i>
+                <i class="fa fa-arrows-v fa-fw"></i>
             </span>
         </div>
         <div class="control has-icons-left">
                 <input class="input batchInput batchInputBottom" ref="batchSize" type="text" value="{batchCount}" placeholder="Batch Count" 
                        onkeypress="return inputLimiter(event,'Numbers')" required>
                 <span class="icon is-left">
-                    <i class="fa fa-lock fa-fw"></i>
+                    <i class="fa fa-th fa-fw"></i>
                 </span>
         </div>
     </div>
 
     <style>
+        .control.has-icons-left .icon {
+            color: var(--dark);
+            opacity: 0.75;
+        }
+
+        .control.has-icons-left .input:focus ~ .icon {
+            color: var(--dark);
+            opacity: 1;
+        }
+
         .box {
             background-color: var(--lightslate);
             border-radius: 5px;
