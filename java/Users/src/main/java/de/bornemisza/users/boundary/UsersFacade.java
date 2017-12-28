@@ -76,7 +76,7 @@ public class UsersFacade {
         }
     }
 
-    public User confirmUser(String uuid) throws BusinessException, TechnicalException {
+    public User confirmUser(String uuid) throws BusinessException, TechnicalException, DocumentNotFoundException, UnauthorizedException {
         User user = newUserAccountMap_uuid.remove(uuid);
         if (user == null) {
             throw new BusinessException(UsersType.UUID_NOT_FOUND, uuid);
@@ -95,7 +95,7 @@ public class UsersFacade {
         changeEmailRequestTopic.publish(user);
     }
 
-    public User confirmEmail(String uuid, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
+    public User confirmEmail(String uuid, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException, DocumentNotFoundException {
         User user = changeEmailRequestMap_uuid.remove(uuid);
         if (user == null) {
             throw new BusinessException(UsersType.UUID_NOT_FOUND, uuid);
@@ -147,7 +147,7 @@ public class UsersFacade {
         }
     }
 
-    public User changePassword(User user, String rev, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
+    public User changePassword(User user, String rev, String authHeader) throws BusinessException, TechnicalException, UnauthorizedException, DocumentNotFoundException {
         try {
             BasicAuthCredentials creds = new BasicAuthCredentials(authHeader);
             return usersService.changePassword(new Auth(creds), user);

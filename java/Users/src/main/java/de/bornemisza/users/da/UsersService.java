@@ -58,7 +58,7 @@ public class UsersService {
     }
 
     @PostConstruct
-    public void init() {
+    public void init() throws BusinessException, TechnicalException {
         Http http = usersPool.getConnection().getHttp();
         Get get = http.get(http.getBaseUrl())
                 .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
@@ -126,7 +126,7 @@ public class UsersService {
         }
     }
 
-    public User createUser(User user) throws BusinessException, TechnicalException, UpdateConflictException {
+    public User createUser(User user) throws BusinessException, TechnicalException, UpdateConflictException, DocumentNotFoundException, UnauthorizedException {
         Http http = usersPoolAsAdmin.getConnection().getHttp();
         Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
                 .basic(usersPoolAsAdmin.getUserName(), String.valueOf(usersPoolAsAdmin.getPassword()))
@@ -142,7 +142,7 @@ public class UsersService {
         return createdUser;
     }
 
-    private void waitForDatabaseToBecomeAvailable(String userDb) {
+    private void waitForDatabaseToBecomeAvailable(String userDb) throws TechnicalException {
         long start = System.currentTimeMillis();
         String lastError = "";
         while (System.currentTimeMillis() - start < maxWaitTimeForUserDatabaseInMillis) {
@@ -179,7 +179,7 @@ public class UsersService {
         Logger.getLogger(http.getHostName()).info("Added view: uuid_sum_by_color");
     }
 
-    public User updateUser(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
+    public User updateUser(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException, DocumentNotFoundException {
         Http http = usersPool.getConnection().getHttp();
         Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
                 .basic(auth.getUsername(), auth.getPassword())
@@ -191,7 +191,7 @@ public class UsersService {
         return updatedUser;
     }
 
-    public User getUser(Auth auth, String userName) throws BusinessException, DocumentNotFoundException, UnauthorizedException {
+    public User getUser(Auth auth, String userName) throws BusinessException, DocumentNotFoundException, UnauthorizedException, TechnicalException {
         User user = new User();
         user.setName(userName);
         return readUser(auth, user.getId());
@@ -225,7 +225,7 @@ public class UsersService {
         return Json.fromJson(get.text(), User.class);
     }
 
-    public User changePassword(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException {
+    public User changePassword(Auth auth, User user) throws BusinessException, TechnicalException, UnauthorizedException, UpdateConflictException, DocumentNotFoundException {
         Http http = usersPool.getConnection().getHttp();
         Put put = http.put(http.getBaseUrl() + Util.urlEncode(user.getId()), Json.toJson(user))
                 .basic(auth.getUsername(), auth.getPassword())
@@ -250,7 +250,7 @@ public class UsersService {
         Logger.getLogger(http.getHostName()).info("Removed user: " + userName);
     }
 
-    private void sendStatefulRequest(Request request, int... successfulStatusCodes) {
+    private void sendStatefulRequest(Request request, int... successfulStatusCodes) throws UnauthorizedException, UpdateConflictException, BusinessException, TechnicalException {
         try {
             int responseCode = request.responseCode();
             if (responseCode == 401) {
