@@ -26,7 +26,7 @@ public class SessionsFacade {
         this.sessionsService = sessionsService;
     }
 
-    public Session createNewSession(String authHeader) throws BusinessException, TechnicalException {
+    public Session createNewSession(String authHeader) throws BusinessException, TechnicalException, UnauthorizedException {
         BasicAuthCredentials creds;
         try {
             creds = new BasicAuthCredentials(authHeader);

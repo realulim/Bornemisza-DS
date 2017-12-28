@@ -47,7 +47,7 @@ public class SessionsService {
         init();
     }
 
-    public Session createSession(Auth auth) throws BusinessException, TechnicalException {
+    public Session createSession(Auth auth) throws BusinessException, TechnicalException, UnauthorizedException {
         Post post = sessionsPool.getConnection().getHttp().post("")
             .param("name", auth.getUsername())
             .param("password", auth.getPassword());

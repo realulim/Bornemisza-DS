@@ -68,7 +68,7 @@ public class UuidsService {
         return result;
     }
 
-    public RestResult saveUuids(Auth auth, String userDatabase, Uuid uuidDocument) {
+    public RestResult saveUuids(Auth auth, String userDatabase, Uuid uuidDocument) throws BusinessException, TechnicalException {
         Post post = couchPool.getConnection().getHttp().post(userDatabase, Json.toJson(uuidDocument))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.COOKIE, auth.getCookie());
@@ -84,7 +84,7 @@ public class UuidsService {
         return new RestResult(post.headers());
     }
 
-    public KeyValueViewResult loadColors(Auth auth, String userDatabase) {
+    public KeyValueViewResult loadColors(Auth auth, String userDatabase) throws BusinessException, TechnicalException {
         Get get = couchPool.getConnection().getHttp().get(userDatabase + "/_design/Uuid/_view/uuid_sum_by_color?group=true")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.COOKIE, auth.getCookie());
