@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IQueue;
 import com.hazelcast.core.Member;
 
 import org.junit.Before;
@@ -51,6 +52,7 @@ public class UuidsFacadeTest {
     private final String password = "My secret Password";
     private String cookie, jwt;
     private Auth auth;
+    private IQueue uuidWriteQueue;
 
     @Before
     public void setUp() {
@@ -68,6 +70,10 @@ public class UuidsFacadeTest {
         Set<Member> members = createMembers(5);
         Cluster cluster = createCluster(members, "db3.domain.de"); // third AppServer
         when(hazelcast.getCluster()).thenReturn(cluster);
+
+        this.uuidWriteQueue = mock(IQueue.class);
+        when(uuidWriteQueue.offer(any(Uuid.class))).thenReturn(true);
+        when(hazelcast.getQueue(anyString())).thenReturn(uuidWriteQueue);
 
         this.dnsResolver = mock(DnsResolver.class);
         when(dnsResolver.getHostAddress(anyString())).thenAnswer(new IpAddressAnswer());
