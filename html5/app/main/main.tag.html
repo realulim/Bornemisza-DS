@@ -16,17 +16,17 @@
         <span class="tag is-large is-bold bg-{dbServerColor}">Database Server&#160;&#160;&#160;</span>
     </div>
 
-    <div if="{loadingError}" class="is-size-5 msg msg-bad">
-        Unexpected Error - please try again later.
-        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
+    <div if="{measurementAvailable}" class="is-size-5 msg msg-baron fade-in">
+        Last: {duration} ms ({requests} req/s, {uuids} uuids/s), Average: {avgDuration} ms ({avgRequests} req/s, {avgUuids} uuids/s)
+        <a onclick="{hideAllMessages}" class="delete is-small msg-baron-close"></a>
     </div>
     <div if="{justMarried}" class="is-size-5 msg msg-good fade-in-out">
         Authenticated
         <a onclick="{hideAllMessages}" class="delete is-small msg-good-close"></a>
     </div>
-    <div if="{measurementAvailable}" class="is-size-5 msg msg-baron fade-in">
-        Last: {duration} ms ({requests} req/s, {uuids} uuids/s), Average: {avgDuration} ms ({avgRequests} req/s, {avgUuids} uuids/s)
-        <a onclick="{hideAllMessages}" class="delete is-small msg-baron-close"></a>
+    <div if="{loadingError}" class="is-size-5 msg msg-bad">
+        Unexpected Error - please try again later.
+        <a onclick="{hideAllMessages}" class="delete is-small msg-bad-close"></a>
     </div>
 
     <style>
