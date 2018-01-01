@@ -1,10 +1,15 @@
 package de.bornemisza.rest.security;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 import de.bornemisza.rest.exception.UnauthorizedException;
 import static de.bornemisza.rest.security.Auth.Scheme.COOKIE_CSRFTOKEN;
 import static de.bornemisza.rest.security.Auth.Scheme.USERNAME_PASSWORD;
 
-public class Auth {
+public class Auth implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final Scheme scheme;
     private final String userName, cookie, csrfToken;
@@ -66,6 +71,44 @@ public class Auth {
 
     public String checkTokenValidity(HashProvider hashProvider) throws UnauthorizedException {
         return new DoubleSubmitToken(cookie, csrfToken).checkValidity(hashProvider);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.scheme);
+        hash = 97 * hash + Objects.hashCode(this.userName);
+        hash = 97 * hash + Objects.hashCode(this.cookie);
+        hash = 97 * hash + Objects.hashCode(this.csrfToken);
+        hash = 97 * hash + Objects.hashCode(this.password);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Auth other = (Auth) obj;
+        if (!Objects.equals(this.userName, other.userName)) {
+            return false;
+        }
+        if (!Objects.equals(this.cookie, other.cookie)) {
+            return false;
+        }
+        if (!Objects.equals(this.csrfToken, other.csrfToken)) {
+            return false;
+        }
+        if (!Objects.equals(this.password, other.password)) {
+            return false;
+        }
+        return this.scheme == other.scheme;
     }
 
 }
