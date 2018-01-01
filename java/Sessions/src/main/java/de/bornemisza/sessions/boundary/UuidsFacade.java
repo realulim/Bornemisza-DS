@@ -34,6 +34,7 @@ import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DbAdminPasswordBasedHashProvider;
 import de.bornemisza.sessions.JAXRSConfiguration;
+import de.bornemisza.sessions.consumer.StoreUuidRequest;
 import de.bornemisza.sessions.da.CouchPool;
 import de.bornemisza.sessions.da.DnsResolver;
 import de.bornemisza.sessions.da.UuidsService;
@@ -57,7 +58,7 @@ public class UuidsFacade {
     LoadBalancerConfig lbConfig;
 
     private DbAdminPasswordBasedHashProvider hashProvider;
-    private IQueue<Uuid> uuidWriteQueue;
+    private IQueue<StoreUuidRequest> uuidStoreQueue;
 
     private List<String> allHostnames = new ArrayList<>();
     private final Map<String, String> ipToHostname = new HashMap<>();
@@ -77,7 +78,7 @@ public class UuidsFacade {
 
     @PostConstruct
     private void init() {
-        this.uuidWriteQueue = hazelcast.getQueue(JAXRSConfiguration.QUEUE_UUID_WRITE);
+        this.uuidStoreQueue = hazelcast.getQueue(JAXRSConfiguration.QUEUE_UUID_STORE);
         this.hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         updateColorsForCluster();
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
@@ -97,19 +98,22 @@ public class UuidsFacade {
         uuidDocument.setValues(uuidsResult.getUuids());
         uuidDocument.setColor(color);
         uuidDocument.setDate(today);
-        String newCookie = storeUuidDocument(auth, userName, uuidDocument);
+        this.storeUuidDocument(auth, userName, uuidDocument);
         uuidsResult.addHeader(HttpHeaders.APPSERVER, JAXRSConfiguration.MY_COLOR);
         uuidsResult.addHeader(HttpHeaders.DBSERVER, color);
         uuidsResult.setStatus(Status.OK);
+        String newCookie = uuidsResult.getNewCookie();
         if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);
         return uuidsResult;
     }
 
-    private String storeUuidDocument(Auth auth, String userName, Uuid uuidDocument) throws TechnicalException, BusinessException {
-        boolean queued = this.uuidWriteQueue.offer(uuidDocument);
-        Logger.getAnonymousLogger().info("UUID queued: " + queued);
-        String newCookie = uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
-        return newCookie;
+    private void storeUuidDocument(Auth auth, String userName, Uuid uuidDocument) throws TechnicalException, BusinessException {
+        StoreUuidRequest request = new StoreUuidRequest(auth, User.db(userName), uuidDocument);
+        boolean queued = this.uuidStoreQueue.offer(request);
+        if (!queued) {
+            Logger.getAnonymousLogger().info("Queue not ready, writing synchronously: " + request.hashCode());
+            uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
+        }
     }
 
     public KeyValueViewResult loadColors(Auth auth) throws UnauthorizedException, BusinessException, TechnicalException {
