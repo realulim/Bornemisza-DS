@@ -36,5 +36,6 @@ public class JAXRSConfiguration extends Application {
     public static final List<String> COLORS = Arrays.asList(new String[] { "LightSeaGreen", "Crimson", "Gold", "RoyalBlue", "LightSalmon"});
     public static final String DEFAULT_COLOR = "Black";
     public static String MY_COLOR = DEFAULT_COLOR;
+    public static String QUEUE_UUID_WRITE = "UuidWriteQueue";
 
 }

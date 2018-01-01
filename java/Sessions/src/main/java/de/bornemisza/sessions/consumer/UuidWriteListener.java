@@ -2,9 +2,14 @@ package de.bornemisza.sessions.consumer;
 
 import java.util.logging.Logger;
 
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+
 import com.hazelcast.core.ItemEvent;
 import com.hazelcast.core.ItemListener;
 
+@Singleton
+@Startup
 public class UuidWriteListener implements ItemListener {
 
     @Override

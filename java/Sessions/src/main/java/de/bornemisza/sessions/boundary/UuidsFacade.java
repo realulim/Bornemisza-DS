@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response.Status;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IQueue;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
@@ -55,7 +56,8 @@ public class UuidsFacade {
     @Resource(name="lbconfig/CouchUsersAsAdmin")
     LoadBalancerConfig lbConfig;
 
-    DbAdminPasswordBasedHashProvider hashProvider;
+    private DbAdminPasswordBasedHashProvider hashProvider;
+    private IQueue<Uuid> uuidWriteQueue;
 
     private List<String> allHostnames = new ArrayList<>();
     private final Map<String, String> ipToHostname = new HashMap<>();
@@ -75,6 +77,7 @@ public class UuidsFacade {
 
     @PostConstruct
     private void init() {
+        this.uuidWriteQueue = hazelcast.getQueue(JAXRSConfiguration.QUEUE_UUID_WRITE);
         this.hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
         updateColorsForCluster();
         hazelcast.getCluster().addMembershipListener(new MembershipListener() {
@@ -94,12 +97,19 @@ public class UuidsFacade {
         uuidDocument.setValues(uuidsResult.getUuids());
         uuidDocument.setColor(color);
         uuidDocument.setDate(today);
-        String newCookie = uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
+        String newCookie = storeUuidDocument(auth, userName, uuidDocument);
         uuidsResult.addHeader(HttpHeaders.APPSERVER, JAXRSConfiguration.MY_COLOR);
         uuidsResult.addHeader(HttpHeaders.DBSERVER, color);
         uuidsResult.setStatus(Status.OK);
         if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);
         return uuidsResult;
+    }
+
+    private String storeUuidDocument(Auth auth, String userName, Uuid uuidDocument) throws TechnicalException, BusinessException {
+        boolean queued = this.uuidWriteQueue.offer(uuidDocument);
+        Logger.getAnonymousLogger().info("UUID queued: " + queued);
+        String newCookie = uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
+        return newCookie;
     }
 
     public KeyValueViewResult loadColors(Auth auth) throws UnauthorizedException, BusinessException, TechnicalException {
