@@ -77,4 +77,12 @@
 		<in-memory-format>BINARY</in-memory-format>
 	</cache>
 
+	<queue name="UuidWriteQueue">
+		<statistics-enabled>true</statistics-enabled>
+		<max-size>10000</max-size>
+		<item-listeners>
+			<item-listener>de.bornemisza.sessions.consumer.UuidWriteListener</item-listener>
+		</item-listeners>
+	</queue>
+
 </hazelcast>
