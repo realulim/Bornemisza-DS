@@ -25,8 +25,11 @@ public class Uuid extends Document implements Serializable {
     @JsonProperty(value = "values")
     private List<String> values;
 
-    @JsonProperty(value = "color")
-    private String color;
+    @JsonProperty(value = "appcolor")
+    private String appColor;
+
+    @JsonProperty(value = "dbcolor")
+    private String dbColor;
 
     @JsonProperty(value = "date")
     private LocalDate date;
@@ -39,12 +42,20 @@ public class Uuid extends Document implements Serializable {
         this.values = values;
     }
 
-    public String getColor() {
-        return color;
+    public String getAppColor() {
+        return appColor;
     }
 
-    public void setColor(String color) {
-        this.color = color;
+    public void setAppColor(String appColor) {
+        this.appColor = appColor;
+    }
+
+    public String getDbColor() {
+        return dbColor;
+    }
+
+    public void setDbColor(String color) {
+        this.dbColor = color;
     }
 
     public LocalDate getDate() {
@@ -58,9 +69,10 @@ public class Uuid extends Document implements Serializable {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + Objects.hashCode(this.values);
-        hash = 71 * hash + Objects.hashCode(this.color);
-        hash = 71 * hash + Objects.hashCode(this.date);
+        hash = 29 * hash + Objects.hashCode(this.values);
+        hash = 29 * hash + Objects.hashCode(this.appColor);
+        hash = 29 * hash + Objects.hashCode(this.dbColor);
+        hash = 29 * hash + Objects.hashCode(this.date);
         return hash;
     }
 
@@ -76,10 +88,13 @@ public class Uuid extends Document implements Serializable {
             return false;
         }
         final Uuid other = (Uuid) obj;
-        if (!Objects.equals(this.values, other.values)) {
+        if (!Objects.equals(this.appColor, other.appColor)) {
             return false;
         }
-        if (!Objects.equals(this.color, other.color)) {
+        if (!Objects.equals(this.dbColor, other.dbColor)) {
+            return false;
+        }
+        if (!Objects.equals(this.values, other.values)) {
             return false;
         }
         return Objects.equals(this.date, other.date);
@@ -87,8 +102,7 @@ public class Uuid extends Document implements Serializable {
 
     @Override
     public String toString() {
-        return "Document{" + "id=" + getId() + ", rev=" + getRevision() + ", conflicts=" + getConflicts() + "}" +
-               "Uuid{" + "values=" + values + ", color=" + color + ", date=" + date + '}';
+        return "Uuid{" + "values=" + values + ", appColor=" + appColor + ", dbColor=" + dbColor + ", date=" + date + '}';
     }
 
 }

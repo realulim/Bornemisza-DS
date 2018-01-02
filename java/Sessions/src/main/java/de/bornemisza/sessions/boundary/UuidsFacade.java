@@ -92,15 +92,17 @@ public class UuidsFacade {
         String userName = auth.checkTokenValidity(hashProvider);
         UuidsResult uuidsResult = uuidsService.getUuids(count);
 
-        String color = getDbServerColor(uuidsResult.getFirstHeaderValue(HttpHeaders.BACKEND));
+        String appColor = JAXRSConfiguration.MY_COLOR;
+        String dbColor = getDbServerColor(uuidsResult.getFirstHeaderValue(HttpHeaders.BACKEND));
         LocalDate today = LocalDate.now();
         Uuid uuidDocument = new Uuid();
         uuidDocument.setValues(uuidsResult.getUuids());
-        uuidDocument.setColor(color);
+        uuidDocument.setAppColor(appColor);
+        uuidDocument.setDbColor(dbColor);
         uuidDocument.setDate(today);
         this.storeUuidDocument(auth, userName, uuidDocument);
-        uuidsResult.addHeader(HttpHeaders.APPSERVER, JAXRSConfiguration.MY_COLOR);
-        uuidsResult.addHeader(HttpHeaders.DBSERVER, color);
+        uuidsResult.addHeader(HttpHeaders.APPSERVER, appColor);
+        uuidsResult.addHeader(HttpHeaders.DBSERVER, dbColor);
         uuidsResult.setStatus(Status.OK);
         String newCookie = uuidsResult.getNewCookie();
         if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);

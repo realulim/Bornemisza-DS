@@ -215,15 +215,18 @@ public class UuidsServiceTest {
         KeyValueViewResult result = CUT.loadColors(auth, "userDatabase");
         assertEquals(headers, result.getHeaders());
         assertEquals(cookie, result.getNewCookie());
-        assertEquals(3, result.getRows().size());
+        assertEquals(5, result.getRows().size());
         assertEquals(crimsonCount + "", result.getRows().get(1).getValue());
+        assertEquals((crimsonCount + 4000 - 145) + "", result.getRows().get(4).getValue());
     }
 
     private String getColorsResultAsJson(int crimsonCount) {
         return  " {\"rows\":[\n" +
-                "        {\"key\":\"Black\",\"value\":145},\n" +
-                "        {\"key\":\"Crimson\",\"value\":" + crimsonCount + "},\n" +
-                "        {\"key\":\"LightSeaGreen\",\"value\":8087}\n" +
+                "        {\"key\":\"app-Black\",\"value\":145},\n" +
+                "        {\"key\":\"app-Crimson\",\"value\":" + crimsonCount + "},\n" +
+                "        {\"key\":\"app-LightSeaGreen\",\"value\":8087},\n" +
+                "        {\"key\":\"db-LightSeaGreen\",\"value\":4087},\n" +
+                "        {\"key\":\"db-RoyalBlue\",\"value\":" + (crimsonCount + 4000 - 145) + "}\n" +
                 " ]}\n";
     }
 
@@ -243,7 +246,7 @@ public class UuidsServiceTest {
     private Uuid createUuid() {
         Uuid uuid = new Uuid();
         uuid.setValues(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007", "f4c278d2b6f17060430c8f28d2ec26cc", "430c8f4c278d2b6f17060f28d2ec83d4" }));
-        uuid.setColor("yellow");
+        uuid.setDbColor("yellow");
         uuid.setDate(LocalDate.now());
         return uuid;
     }

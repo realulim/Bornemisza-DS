@@ -359,8 +359,15 @@
                     let rows = JSON.parse(xhr.responseText).rows
                     for (var idx in rows) {
                         let key = rows[idx].key
-                        self.appServerColors[key] = rows[idx].value
-                        self.dbServerColors[key] = rows[idx].value
+                        if (key.startsWith("app-")) {
+                            key = key.replace("app-","")
+                            self.appServerColors[key] = rows[idx].value
+                        }
+                        else if (key.startsWith("db-")) {
+                            key = key.replace("db-","")
+                            self.dbServerColors[key] = rows[idx].value
+                        }
+                        else console.log("Unknown Key: " + key)
                     }
                     redrawCharts()
                     self.uuid = ""

@@ -115,9 +115,9 @@ public class BornemiszaIT extends IntegrationTestBase {
         Response response = loadColors(cookie, ctoken, 200);
         JsonPath jsonPath = response.jsonPath();
         List<Map<String, String>> rows = jsonPath.getList("rows");
-        assertEquals(1, rows.size());
+        assertEquals(2, rows.size());
         Map<String, String> row = rows.get(0);
-        assertEquals("LightSeaGreen", row.get("key"));
+        assertEquals("app-LightSeaGreen", row.get("key"));
         assertEquals(uuidCount + "", row.get("value"));
         System.out.println(row);
     }
