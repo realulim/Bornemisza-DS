@@ -110,12 +110,13 @@ public class UuidsFacade {
     }
 
     private void storeUuidDocument(Auth auth, String userName, Uuid uuidDocument) throws TechnicalException, BusinessException {
-        StoreUuidRequest request = new StoreUuidRequest(auth, User.db(userName), uuidDocument);
-        boolean queued = this.uuidStoreQueue.offer(request);
-        if (!queued) {
-            Logger.getAnonymousLogger().info("Queue not ready, writing synchronously: " + request.hashCode());
-            uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
-        }
+        uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
+//        StoreUuidRequest request = new StoreUuidRequest(auth, User.db(userName), uuidDocument);
+//        boolean queued = this.uuidStoreQueue.offer(request);
+//        if (!queued) {
+//            Logger.getAnonymousLogger().info("Queue not ready, writing synchronously: " + request.hashCode());
+//            uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
+//        }
     }
 
     public KeyValueViewResult loadColors(Auth auth) throws UnauthorizedException, BusinessException, TechnicalException {

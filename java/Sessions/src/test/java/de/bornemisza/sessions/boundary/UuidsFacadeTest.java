@@ -164,6 +164,23 @@ public class UuidsFacadeTest {
     }
 
     @Test
+    public void getUuids() {
+        UuidsResult dbResult = new UuidsResult();
+        dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
+        dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
+        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
+        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
+
+        UuidsResult facadeResult = CUT.getUuids(auth, 3);
+        assertEquals(200, facadeResult.getStatus().getStatusCode());
+        assertEquals(dbResult.getUuids(), facadeResult.getUuids());
+        assertEquals("Gold", facadeResult.getFirstHeaderValue(HttpHeaders.APPSERVER)); // third color
+        assertEquals("Crimson", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // second color
+
+        verify(uuidsService).saveUuids(any(Auth.class), anyString(), any(Uuid.class));
+    }
+
+//    @Test
     public void getUuids_notQueued() {
         when(uuidWriteQueue.offer(any(StoreUuidRequest.class))).thenReturn(false);
         UuidsResult dbResult = new UuidsResult();
@@ -181,7 +198,7 @@ public class UuidsFacadeTest {
         verify(uuidsService).saveUuids(any(Auth.class), anyString(), any(Uuid.class));
     }
 
-    @Test
+//    @Test
     public void getUuids_queued() {
         when(uuidWriteQueue.offer(any(StoreUuidRequest.class))).thenReturn(true);
         UuidsResult dbResult = new UuidsResult();
