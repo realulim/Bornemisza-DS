@@ -302,12 +302,14 @@
 
         function gatherResults(event, batchSize) {
             self.uuid = event.data.uuid
-            self.appServerColor = event.data.appServerColor
-            self.dbServerColor = event.data.dbServerColor
+            var appColor = event.data.appServerColor || "Black"
+            self.appServerColor = appColor
+            var dbColor = event.data.dbServerColor || "Black"
+            self.dbServerColor = dbColor
             self.uuidCount += batchSize
             self.chartCounter += batchSize
-            self.appServerColors[event.data.appServerColor] = self.appServerColors[event.data.appServerColor] + batchSize || 1
-            self.dbServerColors[event.data.dbServerColor] = self.dbServerColors[event.data.dbServerColor] + batchSize || 1
+            self.appServerColors[appColor] = self.appServerColors[appColor] + batchSize || 1
+            self.dbServerColors[dbColor] = self.dbServerColors[dbColor] + batchSize || 1
             if (self.chartCounter >= self.chartUpdateFrequency) {
                 // redraw charts every nth request
                 self.chartCounter = 0
