@@ -3,7 +3,7 @@
 
 lock_root_password:
   cmd.run:
-    - passwd --lock root
+    - name: passwd --lock root
     - unless: passwd --status root|grep LK
 
 install_basics_pkgs:
