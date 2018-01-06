@@ -1,6 +1,11 @@
 {%- set IP1=''.join(salt.dnsutil.A(pillar['cfns'], pillar['cfns2'])) -%}
 {%- set IP2=''.join(salt.dnsutil.A(pillar['cfns2'], pillar['cfns'])) -%}
 
+lock_root_password:
+  cmd.run:
+    - passwd --lock root
+    - unless: passwd --status root|grep LK
+
 install_basics_pkgs:
   pkg.installed:
     - pkgs:
