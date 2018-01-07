@@ -145,8 +145,20 @@ create-database-{{ db }}:
     - group: root
     - mode: 744
 
+/opt/scripts/shards.sh:
+  file.managed:
+    - source: salt://files/couchdb/shards.sh
+    - user: root
+    - group: root
+    - mode: 744
+
 create-or-update-design-doc-User:
   cmd.run:
     - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
     - onchanges:
       - {{ VIEWS }}/User.json
+
+create-shards:
+  cmd.run:
+    - name: /opt/scripts/shards.sh {{ pillar['privip'] }}
+    - unless: ls /opt/couchdb/data/shards
