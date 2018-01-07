@@ -37,6 +37,12 @@ function get-recordid-for() {
 	jq -re '.result|.[]|select(.type=="'$TYPE'" and .name=="'$NAME'")|.id'
 }
 
+function get-SRV-recordid-for() {
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5
+	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	jq -re '.result|.[]|select(.type=="SRV" and .data.target=="'$NAME'")|.id'
+}
+
 function host-has-this-A-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5; local CONTENT=$6
 	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
@@ -65,6 +71,13 @@ function update-A-record() {
 function delete-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local TYPE=$5; local HOST=$6;
 	RECORD_ID=`get-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID $TYPE $HOST`
+	cmd DELETE "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY | \
+	jq -re '.success' | grep -q true
+}
+
+function delete-SRV-record() {
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local HOST=$5;
+	RECORD_ID=`get-SRV-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID $HOST`
 	cmd DELETE "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY | \
 	jq -re '.success' | grep -q true
 }

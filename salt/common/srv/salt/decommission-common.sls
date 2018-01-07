@@ -16,4 +16,4 @@ delete-A-record-internal:
 
 delete-SRV-record:
   cmd.run:
-    - name: {{ CFCMD }} delete-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} SRV {{ HOSTINTERNAL }}
+    - name: {{ CFCMD }} delete-SRV-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} {{ HOST }}
