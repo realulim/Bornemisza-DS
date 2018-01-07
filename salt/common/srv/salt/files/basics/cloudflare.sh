@@ -62,5 +62,12 @@ function update-A-record() {
 	jq -re '.success' | grep -q true
 }
 
+function delete-record() {
+	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local TYPE=$5; local HOST=$6;
+	RECORD_ID=`get-recordid-for $CFAPI $CFEMAIL $CFKEY $CFZONEID $TYPE $HOST`
+	cmd DELETE "$CFAPI/$CFZONEID/dns_records/$RECORD_ID" $CFEMAIL $CFKEY | \
+	jq -re '.success' | grep -q true
+}
+
 # call arguments verbatim:
 "$@"

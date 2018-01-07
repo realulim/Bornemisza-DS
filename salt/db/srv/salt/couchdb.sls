@@ -152,6 +152,13 @@ create-database-{{ db }}:
     - group: root
     - mode: 744
 
+/opt/scripts/remove_node.sh:
+  file.managed:
+    - source: salt://files/couchdb/remove_node.sh
+    - user: root
+    - group: root
+    - mode: 744
+
 create-or-update-design-doc-User:
   cmd.run:
     - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
