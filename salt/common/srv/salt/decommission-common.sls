@@ -6,6 +6,10 @@
 {% set HOST=pillar['hostname'] %}
 {% set HOSTINTERNAL='internal.' + pillar['hostname'] %}
 
+empty-crontab:
+  cmd.run:
+    - name: crontab -r
+
 delete-A-record:
   cmd.run:
     - name: {{ CFCMD }} delete-record {{ CFAPI }} {{ CFEMAIL }} {{ CFKEY }} {{ CFZONEID }} A {{ HOST }}
