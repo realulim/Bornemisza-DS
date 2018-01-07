@@ -39,7 +39,7 @@ if ! grep -q $1 $IN ; then
      echo } >> $OUT
 
      # upload new shards file
-     /usr/bin/curl -s -u "$AUTH" -X PUT http://localhost:5986/_dbs/"$DB" -d '@$OUT'
+     /usr/bin/curl -s -u "$AUTH" -X PUT http://localhost:5986/_dbs/"$DB" -d "@$OUT"
 
 fi
 
