@@ -8,5 +8,5 @@ SECRET_KEYS=(CFEMAIL CFKEY BGP ASN stats-password asadmin-password asadmin-maste
 EXCL_STR=$(getsecrets "${SECRET_KEYS[@]}")
 
 # decommission server
-salt-call -l info state.apply decommission-common.sls --force-color |& grep -E -v "$EXCL_STR"
-salt-call -l info state.apply decommission-app.sls --force-color |& grep -E -v "$EXCL_STR"
+salt-call -l info state.apply decommission-common --force-color |& grep -E -v "$EXCL_STR"
+salt-call -l info state.apply decommission-app --force-color |& grep -E -v "$EXCL_STR"
