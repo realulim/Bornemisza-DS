@@ -31,5 +31,6 @@ systemctl stop salt-minion
 curl -o bootstrap-common.sh -L $BORNEY/common/bootstrap-common.sh
 cd /opt || exit -1
 curl -o bootstrap-bornemisza.sh -L "$BORNEY/$1/bootstrap-bornemisza.sh"
+curl -o decommission-bornemisza.sh -L "$BORNEY/$1/decommission-bornemisza.sh"
 chmod u+x bootstrap-bornemisza.sh
 sh bootstrap-bornemisza.sh
