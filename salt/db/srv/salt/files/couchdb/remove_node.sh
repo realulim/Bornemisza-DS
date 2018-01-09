@@ -43,6 +43,9 @@ echo "\"by_range\": $(jq -e '.by_range' $IN)" >> $OUT
 
 echo "}" >> $OUT
 
+# upload new shards document
+/usr/bin/curl -s -u "$AUTH" -X PUT http://localhost:5986/_dbs/"$DB" -d "@$OUT"
+
 done
 
 # retrieve revision of node
