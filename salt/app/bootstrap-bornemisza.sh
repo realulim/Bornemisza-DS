@@ -69,7 +69,7 @@ fi
 # ask for BGP password
 if ! grep -q BGP: $PillarLocal/basics.sls ; then
 	read -rs -p 'BGP: ' BGP
-	printf "BGP Password: %s\n" "$BGP" >> $PillarLocal/basics.sls
+	printf "BGP: %s\n" "$BGP" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
