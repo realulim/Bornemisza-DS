@@ -42,5 +42,5 @@ function getsecrets {
 	done
 
 	EXCL_STR=${EXCL_STR%?}
-	echo "'""$EXCL_STR""'"
+	echo "$EXCL_STR"
 }
