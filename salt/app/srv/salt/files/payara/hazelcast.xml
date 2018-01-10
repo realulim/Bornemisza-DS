@@ -13,6 +13,12 @@
 		</join>
 	</network>
 
+	<group>
+		<name>{{ pillar['ssldomain'] }}</name>
+		<password>{{ pillar['hazelcast-password'] }}</password>
+	</group>
+
+
 	<ringbuffer name="NewUserAccount">
 		<capacity>1000</capacity>
 		<time-to-live-seconds>86400</time-to-live-seconds>

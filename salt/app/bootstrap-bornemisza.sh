@@ -22,6 +22,12 @@ fi
 if [ ! -e $PillarLocal/payara.sls ]; then
 	printf "asadmin-password: %s\n" "$(generatepw)" > $PillarLocal/payara.sls
 	printf "asadmin-master-password: %s\n" "$(generatepw)" >> $PillarLocal/payara.sls
+	read -rs -p 'Hazelcast Password [leave empty to generate random string]: ' HZ_PW
+	if [ -z "$HZ_PW" ]; then
+		HZ_PW=$(generatepw)
+	fi
+	printf "hazelcast-password: %s\n" "$HZ_PW" >> $PillarLocal/payara.sls
+	printf "\n"
 fi
 
 # ask for CouchDB admin password
@@ -63,7 +69,7 @@ fi
 # ask for BGP password
 if ! grep -q BGP: $PillarLocal/basics.sls ; then
 	read -rs -p 'BGP: ' BGP
-	printf "BGP: %s\n" "$BGP" >> $PillarLocal/basics.sls
+	printf "BGP Password: %s\n" "$BGP" >> $PillarLocal/basics.sls
 	printf "\n"
 fi
 
