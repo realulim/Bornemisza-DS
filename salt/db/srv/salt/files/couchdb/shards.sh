@@ -5,11 +5,12 @@
 # Example: ./shards.sh 10.4.7.37
 
 AUTH=$(cat /srv/pillar/netrc)
-IN=/tmp/shardsold.json
-OUT=/tmp/shardsnew.json
 
-for DB in $(curl -s http://"$1":5984/_all_dbs|jq -re '.[]'|grep -v _)
+for DB in $(curl -s http://"$1":5984/_all_dbs|jq -re '.[]')
 do
+
+IN="/tmp/shardsold-$DB.json"
+OUT="/tmp/shardsnew-$DB.json"
 
 # retrieve current shards file
 /usr/bin/curl -s -u "$AUTH" http://localhost:5986/_dbs/"$DB" | jq . > $IN

@@ -6,11 +6,12 @@ set -x
 
 AUTH=$(cat /srv/pillar/netrc)
 INORIG=/tmp/shardsorig.json
-IN=/tmp/shardsold.json
-OUT=/tmp/shardsnew.json
 
-for DB in $(curl -s http://"$1":5984/_all_dbs|jq -re '.[]'|grep -v _)
+for DB in $(curl -s http://"$1":5984/_all_dbs|jq -re '.[]')
 do
+
+IN="/tmp/shardsold-$DB.json"
+OUT="/tmp/shardsnew-$DB.json"
 
 BY_NODE="del(.by_node|.\"couchdb@$1\")"
 BY_RANGE="del(.by_range|.[]|.[]|select(.|contains(\"@$1\")))"
