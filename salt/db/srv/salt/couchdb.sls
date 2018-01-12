@@ -166,4 +166,7 @@ create-or-update-design-doc-User:
 create-shards:
   cmd.run:
     - name: /opt/scripts/shards.sh {{ pillar['privip'] }}
-    - unless: ls /opt/couchdb/data/shards
+    - onlyif:
+      - curl -s {{ AUTH }} {{ URL }}/_users | grep -v "Database does not exist"
+      - curl -s {{ AUTH }} {{ URL }}/_replicator | grep -v "Database does not exist"
+      - curl -s {{ AUTH }} {{ URL }}/_global_changes | grep -v "Database does not exist"
