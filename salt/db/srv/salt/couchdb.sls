@@ -113,7 +113,7 @@ join-couchdb-cluster:
      - name: curl -s {{ AUTH }} -X PUT "{{ BACKDOORURL }}/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}; sleep 5
      - onlyif:
        - test '{{ pillar['clusterip'] }}' != '{{ pillar['privip'] }}'
-       - curl -s {{ AUTH }} {{ URL }}/_membership|grep -F '{"all_nodes":["couchdb@{{ pillar['privip'] }}"],"cluster_nodes":["couchdb@{{ pillar['privip'] }}"]}'
+       - curl -s {{ AUTH }} {{ BACKDOORURL }}/_nodes/_all_docs|jq -re '.rows|.[]|.id'|grep {{ pillar['privip'] }}|wc -l|grep 0
        - </dev/tcp/{{ pillar['clusterip'] }}/4369
 
 {% for db in ['_users', '_replicator', '_global_changes'] %}
@@ -122,8 +122,7 @@ create-database-{{ db }}:
     - name: curl -s -X PUT {{ AUTH }} {{ URL }}/{{ db }}
     - onlyif:
       - curl -s {{ AUTH }} {{ URL }}/{{ db }} | grep "Database does not exist"
-      - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".all_nodes|length" | grep {{ pillar['dbclustersize'] }}
-      - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".cluster_nodes|length" | grep {{ pillar['dbclustersize'] }}
+      - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".cluster_nodes"|grep {{ pillar['privip'] }}|wc -l|grep 0
 {% endfor %}
 
 {{ VIEWS }}:
@@ -162,8 +161,7 @@ create-database-{{ db }}:
 create-or-update-design-doc-User:
   cmd.run:
     - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
-    - onchanges:
-      - {{ VIEWS }}/User.json
+    - unless: curl -s {{ AUTH }} {{ URL }}/{{ db }} | grep "Database does not exist"
 
 create-shards:
   cmd.run:
