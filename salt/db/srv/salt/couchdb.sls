@@ -164,11 +164,11 @@ create-or-update-design-doc-User:
     - unless: curl -s {{ AUTH }} {{ URL }}/_users | grep "Database does not exist"
     - onlyif: curl -s {{ AUTH }} {{ URL }}/_users/_design/User|jq -re '._rev'|grep null
 
-create-shards:
-  cmd.run:
-    - name: /opt/scripts/shards.sh {{ pillar['privip'] }}
-    - onlyif:
-      - curl -s {{ AUTH }} {{ URL }}/_users | grep -v "Database does not exist"
-      - curl -s {{ AUTH }} {{ URL }}/_replicator | grep -v "Database does not exist"
-      - curl -s {{ AUTH }} {{ URL }}/_global_changes | grep -v "Database does not exist"
-    - unless: ls /opt/couchdb/data/shards
+#create-shards:
+#  cmd.run:
+#    - name: /opt/scripts/shards.sh {{ pillar['privip'] }}
+#    - onlyif:
+#      - curl -s {{ AUTH }} {{ URL }}/_users | grep -v "Database does not exist"
+#      - curl -s {{ AUTH }} {{ URL }}/_replicator | grep -v "Database does not exist"
+#      - curl -s {{ AUTH }} {{ URL }}/_global_changes | grep -v "Database does not exist"
+#    - unless: ls /opt/couchdb/data/shards
