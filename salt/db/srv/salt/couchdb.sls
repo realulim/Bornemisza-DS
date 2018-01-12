@@ -122,7 +122,7 @@ create-database-{{ db }}:
     - name: curl -s -X PUT {{ AUTH }} {{ URL }}/{{ db }}
     - onlyif:
       - curl -s {{ AUTH }} {{ URL }}/{{ db }} | grep "Database does not exist"
-      - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".cluster_nodes"|grep {{ pillar['privip'] }}|wc -l|grep 0
+      - curl -s {{ AUTH }} {{ URL }}/_membership|jq -re ".cluster_nodes"|grep {{ pillar['privip'] }}|wc -l|grep 1
 {% endfor %}
 
 {{ VIEWS }}:
