@@ -113,7 +113,7 @@ join-couchdb-cluster:
      - name: curl -s {{ AUTH }} -X PUT "{{ BACKDOORURL }}/_nodes/couchdb@{{ pillar['clusterip'] }}" -d {}; sleep 5
      - onlyif:
        - test '{{ pillar['clusterip'] }}' != '{{ pillar['privip'] }}'
-       - curl -s {{ AUTH }} {{ BACKDOORURL }}/_nodes/_all_docs|jq -re '.rows|.[]|.id'|grep {{ pillar['privip'] }}|wc -l|grep 0
+       - curl -s {{ AUTH }} {{ BACKDOORURL }}/_nodes/_all_docs|jq -re '.rows|.[]|.id'|grep {{ pillar['clusterip'] }}|wc -l|grep 0
        - </dev/tcp/{{ pillar['clusterip'] }}/4369
 
 {% for db in ['_users', '_replicator', '_global_changes'] %}
