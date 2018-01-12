@@ -161,7 +161,7 @@ create-database-{{ db }}:
 create-or-update-design-doc-User:
   cmd.run:
     - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
-    - unless: curl -s {{ AUTH }} {{ URL }}/{{ db }} | grep "Database does not exist"
+    - unless: curl -s {{ AUTH }} {{ URL }}/_users | grep "Database does not exist"
 
 create-shards:
   cmd.run:
