@@ -162,6 +162,7 @@ create-or-update-design-doc-User:
   cmd.run:
     - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
     - unless: curl -s {{ AUTH }} {{ URL }}/_users | grep "Database does not exist"
+    - onlyif: curl -s {{ AUTH }} {{ URL }}/_users/_design/User|jq -re '._rev'|grep null
 
 create-shards:
   cmd.run:
@@ -170,3 +171,4 @@ create-shards:
       - curl -s {{ AUTH }} {{ URL }}/_users | grep -v "Database does not exist"
       - curl -s {{ AUTH }} {{ URL }}/_replicator | grep -v "Database does not exist"
       - curl -s {{ AUTH }} {{ URL }}/_global_changes | grep -v "Database does not exist"
+    - unless: ls /opt/couchdb/data/shards
