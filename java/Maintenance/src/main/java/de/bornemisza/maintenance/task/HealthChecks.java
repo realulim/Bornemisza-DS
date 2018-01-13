@@ -36,7 +36,8 @@ public class HealthChecks {
             }
         }
         catch (HttpException ex) {
-            return ex.toString();
+            Throwable t = ex.getCause();
+            return t == null ? ex.toString() : t.toString();
         }
         String expected = "{\"db_name\":\"" + conn.getDatabaseName() + "\"";
         String body = get.text();
