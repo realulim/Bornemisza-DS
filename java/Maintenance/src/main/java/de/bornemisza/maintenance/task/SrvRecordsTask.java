@@ -78,10 +78,14 @@ public class SrvRecordsTask {
             if (! utilisedHostnames.contains(hostname)) {
                 // a host providing the service is available, but not in rotation
                 HttpConnection conn = httpPool.getAllConnections().get(hostname);
+                Logger.getAnonymousLogger().info("Detected Host (" + conn == null ? "new)" : "seen previously)");
                 if (conn == null || healthChecks.isCouchDbReady(conn)) {
                     // it's either new or healthy, so we can add it to the rotation
                     ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_APPEARED);
                     this.clusterMaintenanceTopic.publish(clusterEvent);
+                }
+                else {
+                    Logger.getAnonymousLogger().info("Not healthy: " + healthChecks.getCouchDbStatus(conn));
                 }
             }
         }

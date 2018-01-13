@@ -26,4 +26,24 @@ public class HealthChecks {
         return get.text().startsWith(expected);
     }
 
+    public String getCouchDbStatus(HttpConnection conn) {
+        Http http = conn.getHttp();
+        Get get = http.get("");
+        try {
+            int responseCode = get.responseCode();
+            if (responseCode != 200) {
+                return "Response Code: " + responseCode;
+            }
+        }
+        catch (HttpException ex) {
+            return ex.toString();
+        }
+        String expected = "{\"db_name\":\"" + conn.getDatabaseName() + "\"";
+        String body = get.text();
+        if (body.startsWith(expected)) {
+            return "OK";
+        }
+        else return body;
+    }
+
 }
