@@ -55,7 +55,7 @@ public class UuidsService {
         try {
             int responseCode = get.responseCode();
             if (responseCode != 200) {
-                throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + get.responseMessage());
+                throw new BusinessException(SessionsType.GETUUIDS, responseCode + ": " + get.responseMessage());
             }
         }
         catch (HttpException ex) {
@@ -75,7 +75,7 @@ public class UuidsService {
         try {
             int responseCode = post.responseCode();
             if (responseCode < 201 || responseCode > 202) {
-                throw new BusinessException(SessionsType.UNEXPECTED, responseCode + ": " + post.responseMessage());
+                throw new BusinessException(SessionsType.SAVEUUIDS, responseCode + ": " + post.responseMessage());
             }
         }
         catch (HttpException ex) {

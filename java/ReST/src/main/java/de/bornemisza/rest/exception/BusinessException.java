@@ -16,4 +16,9 @@ public class BusinessException extends RuntimeException {
         return type;
     }
 
+    @Override
+    public String toString() {
+        return "BusinessException{" + "type=" + type + "} " + super.toString();
+    }
+
 }
