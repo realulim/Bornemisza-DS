@@ -57,10 +57,10 @@ public abstract class HttpPool extends Pool<HttpConnection> {
         for (String hostname : getDbServerQueue()) {
             HttpConnection conn = allConnections.get(hostname);
             if (conn == null) {
-                // in case a new SRV-Record popped up, but we haven't created a Connection for it yet
+                // paranoia fallback - should not happen
                 conn = createConnection(getLoadBalancerConfig(), hostname);
                 allConnections.put(hostname, conn);
-                Logger.getAnonymousLogger().info("Created new Connection for " + hostname);
+                Logger.getAnonymousLogger().warning("Had to create new Connection for " + hostname);
             }
             trackUtilisation(hostname);
             return conn;
