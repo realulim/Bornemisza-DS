@@ -53,6 +53,9 @@ public abstract class HttpPool extends Pool<HttpConnection> {
         }
     }
 
+    /**
+     * @return a load-balanced Connection (main API call for outside clients)
+     */
     public HttpConnection getConnection() {
         for (String hostname : getDbServerQueue()) {
             HttpConnection conn = allConnections.get(hostname);
