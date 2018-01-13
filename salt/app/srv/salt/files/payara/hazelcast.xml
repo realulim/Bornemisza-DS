@@ -18,12 +18,10 @@
 		<password>{{ pillar['hazelcast-password'] }}</password>
 	</group>
 
-
 	<ringbuffer name="NewUserAccount">
 		<capacity>1000</capacity>
 		<time-to-live-seconds>86400</time-to-live-seconds>
 	</ringbuffer>
-
 	<reliable-topic name="NewUserAccount">
 		<statistics-enabled>true</statistics-enabled>
 		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
@@ -46,7 +44,6 @@
 		<capacity>1000</capacity>
 		<time-to-live-seconds>86400</time-to-live-seconds>
 	</ringbuffer>
-
 	<reliable-topic name="ChangeEmailRequest">
 		<statistics-enabled>true</statistics-enabled>
 		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
@@ -69,7 +66,6 @@
 		<capacity>1000</capacity>
 		<time-to-live-seconds>86400</time-to-live-seconds>
 	</ringbuffer>
-
 	<reliable-topic name="ClusterMaintenance">
 		<statistics-enabled>true</statistics-enabled>
 		<topic-overload-policy>DISCARD_OLDEST</topic-overload-policy>
@@ -83,9 +79,19 @@
 		<in-memory-format>BINARY</in-memory-format>
 	</cache>
 
+	<map name="DbServerCandidates">
+		<time-to-live-seconds>300</time-to-live-seconds>
+		<eviction-policy>LRU</eviction-policy>
+		<max-size policy="PER_NODE">271</max-size>
+		<in-memory-format>BINARY</in-memory-format>
+	</map>
+	<map name="DbServerUtilisation">
+		<in-memory-format>BINARY</in-memory-format>
+	</map>
+
 	<queue name="UuidWriteQueue">
 		<statistics-enabled>true</statistics-enabled>
-		<max-size>10000</max-size>
+		<max-size>1000</max-size>
 	</queue>
 
 </hazelcast>

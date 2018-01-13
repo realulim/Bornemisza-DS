@@ -82,10 +82,10 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
                 T conn = this.candidateConnections.get(hostname);
                 if (conn != null) {
                     // promote candidate into rotation
-                    this.allConnections.putIfAbsent(hostname, conn);
+                    this.allConnections.put(hostname, conn);
                     if (! this.dbServerUtilisation.containsKey(hostname)) {
                         resetUtilisation(); // start everyone on equal terms
-                        // Caution: getConnection() can create emergency connections, which can lead to a race condition, where resetUtilisation() is never called
+                        // Caution: getConnection() can create emergency connections, which can lead to a race condition here
                         this.dbServerUtilisation.put(hostname, 0);
                     }
                     this.candidateConnections.remove(hostname);
