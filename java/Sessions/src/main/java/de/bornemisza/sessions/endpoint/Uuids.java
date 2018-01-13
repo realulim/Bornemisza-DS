@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response.Status;
 import de.bornemisza.rest.HttpHeaders;
 import de.bornemisza.rest.entity.result.KeyValueViewResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
-import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.rest.security.DoubleSubmitToken;
