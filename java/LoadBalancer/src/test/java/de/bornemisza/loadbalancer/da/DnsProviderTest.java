@@ -65,11 +65,9 @@ public class DnsProviderTest {
     @Test
     public void getHostnamesForService_cacheEmpty_thenException() throws NamingException {
         when(cache.get(any())).thenReturn(null);
-        when(enumeration.hasMore()).thenReturn(true).thenReturn(false).thenReturn(true);
-        when(enumeration.next()).thenReturn("25 0 443 db23.somedomain.com.").thenThrow(new NamingException("Connection dead"));
-        List<String> hostnamesForService = CUT.getHostnamesForService(service);
-        List<String> cachedHostnamesForService = CUT.getHostnamesForService(service);
-        assertEquals(hostnamesForService, cachedHostnamesForService);
+        when(enumeration.hasMore()).thenReturn(true);
+        when(enumeration.next()).thenThrow(new NamingException("Connection dead"));
+        assertTrue(CUT.getHostnamesForService(service).isEmpty());
     }
 
     @Test
