@@ -84,7 +84,7 @@ public class UuidsServiceTest {
             fail();
         }
         catch (BusinessException ex) {
-            assertEquals(SessionsType.UNEXPECTED, ex.getType());
+            assertEquals(SessionsType.GETUUIDS, ex.getType());
             assertTrue(ex.getMessage().contains(errorCode + ":"));
         }
     }
@@ -158,7 +158,7 @@ public class UuidsServiceTest {
             fail();
         }
         catch (BusinessException ex) {
-            assertEquals(SessionsType.UNEXPECTED, ex.getType());
+            assertEquals(SessionsType.SAVEUUIDS, ex.getType());
             assertTrue(ex.getMessage().contains(statusCode + ":"));
         }
     }
