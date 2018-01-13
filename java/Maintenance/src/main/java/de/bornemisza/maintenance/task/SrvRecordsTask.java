@@ -23,7 +23,6 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.maintenance.CouchUsersPool;
-import de.bornemisza.rest.HttpConnection;
 
 @Stateless
 public class SrvRecordsTask {
@@ -77,16 +76,9 @@ public class SrvRecordsTask {
         for (String hostname : dnsHostnames) {
             if (! utilisedHostnames.contains(hostname)) {
                 // a host providing the service is available, but not in rotation
-                HttpConnection conn = httpPool.getAllConnections().get(hostname);
-                Logger.getAnonymousLogger().info("Detected Host (" + conn == null ? "new)" : "seen previously)");
-                if (conn == null || healthChecks.isCouchDbReady(conn)) {
-                    // it's either new or healthy, so we can add it to the rotation
-                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_APPEARED);
-                    this.clusterMaintenanceTopic.publish(clusterEvent);
-                }
-                else {
-                    Logger.getAnonymousLogger().info("Not healthy: " + healthChecks.getCouchDbStatus(conn));
-                }
+                Logger.getAnonymousLogger().info("Candidate appeared: " + hostname);
+                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.CANDIDATE_APPEARED);
+                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
         for (String hostname : utilisedHostnames) {

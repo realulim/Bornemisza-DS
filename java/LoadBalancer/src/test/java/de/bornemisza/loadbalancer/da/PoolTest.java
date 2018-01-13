@@ -8,20 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.OperationTimeoutException;
+
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
-
+import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
 
@@ -29,7 +30,7 @@ public class PoolTest {
 
     private HashMap<String, Object> allTestConnections;
     private HazelcastInstance hazelcast;
-    private IMap hazelcastMap;
+    private IMap utilisationMap, candidateConnectionsMap;
 
     private final SecureRandom wheel = new SecureRandom();
 
@@ -50,17 +51,18 @@ public class PoolTest {
         ITopic clusterMaintenanceTopic = mock(ITopic.class);
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
 
-        this.hazelcastMap = new PseudoHazelcastMap();
+        this.utilisationMap = new PseudoHazelcastMap();
+        this.candidateConnectionsMap = new PseudoHazelcastMap();
     }
 
     @Test
     public void hazelcastWorking() {
-        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         Pool CUT = new PoolImpl(hazelcast);
         List<String> dbServers = CUT.getDbServerQueue();
         assertEquals(CUT.getAllConnections().size(), dbServers.size());
         Map<String, Object> dbServerUtilisation = CUT.getDbServerUtilisation();
-        assertEquals(hazelcastMap, dbServerUtilisation);
+        assertEquals(utilisationMap, dbServerUtilisation);
         for (String hostname : allTestConnections.keySet()) {
             assertTrue(dbServers.contains(hostname));
             assertTrue(dbServerUtilisation.containsKey(hostname));
@@ -75,31 +77,31 @@ public class PoolTest {
     @Test
     public void hazelcastNotWorkingAtFirst_thenWorkingLater() {
         String errMsg = "Invocation failed to complete due to operation-heartbeat-timeout";
-        when(hazelcast.getMap(anyString()))
+        when(hazelcast.getMap(Config.UTILISATION))
                 .thenThrow(new OperationTimeoutException(errMsg))
                 .thenThrow(new OperationTimeoutException(errMsg))
-                .thenReturn(hazelcastMap);
+                .thenReturn(utilisationMap);
 
         Pool CUT = new PoolImpl(hazelcast);
         Map dbServerUtilisation = CUT.getDbServerUtilisation(); // second invocation, still no Hazelcast
-        assertTrue(hazelcastMap.isEmpty());
+        assertTrue(utilisationMap.isEmpty());
         assertEquals(allTestConnections.size(), dbServerUtilisation.size()); // we have received a non-Hazelcast data structure as fallback
 
         // subsequent invocations should return the Hazelcast data structure
         dbServerUtilisation = CUT.getDbServerUtilisation();
-        assertEquals(allTestConnections.size(), hazelcastMap.size());
-        assertEquals(hazelcastMap, dbServerUtilisation);
+        assertEquals(allTestConnections.size(), utilisationMap.size());
+        assertEquals(utilisationMap, dbServerUtilisation);
     }
 
     @Test
     public void verifyRequestCounting() {
-        IMap utilisationMap = new PseudoHazelcastMap<>();
-        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
+        IMap utilisationMapLocal = new PseudoHazelcastMap<>();
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMapLocal);
         Pool CUT = new PoolImpl(hazelcast);
         List<String> allHostnames = Arrays.asList(new String[] { "host1", "host2", "host3.hosts.de" });
         int requestCount = wheel.nextInt(15) + 1;
         for (String hostname : allHostnames) {
-            utilisationMap.put(hostname, 0);
+            utilisationMapLocal.put(hostname, 0);
             for (int i = 0; i < requestCount; i++) {
                 CUT.trackUtilisation(hostname);
             }
@@ -112,50 +114,83 @@ public class PoolTest {
 
     @Test
     public void getDbServerQueue() throws Exception {
-        IMap utilisationMap = new PseudoHazelcastMap<>();
+        IMap utilisationMapLocal = new PseudoHazelcastMap<>();
         for (int i = 0; i < 10; i++) {
             String randomKey = UUID.randomUUID().toString();
-            utilisationMap.put(randomKey, wheel.nextInt(100));
+            utilisationMapLocal.put(randomKey, wheel.nextInt(100));
         }
-        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMapLocal);
         Pool CUT = new PoolImpl(hazelcast);
         List<String> sortedHostnames = CUT.getDbServerQueue();
         int lastUtilisation = 0;
         for (String hostname : sortedHostnames) {
-            int utilisation = (Integer)utilisationMap.get(hostname);
+            int utilisation = (Integer)utilisationMapLocal.get(hostname);
             assertTrue(lastUtilisation <= utilisation);
             lastUtilisation = utilisation;
         }
     }
 
     @Test
-    public void addNewHostForService() {
-        String newHost = "host-999.domain.de";
-        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
-        for (String hostname : allTestConnections.keySet()) {
-            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
-        }
-        Pool CUT = new PoolImpl(hazelcast);
-        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
+    public void addNewCandidateForService() {
+        String candidate = "host-999.domain.de";
+        when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
+        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
 
-        ClusterEvent clusterEvent = new ClusterEvent(newHost, ClusterEventType.HOST_APPEARED);
+        Pool CUT = new PoolImpl(hazelcast);
+
+        ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_APPEARED);
         Message msg = mock(Message.class);
         when(msg.getMessageObject()).thenReturn(clusterEvent);
         CUT.onMessage(msg);
 
-        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
-        for (String hostname : utilisationMap.keySet()) {
-            assertEquals(0, (int)utilisationMap.get(hostname));
+        assertTrue(candidateConnectionsMap.containsKey(candidate));
+    }
+
+    @Test
+    public void candidateHealthy() {
+        String candidate = "host-333.domain.de";
+        when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
+        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
+        candidateConnectionsMap.put(candidate, new Object());
+        Pool CUT = new PoolImpl(hazelcast);
+
+        ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_HEALTHY);
+        Message msg = mock(Message.class);
+        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        CUT.onMessage(msg);
+
+        assertTrue(allTestConnections.containsKey(candidate));
+        assertFalse(candidateConnectionsMap.containsKey(candidate));
+        assertEquals(allTestConnections.size(), utilisationMap.size());
+        assertTrue(CUT.getDbServerUtilisation().keySet().contains(candidate));
+
+        Map<String, Integer> utilisationMapLocal = CUT.getDbServerUtilisation();
+        for (String hostname : utilisationMapLocal.keySet()) {
+            assertEquals(0, (int)utilisationMapLocal.get(hostname));
         }
-        assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
-        assertTrue(CUT.getDbServerUtilisation().keySet().contains(newHost));
+    }
+
+    @Test
+    public void candidateHealthy_promotedPreviously() {
+        String candidate = "host-333.domain.de";
+        when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
+        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
+        Pool CUT = new PoolImpl(hazelcast);
+
+        ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_HEALTHY);
+        Message msg = mock(Message.class);
+        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        CUT.onMessage(msg);
+
+        assertFalse(allTestConnections.containsKey(candidate));
+        assertEquals(allTestConnections.size(), utilisationMap.size());
     }
 
     @Test
     public void removeHostFromService() {
-        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         for (String hostname : allTestConnections.keySet()) {
-            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
+            utilisationMap.put(hostname, wheel.nextInt(100) + 1);
         }
         Pool CUT = new PoolImpl(hazelcast);
         assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
@@ -166,17 +201,17 @@ public class PoolTest {
         when(msg.getMessageObject()).thenReturn(clusterEvent);
         CUT.onMessage(msg);
 
-        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
+        Map<String, Integer> utilisationMapLocal = CUT.getDbServerUtilisation();
         assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
         assertFalse(allTestConnections.keySet().contains(removedHost));
-        assertFalse(utilisationMap.keySet().contains(removedHost));
+        assertFalse(utilisationMapLocal.keySet().contains(removedHost));
     }
 
     @Test
     public void hostUnhealthy() {
-        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         for (String hostname : allTestConnections.keySet()) {
-            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
+            utilisationMap.put(hostname, wheel.nextInt(100) + 1);
         }
         Pool CUT = new PoolImpl(hazelcast);
         assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
@@ -187,15 +222,15 @@ public class PoolTest {
         when(msg.getMessageObject()).thenReturn(clusterEvent);
         CUT.onMessage(msg);
 
-        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
-        assertFalse(utilisationMap.containsKey(unhealthyHost));
+        Map<String, Integer> utilisationMapLocal = CUT.getDbServerUtilisation();
+        assertFalse(utilisationMapLocal.containsKey(unhealthyHost));
     }
 
     @Test
     public void hostHealthyAgain() {
-        when(hazelcast.getMap(anyString())).thenReturn(hazelcastMap);
+        when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         for (String hostname : allTestConnections.keySet()) {
-            hazelcastMap.put(hostname, wheel.nextInt(100) + 1);
+            utilisationMap.put(hostname, wheel.nextInt(100) + 1);
         }
         Pool CUT = new PoolImpl(hazelcast);
         assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
@@ -206,8 +241,8 @@ public class PoolTest {
         when(msg.getMessageObject()).thenReturn(clusterEvent);
         CUT.onMessage(msg);
 
-        Map<String, Integer> utilisationMap = CUT.getDbServerUtilisation();
-        for (int count : utilisationMap.values()) {
+        Map<String, Integer> utilisationMapLocal = CUT.getDbServerUtilisation();
+        for (int count : utilisationMapLocal.values()) {
             assertEquals(0, count);
         }
     }

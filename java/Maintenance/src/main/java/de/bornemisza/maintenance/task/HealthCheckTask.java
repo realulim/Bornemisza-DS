@@ -22,6 +22,7 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.rest.HttpConnection;
+import java.util.Map.Entry;
 
 @Stateless
 public class HealthCheckTask {
@@ -45,7 +46,8 @@ public class HealthCheckTask {
     }
 
     // Constructor for Unit Tests
-    public HealthCheckTask(CouchUsersPool httpPool, ITopic<ClusterEvent> topic, HealthChecks healthChecks) {
+    public HealthCheckTask(HazelcastInstance hz, CouchUsersPool httpPool, ITopic<ClusterEvent> topic, HealthChecks healthChecks) {
+        this.hazelcast = hz;
         this.usersPool = httpPool;
         this.clusterMaintenanceTopic = topic;
         this.healthChecks = healthChecks;
@@ -80,6 +82,18 @@ public class HealthCheckTask {
                     this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
                 // Host still unhealthy, just keep it out of rotation
+            }
+        }
+        checkCandidates();
+    }
+
+    private void checkCandidates() {
+        Map<String, HttpConnection> candidateConnections = hazelcast.getMap(Config.CANDIDATES);
+        for (Entry<String, HttpConnection> candidate : candidateConnections.entrySet()) {
+            if (healthChecks.isCouchDbReady(candidate.getValue())) {
+                // Candidate is healthy and can be promoted into rotation
+                ClusterEvent clusterEvent = new ClusterEvent(candidate.getKey(), ClusterEventType.CANDIDATE_HEALTHY);
+                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
     }

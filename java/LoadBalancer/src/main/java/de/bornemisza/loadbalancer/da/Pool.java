@@ -28,6 +28,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
     protected DnsProvider dnsProvider;
     protected Map<String, T> allConnections;
+    private Map<String, T> candidateConnections;
 
     private Map<String, Integer> dbServerUtilisation = null;
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
@@ -55,6 +56,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
     private void initCluster() {
         this.allConnections = createConnections();
+        this.candidateConnections = hazelcast.getMap(Config.CANDIDATES);
         this.dbServerUtilisation = getDbServerUtilisation();
         this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
         this.registrationId = clusterMaintenanceTopic.addMessageListener(this);
@@ -71,22 +73,28 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
         ClusterEvent clusterEvent = msg.getMessageObject();
         String hostname = clusterEvent.getHostname();
         switch (clusterEvent.getType()) {
-            case HOST_APPEARED:
-                if (! this.dbServerUtilisation.containsKey(hostname)) {
-                    this.dbServerUtilisation.put(hostname, 0);
+            case CANDIDATE_APPEARED:
+                this.candidateConnections.put(hostname, createConnection(getLoadBalancerConfig(), hostname));
+                break;
+            case CANDIDATE_HEALTHY:
+                T conn = this.candidateConnections.get(hostname);
+                if (conn != null) {
+                    // promote candidate into rotation
+                    this.allConnections.putIfAbsent(hostname, conn);
+                    if (! this.dbServerUtilisation.containsKey(hostname)) {
+                        this.dbServerUtilisation.put(hostname, 0);
+                        resetUtilisation(); // start everyone on equal terms
+                    }
+                    this.candidateConnections.remove(hostname);
+                    Logger.getAnonymousLogger().info("Candidate " + hostname + " promoted into rotation.");
                 }
-                if (! this.allConnections.containsKey(hostname)) {
-                    this.allConnections.put(hostname, createConnection(getLoadBalancerConfig(), hostname));
-                    resetUtilisation(); // start everyone on equal terms
+                else {
+                    Logger.getAnonymousLogger().info("Candidate " + hostname + " already promoted previously.");
                 }
                 break;
             case HOST_DISAPPEARED:
-                if (this.dbServerUtilisation.containsKey(hostname)) {
-                    this.dbServerUtilisation.remove(hostname);
-                }
-                if (this.allConnections.containsKey(hostname)) {
-                    this.allConnections.remove(hostname);
-                }
+                this.dbServerUtilisation.remove(hostname);
+                this.allConnections.remove(hostname);
                 break;
             case HOST_HEALTHY:
                 resetUtilisation(); // start everyone on equal terms

@@ -60,52 +60,17 @@ public class SrvRecordsTaskTest {
     }
 
     @Test
-    public void hostAppeared_newHost() {
+    public void candidateAppeared() {
         SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
 
         String newHostname = getHostname(999);
-        when(httpPool.getAllConnections()).thenReturn(new HashMap<>()); // no existing connection
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.add(newHostname); // simulated new SRV-Record
 
         CUT.updateDbServers(utilisedHostnames, dnsHostnames);
         verify(clusterMaintenanceTopic).publish(captor.capture());
         assertEquals(newHostname, captor.getValue().getHostname());
-        assertEquals(ClusterEventType.HOST_APPEARED, captor.getValue().getType());
-    }
-
-    @Test
-    public void hostAppeared_healthyHost() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
-
-        String newHostname = getHostname(999);
-        Map<String, HttpConnection> connections = new HashMap<>();
-        connections.put(newHostname, mock(HttpConnection.class));
-        when(httpPool.getAllConnections()).thenReturn(connections);
-        when(healthChecks.isCouchDbReady(any(HttpConnection.class))).thenReturn(true);
-        Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
-        dnsHostnames.add(newHostname); // simulated new SRV-Record
-
-        CUT.updateDbServers(utilisedHostnames, dnsHostnames);
-        verify(clusterMaintenanceTopic).publish(captor.capture());
-        assertEquals(newHostname, captor.getValue().getHostname());
-        assertEquals(ClusterEventType.HOST_APPEARED, captor.getValue().getType());
-    }
-
-    @Test
-    public void hostAppeared_unhealthyHost() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
-
-        String newHostname = getHostname(999);
-        Map<String, HttpConnection> connections = new HashMap<>();
-        connections.put(newHostname, mock(HttpConnection.class));
-        when(httpPool.getAllConnections()).thenReturn(connections);
-        when(healthChecks.isCouchDbReady(any(HttpConnection.class))).thenReturn(false);
-        Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
-        dnsHostnames.add(newHostname); // simulated new SRV-Record
-
-        CUT.updateDbServers(utilisedHostnames, dnsHostnames);
-        verifyNoMoreInteractions(clusterMaintenanceTopic);
+        assertEquals(ClusterEventType.CANDIDATE_APPEARED, captor.getValue().getType());
     }
 
     @Test

@@ -11,7 +11,7 @@ public class ClusterEvent implements Serializable {
     private final ClusterEventType type;
 
     public enum ClusterEventType {
-        HOST_APPEARED, HOST_DISAPPEARED, HOST_HEALTHY, HOST_UNHEALTHY
+        CANDIDATE_APPEARED, CANDIDATE_HEALTHY, HOST_DISAPPEARED, HOST_HEALTHY, HOST_UNHEALTHY
     }
 
     public ClusterEvent(String hostname, ClusterEventType type) {
