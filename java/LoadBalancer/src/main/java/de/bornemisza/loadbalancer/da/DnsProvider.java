@@ -27,7 +27,6 @@ public class DnsProvider {
 
     private final HazelcastInstance hazelcast;
     private final ICache<String, List<String>> cache;
-    private List<String> cachedDatabaseServers = new ArrayList<>();
 
     private final Hashtable<String, String> env = new Hashtable<>();
     private DirContext ctx;
@@ -57,13 +56,12 @@ public class DnsProvider {
                 hostnames = retrieveSrvRecordsAndSort(service).stream()
                         .map(srvRecord -> srvRecord.getHost().replaceAll(".$", ""))
                         .collect(Collectors.toList());
-                this.cachedDatabaseServers = hostnames; // cache locally as a fallback in case of DNS failures
                 cache.put(service, hostnames, new CreatedExpiryPolicy(Duration.ONE_MINUTE));
                 Logger.getAnonymousLogger().info("Refreshing SRV-Record Cache: " + String.join(",", hostnames));
             }
             catch (NamingException ex) {
-                Logger.getAnonymousLogger().warning("Problem getting SRV-Records: " + ex.toString());
-                return this.cachedDatabaseServers;
+                Logger.getAnonymousLogger().severe("Problem getting SRV-Records: " + ex.toString());
+                hostnames = new ArrayList<>();
             }
             return hostnames;
         }
