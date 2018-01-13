@@ -20,6 +20,7 @@ import com.hazelcast.core.MessageListener;
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import java.util.Set;
 
 public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
@@ -75,6 +76,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
         switch (clusterEvent.getType()) {
             case CANDIDATE_APPEARED:
                 this.candidateConnections.put(hostname, createConnection(getLoadBalancerConfig(), hostname));
+                Logger.getAnonymousLogger().info("Created connection for candidate " + hostname);
                 break;
             case CANDIDATE_HEALTHY:
                 T conn = this.candidateConnections.get(hostname);
@@ -82,8 +84,9 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
                     // promote candidate into rotation
                     this.allConnections.putIfAbsent(hostname, conn);
                     if (! this.dbServerUtilisation.containsKey(hostname)) {
-                        this.dbServerUtilisation.put(hostname, 0);
                         resetUtilisation(); // start everyone on equal terms
+                        // Caution: getConnection() can create emergency connections, which can lead to a race condition, where resetUtilisation() is never called
+                        this.dbServerUtilisation.put(hostname, 0);
                     }
                     this.candidateConnections.remove(hostname);
                     Logger.getAnonymousLogger().info("Candidate " + hostname + " promoted into rotation.");
@@ -95,13 +98,16 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
             case HOST_DISAPPEARED:
                 this.dbServerUtilisation.remove(hostname);
                 this.allConnections.remove(hostname);
+                Logger.getAnonymousLogger().info("Host " + hostname + " removed from pool.");
                 break;
             case HOST_HEALTHY:
                 resetUtilisation(); // start everyone on equal terms
                 this.dbServerUtilisation.put(hostname, 0);
+                Logger.getAnonymousLogger().info("Put host " + hostname + " back into rotation.");
                 break;
             case HOST_UNHEALTHY:
                 this.dbServerUtilisation.remove(hostname);
+                Logger.getAnonymousLogger().info("Host " + hostname + " taken out of rotation.");
                 break;
             default:
         }
@@ -148,9 +154,11 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
     }
 
     private void resetUtilisation() {
-        for (String hostname : this.dbServerUtilisation.keySet()) {
+        Set<String> hostnames = this.dbServerUtilisation.keySet();
+        for (String hostname : hostnames) {
             this.dbServerUtilisation.put(hostname, 0);
         }
+        Logger.getAnonymousLogger().info("Utilisation reset for " + hostnames);
     }
 
 }

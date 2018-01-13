@@ -63,7 +63,7 @@ public abstract class HttpPool extends Pool<HttpConnection> {
                 // paranoia fallback - should not happen
                 conn = createConnection(getLoadBalancerConfig(), hostname);
                 allConnections.put(hostname, conn);
-                Logger.getAnonymousLogger().warning("Had to create new Connection for " + hostname);
+                Logger.getAnonymousLogger().warning("Had to create emergency Connection for " + hostname);
             }
             trackUtilisation(hostname);
             return conn;

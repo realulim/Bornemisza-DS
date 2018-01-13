@@ -2,6 +2,7 @@ package de.bornemisza.maintenance.task;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,7 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.rest.HttpConnection;
-import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 @Stateless
 public class HealthCheckTask {
@@ -70,6 +71,7 @@ public class HealthCheckTask {
             if (healthChecks.isCouchDbReady(entry.getValue())) {
                 if (FAILING_HOSTS.contains(hostname)) {
                     FAILING_HOSTS.remove(hostname);
+                    Logger.getAnonymousLogger().info("Previously failing host " + hostname + " healthy again.");
                     ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
                     this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
@@ -78,6 +80,7 @@ public class HealthCheckTask {
             else {
                 if (! FAILING_HOSTS.contains(hostname)) {
                     FAILING_HOSTS.add(hostname);
+                    Logger.getAnonymousLogger().info("Previously healthy host " + hostname + " failing.");
                     ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
                     this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
@@ -92,8 +95,12 @@ public class HealthCheckTask {
         for (Entry<String, HttpConnection> candidate : candidateConnections.entrySet()) {
             if (healthChecks.isCouchDbReady(candidate.getValue())) {
                 // Candidate is healthy and can be promoted into rotation
+                Logger.getAnonymousLogger().info("Candidate " + candidate.getKey() + " healthy.");
                 ClusterEvent clusterEvent = new ClusterEvent(candidate.getKey(), ClusterEventType.CANDIDATE_HEALTHY);
                 this.clusterMaintenanceTopic.publish(clusterEvent);
+            }
+            else {
+                Logger.getAnonymousLogger().info("Candidate " + candidate.getKey() + " unhealthy.");
             }
         }
     }

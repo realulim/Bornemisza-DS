@@ -84,6 +84,7 @@ public class SrvRecordsTask {
         for (String hostname : utilisedHostnames) {
             if (! dnsHostnames.contains(hostname)) {
                 // a host providing the service has just disappeared
+                Logger.getAnonymousLogger().info("Host disappeared: " + hostname);
                 ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_DISAPPEARED);
                 this.clusterMaintenanceTopic.publish(clusterEvent);
             }
