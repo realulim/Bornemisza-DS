@@ -144,16 +144,23 @@ create-database-{{ db }}:
     - group: root
     - mode: 744
 
-/opt/scripts/shards.sh:
+/opt/scripts/shards_add.sh:
   file.managed:
-    - source: salt://files/couchdb/shards.sh
+    - source: salt://files/couchdb/shards_add.sh
     - user: root
     - group: root
     - mode: 744
 
-/opt/scripts/remove_node.sh:
+/opt/scripts/shards_remove.sh:
   file.managed:
-    - source: salt://files/couchdb/remove_node.sh
+    - source: salt://files/couchdb/shards_remove.sh
+    - user: root
+    - group: root
+    - mode: 744
+
+/opt/scripts/node_remove.sh:
+  file.managed:
+    - source: salt://files/couchdb/node_remove.sh
     - user: root
     - group: root
     - mode: 744
