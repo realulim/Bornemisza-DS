@@ -94,11 +94,11 @@ configure-couchdb:
 
 install-ssl-cert:
   cmd.run:
-    - name: cp /root/.acme.sh/{{ pillar['ssldomain']/{{ pillar['ssldomain'].cer /home/couchdb/
+    - name: cp /root/.acme.sh/{{ pillar['ssldomain']}}/{{ pillar['ssldomain']}}.cer /home/couchdb/
 
 install-ssl-key:
   cmd.run:
-    - name: cp /root/.acme.sh/{{ pillar['ssldomain']/{{ pillar['ssldomain'].key /home/couchdb/
+    - name: cp /root/.acme.sh/{{ pillar['ssldomain']}}/{{ pillar['ssldomain']}}.key /home/couchdb/
 
 permissions-ssl:
   cmd.run:
