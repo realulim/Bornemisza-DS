@@ -100,17 +100,16 @@ public class UuidsFacade {
         uuidDocument.setAppColor(appColor);
         uuidDocument.setDbColor(dbColor);
         uuidDocument.setDate(today);
-        this.storeUuidDocument(auth, userName, uuidDocument);
         uuidsResult.addHeader(HttpHeaders.APPSERVER, appColor);
         uuidsResult.addHeader(HttpHeaders.DBSERVER, dbColor);
         uuidsResult.setStatus(Status.OK);
-        String newCookie = uuidsResult.getNewCookie();
+        String newCookie = this.storeUuidDocument(auth, userName, uuidDocument);
         if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);
         return uuidsResult;
     }
 
-    private void storeUuidDocument(Auth auth, String userName, Uuid uuidDocument) throws UnauthorizedException, TechnicalException, BusinessException {
-        uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
+    private String storeUuidDocument(Auth auth, String userName, Uuid uuidDocument) throws UnauthorizedException, TechnicalException, BusinessException {
+        return uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();
 //        StoreUuidRequest request = new StoreUuidRequest(auth, User.db(userName), uuidDocument);
 //        boolean queued = this.uuidStoreQueue.offer(request);
 //        if (!queued) {

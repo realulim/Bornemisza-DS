@@ -168,6 +168,8 @@ public class UuidsFacadeTest {
         UuidsResult dbResult = new UuidsResult();
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0." + 2); // second color
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
+        String setCookie = "newCookie";
+        dbResult.addHeader(HttpHeaders.SET_COOKIE, setCookie);
         when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
         when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
@@ -176,8 +178,13 @@ public class UuidsFacadeTest {
         assertEquals(dbResult.getUuids(), facadeResult.getUuids());
         assertEquals("Gold", facadeResult.getFirstHeaderValue(HttpHeaders.APPSERVER)); // third color
         assertEquals("Crimson", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // second color
+        assertEquals(setCookie, facadeResult.getFirstHeaderValue(HttpHeaders.SET_COOKIE));
 
         verify(uuidsService).saveUuids(any(Auth.class), anyString(), any(Uuid.class));
+
+        dbResult.getHeaders().remove(HttpHeaders.SET_COOKIE);
+        facadeResult = CUT.getUuids(auth, 3);
+        assertNull(facadeResult.getFirstHeaderValue(HttpHeaders.SET_COOKIE));
     }
 
 //    @Test
