@@ -2,29 +2,27 @@ package de.bornemisza.maintenance.task;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import org.mockito.ArgumentCaptor;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ISet;
 import com.hazelcast.core.ITopic;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
-import de.bornemisza.rest.HttpConnection;
+import de.bornemisza.maintenance.entity.PseudoHazelcastSet;
 
 public class SrvRecordsTaskTest {
 
@@ -34,6 +32,9 @@ public class SrvRecordsTaskTest {
     private CouchUsersPool httpPool;
     private HealthChecks healthChecks;
     private ArgumentCaptor<ClusterEvent> captor;
+    private HazelcastInstance hazelcast;
+    private final ISet candidates = new PseudoHazelcastSet();
+    private SrvRecordsTask CUT;
 
     public SrvRecordsTaskTest() {
     }
@@ -53,30 +54,29 @@ public class SrvRecordsTaskTest {
         healthChecks = mock(HealthChecks.class);
         captor = ArgumentCaptor.forClass(ClusterEvent.class);
 
-        HazelcastInstance hazelcast = mock(HazelcastInstance.class);
+        hazelcast = mock(HazelcastInstance.class);
         clusterMaintenanceTopic = mock(ITopic.class);
         when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
+        when(hazelcast.getSet(anyString())).thenReturn(candidates);
+
+        CUT = new SrvRecordsTask(hazelcast, httpPool, healthChecks);
+        CUT.init();
     }
 
     @Test
     public void candidateAppeared() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
-
         String newHostname = getHostname(999);
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         dnsHostnames.add(newHostname); // simulated new SRV-Record
 
         CUT.updateDbServers(utilisedHostnames, dnsHostnames);
-        verify(clusterMaintenanceTopic).publish(captor.capture());
-        assertEquals(newHostname, captor.getValue().getHostname());
-        assertEquals(ClusterEventType.CANDIDATE_APPEARED, captor.getValue().getType());
+        verifyNoMoreInteractions(clusterMaintenanceTopic);
+        assertTrue(candidates.contains(newHostname));
     }
 
     @Test
     public void hostDisappeared() {
-        SrvRecordsTask CUT = new SrvRecordsTask(utilisationMap, clusterMaintenanceTopic, httpPool, healthChecks);
-
         Set<String> utilisedHostnames = new HashSet(utilisationMap.keySet());
         String removedHostname = getHostname(3);
         dnsHostnames.remove(removedHostname); // simulate deleted SRV-Record

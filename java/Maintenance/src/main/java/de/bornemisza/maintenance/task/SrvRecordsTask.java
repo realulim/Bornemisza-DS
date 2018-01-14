@@ -41,6 +41,7 @@ public class SrvRecordsTask {
 
     private IMap<String, Integer> dbServerUtilisation;
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
+    private Set<String> candidates;
 
     public SrvRecordsTask() {
     }
@@ -49,12 +50,13 @@ public class SrvRecordsTask {
     public void init() {
         this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
+        this.candidates = hazelcast.getSet(Config.CANDIDATES);
+
     }
 
     // Constructor for Unit Tests
-    public SrvRecordsTask(IMap<String, Integer> dbServerUtilisation, ITopic<ClusterEvent> topic, CouchUsersPool httpPool, HealthChecks healthChecks) {
-        this.dbServerUtilisation = dbServerUtilisation;
-        this.clusterMaintenanceTopic = topic;
+    public SrvRecordsTask(HazelcastInstance hz, CouchUsersPool httpPool, HealthChecks healthChecks) {
+        this.hazelcast = hz;
         this.httpPool = httpPool;
         this.healthChecks = healthChecks;
     }
@@ -76,9 +78,8 @@ public class SrvRecordsTask {
         for (String hostname : dnsHostnames) {
             if (! utilisedHostnames.contains(hostname)) {
                 // a host providing the service is available, but not in rotation
+                candidates.add(hostname);
                 Logger.getAnonymousLogger().info("Candidate appeared: " + hostname);
-                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.CANDIDATE_APPEARED);
-                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
         for (String hostname : utilisedHostnames) {

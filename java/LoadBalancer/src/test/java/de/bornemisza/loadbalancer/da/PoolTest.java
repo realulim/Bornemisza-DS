@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ISet;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.OperationTimeoutException;
@@ -25,12 +26,14 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.entity.PseudoHazelcastMap;
+import de.bornemisza.loadbalancer.entity.PseudoHazelcastSet;
 
 public class PoolTest {
 
     private HashMap<String, Object> allTestConnections;
     private HazelcastInstance hazelcast;
-    private IMap utilisationMap, candidateConnectionsMap;
+    private IMap utilisationMap;
+    private ISet candidates;
 
     private final SecureRandom wheel = new SecureRandom();
 
@@ -52,7 +55,7 @@ public class PoolTest {
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
 
         this.utilisationMap = new PseudoHazelcastMap();
-        this.candidateConnectionsMap = new PseudoHazelcastMap();
+        this.candidates = new PseudoHazelcastSet<>();
     }
 
     @Test
@@ -131,27 +134,11 @@ public class PoolTest {
     }
 
     @Test
-    public void addNewCandidateForService() {
-        String candidate = "host-999.domain.de";
-        when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
-        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
-
-        Pool CUT = new PoolImpl(hazelcast);
-
-        ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_APPEARED);
-        Message msg = mock(Message.class);
-        when(msg.getMessageObject()).thenReturn(clusterEvent);
-        CUT.onMessage(msg);
-
-        assertTrue(candidateConnectionsMap.containsKey(candidate));
-    }
-
-    @Test
     public void candidateHealthy() {
         String candidate = "host-333.domain.de";
         when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
-        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
-        candidateConnectionsMap.put(candidate, new Object());
+        when(hazelcast.getSet(Config.CANDIDATES)).thenReturn(candidates);
+        candidates.add(candidate);
         Pool CUT = new PoolImpl(hazelcast);
 
         ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_HEALTHY);
@@ -160,7 +147,7 @@ public class PoolTest {
         CUT.onMessage(msg);
 
         assertTrue(allTestConnections.containsKey(candidate));
-        assertFalse(candidateConnectionsMap.containsKey(candidate));
+        assertFalse(candidates.contains(candidate));
         assertEquals(allTestConnections.size(), utilisationMap.size());
         assertTrue(CUT.getDbServerUtilisation().keySet().contains(candidate));
 
@@ -168,22 +155,6 @@ public class PoolTest {
         for (String hostname : utilisationMapLocal.keySet()) {
             assertEquals(0, (int)utilisationMapLocal.get(hostname));
         }
-    }
-
-    @Test
-    public void candidateHealthy_promotedPreviously() {
-        String candidate = "host-333.domain.de";
-        when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
-        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
-        Pool CUT = new PoolImpl(hazelcast);
-
-        ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_HEALTHY);
-        Message msg = mock(Message.class);
-        when(msg.getMessageObject()).thenReturn(clusterEvent);
-        CUT.onMessage(msg);
-
-        assertFalse(allTestConnections.containsKey(candidate));
-        assertEquals(allTestConnections.size(), utilisationMap.size());
     }
 
     @Test

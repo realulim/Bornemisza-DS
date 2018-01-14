@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 import javax.ejb.Stateless;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
+import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.da.HttpPool;
 
 @Stateless
@@ -19,6 +20,10 @@ public class CouchUsersPool extends HttpPool {
     @Override
     protected LoadBalancerConfig getLoadBalancerConfig() {
         return this.lbConfig;
+    }
+
+    public HttpConnection createConnection(String hostname) {
+        return super.createConnection(this.lbConfig, hostname);
     }
 
 }

@@ -79,12 +79,10 @@
 		<in-memory-format>BINARY</in-memory-format>
 	</cache>
 
-	<map name="DbServerCandidates">
-		<time-to-live-seconds>300</time-to-live-seconds>
-		<eviction-policy>LRU</eviction-policy>
-		<max-size policy="PER_NODE">271</max-size>
-		<in-memory-format>BINARY</in-memory-format>
-	</map>
+	<set name="DbServerCandidates">
+		<max-size>100</max-size>
+	</set>
+
 	<map name="DbServerUtilisation">
 		<in-memory-format>BINARY</in-memory-format>
 	</map>

@@ -3,6 +3,8 @@ package de.bornemisza.loadbalancer.da;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -20,7 +22,6 @@ import com.hazelcast.core.MessageListener;
 import de.bornemisza.loadbalancer.ClusterEvent;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
-import java.util.Set;
 
 public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
@@ -29,7 +30,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
     protected DnsProvider dnsProvider;
     protected Map<String, T> allConnections;
-    private Map<String, T> candidateConnections;
+    private Set<String> candidates;
 
     private Map<String, Integer> dbServerUtilisation = null;
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
@@ -57,7 +58,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
 
     private void initCluster() {
         this.allConnections = createConnections();
-        this.candidateConnections = hazelcast.getMap(Config.CANDIDATES);
+        this.candidates = hazelcast.getSet(Config.CANDIDATES);
         this.dbServerUtilisation = getDbServerUtilisation();
         this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
         this.registrationId = clusterMaintenanceTopic.addMessageListener(this);
@@ -73,45 +74,41 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
     public void onMessage(Message<ClusterEvent> msg) {
         ClusterEvent clusterEvent = msg.getMessageObject();
         String hostname = clusterEvent.getHostname();
-        switch (clusterEvent.getType()) {
-            case CANDIDATE_APPEARED:
-                this.candidateConnections.put(hostname, createConnection(getLoadBalancerConfig(), hostname));
-                Logger.getAnonymousLogger().info("Created connection for candidate " + hostname);
-                break;
-            case CANDIDATE_HEALTHY:
-                T conn = this.candidateConnections.get(hostname);
-                if (conn != null) {
+        try {
+            switch (clusterEvent.getType()) {
+                case CANDIDATE_HEALTHY:
                     // promote candidate into rotation
+                    T conn = createConnection(getLoadBalancerConfig(), hostname);
                     this.allConnections.put(hostname, conn);
                     if (! this.dbServerUtilisation.containsKey(hostname)) {
                         resetUtilisation(); // start everyone on equal terms
                         // Caution: getConnection() can create emergency connections, which can lead to a race condition here
                         this.dbServerUtilisation.put(hostname, 0);
                     }
-                    this.candidateConnections.remove(hostname);
+                    this.candidates.remove(hostname);
                     Logger.getAnonymousLogger().info("Candidate " + hostname + " promoted into rotation.");
-                }
-                else {
-                    Logger.getAnonymousLogger().info("Candidate " + hostname + " already promoted previously.");
-                }
-                break;
-            case HOST_DISAPPEARED:
-                this.dbServerUtilisation.remove(hostname);
-                this.allConnections.remove(hostname);
-                Logger.getAnonymousLogger().info("Host " + hostname + " removed from pool.");
-                break;
-            case HOST_HEALTHY:
-                resetUtilisation(); // start everyone on equal terms
-                this.dbServerUtilisation.put(hostname, 0);
-                Logger.getAnonymousLogger().info("Put host " + hostname + " back into rotation.");
-                break;
-            case HOST_UNHEALTHY:
-                this.dbServerUtilisation.remove(hostname);
-                Logger.getAnonymousLogger().info("Host " + hostname + " taken out of rotation.");
-                break;
-            default:
+                    break;
+                case HOST_DISAPPEARED:
+                    this.dbServerUtilisation.remove(hostname);
+                    this.allConnections.remove(hostname);
+                    Logger.getAnonymousLogger().info("Host " + hostname + " removed from pool.");
+                    break;
+                case HOST_HEALTHY:
+                    resetUtilisation(); // start everyone on equal terms
+                    this.dbServerUtilisation.put(hostname, 0);
+                    Logger.getAnonymousLogger().info("Put host " + hostname + " back into rotation.");
+                    break;
+                case HOST_UNHEALTHY:
+                    this.dbServerUtilisation.remove(hostname);
+                    Logger.getAnonymousLogger().info("Host " + hostname + " taken out of rotation.");
+                    break;
+                default:
+                    Logger.getAnonymousLogger().info("Unknown ClusterEvent: " + hostname + "/" + clusterEvent.getType().name());
+            }
         }
-        Logger.getAnonymousLogger().info("ClusterEvent: " + hostname + "/" + clusterEvent.getType().name());
+        catch (Exception e) {
+            Logger.getAnonymousLogger().log(Level.SEVERE, clusterEvent.toString(), e);
+        }
     }
 
     public Map<String, T> getAllConnections() {

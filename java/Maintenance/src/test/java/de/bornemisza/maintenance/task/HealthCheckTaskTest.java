@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.ISet;
 import com.hazelcast.core.ITopic;
 
 import org.junit.Before;
@@ -18,6 +19,7 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.maintenance.entity.PseudoHazelcastMap;
+import de.bornemisza.maintenance.entity.PseudoHazelcastSet;
 import de.bornemisza.rest.HttpConnection;
 
 public class HealthCheckTaskTest {
@@ -52,8 +54,8 @@ public class HealthCheckTaskTest {
 
     @Test
     public void healthChecks() {
-        IMap candidateConnectionsMap = new PseudoHazelcastMap();
-        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
+        ISet candidates = new PseudoHazelcastSet();
+        when(hazelcast.getSet(Config.CANDIDATES)).thenReturn(candidates);
         when(healthChecks.isCouchDbReady(any(HttpConnection.class)))
                 .thenReturn(true)
                 .thenReturn(false)
@@ -81,9 +83,9 @@ public class HealthCheckTaskTest {
     @Test
     public void healthChecks_candidateUnhealthy() {
         connections.clear();
-        IMap candidateConnectionsMap = new PseudoHazelcastMap();
-        candidateConnectionsMap.put(hostname, mock(HttpConnection.class));
-        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
+        ISet candidates = new PseudoHazelcastSet();
+        candidates.add(hostname);
+        when(hazelcast.getSet(Config.CANDIDATES)).thenReturn(candidates);
         when(healthChecks.isCouchDbReady(any(HttpConnection.class))).thenReturn(false);
 
         CUT.healthChecks();
@@ -93,10 +95,10 @@ public class HealthCheckTaskTest {
     @Test
     public void healthChecks_candidateHealthy() {
         connections.clear();
-        IMap candidateConnectionsMap = new PseudoHazelcastMap();
-        candidateConnectionsMap.put(hostname, mock(HttpConnection.class));
-        when(hazelcast.getMap(Config.CANDIDATES)).thenReturn(candidateConnectionsMap);
-        when(healthChecks.isCouchDbReady(any(HttpConnection.class))).thenReturn(true);
+        ISet candidates = new PseudoHazelcastSet();
+        candidates.add(hostname);
+        when(hazelcast.getSet(Config.CANDIDATES)).thenReturn(candidates);
+        when(healthChecks.isCouchDbReady(any())).thenReturn(true);
 
         CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(1)).publish(captor.capture());

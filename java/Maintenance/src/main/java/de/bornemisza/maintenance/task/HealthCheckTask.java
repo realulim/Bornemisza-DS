@@ -2,8 +2,8 @@ package de.bornemisza.maintenance.task;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -23,7 +23,6 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.rest.HttpConnection;
-import java.util.logging.Logger;
 
 @Stateless
 public class HealthCheckTask {
@@ -91,16 +90,22 @@ public class HealthCheckTask {
     }
 
     private void checkCandidates() {
-        Map<String, HttpConnection> candidateConnections = hazelcast.getMap(Config.CANDIDATES);
-        for (Entry<String, HttpConnection> candidate : candidateConnections.entrySet()) {
-            if (healthChecks.isCouchDbReady(candidate.getValue())) {
-                // Candidate is healthy and can be promoted into rotation
-                Logger.getAnonymousLogger().info("Candidate " + candidate.getKey() + " healthy.");
-                ClusterEvent clusterEvent = new ClusterEvent(candidate.getKey(), ClusterEventType.CANDIDATE_HEALTHY);
-                this.clusterMaintenanceTopic.publish(clusterEvent);
+        Set<String> candidates = hazelcast.getSet(Config.CANDIDATES);
+        for (String candidate : candidates) {
+            try {
+                HttpConnection conn = usersPool.createConnection(candidate);
+                if (healthChecks.isCouchDbReady(conn)) {
+                    // Candidate is healthy and can be promoted into rotation
+                    Logger.getAnonymousLogger().info("Candidate " + candidate + " healthy.");
+                    ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_HEALTHY);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
+                }
+                else {
+                    Logger.getAnonymousLogger().info("Candidate " + candidate + " unhealthy.");
+                }
             }
-            else {
-                Logger.getAnonymousLogger().info("Candidate " + candidate.getKey() + " unhealthy.");
+            catch (Exception e) {
+                Logger.getAnonymousLogger().severe("Could not check candidates: " + e.toString());
             }
         }
     }
