@@ -36,9 +36,15 @@
             self.logout()
         })
 
+        this.observable.on(LOGOUT_FORCED, function (opts) {
+            console.log("Session expired, please sign in again.")
+            self.logout()
+        })
+
         this.logout = () => {
             sessionStorage.clear()
             this.observable.trigger(STOP_LOOP)
+            this.observable.trigger(STOP_BATCH)
             qwest.delete(config.urlEndSession, {
             })
                 .then(function (xhr, response) {

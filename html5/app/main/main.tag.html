@@ -198,12 +198,12 @@
             this.update()
         }
 
-        function expireSession() {
+        this.expireSession = () => {
             self.singleMode = false
             self.loopMode = false
             self.batchMode = false
             self.storedMode = false
-            self.observable.trigger(LOGOUT_REQUESTED)            
+            self.observable.trigger(LOGOUT_FORCED)            
         }
 
         this.getUuid = (event) => {

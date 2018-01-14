@@ -6,6 +6,7 @@ var REGISTRATION_FAILED = "Registration failed";
 var REGISTRATION_ERROR = "Error while registering";
 var SHOW_BARON_MESSAGE = "Show message from the Baron";
 var LOGOUT_REQUESTED = "Logout requested by User";
+var LOGOUT_FORCED = "Logout forced by Session Expiry"
 var LOADING_IN_PROGRESS = "Loading Data in Progress";
 var LOADING_DONE = "Loading Data completed";
 var LOADING_ERROR = "Error while loading Data";
