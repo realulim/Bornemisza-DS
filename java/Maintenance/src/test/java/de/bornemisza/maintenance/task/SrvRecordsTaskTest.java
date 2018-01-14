@@ -6,7 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.hazelcast.cache.ICache;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ICacheManager;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ISet;
 import com.hazelcast.core.ITopic;
@@ -59,6 +61,13 @@ public class SrvRecordsTaskTest {
         when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
         when(hazelcast.getSet(anyString())).thenReturn(candidates);
+
+        when(hazelcast.getCacheManager()).thenReturn(new ICacheManager() {
+            @Override
+            public <K, V> ICache<K, V> getCache(String string) {
+                return mock(ICache.class);
+            }
+        });
 
         CUT = new SrvRecordsTask(hazelcast, httpPool, healthChecks);
         CUT.init();

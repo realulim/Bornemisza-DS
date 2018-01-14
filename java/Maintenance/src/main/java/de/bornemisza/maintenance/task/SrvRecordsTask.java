@@ -39,6 +39,7 @@ public class SrvRecordsTask {
     @Inject
     HealthChecks healthChecks;
 
+    private DnsProvider dnsProvider;
     private IMap<String, Integer> dbServerUtilisation;
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
     private Set<String> candidates;
@@ -51,7 +52,7 @@ public class SrvRecordsTask {
         this.dbServerUtilisation = hazelcast.getMap(Config.UTILISATION);
         this.clusterMaintenanceTopic = hazelcast.getReliableTopic(Config.TOPIC_CLUSTER_MAINTENANCE);
         this.candidates = hazelcast.getSet(Config.CANDIDATES);
-
+        this.dnsProvider = new DnsProvider(hazelcast);
     }
 
     // Constructor for Unit Tests
@@ -69,7 +70,7 @@ public class SrvRecordsTask {
     public void srvRecordsMaintenance() {
         Set<String> utilisedHostnames = this.dbServerUtilisation.keySet();
         String serviceName = httpPool.getServiceName();
-        List<String> dnsHostnames = new DnsProvider(hazelcast).getHostnamesForService(serviceName);
+        List<String> dnsHostnames = this.dnsProvider.getHostnamesForService(serviceName);
         updateDbServers(utilisedHostnames, dnsHostnames);
         logNewQueueState();
     }
