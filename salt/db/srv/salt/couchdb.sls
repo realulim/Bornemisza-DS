@@ -102,7 +102,7 @@ install-ssl-key:
 
 permissions-ssl:
   cmd.run:
-    - name chown couchdb:couchdb /home/couchdb/*
+    - name: chown couchdb:couchdb /home/couchdb/*
 
 create-couchdb-log-symlink:
   file.symlink:
