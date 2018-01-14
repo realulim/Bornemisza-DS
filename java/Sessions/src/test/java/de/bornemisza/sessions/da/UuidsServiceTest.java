@@ -26,6 +26,7 @@ import de.bornemisza.rest.entity.result.RestResult;
 import de.bornemisza.rest.entity.result.UuidsResult;
 import de.bornemisza.rest.exception.BusinessException;
 import de.bornemisza.rest.exception.TechnicalException;
+import de.bornemisza.rest.exception.UnauthorizedException;
 import de.bornemisza.rest.security.Auth;
 import de.bornemisza.sessions.boundary.SessionsType;
 
@@ -133,6 +134,21 @@ public class UuidsServiceTest {
     }
 
     @Test
+    public void saveUuids_unauthorized() {
+        int errorCode = 401;
+        String msg = "Unauthorized";
+        when(post.responseCode()).thenReturn(errorCode);
+        when(post.responseMessage()).thenReturn(msg);
+        try {
+            CUT.saveUuids(auth, "userDatabase", createUuid());
+            fail();
+        }
+        catch (UnauthorizedException ex) {
+            assertTrue(ex.getMessage().contains(msg));
+        }
+    }
+
+    @Test
     public void saveUuids_technicalError() {
         String msg = "Connection refused";
         ConnectException cause = new ConnectException(msg);
@@ -184,9 +200,8 @@ public class UuidsServiceTest {
             CUT.loadColors(auth, "userDatabase");
             fail();
         }
-        catch (BusinessException ex) {
-            assertEquals(SessionsType.UNEXPECTED, ex.getType());
-            assertTrue(ex.getMessage().contains(errorCode + ":"));
+        catch (UnauthorizedException ex) {
+            assertTrue(ex.getMessage().contains(msg));
         }
     }
 
@@ -202,6 +217,22 @@ public class UuidsServiceTest {
         }
         catch (TechnicalException ex) {
             assertEquals(wrapperException.toString(), ex.getMessage());
+        }
+    }
+
+    @Test
+    public void loadColors_businessError() {
+        int statusCode = 509;
+        String msg = "Bandwidth Limit Exceeded";
+        when(get.responseCode()).thenReturn(statusCode);
+        when(get.responseMessage()).thenReturn(msg);
+        try {
+            CUT.loadColors(auth, "userDatabase");
+            fail();
+        }
+        catch (BusinessException ex) {
+            assertEquals(SessionsType.LOADCOLORS, ex.getType());
+            assertTrue(ex.getMessage().contains(statusCode + ":"));
         }
     }
 

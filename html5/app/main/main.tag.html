@@ -198,6 +198,14 @@
             this.update()
         }
 
+        function expireSession() {
+            self.singleMode = false
+            self.loopMode = false
+            self.batchMode = false
+            self.storedMode = false
+            self.observable.trigger(LOGOUT_REQUESTED)            
+        }
+
         this.getUuid = (event) => {
             event.preventDefault()
             if (sessionStorage.getItem("ctoken") == null) {
@@ -235,7 +243,8 @@
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
-                    self.observable.trigger(LOADING_ERROR, { error: event.data.error })
+                    if (event.data.error === 401) self.expireSession()
+                    else self.observable.trigger(LOADING_ERROR, { error: event.data.error })
                 }
                 else {
                     gatherResults(event, 1)
@@ -250,7 +259,8 @@
             self.worker.postMessage([sessionStorage.ctoken, 1])
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-                    console.log("Error: " + event.data.error)
+                    if (event.data.error === 401) self.expireSession()
+                    else console.log("Error: " + event.data.error)
                 }
                 else {
                     gatherResults(event, 1)
@@ -277,8 +287,11 @@
             }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-                    console.log("Error: " + event.data.error)
-                    batchTotal -= self.batchSize
+                    if (event.data.error === 401) self.expireSession()
+                    else {
+                        console.log("Error: " + event.data.error)
+                        batchTotal -= self.batchSize
+                    }
                 }
                 else {
                     gatherResults(event, self.batchSize)
@@ -380,7 +393,8 @@
                 })
                 .catch(function (error, xhr, response) {
                     self.observable.trigger(LOADING_DONE)
-                    self.observable.trigger(LOADING_ERROR, { error: xhr.response })
+                    if (event.data.error === 401) self.expireSession()
+                    else self.observable.trigger(LOADING_ERROR, { error: xhr.response })
                 })
         }
 
