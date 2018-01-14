@@ -364,13 +364,12 @@
         function getStoredRequests() {
             self.observable.trigger(LOADING_IN_PROGRESS)
             qwest.get(config.urlLoadColors, {}, {
-                attempts: 3,
+                timeout: 30000,
                 headers: {
                     "C-Token": sessionStorage.ctoken
                 }
             })
                 .then(function (xhr, response) {
-                    self.observable.trigger(LOADING_DONE)
                     let rows = JSON.parse(xhr.responseText).rows
                     for (var idx in rows) {
                         let key = rows[idx].key
@@ -388,6 +387,7 @@
                     self.uuid = ""
                     self.appServerColor = ""
                     self.dbServerColor = ""
+                    self.observable.trigger(LOADING_DONE)
                     self.update()
                 })
                 .catch(function (error, xhr, response) {
