@@ -38,4 +38,4 @@
 -kernel inet_dist_listen_max 9200
 -pa /root/.acme.sh/bornemisza.de
 -proto_dist inet_tls
--ssl_dist_opt server_certfile /root/.acme.sh/{{ pillar['ssldomain'] }}/{{ pillar['ssldomain'] }}.cer server_keyfile /root/.acme.sh/{{ pillar['ssldomain'] }}/{{ pillar['ssldomain'] }}.key
+-ssl_dist_opt server_certfile /home/couchdb/{{ pillar['ssldomain'] }}.cer server_keyfile /home/couchdb/{{ pillar['ssldomain'] }}.key
