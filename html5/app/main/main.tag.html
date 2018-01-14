@@ -352,6 +352,7 @@
             self.observable.trigger(LOADING_IN_PROGRESS)
             qwest.get(config.urlLoadColors, {}, {
                 timeout: 30000,
+                attempts: 3,
                 headers: {
                     "C-Token": sessionStorage.ctoken
                 }
