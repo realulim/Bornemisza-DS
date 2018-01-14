@@ -92,6 +92,18 @@ configure-couchdb:
   file.managed:
     - source: salt://files/couchdb/couchdb.logrotate.conf
 
+install-ssl-cert:
+  cmd.run:
+    - name: cp /root/.acme.sh/{{ pillar['ssldomain']/{{ pillar['ssldomain'].cer /home/couchdb/
+
+install-ssl-key:
+  cmd.run:
+    - name: cp /root/.acme.sh/{{ pillar['ssldomain']/{{ pillar['ssldomain'].key /home/couchdb/
+
+permissions-ssl:
+  cmd.run:
+    - name chown couchdb:couchdb /home/couchdb/*
+
 create-couchdb-log-symlink:
   file.symlink:
     - name: /opt/logs/couchdb.log
