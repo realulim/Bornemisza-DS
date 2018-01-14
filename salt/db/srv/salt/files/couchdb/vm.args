@@ -36,6 +36,6 @@
 
 -kernel inet_dist_listen_min 9100
 -kernel inet_dist_listen_max 9200
-#-pa /root/.acme.sh/bornemisza.de
-#-proto_dist inet_tls
-#-ssl_dist_opt server_certfile /etc/pki/tls/private/{{ pillar['ssldomain'] }}.pem
+-pa /root/.acme.sh/bornemisza.de
+-proto_dist inet_tls
+-ssl_dist_opt server_certfile /etc/pki/tls/private/{{ pillar['ssldomain'] }}.pem
