@@ -75,6 +75,14 @@ configure-couchdb:
     - mode: 644
     - template: jinja
 
+install-ssl-cert:
+  cmd.run:
+    - name: cp /etc/pki/tls/private/{{ pillar['ssldomain']}}.pem /home/couchdb/
+
+permissions-ssl:
+  cmd.run:
+    - name: chown couchdb:couchdb /home/couchdb/*
+
 /opt/couchdb/etc/vm.args:
   file.managed:
     - source: salt://files/couchdb/vm.args
@@ -91,14 +99,6 @@ configure-couchdb:
 /etc/logrotate.d/couchdb:
   file.managed:
     - source: salt://files/couchdb/couchdb.logrotate.conf
-
-install-ssl-cert:
-  cmd.run:
-    - name: cp /etc/pki/tls/private/{{ pillar['ssldomain']}}/{{ pillar['ssldomain']}}.pem /home/couchdb/
-
-permissions-ssl:
-  cmd.run:
-    - name: chown couchdb:couchdb /home/couchdb/*
 
 create-couchdb-log-symlink:
   file.symlink:
