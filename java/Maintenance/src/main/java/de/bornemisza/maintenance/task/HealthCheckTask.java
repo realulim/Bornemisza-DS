@@ -100,9 +100,6 @@ public class HealthCheckTask {
                     ClusterEvent clusterEvent = new ClusterEvent(candidate, ClusterEventType.CANDIDATE_HEALTHY);
                     this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
-                else {
-                    Logger.getAnonymousLogger().info("Candidate " + candidate + " unhealthy.");
-                }
             }
             catch (Exception e) {
                 Logger.getAnonymousLogger().severe("Could not check candidates: " + e.toString());
