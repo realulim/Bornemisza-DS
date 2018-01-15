@@ -66,7 +66,7 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 
 ## Requirements
 - Cloud Provider must support CentOS (most do)
-- eth0 should have a public IP and eth1 a private IP (e. g. Vultr, UpCloud, but not Linode, Scaleway)
+- public IP and private IP on seperate network devices (e. g. Vultr, UpCloud, but not Linode, Scaleway, VirMach)
 - one floating IP (e. g. Vultr, Linode) as a fixed entrypoint
 - DNS Provider supported by acme.sh (e. g. free Cloudflare account)
 - a domain as an anchor for the SSL certificates
