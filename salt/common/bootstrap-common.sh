@@ -16,15 +16,18 @@ fi
 
 # determine my hostname, domain and public ip
 if ! grep -q hostname: $PillarLocal/basics.sls ; then
-	VARNAME=$1_publicIpInterface
+	VARNAME1=$1_publicIpInterface
+	VARNAME2=$1_privateIpInterface
 	HOSTNAME=$(hostname)
 	printf "hostname: %s\n" "$HOSTNAME" | tee -a $PillarLocal/basics.sls
-	IP=$(ip addr show "${!VARNAME}"|grep "inet "|cut -d"/" -f1|cut -d" " -f6)
+	IP=$(ip addr show "${!VARNAME1}"|grep "inet "|cut -d"/" -f1|cut -d" " -f6)
 	printf "ip: %s\n" "$IP" | tee -a $PillarLocal/basics.sls
 	SSLDOMAIN=$(printf "%s" "$domain")
 	printf "ssldomain: %s\n" "$SSLDOMAIN" | tee -a $PillarLocal/basics.sls
 	printf "cfns: %s\n" "$cfns" | tee -a $PillarLocal/basics.sls
 	printf "cfns2: %s\n" "$cfns2" | tee -a $PillarLocal/basics.sls
+	printf "public-if: %s\n" "${!VARNAME1}" | tee -a $PillarLocal/basics.sls
+	printf "private-if: %s\n" "${!VARNAME2}" | tee -a $PillarLocal/basics.sls
 fi
 
 # determine my private IP

@@ -16,7 +16,7 @@ couchdb:
     - group: root
     - mode: 644
 
-install_couchdb_pkgs:
+install-couchdb-pkgs:
   pkg.installed:
     - pkgs:
       - epel-release
@@ -26,7 +26,7 @@ set-permissions-couchdb:
   cmd.run:
     - name: find /opt/couchdb -type d -exec chmod 0770 {} \;
     - onchanges:
-      - install_couchdb_pkgs
+      - install-couchdb-pkgs
 
 /var/lib/couchdb:
   file.directory:
@@ -75,13 +75,12 @@ configure-couchdb:
     - mode: 644
     - template: jinja
 
-install-ssl-cert:
-  cmd.run:
-    - name: cp /etc/pki/tls/private/{{ pillar['ssldomain']}}.pem /home/couchdb/
-
-permissions-ssl:
-  cmd.run:
-    - name: chown couchdb:couchdb /home/couchdb/*
+/home/couchdb/{{ pillar['ssldomain']}}.pem:
+  file.copy:
+    - source: /etc/pki/tls/private/{{ pillar['ssldomain']}}.pem
+    - user: couchdb
+    - group: couchdb
+    - mode: 440
 
 /opt/couchdb/etc/vm.args:
   file.managed:
