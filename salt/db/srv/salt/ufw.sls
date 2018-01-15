@@ -7,5 +7,5 @@ firewall_rule_allow_{{ port }}:
 
 firewall_rule_couchdb_on_private_network:
   cmd.run:
-    - name: ufw allow in on eth1
-    - unless: ufw status|grep -E "Anywhere on eth1\s+ALLOW\s+Anywhere"
+    - name: ufw allow in on {{ pillar['private-if'] }}
+    - unless: ufw status|grep -E "Anywhere on {{ pillar['private-if'] }}\s+ALLOW\s+Anywhere"
