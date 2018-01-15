@@ -1,20 +1,18 @@
 #!/bin/bash
 
-# $1 - the ip address of the node to be removed from the cluster
-
-# Example: ./remove_shards.sh 10.4.7.37
+IP={{ pillar['privip'] }}
 
 AUTH=$(cat /srv/pillar/netrc)
 INORIG=/tmp/shardsorig.json
 
-for DB in $(curl -s http://"$1":5984/_all_dbs|jq -re '.[]')
+for DB in $(curl -s -u "$AUTH" http://localhost:5986/_dbs/_all_docs|jq -re '.rows|.[]|.id'|grep -v _)
 do
 
 IN="/tmp/shardsold-$DB.json"
 OUT="/tmp/shardsnew-$DB.json"
 
-BY_NODE="del(.by_node|.\"couchdb@$1\")"
-BY_RANGE="del(.by_range|.[]|.[]|select(.|contains(\"@$1\")))"
+BY_NODE="del(.by_node|.\"couchdb@$IP\")"
+BY_RANGE="del(.by_range|.[]|.[]|select(.|contains(\"@$IP\")))"
 
 # retrieve shards document
 curl -s -u "$AUTH" http://localhost:5986/_dbs/"$DB" > $INORIG
@@ -34,7 +32,7 @@ echo $CHANGELOG >> $OUT
 
      for SHARD in $SHARDS
      do
-          echo ",[ \"remove\", $SHARD, \"couchdb@$1\" ]" >> $OUT
+          echo ",[ \"remove\", $SHARD, \"couchdb@$IP\" ]" >> $OUT
      done
 echo "]", >> $OUT
 

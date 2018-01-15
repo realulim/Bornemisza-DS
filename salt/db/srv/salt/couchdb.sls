@@ -158,6 +158,7 @@ create-database-{{ db }}:
     - user: root
     - group: root
     - mode: 744
+    - template: jinja
 
 /opt/scripts/shards_remove.sh:
   file.managed:
@@ -165,6 +166,7 @@ create-database-{{ db }}:
     - user: root
     - group: root
     - mode: 744
+    - template: jinja
 
 /opt/scripts/node_remove.sh:
   file.managed:

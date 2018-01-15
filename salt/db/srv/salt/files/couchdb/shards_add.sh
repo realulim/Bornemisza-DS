@@ -1,12 +1,10 @@
 #!/bin/bash
 
-# $1 - the ip address of the node wanting to add the shards of the cluster
-
-# Example: ./add_shards.sh 10.4.7.37
+IP={{ pillar['privip'] }}
 
 AUTH=$(cat /srv/pillar/netrc)
 
-for DB in $(curl -s http://"$1":5984/_all_dbs|jq -re '.[]')
+for DB in $(curl -s -u "$AUTH" http://localhost:5986/_dbs/_all_docs|jq -re '.rows|.[]|.id'|grep -v _)
 do
 
 IN="/tmp/shardsold-$DB.json"
@@ -15,7 +13,7 @@ OUT="/tmp/shardsnew-$DB.json"
 # retrieve current shards file
 /usr/bin/curl -s -u "$AUTH" http://localhost:5986/_dbs/"$DB" | jq . > $IN
 
-if ! grep -q $1 $IN ; then
+if ! grep -q $IP $IN ; then
 
      # create new shards file only if this IP isn't already in there
      SHARDS=$(jq -e '.by_node' "$IN" | tail -n +3 | sed '/],/,$d')
@@ -30,12 +28,12 @@ if ! grep -q $1 $IN ; then
 
      echo "\"changelog\": [" >> $OUT
      echo $CHANGELOG , >> $OUT
-     echo $CHANGELOG | sed "s/@[^\"]*\"/@$1\"/g" >> $OUT
+     echo $CHANGELOG | sed "s/@[^\"]*\"/@$IP\"/g" >> $OUT
      echo ], >> $OUT
 
-     echo "\"by_node\":" $(jq -e '.by_node' $IN | sed "/]$/a , \"couchdb@$1\": [" | head -n -1) $SHARDS , >> $OUT
+     echo "\"by_node\":" $(jq -e '.by_node' $IN | sed "/]$/a , \"couchdb@$IP\": [" | head -n -1) $SHARDS , >> $OUT
 
-     echo "\"by_range\":" $(jq -e '.by_range' $IN | sed "/\[/a \    \"couchdb@$1\",") >> $OUT
+     echo "\"by_range\":" $(jq -e '.by_range' $IN | sed "/\[/a \    \"couchdb@$IP\",") >> $OUT
 
      echo } >> $OUT
 
