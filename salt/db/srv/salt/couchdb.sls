@@ -78,10 +78,17 @@ configure-couchdb:
 install-ssl-cert:
   cmd.run:
     - name: cp /etc/pki/tls/private/{{ pillar['ssldomain']}}.pem /home/couchdb/
+    - unless: ls /home/couchdb/{{ pillar['ssldomain']}}.pem
 
 permissions-ssl:
   cmd.run:
     - name: chown couchdb:couchdb /home/couchdb/*
+
+/home/couchdb/{{ pillar['ssldomain']}}.pem:
+  file.exists:
+    - user: couchdb
+    - group: couchdb
+    - mode: 440
 
 /opt/couchdb/etc/vm.args:
   file.managed:
