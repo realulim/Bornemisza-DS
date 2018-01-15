@@ -253,13 +253,13 @@ check host localhost with address 127.0.0.1
 ## and bandwidth usage.
 #
 
-check network public with interface {{ pillar['public_if'] }}
+check network public with interface {{ pillar['public-if'] }}
     if failed link
         then exec "/bin/bash -c 'ip link set dummy1 down'"
     else if succeeded
         then exec "/bin/bash -c 'ip link set dummy1 up'"
 
-check network private with interface {{ pillar['private_if'] }}
+check network private with interface {{ pillar['private-if'] }}
     if failed link
         then exec "/bin/bash -c 'ip link set dummy1 down'"
     else if succeeded
