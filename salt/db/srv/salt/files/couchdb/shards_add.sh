@@ -20,7 +20,7 @@ if ! grep -q $IP $IN ; then
 
      SHARDCOUNT=$(echo "$SHARDS" | wc -l)
      CHANGELOGOLD=$(jq -e '.changelog' $IN | head -n -1 | tail -n +2)
-     CHANGELOGNEW=$(jq -e '.changelog|.[:"$SHARDCOUNT"]' $IN | head -n -1 | tail -n +2)
+     CHANGELOGNEW=$(jq -e '.changelog|.[:'$SHARDCOUNT']' $IN | head -n -1 | tail -n +2)
 
      echo { > $OUT
 
@@ -33,7 +33,7 @@ if ! grep -q $IP $IN ; then
      echo $CHANGELOGNEW | sed "s/@[^\"]*\"/@$IP\"/g" >> $OUT
      echo ], >> $OUT
 
-     echo "\"by_node\":" $(jq -e '.by_node' $IN | sed "/]$/a , \"couchdb@$IP\": [" | head -n -1) $SHARDS , >> $OUT
+     echo "\"by_node\":" $(jq -e '.by_node' $IN | sed "/]$/a , \"couchdb@$IP\": [" | head -n -1) $SHARDS ]}, >> $OUT
 
      echo "\"by_range\":" $(jq -e '.by_range' $IN | sed "/\[/a \    \"couchdb@$IP\",") >> $OUT
 
