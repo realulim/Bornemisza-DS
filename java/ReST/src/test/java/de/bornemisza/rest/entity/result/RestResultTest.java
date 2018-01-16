@@ -87,13 +87,14 @@ public class RestResultTest {
     }
 
     @Test
-    public void setNewCookie() {
+    public void setNewCookie_unmodifiableCollection() {
+        Map<String, List<String>> randomHeaders = new HashMap<>();
+        randomHeaders.put(HttpHeaders.SET_COOKIE, Arrays.asList(new String[] { "first", "second", "third" }));
         RestResult CUT = new RestResult();
-        CUT.addHeader(HttpHeaders.SET_COOKIE, "first", "second", "third");
-        Map<String, List<String>> randomHeaders = CUT.getHeaders();
-        CUT = new RestResult();
         CUT.setNewCookie(randomHeaders);
         assertEquals("first", CUT.getNewCookie());
+        CUT.getHeaders().get(HttpHeaders.SET_COOKIE).add("fourth");
+        assertEquals(4, CUT.getHeaders().get(HttpHeaders.SET_COOKIE).size());
     }
 
     @Test
