@@ -18,7 +18,9 @@ if ! grep -q $IP $IN ; then
      # create new shards file only if this IP isn't already in there
      SHARDS=$(jq -e '.by_node' "$IN" | tail -n +3 | sed '/],/,$d')
 
-     CHANGELOG=$(jq -e '.changelog' $IN | head -n -1 | tail -n +2)
+     SHARDCOUNT=$(echo "$SHARDS" | wc -l)
+     CHANGELOGOLD=$(jq -e '.changelog' $IN | head -n -1 | tail -n +2)
+     CHANGELOGNEW=$(jq -e '.changelog|.[:"$SHARDCOUNT"]' $IN | head -n -1 | tail -n +2)
 
      echo { > $OUT
 
@@ -27,8 +29,8 @@ if ! grep -q $IP $IN ; then
      echo "\"shard_suffix\":" $(jq -e '.shard_suffix' $IN), >> $OUT
 
      echo "\"changelog\": [" >> $OUT
-     echo $CHANGELOG , >> $OUT
-     echo $CHANGELOG | sed "s/@[^\"]*\"/@$IP\"/g" >> $OUT
+     echo $CHANGELOGOLD , >> $OUT
+     echo $CHANGELOGNEW | sed "s/@[^\"]*\"/@$IP\"/g" >> $OUT
      echo ], >> $OUT
 
      echo "\"by_node\":" $(jq -e '.by_node' $IN | sed "/]$/a , \"couchdb@$IP\": [" | head -n -1) $SHARDS , >> $OUT
