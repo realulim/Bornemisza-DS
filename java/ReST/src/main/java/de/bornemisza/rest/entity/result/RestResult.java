@@ -48,9 +48,11 @@ public class RestResult implements Serializable {
     public void setNewCookie(Map<String, List<String>> randomHeaders) {
         if (randomHeaders != null && !randomHeaders.isEmpty()) {
             List<String> cookies = randomHeaders.get(HttpHeaders.SET_COOKIE);
-            ArrayList<String> cookieValues = new ArrayList<>();
-            cookieValues.addAll(cookies);
-            if (cookies != null) this.headers.put(HttpHeaders.SET_COOKIE, cookieValues);
+            if (cookies != null) {
+                ArrayList<String> cookieValues = new ArrayList<>();
+                cookieValues.addAll(cookies);
+                this.headers.put(HttpHeaders.SET_COOKIE, cookieValues);
+            }
         }
     }
 
