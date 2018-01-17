@@ -287,7 +287,6 @@
             }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-console.log("Error-Event: " + event.data)
                     if (event.data.error === 401) self.expireSession()
                     else {
                         console.log("Error: " + event.data.error)
@@ -295,21 +294,12 @@ console.log("Error-Event: " + event.data)
                     }
                 }
                 else {
-console.log("Results-Event: " + event.data)
                     gatherResults(event, self.batchSize)
+                    if (self.measurementsTaken % 100 == 0) gatherStatistics(startTime, batchTotal)
                 }
-console.log("Count: " + (self.uuidCount - uuidStart) + " of " + batchTotal)
                 if ((self.uuidCount - uuidStart) >= batchTotal) {
-                    self.duration = (Date.now() - startTime)
-                    self.requests = Math.round(self.batchCount / (self.duration / 1000))
-                    self.uuids = Math.round(batchTotal / (self.duration / 1000))
-                    self.avgDuration = Math.round(((self.avgDuration * self.measurementsTaken) + self.duration) / (self.measurementsTaken + 1))
-                    self.avgRequests = Math.round(((self.avgRequests * self.measurementsTaken) + self.requests) / (self.measurementsTaken + 1))
-                    self.avgUuids = Math.round(((self.avgUuids * self.measurementsTaken) + self.uuids) / (self.measurementsTaken + 1))
-                    self.measurementsTaken++
-                    self.measurementAvailable = true
-                    // Only update the screen after the batch is complete
-                    self.update()
+                    // we are done
+                    gatherStatistics(startTime, batchTotal)
                     self.worker.terminate()
                     self.worker = null
                 }
@@ -331,6 +321,18 @@ console.log("Count: " + (self.uuidCount - uuidStart) + " of " + batchTotal)
                 self.chartCounter = 0
                 redrawCharts()
             }
+        }
+
+        function gatherStatistics(startTime, batchTotal) {
+            self.duration = (Date.now() - startTime)
+            self.requests = Math.round(self.batchCount / (self.duration / 1000))
+            self.uuids = Math.round(batchTotal / (self.duration / 1000))
+            self.avgDuration = Math.round(((self.avgDuration * self.measurementsTaken) + self.duration) / (self.measurementsTaken + 1))
+            self.avgRequests = Math.round(((self.avgRequests * self.measurementsTaken) + self.requests) / (self.measurementsTaken + 1))
+            self.avgUuids = Math.round(((self.avgUuids * self.measurementsTaken) + self.uuids) / (self.measurementsTaken + 1))
+            self.measurementsTaken++
+            self.measurementAvailable = true
+            self.update()
         }
 
         function redrawCharts() {
