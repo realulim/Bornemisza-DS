@@ -297,14 +297,23 @@
                     gatherResults(event, self.batchSize)
                 }
                 if ((self.uuidCount - uuidStart) >= batchTotal) {
+console.log("Count: " + self.uuidCount + " " + uuidStart + " " + batchTotal)
                     self.duration = (Date.now() - startTime)
+console.log("1")
                     self.requests = Math.round(self.batchCount / (self.duration / 1000))
+console.log("2")
                     self.uuids = Math.round(batchTotal / (self.duration / 1000))
+console.log("3")
                     self.avgDuration = Math.round(((self.avgDuration * self.measurementsTaken) + self.duration) / (self.measurementsTaken + 1))
+console.log("4")
                     self.avgRequests = Math.round(((self.avgRequests * self.measurementsTaken) + self.requests) / (self.measurementsTaken + 1))
+console.log("5")
                     self.avgUuids = Math.round(((self.avgUuids * self.measurementsTaken) + self.uuids) / (self.measurementsTaken + 1))
+console.log("6")
                     self.measurementsTaken++
+console.log("7")
                     self.measurementAvailable = true
+console.log("Measurement available")
                     // Only update the screen after the batch is complete
                     self.update()
                     self.worker.terminate()
