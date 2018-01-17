@@ -295,10 +295,11 @@ console.log("Error-Event: " + event)
                     }
                 }
                 else {
+console.log("Results-Event: " + event)
                     gatherResults(event, self.batchSize)
                 }
-console.log("Count: " + self.uuidCount + " " + uuidStart + " " + batchTotal)
                 if ((self.uuidCount - uuidStart) >= batchTotal) {
+console.log("Count: " + self.uuidCount + " " + uuidStart + " " + batchTotal)
                     self.duration = (Date.now() - startTime)
 console.log("1")
                     self.requests = Math.round(self.batchCount / (self.duration / 1000))
