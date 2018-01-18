@@ -39,7 +39,7 @@ public class UuidsServiceTest {
     private CouchPool pool;
     private Http http;
     private HttpConnection conn;
-    private Get get;
+    private Get getWithDefaultTimeouts, getWithCustomTimeouts;
     private Post post;
     private final Map<String, List<String>> headers = new HashMap<>();
     private Auth auth;
@@ -55,10 +55,15 @@ public class UuidsServiceTest {
         when(conn.getHttp()).thenReturn(http);
         when(pool.getConnection()).thenReturn(conn);
         
-        get = mock(Get.class);
-        when(get.header(anyString(), any())).thenReturn(get);
-        when(get.headers()).thenReturn(headers);
-        when(http.get(anyString())).thenReturn(get);
+        getWithDefaultTimeouts = mock(Get.class);
+        when(getWithDefaultTimeouts.header(anyString(), any())).thenReturn(getWithDefaultTimeouts);
+        when(getWithDefaultTimeouts.headers()).thenReturn(headers);
+        when(http.get(anyString())).thenReturn(getWithDefaultTimeouts);
+
+        getWithCustomTimeouts = mock(Get.class);
+        when(getWithCustomTimeouts.header(anyString(), any())).thenReturn(getWithCustomTimeouts);
+        when(getWithCustomTimeouts.headers()).thenReturn(headers);
+        when(http.get(anyString(), anyInt(), anyInt())).thenReturn(getWithCustomTimeouts);
 
         post = mock(Post.class);
         when(post.header(anyString(), anyString())).thenReturn(post);
@@ -78,8 +83,8 @@ public class UuidsServiceTest {
     public void getUuids_failed() {
         int errorCode = 509;
         String msg = "Bandwidth Limit Exceeded";
-        when(get.responseCode()).thenReturn(errorCode);
-        when(get.responseMessage()).thenReturn(msg);
+        when(getWithDefaultTimeouts.responseCode()).thenReturn(errorCode);
+        when(getWithDefaultTimeouts.responseMessage()).thenReturn(msg);
         try {
             CUT.getUuids(3);
             fail();
@@ -95,7 +100,7 @@ public class UuidsServiceTest {
         String msg = "Connection refused";
         ConnectException cause = new ConnectException(msg);
         HttpException wrapperException = new HttpException(msg, cause);
-        when(get.responseCode()).thenThrow(wrapperException);
+        when(getWithDefaultTimeouts.responseCode()).thenThrow(wrapperException);
         try {
             CUT.getUuids(3);
             fail();
@@ -108,9 +113,9 @@ public class UuidsServiceTest {
     @Test
     public void getUuids_noHeaders() {
         int count = 3;
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(getUuidResultAsJson(count));
-        when(get.headers()).thenReturn(new HashMap<>());
+        when(getWithDefaultTimeouts.responseCode()).thenReturn(200);
+        when(getWithDefaultTimeouts.text()).thenReturn(getUuidResultAsJson(count));
+        when(getWithDefaultTimeouts.headers()).thenReturn(new HashMap<>());
 
         UuidsResult result = CUT.getUuids(3);
         assertEquals(count, result.getUuids().size());
@@ -120,11 +125,11 @@ public class UuidsServiceTest {
     @Test
     public void getUuids() {
         String backendIp = "1.2.3.4";
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(getUuidResultAsJson(0)).thenReturn(getUuidResultAsJson(1)).thenReturn(getUuidResultAsJson(2)).thenReturn(getUuidResultAsJson(3));
+        when(getWithDefaultTimeouts.responseCode()).thenReturn(200);
+        when(getWithDefaultTimeouts.text()).thenReturn(getUuidResultAsJson(0)).thenReturn(getUuidResultAsJson(1)).thenReturn(getUuidResultAsJson(2)).thenReturn(getUuidResultAsJson(3));
         Map<String, List<String>> backendHeaders = new HashMap<>();
         backendHeaders.put(HttpHeaders.BACKEND, Arrays.asList(new String[] { backendIp }));
-        when(get.headers()).thenReturn(backendHeaders);
+        when(getWithDefaultTimeouts.headers()).thenReturn(backendHeaders);
 
         for (int i = 0; i < 4; i++) {
             UuidsResult result = CUT.getUuids(i);
@@ -194,8 +199,8 @@ public class UuidsServiceTest {
     public void loadColors_unauthorized() {
         int errorCode = 401;
         String msg = "Unauthorized";
-        when(get.responseCode()).thenReturn(errorCode);
-        when(get.responseMessage()).thenReturn(msg);
+        when(getWithCustomTimeouts.responseCode()).thenReturn(errorCode);
+        when(getWithCustomTimeouts.responseMessage()).thenReturn(msg);
         try {
             CUT.loadColors(auth, "userDatabase");
             fail();
@@ -210,7 +215,7 @@ public class UuidsServiceTest {
         String msg = "Connection refused";
         ConnectException cause = new ConnectException(msg);
         HttpException wrapperException = new HttpException(msg, cause);
-        when(get.responseCode()).thenThrow(wrapperException);
+        when(getWithCustomTimeouts.responseCode()).thenThrow(wrapperException);
         try {
             CUT.loadColors(auth, "userDatabase");
             fail();
@@ -224,8 +229,8 @@ public class UuidsServiceTest {
     public void loadColors_businessError() {
         int statusCode = 509;
         String msg = "Bandwidth Limit Exceeded";
-        when(get.responseCode()).thenReturn(statusCode);
-        when(get.responseMessage()).thenReturn(msg);
+        when(getWithCustomTimeouts.responseCode()).thenReturn(statusCode);
+        when(getWithCustomTimeouts.responseMessage()).thenReturn(msg);
         try {
             CUT.loadColors(auth, "userDatabase");
             fail();
@@ -240,8 +245,8 @@ public class UuidsServiceTest {
     public void loadColors() {
         String cookie = "Cookie";
         int crimsonCount = 2846;
-        when(get.responseCode()).thenReturn(200);
-        when(get.text()).thenReturn(getColorsResultAsJson(crimsonCount));
+        when(getWithCustomTimeouts.responseCode()).thenReturn(200);
+        when(getWithCustomTimeouts.text()).thenReturn(getColorsResultAsJson(crimsonCount));
         headers.put(HttpHeaders.SET_COOKIE, Arrays.asList(new String[] { cookie }));
         KeyValueViewResult result = CUT.loadColors(auth, "userDatabase");
         assertEquals(headers, result.getHeaders());
