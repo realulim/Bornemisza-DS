@@ -182,7 +182,7 @@ create-or-update-design-doc-User:
 
 install-shards:
   cmd.run:
-    - name: /opt/scripts/shards_add.sh {{ pillar['privip'] }}
+    - name: /opt/scripts/shards_add.sh
     - unless: ls /var/lib/couchdb/shards
     - onlyif:
       - curl -s {{ AUTH }} {{ URL }}/_membership | jq "." | grep "{{ pillar['privip'] }}" | wc -l | grep 2
