@@ -89,7 +89,7 @@ public class UuidsService {
     }
 
     public KeyValueViewResult loadColors(Auth auth, String userDatabase) throws BusinessException, TechnicalException {
-        Get get = couchPool.getConnection().getHttp().get(userDatabase + "/_design/Uuid/_view/uuid_sum_by_color?group=true")
+        Get get = couchPool.getConnection().getHttp().get(userDatabase + "/_design/Uuid/_view/uuid_sum_by_color?group=true", 5000, 30000)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                     .header(HttpHeaders.COOKIE, auth.getCookie());
         try {

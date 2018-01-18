@@ -368,7 +368,7 @@
         function getStoredRequests() {
             self.observable.trigger(LOADING_IN_PROGRESS)
             qwest.get(config.urlLoadColors, {}, {
-                timeout: 30000,
+                timeout: 35000,
                 headers: {
                     "C-Token": sessionStorage.ctoken
                 }
