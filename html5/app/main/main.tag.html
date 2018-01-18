@@ -282,9 +282,6 @@
             var batchTotal = self.batchSize * self.batchCount
             var startTime = Date.now()
             self.worker = new Worker("/js/getUuidWorker.js")
-            for (var i = 0; i < self.batchCount; i++) {
-                self.worker.postMessage([sessionStorage.ctoken, self.batchSize])
-            }
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
                     if (event.data.error === 401) self.expireSession()
@@ -295,7 +292,6 @@
                 }
                 else {
                     gatherResults(event, self.batchSize)
-                    if (self.measurementsTaken % 100 == 0) gatherStatistics(startTime, batchTotal)
                 }
                 if ((self.uuidCount - uuidStart) >= batchTotal) {
                     // we are done
@@ -303,6 +299,9 @@
                     self.worker.terminate()
                     self.worker = null
                 }
+            }
+            for (var i = 0; i < self.batchCount; i++) {
+                self.worker.postMessage([sessionStorage.ctoken, self.batchSize])
             }
         }
 
