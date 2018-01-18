@@ -179,3 +179,10 @@ create-or-update-design-doc-User:
     - name: /opt/scripts/ddoc.sh {{ URL }} | grep -v error
     - unless: curl -s {{ AUTH }} {{ URL }}/_users | grep "Database does not exist"
     - onlyif: curl -s {{ AUTH }} {{ URL }}/_users/_design/User|jq -re '._rev'|grep null
+
+install-shards:
+  cmd.run:
+    - name: /opt/scripts/shards_add.sh {{ pillar['privip'] }}
+    - unless: ls /var/lib/couchdb/shards
+    - onlyif:
+      - curl -s {{ AUTH }} {{ URL }}/_membership | jq "." | grep "{{ pillar['privip'] }}" | wc -l | grep 2
