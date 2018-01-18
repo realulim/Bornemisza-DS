@@ -30,7 +30,7 @@ echo "\"shard_suffix\":" $(jq -e '.shard_suffix' $IN), >> $OUT
 echo "\"changelog\": [" >> $OUT
 echo $CHANGELOG >> $OUT
 
-     for SHARD in $SHARDS
+for SHARD in $SHARDS
      do
           echo ",[ \"remove\", $SHARD, \"couchdb@$IP\" ]" >> $OUT
      done
