@@ -116,6 +116,7 @@
         this.avgRequests = 0
         this.avgUuids = 0
         this.measurementAvailable = false
+        this.errorCount = 0
 
         // manage charts
         this.chartCounter = 0
@@ -198,12 +199,15 @@
             this.update()
         }
 
-        this.expireSession = () => {
-            self.singleMode = false
-            self.loopMode = false
-            self.batchMode = false
-            self.storedMode = false
-            self.observable.trigger(LOGOUT_FORCED)
+        this.checkForSessionExpiry = () => {
+            if (self.errorCount > 10) {
+                self.singleMode = false
+                self.loopMode = false
+                self.batchMode = false
+                self.storedMode = false
+                self.observable.trigger(LOGOUT_FORCED)
+            }
+            else self.errorCount++
         }
 
         this.getUuid = (event) => {
@@ -243,7 +247,7 @@
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
-                    if (event.data.error === 401) self.expireSession()
+                    if (event.data.error === 401) self.checkForSessionExpiry()
                     else self.observable.trigger(LOADING_ERROR, { error: event.data.error })
                 }
                 else {
@@ -259,7 +263,7 @@
             self.worker.postMessage([sessionStorage.ctoken, 1])
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-                    if (event.data.error === 401) self.expireSession()
+                    if (event.data.error === 401) self.checkForSessionExpiry()
                     else console.log("Error: " + event.data.error)
                 }
                 else {
@@ -284,7 +288,7 @@
             self.worker = new Worker("/js/getUuidWorker.js")
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-                    if (event.data.error === 401) self.expireSession()
+                    if (event.data.error === 401) self.checkForSessionExpiry()
                     else {
                         console.log("Error: " + event.data.error)
                         batchTotal -= self.batchSize
@@ -306,6 +310,7 @@
         }
 
         function gatherResults(event, batchSize) {
+            if (self.errorCount > 0) self.errorCount = 0
             self.uuid = event.data.uuid
             var appColor = event.data.appServerColor || "Black"
             self.appServerColor = appColor
@@ -396,7 +401,7 @@
                 })
                 .catch(function (error, xhr, response) {
                     self.observable.trigger(LOADING_DONE)
-                    if (event.data.error === 401) self.expireSession()
+                    if (event.data.error === 401) self.checkForSessionExpiry()
                     else self.observable.trigger(LOADING_ERROR, { error: xhr.response })
                 })
         }
