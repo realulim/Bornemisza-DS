@@ -199,7 +199,7 @@
         }
 
         this.checkForSessionExpiry = () => {
-            if (! document.cookie) {
+            if (document.cookie.length < 1) {
                 self.singleMode = false
                 self.loopMode = false
                 self.batchMode = false
