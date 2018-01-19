@@ -94,13 +94,15 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
                     Logger.getAnonymousLogger().info("Host " + hostname + " removed from pool.");
                     break;
                 case HOST_HEALTHY:
-                    resetUtilisation(); // start everyone on equal terms
-                    this.dbServerUtilisation.put(hostname, 0);
-                    Logger.getAnonymousLogger().info("Put host " + hostname + " back into rotation.");
+                    if (! this.dbServerUtilisation.containsKey(hostname)) {
+                        resetUtilisation(); // start everyone on equal terms
+                        this.dbServerUtilisation.put(hostname, 0);
+                        Logger.getAnonymousLogger().info("Put host " + hostname + " back into rotation.");
+                    }
                     break;
                 case HOST_UNHEALTHY:
-                    this.dbServerUtilisation.remove(hostname);
-                    Logger.getAnonymousLogger().info("Host " + hostname + " taken out of rotation.");
+                    Integer count = this.dbServerUtilisation.remove(hostname);
+                    if (count != null) Logger.getAnonymousLogger().info("Host " + hostname + " taken out of rotation.");
                     break;
                 default:
                     Logger.getAnonymousLogger().info("Unknown ClusterEvent: " + hostname + "/" + clusterEvent.getType().name());

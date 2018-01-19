@@ -198,7 +198,7 @@ public class PoolTest {
     }
 
     @Test
-    public void hostHealthyAgain() {
+    public void hostUnhealthyThenHealthyAgain() {
         when(hazelcast.getMap(anyString())).thenReturn(utilisationMap);
         for (String hostname : allTestConnections.keySet()) {
             utilisationMap.put(hostname, wheel.nextInt(100) + 1);
@@ -206,13 +206,19 @@ public class PoolTest {
         Pool CUT = new PoolImpl(hazelcast);
         assertEquals(allTestConnections.size(), CUT.getDbServerUtilisation().size());
 
-        String healthyHost = allTestConnections.keySet().iterator().next();
-        ClusterEvent clusterEvent = new ClusterEvent(healthyHost, ClusterEventType.HOST_HEALTHY);
+        String hostname = allTestConnections.keySet().iterator().next();
+        ClusterEvent unhealthyEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
+        ClusterEvent healthyEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
         Message msg = mock(Message.class);
-        when(msg.getMessageObject()).thenReturn(clusterEvent);
+        when(msg.getMessageObject()).thenReturn(unhealthyEvent).thenReturn(healthyEvent);
         CUT.onMessage(msg);
 
         Map<String, Integer> utilisationMapLocal = CUT.getDbServerUtilisation();
+        assertFalse(utilisationMapLocal.containsKey(hostname));
+
+        CUT.onMessage(msg);
+
+        utilisationMapLocal = CUT.getDbServerUtilisation();
         for (int count : utilisationMapLocal.values()) {
             assertEquals(0, count);
         }

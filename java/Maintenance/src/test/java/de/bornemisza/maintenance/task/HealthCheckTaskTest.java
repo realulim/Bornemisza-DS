@@ -30,6 +30,7 @@ public class HealthCheckTaskTest {
     private ArgumentCaptor<ClusterEvent> captor;
     private HealthChecks healthChecks;
     private HazelcastInstance hazelcast;
+    private CouchUsersPool httpPool;
     private HealthCheckTask CUT;
     
     public HealthCheckTaskTest() {
@@ -45,7 +46,7 @@ public class HealthCheckTaskTest {
         hostname = "db-1.domain.de";
         connections.put(hostname, mock(HttpConnection.class));
 
-        CouchUsersPool httpPool = mock(CouchUsersPool.class);
+        httpPool = mock(CouchUsersPool.class);
         when(httpPool.getAllConnections()).thenReturn(connections);
         healthChecks = mock(HealthChecks.class);
 
@@ -64,20 +65,24 @@ public class HealthCheckTaskTest {
 
         CUT.healthChecks();
 
-        verify(clusterMaintenanceTopic, times(0)).publish(any());
-        CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(1)).publish(captor.capture());
         CUT.healthChecks();
-        verify(clusterMaintenanceTopic, times(1)).publish(any());
-        CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(2)).publish(captor.capture());
+        CUT.healthChecks();
+        verify(clusterMaintenanceTopic, times(3)).publish(captor.capture());
+        CUT.healthChecks();
+        verify(clusterMaintenanceTopic, times(4)).publish(captor.capture());
 
         List<ClusterEvent> clusterEvents = captor.getAllValues();
-        assertEquals(3, clusterEvents.size());
+        assertEquals(10, clusterEvents.size());
         assertEquals(hostname, clusterEvents.get(0).getHostname());
-        assertEquals(ClusterEventType.HOST_UNHEALTHY, clusterEvents.get(0).getType());
+        assertEquals(ClusterEventType.HOST_HEALTHY, clusterEvents.get(0).getType());
         assertEquals(hostname, clusterEvents.get(2).getHostname());
-        assertEquals(ClusterEventType.HOST_HEALTHY, clusterEvents.get(2).getType());
+        assertEquals(ClusterEventType.HOST_UNHEALTHY, clusterEvents.get(2).getType());
+        assertEquals(hostname, clusterEvents.get(5).getHostname());
+        assertEquals(ClusterEventType.HOST_UNHEALTHY, clusterEvents.get(5).getType());
+        assertEquals(hostname, clusterEvents.get(9).getHostname());
+        assertEquals(ClusterEventType.HOST_HEALTHY, clusterEvents.get(9).getType());
     }
 
     @Test
@@ -106,6 +111,18 @@ public class HealthCheckTaskTest {
         assertEquals(1, clusterEvents.size());
         assertEquals(hostname, clusterEvents.get(0).getHostname());
         assertEquals(ClusterEventType.CANDIDATE_HEALTHY, clusterEvents.get(0).getType());
+    }
+
+    @Test
+    public void healthChecks_technicalErrorWhileCheckingCandidates() {
+        connections.clear();
+        ISet candidates = new PseudoHazelcastSet();
+        candidates.add(hostname);
+        when(hazelcast.getSet(Config.CANDIDATES)).thenReturn(candidates);
+        when(httpPool.createConnection(anyString())).thenThrow(new RuntimeException("Connection refused"));
+
+        CUT.healthChecks();
+        verifyNoMoreInteractions(clusterMaintenanceTopic);
     }
 
 }

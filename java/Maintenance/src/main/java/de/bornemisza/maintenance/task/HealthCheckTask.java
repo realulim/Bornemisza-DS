@@ -71,19 +71,18 @@ public class HealthCheckTask {
                 if (FAILING_HOSTS.contains(hostname)) {
                     FAILING_HOSTS.remove(hostname);
                     Logger.getAnonymousLogger().info("Previously failing host " + hostname + " healthy again.");
-                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
-                    this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
-                // Host still healthy, just keep it in rotation
+                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
+                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
             else {
                 if (! FAILING_HOSTS.contains(hostname)) {
                     FAILING_HOSTS.add(hostname);
                     Logger.getAnonymousLogger().info("Previously healthy host " + hostname + " failing.");
-                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
-                    this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
-                // Host still unhealthy, just keep it out of rotation
+                // always send UNHEALTHY event in case it is missed the first time (e. g. on cluster startup)
+                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
+                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
         checkCandidates();
@@ -101,7 +100,7 @@ public class HealthCheckTask {
                     this.clusterMaintenanceTopic.publish(clusterEvent);
                 }
             }
-            catch (Exception e) {
+            catch (RuntimeException e) {
                 Logger.getAnonymousLogger().severe("Could not check candidates: " + e.toString());
             }
         }
