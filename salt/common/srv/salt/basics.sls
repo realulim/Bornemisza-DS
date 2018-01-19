@@ -29,6 +29,7 @@ install_basics_groups:
 
 ntpd:
   service.running
+    - enabled: True
 
 Europe/Berlin:
   timezone.system
@@ -58,6 +59,7 @@ firewalld:
 
 ufw:
   service.running
+    - enable: True
 
 firewall_rule_remove_ssh:
   cmd.run:
