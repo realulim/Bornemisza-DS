@@ -13,7 +13,7 @@ OUT="/tmp/shardsnew-$DB.json"
 # retrieve current shards file
 /usr/bin/curl -s -u "$AUTH" http://localhost:5986/_dbs/"$DB" | jq . > $IN
 
-if ! grep -q $IP $IN ; then
+if ! cat $IN|jq .by_node|grep $IP\": ; then
 
      # create new shards file only if this IP isn't already in there
      SHARDS=$(jq -e '.by_node' "$IN" | tail -n +3 | sed '/],/,$d')
