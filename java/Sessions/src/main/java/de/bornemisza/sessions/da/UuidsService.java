@@ -52,7 +52,7 @@ public class UuidsService {
     }
 
     public UuidsResult getUuids(int count) throws BusinessException, TechnicalException {
-        Get get = couchPool.getConnection().getHttp().get("_uuids?count=" + count);
+        Get get = couchPool.getConnection().getHttp().get("_uuids?count=" + count, 100, 1000);
         try {
             int responseCode = get.responseCode();
             if (responseCode != 200) {
