@@ -29,7 +29,7 @@ install_basics_groups:
 
 ntpd:
   service.running
-    - enabled: True
+    - enable: True
 
 Europe/Berlin:
   timezone.system
