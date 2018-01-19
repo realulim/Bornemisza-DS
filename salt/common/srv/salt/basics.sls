@@ -28,7 +28,7 @@ install_basics_groups:
     - dir_mode: 755
 
 ntpd:
-  service.running
+  service.running:
     - enable: True
 
 Europe/Berlin:
@@ -58,7 +58,7 @@ firewalld:
     - removed
 
 ufw:
-  service.running
+  service.running:
     - enable: True
 
 firewall_rule_remove_ssh:
