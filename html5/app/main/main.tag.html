@@ -198,14 +198,12 @@
             this.update()
         }
 
-        this.checkForSessionExpiry = () => {
-            if (document.cookie.length < 1) {
-                self.singleMode = false
-                self.loopMode = false
-                self.batchMode = false
-                self.storedMode = false
-                self.observable.trigger(LOGOUT_FORCED)
-            }
+        this.expireSession = () => {
+            self.singleMode = false
+            self.loopMode = false
+            self.batchMode = false
+            self.storedMode = false
+            self.observable.trigger(LOGOUT_FORCED)
         }
 
         this.getUuid = (event) => {
@@ -245,7 +243,7 @@
             self.worker.onmessage = function (event) {
                 self.observable.trigger(LOADING_DONE)
                 if (event.data.error) {
-                    if (event.data.error === 401) self.checkForSessionExpiry()
+                    if (event.data.error === 401) self.expireSession()
                     else self.observable.trigger(LOADING_ERROR, { error: event.data.error })
                 }
                 else {
@@ -261,7 +259,7 @@
             self.worker.postMessage([sessionStorage.ctoken, 1])
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-                    if (event.data.error === 401) self.checkForSessionExpiry()
+                    if (event.data.error === 401) self.expireSession()
                     else console.log("Error: " + event.data.error)
                 }
                 else {
@@ -286,7 +284,7 @@
             self.worker = new Worker("/js/getUuidWorker.js")
             self.worker.onmessage = function (event) {
                 if (event.data.error) {
-                    if (event.data.error === 401) self.checkForSessionExpiry()
+                    if (event.data.error === 401) self.expireSession()
                     else {
                         console.log("Error: " + event.data.error)
                         batchTotal -= self.batchSize
@@ -398,7 +396,7 @@
                 })
                 .catch(function (error, xhr, response) {
                     self.observable.trigger(LOADING_DONE)
-                    if (event.data.error === 401) self.checkForSessionExpiry()
+                    if (event.data.error === 401) self.expireSession()
                     else self.observable.trigger(LOADING_ERROR, { error: xhr.response })
                 })
         }
