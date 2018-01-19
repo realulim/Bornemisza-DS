@@ -58,6 +58,7 @@ public abstract class HttpPool extends Pool<HttpConnection> {
      */
     public HttpConnection getConnection() {
         for (String hostname : getDbServerQueue()) {
+            trackUtilisation(hostname);
             HttpConnection conn = allConnections.get(hostname);
             if (conn == null) {
                 // paranoia fallback - should not happen
@@ -65,7 +66,6 @@ public abstract class HttpPool extends Pool<HttpConnection> {
                 allConnections.put(hostname, conn);
                 Logger.getAnonymousLogger().warning("Had to create emergency Connection for " + hostname);
             }
-            trackUtilisation(hostname);
             return conn;
         }
         throw new IllegalStateException("No DbServer available at all!");
