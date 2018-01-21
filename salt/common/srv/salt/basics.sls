@@ -21,10 +21,17 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
-disable-selinux:
+disable-selinux-temporarily:
   cmd.run:
     - name: setenforce 0
     - unless: sestatus|grep -q disabled
+
+disable-selinux-permanently:
+  file.replace:
+    - name: /etc/selinux/config
+    - pattern: "SELINUX=enforcing"
+    - repl: "SELINUX=disabled"
+    - ignore_if_missing: True
 
 /root/download:
   file.directory:
