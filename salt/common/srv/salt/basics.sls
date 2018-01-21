@@ -21,6 +21,11 @@ install_basics_groups:
   pkg.group_installed:
     - name: "Development Tools"
 
+disable-selinux:
+  cmd.run:
+    - name: setenforce 0
+    - unless: sestatus|grep -q disabled
+
 /root/download:
   file.directory:
     - user: root
