@@ -20,7 +20,7 @@ if ! grep -q hostname: $PillarLocal/basics.sls ; then
 	VARNAME2=$1_privateIpInterface
 	HOSTNAME=$(hostname)
 	printf "hostname: %s\n" "$HOSTNAME" | tee -a $PillarLocal/basics.sls
-	IP=$(ip addr show "${!VARNAME1}"|grep "inet "|cut -d"/" -f1|cut -d" " -f6)
+	IP=$(ip addr show "${!VARNAME1}"|grep -m 1 "inet "|cut -d"/" -f1|cut -d" " -f6)
 	printf "ip: %s\n" "$IP" | tee -a $PillarLocal/basics.sls
 	SSLDOMAIN=$(printf "%s" "$domain")
 	printf "ssldomain: %s\n" "$SSLDOMAIN" | tee -a $PillarLocal/basics.sls
