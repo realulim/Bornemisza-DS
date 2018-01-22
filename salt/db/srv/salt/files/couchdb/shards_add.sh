@@ -16,7 +16,7 @@ OUT="/tmp/shardsnew-$DB.json"
 if ! cat $IN|jq .by_node|grep $IP\": ; then
 
      # create new shards file only if this IP isn't already in there
-     SHARDS=$(jq -e '.by_node' "$IN" | tail -n +3 | sed '/.*\(]\|}\).*/d')
+     SHARDS=$(jq -e '.by_node' "$IN" | tail -n +3 | sed '/]/,$d')
 
      SHARDCOUNT=$(echo "$SHARDS" | wc -l)
      CHANGELOGOLD=$(jq -e '.changelog' $IN | head -n -1 | tail -n +2)
