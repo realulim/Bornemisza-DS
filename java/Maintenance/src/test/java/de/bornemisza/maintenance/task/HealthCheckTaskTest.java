@@ -27,10 +27,10 @@ public class HealthCheckTaskTest {
     private String hostname;
     private final IMap connections = new PseudoHazelcastMap();
     private ITopic clusterMaintenanceTopic;
-    private ArgumentCaptor<ClusterEvent> captor;
     private HealthChecks healthChecks;
     private HazelcastInstance hazelcast;
     private CouchUsersPool httpPool;
+    private ArgumentCaptor<ClusterEvent> captor;
     private HealthCheckTask CUT;
     
     public HealthCheckTaskTest() {
@@ -41,7 +41,6 @@ public class HealthCheckTaskTest {
         hazelcast = mock(HazelcastInstance.class);
         clusterMaintenanceTopic = mock(ITopic.class);
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
-        captor = ArgumentCaptor.forClass(ClusterEvent.class);
 
         hostname = "db-1.domain.de";
         connections.put(hostname, mock(HttpConnection.class));
@@ -49,6 +48,7 @@ public class HealthCheckTaskTest {
         httpPool = mock(CouchUsersPool.class);
         when(httpPool.getAllConnections()).thenReturn(connections);
         healthChecks = mock(HealthChecks.class);
+        captor = ArgumentCaptor.forClass(ClusterEvent.class);
 
         CUT = new HealthCheckTask(hazelcast, httpPool, clusterMaintenanceTopic, healthChecks);
     }
@@ -58,31 +58,48 @@ public class HealthCheckTaskTest {
         ISet candidates = new PseudoHazelcastSet();
         when(hazelcast.getSet(Config.CANDIDATES)).thenReturn(candidates);
         when(healthChecks.isCouchDbReady(any(HttpConnection.class)))
-                .thenReturn(true)
-                .thenReturn(false)
-                .thenReturn(false)
-                .thenReturn(true);
+                .thenReturn(true)   // start out healthy, nothing happens
+                .thenReturn(false)  // first failure, first alert
+                .thenReturn(false)  // second failure, no alert
+                .thenReturn(false)  // third failure, second alert
+                .thenReturn(true)   // first unalert
+                .thenReturn(false)  // fifth failure, third alert
+                .thenReturn(true)   // second unalert
+                .thenReturn(true);  // still healthy, nothing happens
 
         CUT.healthChecks();
+        verifyNoMoreInteractions(clusterMaintenanceTopic);
 
+        CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(1)).publish(captor.capture());
+        checkPublishedMessages(ClusterEventType.HOST_UNHEALTHY);
+
+        CUT.healthChecks();
+        verifyNoMoreInteractions(clusterMaintenanceTopic);
+
         CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(2)).publish(captor.capture());
+        checkPublishedMessages(ClusterEventType.HOST_UNHEALTHY);
+
         CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(3)).publish(captor.capture());
+        checkPublishedMessages(ClusterEventType.HOST_HEALTHY);
+
         CUT.healthChecks();
         verify(clusterMaintenanceTopic, times(4)).publish(captor.capture());
+        checkPublishedMessages(ClusterEventType.HOST_UNHEALTHY);
 
-        List<ClusterEvent> clusterEvents = captor.getAllValues();
-        assertEquals(10, clusterEvents.size());
-        assertEquals(hostname, clusterEvents.get(0).getHostname());
-        assertEquals(ClusterEventType.HOST_HEALTHY, clusterEvents.get(0).getType());
-        assertEquals(hostname, clusterEvents.get(2).getHostname());
-        assertEquals(ClusterEventType.HOST_UNHEALTHY, clusterEvents.get(2).getType());
-        assertEquals(hostname, clusterEvents.get(5).getHostname());
-        assertEquals(ClusterEventType.HOST_UNHEALTHY, clusterEvents.get(5).getType());
-        assertEquals(hostname, clusterEvents.get(9).getHostname());
-        assertEquals(ClusterEventType.HOST_HEALTHY, clusterEvents.get(9).getType());
+        CUT.healthChecks();
+        verify(clusterMaintenanceTopic, times(5)).publish(captor.capture());
+        checkPublishedMessages(ClusterEventType.HOST_HEALTHY);
+
+        CUT.healthChecks();
+        verifyNoMoreInteractions(clusterMaintenanceTopic);
+    }
+
+    private void checkPublishedMessages(ClusterEventType type) {
+        assertEquals(hostname, captor.getAllValues().get(captor.getAllValues().size() - 1).getHostname());
+        assertEquals(type, captor.getAllValues().get(captor.getAllValues().size() - 1).getType());
     }
 
     @Test

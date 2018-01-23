@@ -50,6 +50,7 @@ public class SchedulerTest {
         assertTrue(Character.getNumericValue(expr.charAt(0)) < members.size());
         assertEquals("/", String.valueOf(expr.charAt(1)));
         assertEquals(members.size(), Character.getNumericValue(expr.charAt(2)));
+        System.out.println(expr);
     }
 
     @Test

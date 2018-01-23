@@ -23,6 +23,7 @@ import de.bornemisza.loadbalancer.ClusterEvent.ClusterEventType;
 import de.bornemisza.loadbalancer.Config;
 import de.bornemisza.maintenance.CouchUsersPool;
 import de.bornemisza.rest.HttpConnection;
+import java.time.LocalDateTime;
 
 @Stateless
 public class HealthCheckTask {
@@ -40,6 +41,7 @@ public class HealthCheckTask {
     HealthChecks healthChecks;
 
     private ITopic<ClusterEvent> clusterMaintenanceTopic;
+    private static final Set<String> BROKEN_HOSTS = new HashSet<>();
     private static final Set<String> FAILING_HOSTS = new HashSet<>();
 
     public HealthCheckTask() {
@@ -69,20 +71,32 @@ public class HealthCheckTask {
             String hostname = entry.getKey();
             if (healthChecks.isCouchDbReady(entry.getValue())) {
                 if (FAILING_HOSTS.contains(hostname)) {
+                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
+                    BROKEN_HOSTS.remove(hostname);
                     FAILING_HOSTS.remove(hostname);
-                    Logger.getAnonymousLogger().info("Previously failing host " + hostname + " healthy again.");
+                    Logger.getAnonymousLogger().info("Host " + hostname + " healthy again.");
                 }
-                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_HEALTHY);
-                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
             else {
-                if (! FAILING_HOSTS.contains(hostname)) {
+                if (BROKEN_HOSTS.contains(hostname)) {
+                    // do not resend UNHEALTHY event for hosts that have been broken
+                    BROKEN_HOSTS.remove(hostname);
+                }
+                else if (FAILING_HOSTS.contains(hostname)) {
+                    // send UNHEALTHY event in case the previous one was missed (e. g. due to cluster startup / reconfiguration)
+                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
+                    BROKEN_HOSTS.add(hostname);
+                    if (LocalDateTime.now().getMinute() % 10 == 0) Logger.getAnonymousLogger().info("Host " + hostname + " still failing.");
+                }
+                else {
+                    ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
+                    this.clusterMaintenanceTopic.publish(clusterEvent);
                     FAILING_HOSTS.add(hostname);
+                    BROKEN_HOSTS.add(hostname);
                     Logger.getAnonymousLogger().info("Previously healthy host " + hostname + " failing.");
                 }
-                // always send UNHEALTHY event in case it is missed the first time (e. g. on cluster startup)
-                ClusterEvent clusterEvent = new ClusterEvent(hostname, ClusterEventType.HOST_UNHEALTHY);
-                this.clusterMaintenanceTopic.publish(clusterEvent);
             }
         }
         checkCandidates();
