@@ -1,5 +1,7 @@
 package de.bornemisza.maintenance.task;
 
+import java.util.logging.Logger;
+
 import javax.ejb.Stateless;
 
 import org.javalite.http.Get;
@@ -23,7 +25,11 @@ public class HealthChecks {
             return false;
         }
         String expected = "{\"db_name\":\"" + conn.getDatabaseName() + "\"";
-        return get.text().startsWith(expected);
+        if (! get.text().startsWith(expected)) {
+            Logger.getAnonymousLogger().warning("Health Check unexpected Response: " + get.text());
+            return false;
+        }
+        return true;
     }
 
     public String getCouchDbStatus(HttpConnection conn) {
