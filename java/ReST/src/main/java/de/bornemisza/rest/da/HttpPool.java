@@ -3,12 +3,15 @@ package de.bornemisza.rest.da;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import org.javalite.http.Get;
 import org.javalite.http.Http;
+import org.javalite.http.HttpException;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
@@ -57,16 +60,25 @@ public abstract class HttpPool extends Pool<HttpConnection> {
      * @return a load-balanced Connection (main API call for outside clients)
      */
     public HttpConnection getConnection() {
-        for (String hostname : getDbServerQueue()) {
-            trackUtilisation(hostname);
-            HttpConnection conn = allConnections.get(hostname);
-            if (conn == null) {
-                // paranoia fallback - should not happen
-                conn = createConnection(getLoadBalancerConfig(), hostname);
-                allConnections.put(hostname, conn);
-                Logger.getAnonymousLogger().warning("Had to create emergency Connection for " + hostname);
+        List<String> dbServerQueue = getDbServerQueue();
+        if (dbServerQueue.isEmpty()) {
+            // Paranoia Fallback - if no server seems to be healthy, we'll try one of the existing connections
+            for (HttpConnection conn : getAllConnections().values()) {
+                if (isConnectionHealthy(conn)) return conn;
             }
-            return conn;
+        }
+        else {
+            for (String hostname : dbServerQueue) {
+                trackUtilisation(hostname);
+                HttpConnection conn = allConnections.get(hostname);
+                if (conn == null) {
+                    // Paranoia Fallback - should not happen
+                    conn = createConnection(getLoadBalancerConfig(), hostname);
+                    allConnections.put(hostname, conn);
+                    Logger.getAnonymousLogger().warning("Had to create emergency Connection for " + hostname);
+                }
+                return conn;
+            }
         }
         throw new IllegalStateException("No DbServer available at all!");
     }
@@ -74,6 +86,19 @@ public abstract class HttpPool extends Pool<HttpConnection> {
     @Override
     public String getServiceName() {
         return this.serviceName;
+    }
+
+    private boolean isConnectionHealthy(HttpConnection conn) {
+        Get get = conn.getHttp().get("", 200, 2000);
+        try {
+            if (get.responseCode() == 200) {
+                return true;
+            }
+        }
+        catch (HttpException ex) {
+            return false;
+        }
+        return false;
     }
 
 }

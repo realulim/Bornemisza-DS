@@ -5,16 +5,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import static org.mockito.Mockito.*;
-
 import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.ITopic;
+
+import org.javalite.http.Get;
+import org.javalite.http.Http;
+import org.javalite.http.HttpException;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
@@ -50,14 +52,20 @@ public class HttpPoolTest {
     private HazelcastInstance hazelcast;
     private Map<String, HttpConnection> allTestConnections;
     private IMap dbServerUtilisation;
+    private Get get;
 
     @Before
     public void setUp() {
         hazelcast = mock(HazelcastInstance.class);
         allTestConnections = new HashMap<>();
-        allTestConnections.put("host1", mock(HttpConnection.class));
-        allTestConnections.put("host2", mock(HttpConnection.class));
-        allTestConnections.put("host3", mock(HttpConnection.class));
+        Http http = mock(Http.class);
+        HttpConnection conn = mock(HttpConnection.class);
+        when(conn.getHttp()).thenReturn(http);
+        get = mock(Get.class);
+        when(http.get(anyString(), anyInt(), anyInt())).thenReturn(get);
+        allTestConnections.put("host1", conn);
+        allTestConnections.put("host2", conn);
+        allTestConnections.put("host3", conn);
 
         Cluster cluster = mock(Cluster.class);
         when(cluster.getMembers()).thenReturn(new HashSet<>());
@@ -72,8 +80,17 @@ public class HttpPoolTest {
     }
 
     @Test
-    public void getConnection_noBackendsAvailable() {
+    public void getConnection_noBackendsHealthy() {
         dbServerUtilisation.clear();
+        when(get.responseCode()).thenReturn(404).thenThrow(new HttpException("")).thenReturn(200);
+        HttpConnection conn = CUT.getConnection();
+        assertEquals(allTestConnections.values().iterator().next(), conn);
+    }
+
+    @Test
+    public void getConnection_noBackendsAvailableAtAll() {
+        dbServerUtilisation.clear();
+        when(get.responseCode()).thenReturn(404);
         try {
             CUT.getConnection();
             fail();

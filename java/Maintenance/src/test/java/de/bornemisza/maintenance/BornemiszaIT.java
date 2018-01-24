@@ -116,10 +116,12 @@ public class BornemiszaIT extends IntegrationTestBase {
         JsonPath jsonPath = response.jsonPath();
         List<Map<String, String>> rows = jsonPath.getList("rows");
         assertEquals(2, rows.size());
-        Map<String, String> row = rows.get(0);
-        assertEquals("app-LightSeaGreen", row.get("key"));
-        assertEquals(uuidCount + "", row.get("value"));
-        System.out.println(row);
+        Map<String, String> row1 = rows.get(0);
+        assertEquals(uuidCount + "", row1.get("value"));
+        assertTrue(row1.get("key").startsWith("app-"));
+        Map<String, String> row2 = rows.get(1);
+        assertEquals(uuidCount + "", row2.get("value"));
+        assertTrue(row2.get("key").startsWith("db-"));
     }
 
     @Test
