@@ -15,7 +15,7 @@ public class HealthChecks {
 
     public boolean isCouchDbReady(HttpConnection conn) {
         Http http = conn.getHttp();
-        Get get = http.get("", 200, 1000);
+        Get get = http.get("", 500, 5000);
         try {
             if (get.responseCode() != 200) {
                 return false;

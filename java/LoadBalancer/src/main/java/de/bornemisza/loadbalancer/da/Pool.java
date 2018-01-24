@@ -77,10 +77,10 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
         try {
             switch (clusterEvent.getType()) {
                 case CANDIDATE_HEALTHY:
-                    // promote candidate into rotation
-                    T conn = createConnection(getLoadBalancerConfig(), hostname);
-                    T previousValue = this.allConnections.put(hostname, conn);
-                    if (previousValue == null) {
+                    if (! this.allConnections.containsKey(hostname)) {
+                        // promote candidate into rotation
+                        T conn = createConnection(getLoadBalancerConfig(), hostname);
+                        this.allConnections.put(hostname, conn);
                         resetUtilisation(); // start everyone on equal terms
                         // Caution: getConnection() can create emergency connections, which can lead to a race condition here
                         this.dbServerUtilisation.put(hostname, 0);
