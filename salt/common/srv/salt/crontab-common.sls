@@ -1,4 +1,4 @@
-{%- set OFFSET=pillar['nodenumber'] -%}
+{%- set MINUTE=pillar['nodenumber'] -%}
 
 /opt/scripts/checkForDeletedSrvRecords.sh:
   file.managed:
@@ -14,5 +14,5 @@
 /usr/bin/bash -c '/opt/bootstrap-bornemisza.sh >> /opt/logs/highstate.log':
   cron.present:
     - user: root
-    - minute: '{{ OFFSET }}/15'
+    - minute: '{{ MINUTE }}'
     - hour: '*'
