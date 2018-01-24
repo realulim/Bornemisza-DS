@@ -14,5 +14,5 @@
 /usr/bin/bash -c '/opt/bootstrap-bornemisza.sh >> /opt/logs/highstate.log':
   cron.present:
     - user: root
-    - minute: '{{ NODENUMBER - 1 }}/15'
+    - minute: '{{ NODENUMBER }}/15'
     - hour: '*'
