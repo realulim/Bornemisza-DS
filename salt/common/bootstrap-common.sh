@@ -43,7 +43,8 @@ fi
 # cluster sizes need to be rewritten on every run
 APPCLUSTERSIZE=$(host -t srv _app._tcp.$domain. $cfns|grep SRV|wc -l)
 DBCLUSTERSIZE=$(host -t srv _db._tcp.$domain. $cfns|grep SRV|wc -l)
-printf "appclustersize: %s\ndbclustersize: %s\n" "$APPCLUSTERSIZE" "$DBCLUSTERSIZE" | tee $PillarLocal/cluster.sls
+NODENUMBER=$(grep -n `hostname` $PillarLocal/"$1"servers.sls | cut -f1 -d:)
+printf "appclustersize: %s\ndbclustersize: %s\nnodenumber: %s\n" "$APPCLUSTERSIZE" "$DBCLUSTERSIZE" "$NODENUMBER" | tee $PillarLocal/cluster.sls
 
 # ask for Cloudflare API key
 if ! grep -q CFKEY: $PillarLocal/basics.sls ; then
