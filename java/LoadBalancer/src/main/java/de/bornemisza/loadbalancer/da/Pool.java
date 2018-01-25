@@ -124,7 +124,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
                 .collect(Collectors.toList());
     }
 
-    protected Map<String, Integer> getDbServerUtilisation() {
+    Map<String, Integer> getDbServerUtilisation() {
         if (this.dbServerUtilisation != null && this.dbServerUtilisation instanceof IMap) {
             // It's a Hazelcast map, so all is good
             return this.dbServerUtilisation;
