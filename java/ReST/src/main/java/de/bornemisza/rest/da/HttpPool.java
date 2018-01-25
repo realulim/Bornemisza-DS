@@ -68,17 +68,16 @@ public abstract class HttpPool extends Pool<HttpConnection> {
             }
         }
         else {
-            for (String hostname : dbServerQueue) {
-                trackUtilisation(hostname);
-                HttpConnection conn = allConnections.get(hostname);
-                if (conn == null) {
-                    // Paranoia Fallback - should not happen
-                    conn = createConnection(getLoadBalancerConfig(), hostname);
-                    allConnections.put(hostname, conn);
-                    Logger.getAnonymousLogger().warning("Had to create emergency Connection for " + hostname);
-                }
-                return conn;
+            String hostname = dbServerQueue.get(0);
+            trackUtilisation(hostname);
+            HttpConnection conn = allConnections.get(hostname);
+            if (conn == null) {
+                // Paranoia Fallback - should not happen
+                conn = createConnection(getLoadBalancerConfig(), hostname);
+                allConnections.put(hostname, conn);
+                Logger.getAnonymousLogger().warning("Had to create emergency Connection for " + hostname);
             }
+            return conn;
         }
         throw new IllegalStateException("No DbServer available at all!");
     }
