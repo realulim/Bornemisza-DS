@@ -26,6 +26,10 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
 
     public UtilisationStrategy(HazelcastInstance hazelcast) {
         this.hazelcast = hazelcast;
+        this.init();
+    }
+
+    private void init() {
         this.hostUtilisation = getHostUtilisation();
     }
 
