@@ -16,6 +16,7 @@ import org.javalite.http.HttpException;
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
 import de.bornemisza.loadbalancer.da.Pool;
+import de.bornemisza.loadbalancer.strategy.LoadBalancerStrategy;
 import de.bornemisza.rest.HttpConnection;
 
 public abstract class HttpPool extends Pool<HttpConnection> {
@@ -27,8 +28,8 @@ public abstract class HttpPool extends Pool<HttpConnection> {
     }
 
     // Constructor for Unit Tests
-    public HttpPool(HazelcastInstance hz, DnsProvider dnsProvider, String serviceName) {
-        super(hz, dnsProvider);
+    public HttpPool(HazelcastInstance hz, LoadBalancerStrategy strategy, DnsProvider dnsProvider, String serviceName) {
+        super(hz, strategy, dnsProvider);
         this.serviceName = serviceName;
     }
 

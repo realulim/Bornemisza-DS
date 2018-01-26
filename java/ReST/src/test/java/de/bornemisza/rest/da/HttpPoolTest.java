@@ -1,5 +1,6 @@
 package de.bornemisza.rest.da;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,7 @@ import static org.mockito.Mockito.*;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.loadbalancer.da.DnsProvider;
+import de.bornemisza.loadbalancer.strategy.LoadBalancerStrategy;
 import de.bornemisza.rest.HttpConnection;
 import de.bornemisza.rest.PseudoHazelcastMap;
 import static de.bornemisza.loadbalancer.Config.*;
@@ -28,8 +30,8 @@ public class HttpPoolTest {
 
     class TestableHttpPool extends HttpPool {
 
-        public TestableHttpPool(HazelcastInstance hz, DnsProvider dnsProvider) {
-            super(hz, dnsProvider, "someServiceName");
+        public TestableHttpPool(HazelcastInstance hz, LoadBalancerStrategy strategy, DnsProvider dnsProvider) {
+            super(hz, strategy, dnsProvider, "someServiceName");
         }
 
         @Override
@@ -50,6 +52,7 @@ public class HttpPoolTest {
 
     private TestableHttpPool CUT;
     private HazelcastInstance hazelcast;
+    private LoadBalancerStrategy strategy;
     private Map<String, HttpConnection> allTestConnections;
     private IMap dbServerUtilisation;
     private Get get;
@@ -76,7 +79,8 @@ public class HttpPoolTest {
         ITopic clusterMaintenanceTopic = mock(ITopic.class);
         when(hazelcast.getReliableTopic(anyString())).thenReturn(clusterMaintenanceTopic);
 
-        CUT = new TestableHttpPool(hazelcast, mock(DnsProvider.class));
+        strategy = mock(LoadBalancerStrategy.class);
+        CUT = new TestableHttpPool(hazelcast, strategy, mock(DnsProvider.class));
     }
 
     @Test
@@ -103,6 +107,8 @@ public class HttpPoolTest {
     @Test
     public void getConnection_connectionNull() {
         dbServerUtilisation.put("host0", -1); // need to have fewer then 0 (which all other hosts start on)
+        List<String> dbServers = Arrays.asList(new String[] { "host4" });
+        when(strategy.getHostQueue()).thenReturn(dbServers);
 
         int previousSize = allTestConnections.size();
 
@@ -112,15 +118,14 @@ public class HttpPoolTest {
     }
 
     @Test
-    public void getConnection_usageCountIncrementer() {
+    public void getConnection_trackUsage() {
+        List<String> dbServers = Arrays.asList(new String[] { "host1", "host2", "host3" });
+        when(strategy.getHostQueue()).thenReturn(dbServers);
         int expectedUsageCount = 10;
         for (int i = 0; i < expectedUsageCount; i++) {
             assertNotNull(CUT.getConnection());
         }
-        Integer usageCount = (Integer) dbServerUtilisation.get("host1");
-        usageCount += (Integer) dbServerUtilisation.get("host2");
-        usageCount += (Integer) dbServerUtilisation.get("host3");
-        assertEquals(expectedUsageCount, usageCount.intValue());
+        verify(strategy, times(expectedUsageCount)).trackUsage("host1");
     }
 
 }
