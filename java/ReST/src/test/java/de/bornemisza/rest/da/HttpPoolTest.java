@@ -1,6 +1,5 @@
 package de.bornemisza.rest.da;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,8 +106,7 @@ public class HttpPoolTest {
     @Test
     public void getConnection_connectionNull() {
         dbServerUtilisation.put("host0", -1); // need to have fewer then 0 (which all other hosts start on)
-        List<String> dbServers = Arrays.asList(new String[] { "host4" });
-        when(strategy.getHostQueue()).thenReturn(dbServers);
+        when(strategy.getNextHost()).thenReturn("host4");
 
         int previousSize = allTestConnections.size();
 
@@ -119,8 +117,7 @@ public class HttpPoolTest {
 
     @Test
     public void getConnection_trackUsage() {
-        List<String> dbServers = Arrays.asList(new String[] { "host1", "host2", "host3" });
-        when(strategy.getHostQueue()).thenReturn(dbServers);
+        when(strategy.getNextHost()).thenReturn("host1");
         int expectedUsageCount = 10;
         for (int i = 0; i < expectedUsageCount; i++) {
             assertNotNull(CUT.getConnection());

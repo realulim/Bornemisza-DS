@@ -3,7 +3,6 @@ package de.bornemisza.rest.da;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -61,15 +60,14 @@ public abstract class HttpPool extends Pool<HttpConnection> {
      * @return a load-balanced Connection (main API call for outside clients)
      */
     public HttpConnection getConnection() {
-        List<String> dbServerQueue = getDbServerQueue();
-        if (dbServerQueue.isEmpty()) {
+        String hostname = getNextDbServer();
+        if (hostname == null) {
             // Paranoia Fallback - if no server seems to be healthy, we'll try one of the existing connections
             for (HttpConnection conn : getAllConnections().values()) {
                 if (isConnectionHealthy(conn)) return conn;
             }
         }
         else {
-            String hostname = dbServerQueue.get(0);
             trackUtilisation(hostname);
             HttpConnection conn = allConnections.get(hostname);
             if (conn == null) {

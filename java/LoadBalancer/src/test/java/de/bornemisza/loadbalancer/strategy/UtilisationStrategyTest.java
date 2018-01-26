@@ -58,6 +58,10 @@ public class UtilisationStrategyTest {
 
         UtilisationStrategy CUT = new UtilisationStrategy(hazelcast);
         assertEquals(CUT.getNextHost(), CUT.getHostQueue().iterator().next());
+
+        utilisationMapLocal.clear();
+        assertNull(CUT.getNextHost());
+        assertEquals(0, CUT.getHostQueue().size());
     }
 
     @Test

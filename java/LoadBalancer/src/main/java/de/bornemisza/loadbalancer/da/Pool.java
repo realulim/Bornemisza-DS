@@ -104,6 +104,10 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
         return this.allConnections;
     }
 
+    protected String getNextDbServer() {
+        return lbStrategy.getNextHost();
+    }
+
     protected List<String> getDbServerQueue() {
         return lbStrategy.getHostQueue();
     }

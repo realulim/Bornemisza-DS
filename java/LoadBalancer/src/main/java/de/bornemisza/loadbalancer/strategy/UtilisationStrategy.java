@@ -35,7 +35,9 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
 
     @Override
     public String getNextHost() {
-        return getHostQueue().get(0);
+        List<String> hostQueue = getHostQueue();
+        if (hostQueue.isEmpty()) return null;
+        else return hostQueue.get(0);
     }
 
     @Override
