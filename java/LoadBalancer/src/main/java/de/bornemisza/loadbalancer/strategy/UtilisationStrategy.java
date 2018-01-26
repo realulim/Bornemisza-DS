@@ -22,7 +22,7 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
 
     private final HazelcastInstance hazelcast;
 
-    private Map<String, Integer> hostUtilisation = null;
+    protected Map<String, Integer> hostUtilisation = null;
 
     public UtilisationStrategy(HazelcastInstance hazelcast) {
         this.hazelcast = hazelcast;
@@ -87,7 +87,7 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
     public void trackUsage(String hostname) {
         this.hostUtilisation.computeIfPresent(hostname, (k, v) -> v+1);
     }
-    
+
     Map<String, Integer> getHostUtilisation() {
         if (this.hostUtilisation != null && this.hostUtilisation instanceof IMap) {
             // It's a Hazelcast map, so all is good

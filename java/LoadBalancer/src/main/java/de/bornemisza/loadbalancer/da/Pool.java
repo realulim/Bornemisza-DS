@@ -52,6 +52,7 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
     @PostConstruct
     protected void init() {
         this.lbStrategy = new UtilisationStrategy(hazelcast);
+//        this.lbStrategy = new RoundRobinStrategy(hazelcast);
         this.dnsProvider = new DnsProvider(hazelcast);
         this.initCluster();
     }

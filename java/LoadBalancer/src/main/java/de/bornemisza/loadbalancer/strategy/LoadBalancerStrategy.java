@@ -22,9 +22,9 @@ public interface LoadBalancerStrategy {
     List<String> getHostQueue();
 
     /**
-     * Method is called whenever a client detects a cluster event.
+     * Method is called whenever a client is done handling a cluster event, so the LoadBalancerStrategy gets a chance to look at it as well.
      * 
-     * @param event the Cluster Event to handle 
+     * @param event the Cluster Event handled by the client
      */
     void handleClusterEvent(ClusterEvent event);
 
