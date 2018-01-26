@@ -380,6 +380,8 @@
             })
                 .then(function (xhr, response) {
                     let rows = JSON.parse(xhr.responseText).rows
+                    self.appServerColors["Black"] = 0
+                    self.dbServerColors["Black"] = 0
                     for (var idx in rows) {
                         let key = rows[idx].key
                         if (key.startsWith("app-")) {
