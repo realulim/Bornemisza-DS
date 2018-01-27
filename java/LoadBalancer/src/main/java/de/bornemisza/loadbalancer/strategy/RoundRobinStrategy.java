@@ -49,6 +49,7 @@ public class RoundRobinStrategy extends UtilisationStrategy {
                     break;
                 case HOST_DISAPPEARED:
                     this.hosts.remove(hostname);
+                    Logger.getAnonymousLogger().info("Host " + hostname + " removed for good.");
                     break;
                 case HOST_HEALTHY:
                     if (! this.hosts.contains(hostname)) {

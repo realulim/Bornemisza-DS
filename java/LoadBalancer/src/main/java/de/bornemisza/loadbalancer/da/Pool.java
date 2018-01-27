@@ -1,5 +1,7 @@
 package de.bornemisza.loadbalancer.da;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,7 +108,15 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
     }
 
     protected String getNextDbServer() {
-        return lbStrategy.getNextHost();
+        String nextHost = lbStrategy.getNextHost();
+        if (nextHost == null) {
+            // Paranoia fallback - let's return a random host from our set of existing connections
+            List<String> fallbackHosts = new ArrayList<>();
+            fallbackHosts.addAll(this.allConnections.keySet());
+            Collections.shuffle(fallbackHosts);
+            nextHost = fallbackHosts.get(0);
+        }
+        return nextHost;
     }
 
     protected List<String> getDbServerQueue() {
