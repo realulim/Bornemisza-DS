@@ -1,5 +1,6 @@
 package de.bornemisza.loadbalancer.strategy;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,12 +15,16 @@ import de.bornemisza.loadbalancer.ClusterEvent;
  */
 public class RoundRobinStrategy extends UtilisationStrategy {
 
-    private final LinkedList<String> hosts;
+    private final LinkedList<String> hosts = new LinkedList<>();
 
     public RoundRobinStrategy(HazelcastInstance hazelcast) {
         super(hazelcast);
-        this.hosts = new LinkedList<>();
-        this.hosts.addAll(hostUtilisation.keySet());
+        this.init();
+    }
+
+    private void init() {
+        this.hosts.addAll(getHostUtilisation().keySet());
+        Collections.sort(hosts);
         Logger.getAnonymousLogger().info("Starting Round Robin Strategy with " + this.hosts);
     }
 

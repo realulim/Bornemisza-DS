@@ -22,7 +22,7 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
 
     private final HazelcastInstance hazelcast;
 
-    protected Map<String, Integer> hostUtilisation = null;
+    private Map<String, Integer> hostUtilisation = null;
 
     public UtilisationStrategy(HazelcastInstance hazelcast) {
         this.hazelcast = hazelcast;
@@ -93,7 +93,7 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
             // It's a Hazelcast map, so all is good
             return this.hostUtilisation;
         }
-        // Not a Hazelcast map, so let's try to make it one
+        // Either null or not a Hazelcast map, so let's try to make it one
         try {
             this.hostUtilisation = hazelcast.getMap(Config.UTILISATION);
         }
