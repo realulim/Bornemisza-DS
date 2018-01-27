@@ -94,7 +94,7 @@ public class SrvRecordsTask {
     }
 
     void logNewQueueState() {
-        StringBuilder sb = new StringBuilder("DbServerQueue");
+        StringBuilder sb = new StringBuilder("DbServerUtilisation");
         for (String hostname : dbServerUtilisation.keySet()) {
             sb.append(" | ").append(hostname).append(":").append(dbServerUtilisation.get(hostname));
         }
