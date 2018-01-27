@@ -108,6 +108,37 @@ public class PoolTest {
         verify(strategy).handleClusterEvent(clusterEvent);
     }
 
+    @Test
+    public void getNextDbServer_noUtilisation_noConnections() {
+        when(strategy.getNextHost()).thenReturn(null);
+        allTestConnections.clear();
+        Pool CUT = new PoolImpl(hazelcast, strategy);
+        try {
+            CUT.getNextDbServer();
+            fail();
+        }
+        catch (RuntimeException ex) {
+            assertEquals("No DbServer available at all!", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void getNextDbServer_noUtilisation() {
+        when(strategy.getNextHost()).thenReturn(null);
+        Pool CUT = new PoolImpl(hazelcast, strategy);
+        String nextDbServer = CUT.getNextDbServer();
+        assertTrue(allTestConnections.containsKey(nextDbServer));
+    }
+
+    @Test
+    public void getNextDbServer() {
+        String expected = "nextserver.com";
+        when(strategy.getNextHost()).thenReturn(expected);
+        Pool CUT = new PoolImpl(hazelcast, strategy);
+        String nextDbServer = CUT.getNextDbServer();
+        assertEquals(expected, nextDbServer);
+    }
+
     public class PoolImpl extends Pool {
         
         public PoolImpl(HazelcastInstance hazelcast, LoadBalancerStrategy strategy) {
