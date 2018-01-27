@@ -20,10 +20,12 @@ public class RoundRobinStrategy extends UtilisationStrategy {
         super(hazelcast);
         this.hosts = new LinkedList<>();
         this.hosts.addAll(hostUtilisation.keySet());
+        Logger.getAnonymousLogger().info("Starting Round Robin Strategy with " + this.hosts);
     }
 
     @Override
     public String getNextHost() {
+        if (hosts.isEmpty()) return null;
         String host = hosts.removeFirst();
         hosts.addLast(host);
         return host;
