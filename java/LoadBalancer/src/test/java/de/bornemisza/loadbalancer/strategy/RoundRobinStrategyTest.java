@@ -41,10 +41,16 @@ public class RoundRobinStrategyTest {
         when(hazelcast.getMap(Config.UTILISATION)).thenReturn(utilisationMap);
         RoundRobinStrategy CUT = new RoundRobinStrategy(hazelcast);
         assertEquals("host1", CUT.getNextHost());
-        assertEquals("host2", CUT.getNextHost());
-        assertEquals("host3", CUT.getNextHost());
         assertEquals("host1", CUT.getNextHost());
         assertEquals("host2", CUT.getNextHost());
+        assertEquals("host2", CUT.getNextHost());
+        assertEquals("host3", CUT.getNextHost());
+        assertEquals("host3", CUT.getNextHost());
+        assertEquals("host1", CUT.getNextHost());
+        assertEquals("host1", CUT.getNextHost());
+        assertEquals("host2", CUT.getNextHost());
+        assertEquals("host2", CUT.getNextHost());
+        assertEquals("host3", CUT.getNextHost());
         assertEquals("host3", CUT.getNextHost());
         assertEquals(CUT.getHostQueue().get(0), CUT.getNextHost());
     }
