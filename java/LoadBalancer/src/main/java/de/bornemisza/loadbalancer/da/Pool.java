@@ -110,11 +110,16 @@ public abstract class Pool<T> implements MessageListener<ClusterEvent> {
     protected String getNextDbServer() {
         String nextHost = lbStrategy.getNextHost();
         if (nextHost == null) {
-            // Paranoia fallback - let's return a random host from our set of existing connections
-            List<String> fallbackHosts = new ArrayList<>();
-            fallbackHosts.addAll(this.allConnections.keySet());
-            Collections.shuffle(fallbackHosts);
-            nextHost = fallbackHosts.get(0);
+            if (this.allConnections.isEmpty()) {
+                throw new RuntimeException("No DbServer available at all!");
+            }
+            else {
+                // Fallback: let's return a random host from our set of existing connections
+                List<String> fallbackHosts = new ArrayList<>();
+                fallbackHosts.addAll(this.allConnections.keySet());
+                Collections.shuffle(fallbackHosts);
+                nextHost = fallbackHosts.get(0);
+            }
         }
         return nextHost;
     }

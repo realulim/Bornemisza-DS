@@ -93,12 +93,12 @@ public class HttpPoolTest {
     @Test
     public void getConnection_noBackendsAvailableAtAll() {
         dbServerUtilisation.clear();
-        when(get.responseCode()).thenReturn(404);
+        allTestConnections.clear();
         try {
             CUT.getConnection();
             fail();
         }
-        catch (IllegalStateException e) {
+        catch (RuntimeException e) {
             assertEquals("No DbServer available at all!", e.getMessage());
         }
     }
