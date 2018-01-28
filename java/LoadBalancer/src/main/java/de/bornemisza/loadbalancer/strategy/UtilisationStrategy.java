@@ -62,6 +62,7 @@ public class UtilisationStrategy implements LoadBalancerStrategy {
                     break;
                 case HOST_DISAPPEARED:
                     this.hostUtilisation.remove(hostname);
+                    Logger.getAnonymousLogger().info("Host " + hostname + " removed for good.");
                     break;
                 case HOST_HEALTHY:
                     if (! this.hostUtilisation.containsKey(hostname)) {

@@ -43,28 +43,25 @@ public class RoundRobinStrategy extends UtilisationStrategy {
 
     @Override
     public void handleClusterEvent(ClusterEvent clusterEvent) {
+        super.handleClusterEvent(clusterEvent);
         String hostname = clusterEvent.getHostname();
         try {
             switch (clusterEvent.getType()) {
                 case CANDIDATE_HEALTHY:
                     if (! this.hosts.contains(hostname)) {
                         this.hosts.add(hostname);
-                        Logger.getAnonymousLogger().info("Candidate " + hostname + " promoted into rotation.");
                     }
                     break;
                 case HOST_DISAPPEARED:
                     this.hosts.remove(hostname);
-                    Logger.getAnonymousLogger().info("Host " + hostname + " removed for good.");
                     break;
                 case HOST_HEALTHY:
                     if (! this.hosts.contains(hostname)) {
                         this.hosts.add(hostname);
-                        Logger.getAnonymousLogger().info("Put host " + hostname + " back into rotation.");
                     }
                     break;
                 case HOST_UNHEALTHY:
-                    boolean removed = this.hosts.remove(hostname);
-                    if (removed) Logger.getAnonymousLogger().info("Host " + hostname + " taken out of rotation.");
+                    this.hosts.remove(hostname);
                     break;
                 default:
                     Logger.getAnonymousLogger().info("Unknown ClusterEvent: " + hostname + "/" + clusterEvent.getType().name());
