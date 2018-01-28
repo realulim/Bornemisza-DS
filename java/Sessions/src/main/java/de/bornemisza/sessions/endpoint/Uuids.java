@@ -42,7 +42,7 @@ public class Uuids {
         if (count < 1) return Response.status(Status.BAD_REQUEST).build();
         try {
             Auth auth = new Auth(new DoubleSubmitToken(cookie, ctoken));
-            UuidsResult result = facade.getUuids(auth, count);
+            UuidsResult result = facade.getAndSaveUuids(auth, count);
             return result.toResponse();
         }
         catch (UnauthorizedException ex) {

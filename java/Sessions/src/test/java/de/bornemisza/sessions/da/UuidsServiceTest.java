@@ -117,7 +117,7 @@ public class UuidsServiceTest {
         when(getWithCustomTimeouts.text()).thenReturn(getUuidResultAsJson(count));
         when(getWithCustomTimeouts.headers()).thenReturn(new HashMap<>());
 
-        UuidsResult result = CUT.getUuids(3);
+        UuidsResult result = CUT.getUuids(3).getValue();
         assertEquals(count, result.getUuids().size());
         assertNull(result.getFirstHeaderValue(HttpHeaders.BACKEND));
     }
@@ -132,7 +132,7 @@ public class UuidsServiceTest {
         when(getWithCustomTimeouts.headers()).thenReturn(backendHeaders);
 
         for (int i = 0; i < 4; i++) {
-            UuidsResult result = CUT.getUuids(i);
+            UuidsResult result = CUT.getUuids(i).getValue();
             assertEquals(i, result.getUuids().size());
             assertEquals(backendIp, result.getFirstHeaderValue(HttpHeaders.BACKEND));
         }

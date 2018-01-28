@@ -36,14 +36,14 @@ public class UuidsTest {
 
     @Test
     public void getUuids_unauthorized() {
-        when(facade.getUuids(any(Auth.class), anyInt())).thenThrow(new UnauthorizedException("meh"));
+        when(facade.getAndSaveUuids(any(Auth.class), anyInt())).thenThrow(new UnauthorizedException("meh"));
         Response response = CUT.getUuids("someCookie", "someToken", 1);
         assertEquals(401, response.getStatus());
     }
 
     @Test
     public void getUuids_technicalException() {
-        when(facade.getUuids(any(Auth.class), anyInt())).thenThrow(new TechnicalException("Connection refused"));
+        when(facade.getAndSaveUuids(any(Auth.class), anyInt())).thenThrow(new TechnicalException("Connection refused"));
         Response response = CUT.getUuids("someCookie", "someToken", 1);
         assertEquals(500, response.getStatus());
     }
@@ -58,7 +58,7 @@ public class UuidsTest {
 
     @Test
     public void getUuids_businessException() {
-        when(facade.getUuids(any(Auth.class), anyInt())).thenThrow(new BusinessException(SessionsType.UNEXPECTED, "Bandwidth Limit Exceeded"));
+        when(facade.getAndSaveUuids(any(Auth.class), anyInt())).thenThrow(new BusinessException(SessionsType.UNEXPECTED, "Bandwidth Limit Exceeded"));
         Response response = CUT.getUuids("someCookie", "someToken", 1);
         assertEquals(500, response.getStatus());
     }
@@ -67,7 +67,7 @@ public class UuidsTest {
     public void getUuids() {
         UuidsResult result = new UuidsResult();
         result.setStatus(Status.OK);
-        when(facade.getUuids(any(Auth.class), anyInt())).thenReturn(result);
+        when(facade.getAndSaveUuids(any(Auth.class), anyInt())).thenReturn(result);
         Response response = CUT.getUuids("someCookie", "someToken", 1);
         assertEquals(result, response.getEntity());
     }

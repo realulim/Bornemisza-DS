@@ -1,5 +1,6 @@
 package de.bornemisza.sessions.da;
 
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 
 import org.javalite.http.Get;
+import org.javalite.http.Http;
 import org.javalite.http.HttpException;
 import org.javalite.http.Post;
 
@@ -51,8 +53,14 @@ public class UuidsService {
         this.hashProvider = new DbAdminPasswordBasedHashProvider(lbConfig);
     }
 
-    public UuidsResult getUuids(int count) throws BusinessException, TechnicalException {
-        Get get = couchPool.getConnection().getHttp().get("_uuids?count=" + count, 100, 1000);
+    public AbstractMap.SimpleEntry<Http, UuidsResult> getUuids(int count) throws BusinessException, TechnicalException {
+        Http http = couchPool.getConnection().getHttp();
+        UuidsResult result = getUuids(http, count);
+        return new AbstractMap.SimpleEntry<>(http, result);
+    }
+
+    public UuidsResult getUuids(Http http, int count) throws BusinessException, TechnicalException {
+        Get get = http.get("_uuids?count=" + count, 100, 1000);
         try {
             int responseCode = get.responseCode();
             if (responseCode != 200) {
@@ -70,7 +78,12 @@ public class UuidsService {
     }
 
     public RestResult saveUuids(Auth auth, String userDatabase, Uuid uuidDocument) throws UnauthorizedException, BusinessException, TechnicalException {
-        Post post = couchPool.getConnection().getHttp().post(userDatabase, Json.toJson(uuidDocument))
+        Http http = couchPool.getConnection().getHttp();
+        return saveUuids(http, auth, userDatabase, uuidDocument);
+    }
+
+    public RestResult saveUuids(Http http, Auth auth, String userDatabase, Uuid uuidDocument) throws UnauthorizedException, BusinessException, TechnicalException {
+        Post post = http.post(userDatabase, Json.toJson(uuidDocument))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.COOKIE, auth.getCookie());
         try {

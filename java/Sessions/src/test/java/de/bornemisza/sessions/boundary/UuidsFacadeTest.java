@@ -1,6 +1,7 @@
 package de.bornemisza.sessions.boundary;
 
 import java.net.InetSocketAddress;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import com.hazelcast.core.Cluster;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Member;
 
+import org.javalite.http.Http;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -120,7 +122,7 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids_noCookie() {
         try {
-            CUT.getUuids(new Auth(new DoubleSubmitToken("", "")), 3);
+            CUT.getAndSaveUuids(new Auth(new DoubleSubmitToken("", "")), 3);
             fail();
         }
         catch (UnauthorizedException e) {
@@ -131,7 +133,7 @@ public class UuidsFacadeTest {
     @Test
     public void getUuids_hashMismatch() {
         try {
-            CUT.getUuids(new Auth(new DoubleSubmitToken(cookie, "this-is-not-a-jwt")), 1);
+            CUT.getAndSaveUuids(new Auth(new DoubleSubmitToken(cookie, "this-is-not-a-jwt")), 1);
             fail();
         }
         catch (UnauthorizedException e) {
@@ -146,11 +148,11 @@ public class UuidsFacadeTest {
         UuidsResult dbResult = new UuidsResult();
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5");
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737009adb" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(new AbstractMap.SimpleEntry<>(mock(Http.class), dbResult));
+        when(uuidsService.saveUuids(any(Http.class), any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
-        UuidsResult facadeResult = CUT.getUuids(auth, 1);
+        UuidsResult facadeResult = CUT.getAndSaveUuids(auth, 1);
         assertEquals(200, facadeResult.getStatus().getStatusCode());
         assertEquals(dbResult.getUuids(), facadeResult.getUuids());
         assertEquals("Black", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // second color
@@ -163,20 +165,20 @@ public class UuidsFacadeTest {
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb" }));
         String setCookie = "newCookie";
         dbResult.addHeader(HttpHeaders.SET_COOKIE, setCookie);
-        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(new AbstractMap.SimpleEntry<>(mock(Http.class), dbResult));
+        when(uuidsService.saveUuids(any(Http.class), any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
-        UuidsResult facadeResult = CUT.getUuids(auth, 3);
+        UuidsResult facadeResult = CUT.getAndSaveUuids(auth, 3);
         assertEquals(200, facadeResult.getStatus().getStatusCode());
         assertEquals(dbResult.getUuids(), facadeResult.getUuids());
         assertEquals("Gold", facadeResult.getFirstHeaderValue(HttpHeaders.APPSERVER)); // third color
         assertEquals("Crimson", facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER)); // second color
         assertEquals(setCookie, facadeResult.getFirstHeaderValue(HttpHeaders.SET_COOKIE));
 
-        verify(uuidsService).saveUuids(any(Auth.class), anyString(), any(Uuid.class));
+        verify(uuidsService).saveUuids(any(Http.class), any(Auth.class), anyString(), any(Uuid.class));
 
         dbResult.getHeaders().remove(HttpHeaders.SET_COOKIE);
-        facadeResult = CUT.getUuids(auth, 3);
+        facadeResult = CUT.getAndSaveUuids(auth, 3);
         assertNull(facadeResult.getFirstHeaderValue(HttpHeaders.SET_COOKIE));
     }
 
@@ -186,8 +188,8 @@ public class UuidsFacadeTest {
         dbResult.addHeader(HttpHeaders.BACKEND, "192.168.0.5"); // last color
         dbResult.setUuids(Arrays.asList(new String[] { "6f4f195712bd76a67b2cba6737007f44", "6f4f195712bd76a67b2cba6737008c8a", "6f4f195712bd76a67b2cba6737009adb",
                                                           "6f4f195712bd76a67b2cba6737010334", "6f4f195712bd76a67b2cba6737aa037b", "6f4f195712bd76a67b2cba67478df2ac" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(new AbstractMap.SimpleEntry<>(mock(Http.class), dbResult));
+        when(uuidsService.saveUuids(any(Http.class), any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
         Set<Member> members = createMembers(6);
         Cluster cluster = createCluster(members, "db6.domain.de"); // sixth AppServer
@@ -196,7 +198,7 @@ public class UuidsFacadeTest {
         when(lbConfig.getPassword()).thenReturn(password.toCharArray());
         CUT = new UuidsFacade(uuidsService, pool, hazelcast, dnsResolver, lbConfig);
 
-        UuidsResult facadeResult = CUT.getUuids(auth, 6);
+        UuidsResult facadeResult = CUT.getAndSaveUuids(auth, 6);
         assertEquals(200, facadeResult.getStatus().getStatusCode());
         assertEquals(dbResult.getUuids(), facadeResult.getUuids());
         assertEquals("Black", facadeResult.getFirstHeaderValue(HttpHeaders.APPSERVER)); // default color
@@ -207,18 +209,18 @@ public class UuidsFacadeTest {
     public void getUuids_moreDbServersThanColors() {
         UuidsResult dbResult = new UuidsResult();
         dbResult.setUuids(Arrays.asList(new String[] { "c8fedfee503b1de6d52e3a52e10be656" }));
-        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        when(uuidsService.saveUuids(any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
+        when(uuidsService.getUuids(anyInt())).thenReturn(new AbstractMap.SimpleEntry<>(mock(Http.class), dbResult));
+        when(uuidsService.saveUuids(any(Http.class), any(Auth.class), anyString(), any(Uuid.class))).thenReturn(dbResult);
 
         for (int j = 1; j <= JAXRSConfiguration.COLORS.size(); j++) {
             dbResult = createUuidsResult(j);
-            when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-            UuidsResult facadeResult = CUT.getUuids(auth, 1);
+            when(uuidsService.getUuids(anyInt())).thenReturn(new AbstractMap.SimpleEntry<>(mock(Http.class), dbResult));
+            UuidsResult facadeResult = CUT.getAndSaveUuids(auth, 1);
             assertEquals(JAXRSConfiguration.COLORS.get(j - 1), facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
         }
         dbResult = createUuidsResult(6); // overflow
-        when(uuidsService.getUuids(anyInt())).thenReturn(dbResult);
-        UuidsResult facadeResult = CUT.getUuids(auth, 1);
+        when(uuidsService.getUuids(anyInt())).thenReturn(new AbstractMap.SimpleEntry<>(mock(Http.class), dbResult));
+        UuidsResult facadeResult = CUT.getAndSaveUuids(auth, 1);
         assertEquals(JAXRSConfiguration.DEFAULT_COLOR, facadeResult.getFirstHeaderValue(HttpHeaders.DBSERVER));
     }
 

@@ -1,6 +1,7 @@
 package de.bornemisza.sessions.boundary;
 
 import java.time.LocalDate;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,6 +21,8 @@ import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberAttributeEvent;
 import com.hazelcast.core.MembershipEvent;
 import com.hazelcast.core.MembershipListener;
+
+import org.javalite.http.Http;
 
 import de.bornemisza.loadbalancer.LoadBalancerConfig;
 import de.bornemisza.rest.HttpHeaders;
@@ -84,9 +87,10 @@ public class UuidsFacade {
         });
     }
 
-    public UuidsResult getUuids(Auth auth, int count) throws UnauthorizedException, BusinessException, TechnicalException {
+    public UuidsResult getAndSaveUuids(Auth auth, int count) throws UnauthorizedException, BusinessException, TechnicalException {
         String userName = auth.checkTokenValidity(hashProvider);
-        UuidsResult uuidsResult = uuidsService.getUuids(count);
+        AbstractMap.SimpleEntry<Http, UuidsResult> result = uuidsService.getUuids(count);
+        UuidsResult uuidsResult = result.getValue();
 
         String appColor = JAXRSConfiguration.MY_COLOR;
         String dbColor = getDbServerColor(uuidsResult.getFirstHeaderValue(HttpHeaders.BACKEND));
@@ -99,7 +103,7 @@ public class UuidsFacade {
         uuidsResult.addHeader(HttpHeaders.APPSERVER, appColor);
         uuidsResult.addHeader(HttpHeaders.DBSERVER, dbColor);
         uuidsResult.setStatus(Status.OK);
-        String newCookie = uuidsService.saveUuids(auth, User.db(userName), uuidDocument).getNewCookie();        
+        String newCookie = uuidsService.saveUuids(result.getKey(), auth, User.db(userName), uuidDocument).getNewCookie();        
         if (newCookie != null) uuidsResult.addHeader(HttpHeaders.SET_COOKIE, newCookie);
         return uuidsResult;
     }
