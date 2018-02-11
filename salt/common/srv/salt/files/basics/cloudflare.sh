@@ -16,7 +16,7 @@ function cmd() {
 
 function get-zoneid() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local DOMAIN=$4
-	cmd GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|select(.name=="$DOMAIN")|.id' | tr -d "\""
+	cmd GET "$CFAPI" $CFEMAIL $CFKEY | jq '.result|.[]|select(.name=="'$DOMAIN'")|.id' | tr -d "\""
 }
 
 function get-SRV-targets-for-service() {
