@@ -68,15 +68,17 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - Cloud Provider must support CentOS (most do)
 - public IP and private IP on seperate network devices (e. g. Vultr, UpCloud, DigitalOcean, but not Linode, Scaleway, VirMach)
 - one floating IP (e. g. Vultr, DigitalOcean) as a fixed entrypoint
-- DNS Provider supported by acme.sh (e. g. free Cloudflare account)
+- a Cloudflare account (free plan works fine)
 - a domain as an anchor for the SSL certificates
+- nameservers for domain must delegate to the Cloudflare nameservers associated with your Cloudflare account
 
 ## Installation
 - clone repository and edit the user-definable settings in salt/common/config.sh
 - create cloud server according to the above requirements
 - log in to cloud server and `wget https://raw.githubusercontent.com/yourgithubname/Bornemisza/master/salt/bootstrap.sh`
 - `./bootstrap.sh app` for installing an app node and `./bootstrap.sh db` for installing a db node
+- follow on-screen instructions
+- once you installed at least one app node and one db node: `https://www.yourdomain.com`
 
-```
-more detailed documentation to follow
-```
+## Troubleshooting
+- SSL certificate isn't acquired from Letsencrypt due to timeout (Salt state fails): run salt again via `salt-call -l info state.highstate` - it will work the second time
