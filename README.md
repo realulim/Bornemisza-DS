@@ -74,7 +74,8 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 ## Installation
 - clone repository and edit the user-definable settings in salt/common/config.sh
 - create cloud server according to the above requirements
-- log in to cloud server and `wget https://raw.githubusercontent.com/yourgithubname/Bornemisza/master/salt/bootstrap.sh` 
+- log in to cloud server and `wget https://raw.githubusercontent.com/yourgithubname/Bornemisza/master/salt/bootstrap.sh`
+- `./bootstrap.sh app` for installing an app node and `./bootstrap.sh db` for installing a db node
 
 ```
 more detailed documentation to follow
