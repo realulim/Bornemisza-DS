@@ -81,5 +81,5 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - once you installed at least one app node and one db node: `https://www.yourdomain.com`
 
 ## Troubleshooting
-# this is a self-healing system, so many problems will disappear after 15 minutes, when Salt runs again (it is started every 15 minutes via crontab) or whenever Salt is run manually via `salt-call -l info state.highstate`
+#### this is a self-healing system, so many problems will disappear after 15 minutes, when Salt runs again (it is started every 15 minutes via crontab) or whenever Salt is run manually via `salt-call -l info state.highstate`
 - SSL certificate isn't acquired from Letsencrypt due to timeout (Salt state fails): self-healing
