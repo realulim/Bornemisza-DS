@@ -81,4 +81,4 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - once you installed at least one app node and one db node: `https://www.yourdomain.com`
 
 ## Troubleshooting
-- SSL certificate isn't acquired from Letsencrypt due to timeout (Salt state fails): run salt again via `salt-call -l info state.highstate` - it will work the second time
+- SSL certificate isn't acquired from Letsencrypt due to timeout (Salt state fails): run salt again manually via `salt-call -l info state.highstate` or wait 15 minutes for Salt to start automatically via crontab
