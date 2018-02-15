@@ -83,3 +83,4 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 ## Troubleshooting
 ##### This is a self-healing system, so many problems will disappear after 15 minutes, when Salt runs again (it is started every 15 minutes via crontab) or whenever Salt is run manually via `salt-call -l info state.highstate`.
 - SSL certificate isn't acquired from Letsencrypt due to timeout: self-healing
+- The very first installation of the very first app or db node fails, because there are no SRV records in the DNS yet and thus an invalid haproxy.cfg file is generated: self-healing
