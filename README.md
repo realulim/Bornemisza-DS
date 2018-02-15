@@ -24,10 +24,10 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 #### 3. Affordability
 - a small production system could have three app nodes and three db nodes, thus keeping the monthly cost well below $50
 - for learning or development purposes it is, of course, also possible to work with one node each
-- don't be afraid to skimp here
+- let's not be afraid to skimp here
 
 #### 4. Security
-- be **very** afraid to skimp here
+- let's be **very** afraid to skimp here
 
 ## Technology Stack
 
