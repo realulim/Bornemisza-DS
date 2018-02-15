@@ -71,6 +71,11 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - DNS Provider supported by acme.sh (e. g. free Cloudflare account)
 - a domain as an anchor for the SSL certificates
 
+## Installation
+- clone repository and edit the user-definable settings in salt/common/config.sh
+- create cloud server according to the above requirements
+- log in to cloud server and `wget https://raw.githubusercontent.com/yourgithubname/Bornemisza/master/salt/bootstrap.sh` 
+
 ```
 more detailed documentation to follow
 ```
