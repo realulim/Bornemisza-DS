@@ -1,5 +1,5 @@
 # Bornemisza
-This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5-$10 variety.
+This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5 variety.
 It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on. Theoretically it should run on any IAAS offering CentOS images, but in practice there are limitations due to the way the cloud providers set up their data centers (see below for detailed requirements).
 
 The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. It gets deployed as part of a larger entity and has no life of its own. Currently a system consists of two types of entities: application nodes and database nodes. Those are the smallest deployment units and contain all the infrastructure necessary to discover and connect to each other.
