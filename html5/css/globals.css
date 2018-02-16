@@ -2,6 +2,7 @@
   --lightslate: #BCC6CC;
   --mediumslate: #99AABB;
   --darkslate: slategrey;
+  --verydarkslate: darkslategrey;
   --purple: #8C19B3;
   --msgbad: darkred;
   --msggood: dodgerblue;
@@ -44,7 +45,7 @@ a:hover {
 }
 
 .is-engraved {
-  text-shadow: 1px 1px 1px #fff, 0 0 1px rgba(0,0,0,0.6);
+  text-shadow: 1px 1px 1px #fff, 0 0 6px rgba(0,0,0,0.6);
 }
 
 /* Shake Animation */
