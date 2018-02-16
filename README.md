@@ -1,5 +1,5 @@
 # Bornemisza
-This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5-$10 variety.
+This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5 variety.
 It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on. Theoretically it should run on any IAAS offering CentOS images, but in practice there are limitations due to the way the cloud providers set up their data centers (see below for detailed requirements).
 
 The main difference to most other distributed system architectures is that infrastructure is not a first-class citizen. It gets deployed as part of a larger entity and has no life of its own. Currently a system consists of two types of entities: application nodes and database nodes. Those are the smallest deployment units and contain all the infrastructure necessary to discover and connect to each other.
@@ -24,10 +24,10 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 #### 3. Affordability
 - a small production system could have three app nodes and three db nodes, thus keeping the monthly cost well below $50
 - for learning or development purposes it is, of course, also possible to work with one node each
-- don't be afraid to skimp here
+- let's not be afraid to skimp here
 
 #### 4. Security
-- be **very** afraid to skimp here
+- let's be **very** afraid to skimp here
 
 ## Technology Stack
 
@@ -68,9 +68,19 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - Cloud Provider must support CentOS (most do)
 - public IP and private IP on seperate network devices (e. g. Vultr, UpCloud, DigitalOcean, but not Linode, Scaleway, VirMach)
 - one floating IP (e. g. Vultr, DigitalOcean) as a fixed entrypoint
-- DNS Provider supported by acme.sh (e. g. free Cloudflare account)
+- a Cloudflare account (free plan works fine)
 - a domain as an anchor for the SSL certificates
+- nameservers for domain must delegate to the Cloudflare nameservers associated with your Cloudflare account
 
-```
-more detailed documentation to follow
-```
+## Installation
+- clone repository and edit the user-definable settings in salt/common/config.sh
+- create cloud server according to the above requirements
+- log in to cloud server and `wget https://raw.githubusercontent.com/yourgithubname/Bornemisza/master/salt/bootstrap.sh`
+- `./bootstrap.sh app` for installing an app node and `./bootstrap.sh db` for installing a db node
+- follow on-screen instructions
+- once you installed at least one app node and one db node: `https://www.yourdomain.com`
+
+## Troubleshooting
+##### This is a self-healing system, so many problems will disappear after 15 minutes, when Salt runs again (it is started every 15 minutes via crontab) or whenever Salt is run manually via `salt-call -l info state.highstate`. This applies especially to timing issues, which are unavoidable in any distributed system, but can often be solved with a retry strategy:
+- SSL certificate isn't acquired from Letsencrypt due to a timeout: self-healing
+- The very first installation of the very first app or db node fails, because there are no SRV records in the DNS yet and thus an invalid haproxy.cfg file is generated: self-healing
