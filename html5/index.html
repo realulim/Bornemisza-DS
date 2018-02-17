@@ -67,10 +67,6 @@
             riot.mount(document.getElementById("slot3"), "server-chart", {title: "Database Servers", event: UPDATE_DBSERVERS_CHART, chartid: "dbChart"})
         })
         console.log("Router running...")
-        self.observable.trigger(SHOW_BARON_MESSAGE, {
-                            title: "Welcome Fazil Ongudar!",
-                            buttonText: "Very well"
-                        })
 
         this.observable.on(AUTH_SUCCESS, function (opts) {
             sessionStorage.setItem("user", opts.user)
