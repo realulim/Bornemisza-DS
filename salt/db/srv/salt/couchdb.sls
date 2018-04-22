@@ -173,6 +173,7 @@ create-database-{{ db }}:
     - user: root
     - group: root
     - mode: 744
+    - template: jinja
 
 create-or-update-design-doc-User:
   cmd.run:
