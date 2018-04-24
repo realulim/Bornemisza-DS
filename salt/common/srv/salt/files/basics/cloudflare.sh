@@ -21,37 +21,37 @@ function get-zoneid() {
 
 function get-SRV-targets-for-service() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local SERVICENAME=$5
-	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	cmd GET "$CFAPI/$CFZONEID/dns_records?type=SRV" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'")|.data.target'
 }
 
 function exists-SRV-target-for-service() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local SERVICENAME=$5; local TARGET=$6
-	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	cmd GET "$CFAPI/$CFZONEID/dns_records?type=SRV" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .name=="'$SERVICENAME'" and .data.target=="'$TARGET'")|""'
 }
 
 function get-recordid-for() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local TYPE=$5; local NAME=$6
-	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	cmd GET "$CFAPI/$CFZONEID/dns_records?per_page=100" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="'$TYPE'" and .name=="'$NAME'")|.id'
 }
 
 function get-SRV-recordid-for() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5
-	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	cmd GET "$CFAPI/$CFZONEID/dns_records?type=SRV" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="SRV" and .data.target=="'$NAME'")|.id'
 }
 
 function host-has-this-A-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5; local CONTENT=$6
-	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	cmd GET "$CFAPI/$CFZONEID/dns_records?type=A" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="A" and .name=="'$NAME'" and .content=="'$CONTENT'")'
 }
 
 function host-has-other-A-record() {
 	local CFAPI=$1; local CFEMAIL=$2; local CFKEY=$3; local CFZONEID=$4; local NAME=$5; local CONTENT=$6
-	cmd GET "$CFAPI/$CFZONEID/dns_records" $CFEMAIL $CFKEY | \
+	cmd GET "$CFAPI/$CFZONEID/dns_records?type=A" $CFEMAIL $CFKEY | \
 	jq -re '.result|.[]|select(.type=="A" and .name=="'$NAME'" and .content!="'$CONTENT'")'
 }
 
