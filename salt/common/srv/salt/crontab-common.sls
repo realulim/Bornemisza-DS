@@ -1,5 +1,4 @@
 {%- set OFFSET=pillar['nodenumber'] -%}
-{%- set RANDOM=shuf -i0-59 -n1 -%}
 
 /opt/scripts/checkForDeletedSrvRecords.sh:
   file.managed:
