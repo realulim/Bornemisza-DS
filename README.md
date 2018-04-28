@@ -14,7 +14,7 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - load distribution is adjusted when cluster membership changes
 - no single point of failure
 - all nodes are self-sufficient, no central service needed at runtime
-- management decentralised as well
+- decentralised management
 
 #### 2. Composability
 - create the system from small and well-understood components
@@ -24,16 +24,15 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 #### 3. Affordability
 - a small production system could have three app nodes and three db nodes, thus keeping the monthly cost well below $50
 - for learning or development purposes it is, of course, also possible to work with one node each
-- let's not be afraid to skimp here
 
 #### 4. Security
-- let's be **very** afraid to skimp here
+- distributed systems and single page applications require security measures over and above the normal enterprise standard
 
 ## Technology Stack
 
 #### Business Logic: Payara
 - runs Java-based microservices
-- is clustered via Hazelcast over a private network
+- is clustered via Hazelcast over a private network (TODO: replace with Open Source technology that supports TLS)
 - does client-side load balancing in front of db cluster
 
 #### Persistence: CouchDB
@@ -42,19 +41,19 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 - is clustered via Erlang over a private network
 
 #### Frontend: single page application
-- lean approach for pin-pointed functionality: Riot.js framework, Grapnel router and qwest XHR2 engine (38 KB total)
+- lean approach for pin-pointed functionality: Riot.js framework, Grapnel router and qwest XHR2 engine (<40 KB total)
 - is fully responsible for the UI, only talks to the backend for data and business logic
 - self-service user registration with email confirmation
 
 #### Edge Server: HAProxy
-- terminates SSL in front of the private networks
-- load balancing of frontend and Payara cluster
+- terminates TLS in front of the private networks
+- load balancing for frontend and app cluster, failover for db cluster
 
 #### High Availability: Bird, Monit
 - nodes are monitored and taken in and out of service on the routing or application layer
 
 #### Security: acme.sh, ufw
-- nodes automatically create and manage SSL certificates from Letsencrypt
+- nodes automatically create and manage TLS certificates from Letsencrypt
 - Firewall blocks everything except white-listed traffic
 
 ## Provisioning
@@ -82,5 +81,5 @@ The backend is comprised of two clusters: an app cluster that bundles the availa
 
 ## Troubleshooting
 ##### This is a self-healing system, so many problems will disappear after 15 minutes, when Salt runs again (it is started every 15 minutes via crontab) or whenever Salt is run manually via `salt-call -l info state.highstate`. This applies especially to timing issues, which are unavoidable in any distributed system, but can often be solved with a retry strategy:
-- SSL certificate isn't acquired from Letsencrypt due to a timeout: self-healing
+- TLS certificate isn't acquired from Letsencrypt on first try: self-healing
 - The very first installation of the very first app or db node fails, because there are no SRV records in the DNS yet and thus an invalid haproxy.cfg file is generated: self-healing
