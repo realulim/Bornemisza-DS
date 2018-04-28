@@ -1,4 +1,5 @@
 {%- set OFFSET=pillar['nodenumber'] -%}
+{%- set RANDOM=shuf -i0-59 -n1 -%}
 
 /opt/scripts/checkForDeletedSrvRecords.sh:
   file.managed:
@@ -20,5 +21,5 @@
 /usr/bin/bash -c '/root/.acme.sh/acme.sh --cron --home /root/.acme.sh':
   cron.present:
     - user: root
-    - minute: '{{ OFFSET + 1 }}'
+    - minute: random
     - hour: 0
