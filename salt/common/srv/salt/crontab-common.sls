@@ -17,7 +17,7 @@
     - minute: '{{ OFFSET - 1 }}-59/15'
     - hour: '*'
 
-/usr/bin/bash -c '/root/.acme.sh/acme.sh --cron --home /root/.acme.sh':
+/usr/bin/bash -c '/root/.acme.sh/acme.sh --cron --home /root/.acme.sh > /dev/null':
   cron.present:
     - user: root
     - minute: random
