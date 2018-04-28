@@ -11,7 +11,7 @@ download-acme.sh-client:
 
 install-acme-client:
   cmd.run:
-    - name: bash -c 'cd /opt/acme.sh && ./acme.sh --install'
+    - name: bash -c 'cd /opt/acme.sh && ./acme.sh --install && ./acme.sh --uninstallcronjob'
     - onchanges:
       - download-acme.sh-client
 
