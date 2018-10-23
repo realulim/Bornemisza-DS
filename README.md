@@ -1,4 +1,4 @@
-# Bornemisza
+# Bornemisza-DS
 This is a cloud-based distributed system that self-installs onto standard CentOS VMs of the $5 variety.
 It provides a generic template for starting a web-based business on the cheap and seamlessly progressing to web scale later on. Theoretically it should run on any IAAS offering CentOS images, but in practice there are limitations due to the way the cloud providers set up their data centers (see below for detailed requirements).
 
